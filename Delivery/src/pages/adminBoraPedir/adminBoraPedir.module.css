@@ -6,9 +6,9 @@
     display: flex;
 
     width: 100%;
-    min-height: 100vh;
+    min-height: calc(100vh - 60px);
 
-    background-color: #030405;
+    background-color: #e8edf1;
 }
 
 
@@ -16,15 +16,16 @@
    SIDEBAR
 ========================= */
 
+/*Barra Lateral */
 .sidebar {
     width: 250px;
-    min-height: 100vh;
+    min-height: calc(100vh - 60px);
 
     flex-shrink: 0;
 
-    background-color: #000000;
+    background-color: #a79191;
 
-    border-right: 1px solid #070707;
+    border-right: 1px solid #222222;
 
     padding: 10px;
 
@@ -88,7 +89,7 @@
 
     background: transparent;
 
-    color: #d6d6d6;
+    color: #fff4f4;
 
     font-size: 13px;
     font-weight: 500;
@@ -106,7 +107,7 @@
 
 
 /* =========================
-   TEXTO DO MENU
+   TEXTO
 ========================= */
 
 .menuItem span {
@@ -125,9 +126,9 @@
 ========================= */
 
 .menuItem:hover {
-    background-color: #17191b;
+    background-color: #e7d8d8;
 
-    color: #ffffff;
+    color: #111010;
 }
 
 
@@ -136,7 +137,7 @@
 ========================= */
 
 .menuItem.active {
-    background-color: #242729;
+    background-color: #333333;
 
     color: #ffffff;
 
@@ -152,12 +153,11 @@
     flex: 1;
 
     min-width: 0;
-
-    min-height: 100vh;
+    min-height: calc(100vh - 60px);
 
     padding: 20px;
 
-    background-color: #030405;
+    background-color: #f5bcbc;
 
     box-sizing: border-box;
 }

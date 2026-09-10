@@ -1,12 +1,15 @@
+import { useState } from 'react';
+
 import { HeaderAdmin } from '../../components/HeaderAdmin/headerAdmin';
+import { InicioAdmin } from '../../componentes_admin/inicio/inicioAdmin';
+import { ComerciosAdmin } from '../../componentes_admin/comercios/comercioAdmin';
+import { ComercioDados } from '../../componentes_admin/dados_sistema/comercioDados/comercioDados';
 
-import styles from './AdminBoraPedir.module.css';
+import styles from './adminBoraPedir.module.css';
 
-type AdminBoraPedirProps = {
-  children?: React.ReactNode;
-};
+export function AdminBoraPedir() {
 
-export function AdminBoraPedir({ children }: AdminBoraPedirProps) {
+  const [telaAtual, setTelaAtual] = useState('inicio');
 
   return (
     <>
@@ -16,9 +19,17 @@ export function AdminBoraPedir({ children }: AdminBoraPedirProps) {
 
         <aside className={styles.sidebar}>
 
-          <button className={styles.menuItem}>
+          {/* INÍCIO */}
+
+          <button
+            className={styles.menuItem}
+            onClick={() => setTelaAtual('inicio')}
+          >
             <span>Início</span>
           </button>
+
+
+          {/* ANÁLISE CADASTRAL */}
 
           <div className={styles.category}>
 
@@ -26,15 +37,52 @@ export function AdminBoraPedir({ children }: AdminBoraPedirProps) {
               Análise Cadastral
             </div>
 
-            <button className={styles.menuItem}>
+            <button
+              className={styles.menuItem}
+              onClick={() => setTelaAtual('comercios')}
+            >
               <span>Comércios</span>
             </button>
 
-            <button className={styles.menuItem}>
+            <button
+              className={styles.menuItem}
+              onClick={() => setTelaAtual('entregadores')}
+            >
               <span>Entregadores</span>
             </button>
 
           </div>
+
+
+          {/* Dados do Sistema */}
+
+          {/* Tem que colocar no button onde vai , alem de declarar a rota
+          tem um texto que equivale aquela parte exemplo admin 'cadastro admin' */}
+
+          <div className={styles.category}>
+
+            <div className={styles.categoryTitle}>
+              Dados do Sistema
+            </div>
+
+            <button
+              className={styles.menuItem}
+              onClick={() => setTelaAtual('Dados de Comércios')}
+            >
+              <span>Dados de Comércios</span>
+            </button>
+
+            <button
+              className={styles.menuItem}
+              onClick={() => setTelaAtual('entregadores')}
+            >
+              <span>Dados de Comércios Entregadores</span>
+            </button>
+
+          </div>
+
+
+          {/* SUPORTE */}
 
           <div className={styles.category}>
 
@@ -42,20 +90,57 @@ export function AdminBoraPedir({ children }: AdminBoraPedirProps) {
               Suporte
             </div>
 
-            <button className={styles.menuItem}>
+            <button
+              className={styles.menuItem}
+              onClick={() => setTelaAtual('abertas')}
+            >
               <span>Solicitações em Aberto</span>
             </button>
 
-            <button className={styles.menuItem}>
+            <button
+              className={styles.menuItem}
+              onClick={() => setTelaAtual('encerradas')}
+            >
               <span>Solicitações Encerradas</span>
             </button>
 
           </div>
 
+
+
+          
+
         </aside>
 
+
+        {/* CONTEÚDO */}
+
+        {/*AQUI é a Rotas Das Pages Internas */}
+
         <main className={styles.content}>
-          {children}
+
+          {telaAtual === 'inicio' && <InicioAdmin />}
+
+          {telaAtual === 'comercios' && (
+            <ComerciosAdmin />
+          )}
+
+          {telaAtual === 'Dados de Comércios' && (
+            <ComercioDados />
+          )}
+
+          {telaAtual === 'entregadores' && (
+            <h1>Entregadores</h1>
+          )}
+
+          {telaAtual === 'abertas' && (
+            <h1>Solicitações em Aberto</h1>
+          )}
+
+          {telaAtual === 'encerradas' && (
+            <h1>Solicitações Encerradas</h1>
+          )}
+
         </main>
 
       </div>

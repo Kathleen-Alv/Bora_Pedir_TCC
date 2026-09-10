@@ -8,6 +8,10 @@ import cors from 'cors';
 import cadastroEntregadorRoutes from './src/api/routes/cadastroEntregador.routes.js';
 import cadastroComercioRoutes from './src/api/routes/cadastroComercio.routes.js'; // CORRIGIDO: adicionado o '/' após o '.'
 
+
+import adminRoutes from './src/api/routes/adminRoutes.routes.js';
+
+
 // Inicializa uma instância da aplicação Express (o núcleo da sua API).
 const app = express();
 
@@ -33,6 +37,9 @@ app.use('/api/entregadores', cadastroEntregadorRoutes);
 
 // AJUSTADO: alterado para '/api/comercios' (no plural) para alinhar com o fetch do React e com a rota de entregadores
 app.use('/api/comercios', cadastroComercioRoutes);
+
+
+app.use('/api/admin', adminRoutes);
 
 // =========================
 // TESTE DA API
