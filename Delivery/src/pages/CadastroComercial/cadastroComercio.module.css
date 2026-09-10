@@ -1,0 +1,487 @@
+/* =========================
+   CONTAINER PRINCIPAL
+========================= */
+
+.pageWrapper {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; /* Força tudo a ficar em fila VERTICAL (um embaixo do outro) */
+    align-items: center;
+}
+
+
+
+.loginContainer {
+    width: 100%;
+    height: 650px;
+    display: flex;
+    background-color: aqua;
+    overflow: hidden;
+}
+
+
+/* =========================
+   PARTE ESQUERDA
+========================= */
+
+.loginContainerEsquerda {
+    width: 50%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    /* Centralização usando flexbox */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* =========================
+   IMAGEM DA COZINHEIRA
+========================= */
+
+.cozinheira {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1; /* Fica no fundo */
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+
+/* =========================
+   SAIBA MAIS SOBRE OS PLANOS
+========================= */
+
+.saibaMaisContainer {
+    width: 450px;
+    height: 250px;
+    margin-top: 280px;
+
+    /* Fundo preto ultra discreto (apenas 15% de escurecimento) */
+    background-color: rgba(0, 0, 0, 0.15);
+
+    /* Desfoque mínimo para manter a imagem limpa e visível ao fundo */
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+
+    /* Garante que a imagem respeite as bordas arredondadas */
+    overflow: hidden; 
+
+    /* Borda sutil com brilho branco suave nas pontas */
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
+    /* Posição relativa para os itens de dentro se alinharem */
+    position: relative;
+    z-index: 2;
+
+    /* Layout Interno */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    padding: 20px;
+
+    /* Estilização de Texto */
+    color: #ffffff;
+    /* Sombra forte no texto para ele não "sumir" sobre a imagem clara */
+    text-shadow: 0px 2px 6px rgba(0, 0, 0, 0.9);
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+.saibaMaisImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1; /* Fica atrás do conteúdo */
+    
+    /* Imagem 100% visível sem nenhum filtro escurecedor */
+    opacity: 1; 
+
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: transform 0.3s ease;
+}
+
+/* Efeito sutil ao passar o mouse */
+.saibaMaisContainer:hover {
+    background-color: rgba(10, 9, 9, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.saibaMaisContainer:hover .saibaMaisImg {
+    transform: scale(1.03); /* Leve aproximação da imagem ao passar o mouse */
+}
+
+
+
+
+
+@keyframes quicar {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(10px);
+    }
+}
+
+
+/* =========================
+   PARTE DIREITA
+========================= */
+
+.loginContainerDireita {
+    width: 50%;
+    height: 100%;
+    background-color: rgb(247, 247, 248);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   CAIXA DE LOGIN/CADASTRO
+========================= */
+
+.login {
+    width: 600px;
+    height: 550px;
+    background-color: bisque;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+
+/* =========================
+   TOPO DO LOGIN
+========================= */
+
+.loginTopo {
+    width: 100%;
+    height: 80px;
+    position: relative;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   IMAGEM DA LOJA
+========================= */
+
+.lojaIMG {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    position: absolute;
+    left: 20px;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+
+/* =========================
+   TÍTULO
+========================= */
+
+.loginTopo h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #141102;
+    text-align: center;
+}
+
+
+/* =========================
+   CONTEÚDO
+========================= */
+
+.loginConteudo {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background-color: rgb(240, 239, 238);
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+
+/* =========================
+   FORMULÁRIO
+========================= */
+
+.formCadastro {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+/* =========================
+   CAMPOS
+========================= */
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+
+/* =========================
+   LABEL
+========================= */
+
+.campo label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0c0000;
+}
+
+
+/* =========================
+   INPUT
+========================= */
+
+.campo input {
+    width: 100%;
+    height: 42px;
+    border: none;
+    border-bottom: 1px solid #999;
+    outline: none;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+
+/* =========================
+   INPUT FOCUS
+========================= */
+
+.campo input:focus {
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.15);
+}
+
+
+/* =========================
+   BOTÃO CADASTRAR / PRÓXIMO
+========================= */
+
+.botaoCadastrar {
+    width: 50%;
+    height: 45px;
+    margin-top: 10px;
+    align-self: center;
+    border: none;
+    border-radius: 8px;
+    background-color: #141102;
+    color: rgb(250, 250, 248);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+
+/* =========================
+   HOVER BOTÃO
+========================= */
+
+.botaoCadastrar:hover {
+    background-color: #e67e00;
+}
+
+
+/* =========================
+   AÇÕES
+========================= */
+
+.acoes {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 10px;
+}
+
+
+/* =========================
+   BOTÃO VOLTAR
+========================= */
+
+.botaoVoltar {
+    width: 20%;
+    height: 35px;
+    border: 1px solid #141102;
+    border-radius: 8px;
+    background-color: transparent;
+    color: #141102;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+
+/* =========================
+   HOVER VOLTAR
+========================= */
+
+.botaoVoltar:hover {
+    background-color: #ccc;
+}
+
+
+/* =========================
+   MENSAGEM DE SUCESSO
+========================= */
+
+.sucessoContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+
+/* =========================
+   TÍTULO DE SUCESSO
+========================= */
+
+.sucessoTitulo {
+    font-size: 32px;
+    font-weight: 700;
+    color: #141102;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+
+/* =========================
+   TEXTO DE SUCESSO
+========================= */
+
+.sucessoTexto {
+    font-size: 18px;
+    color: #333;
+    line-height: 1.5;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+
+/* =========================
+   SUBTEXTO
+========================= */
+
+.sucessoSubtexto {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+
+/* =========================
+   IMAGEM DO E-MAIL
+========================= */
+
+.emailImg {
+    width: 68px;
+    height: auto;
+    margin-top: 15px;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+
+/* =========================
+   ANIMAÇÃO
+========================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+
+.informacaoConteiner {
+    /* 1. Ocupação e Largura Independente */
+    width: 100%;
+    height: 500px;
+    
+ 
+
+    /* 2. Centralização e Espaçamento */
+    margin-top: 30px;
+
+
+
+    /* 3. Estilização Solicitada */
+    background-color: #f3e300;
+   
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+
+    
+   
+}
+
+

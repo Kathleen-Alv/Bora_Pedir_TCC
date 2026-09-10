@@ -1,0 +1,18 @@
+METAS:
+terminar o front visual dos cadastro
+terminar a page principal
+implementar o sistema de e-mail 
+Começar o DashBoard do portal gestão
+criar novas formas do personagem
+Fazer o Footer
+
+
+
+Diario
+09/09/2026
+Começo: 21:30
+Termino: 00:46
+
+terminei o backend de cadastro do entregador e comercio
+
+10/09/2026

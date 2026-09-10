@@ -1,0 +1,151 @@
+.conteinerSenha {
+  width: 100%;
+  height: 680px;
+  background-color: aqua;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.senha {
+  width: 100%;
+  max-width: 450px;
+  min-height: 380px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  padding: 40px 30px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.senha h2 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.descricao {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin: 0 0 25px 0;
+  line-height: 1.4;
+}
+
+/* Link para editar o e-mail */
+.btnEditarEmail {
+  background: none;
+  border: none;
+  color: #002ca3;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 4px;
+}
+
+/* Formulário e Campos */
+.formulario {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.campo {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.campo label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.campo input {
+  width: 100%;
+  height: 48px;
+  padding: 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+/* Quadrados OTP de 4 dígitos */
+.containerInputsOtp {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.inputQuadrado {
+  width: 55px;
+  height: 60px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inputQuadrado:focus {
+  border-color: #002ca3;
+  box-shadow: 0 0 5px rgba(0, 44, 163, 0.3);
+}
+
+/* Botão Principal */
+.botaoAvancar {
+  width: 100%;
+  height: 48px;
+  background-color: #002ca3;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.botaoAvancar:hover {
+  background-color: #002076;
+}
+
+/* Temporizador e Reenvio */
+.containerReenviar {
+  margin-top: 5px;
+}
+
+.textoTimer {
+  font-size: 14px;
+  color: #777;
+}
+
+.btnReenviarAtivo {
+  background: none;
+  border: none;
+  color: #002ca3;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}

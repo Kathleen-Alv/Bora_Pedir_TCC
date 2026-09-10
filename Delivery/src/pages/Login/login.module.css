@@ -1,0 +1,114 @@
+.containerLogin {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  background-color: aqua;
+}
+
+.banner {
+  width: 50%;
+  min-height: 100vh;
+  background-color: rgb(235, 234, 234);
+}
+
+.moduloLogin {
+  width: 50%;
+  min-height: 100vh;
+  border-left: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: aliceblue;
+}
+
+.login {
+  width: 550px;
+  /* Aumentei a altura para acomodar as labels e o link sem espremê-los */
+  min-height: 380px; 
+  background-color: rgb(71, 132, 185);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* --- ESTILO DAS LABELS E CAMPOS --- */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campo label {
+  color: rgb(10, 10, 10);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campo input {
+  width: 350px;
+  height: 45px;
+  padding: 0 15px;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+
+
+.acoesLogin {
+  width: 350px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.labelError {
+  font-size: 14px;
+  color: rgb(252, 247, 247);
+  background-color: red;
+
+  border: 1px solid rgb(0, 0, 0);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+
+.esqueciSenha {
+  color: white;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+
+
+
+.esqueciSenha:hover {
+  opacity: 0.8;               /* Efeito ao passar o mouse */
+}
+
+/* --- BOTÃO ENTRAR --- */
+.botaoEntrar {
+  width: 150px;
+  height: 45px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.botaoEntrar:hover {
+  background-color: #222;
+}

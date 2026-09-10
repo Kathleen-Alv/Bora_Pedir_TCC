@@ -1,0 +1,198 @@
+/* --- Suas regras existentes mantidas --- */
+.loginContainer {
+    width: 100%;
+    height: 650px;
+    background-color: aqua;
+    display: flex;
+}
+
+.loginContainerEsquerda {
+    width: 40%;
+    background-color: rgb(3, 58, 104);
+}
+
+.loginContainerDireita {
+    width: 60%;
+    height: 100%;
+    background-color: rgb(3, 58, 104);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login {
+    width: 600px;
+    height: 550px;
+    background-color: bisque;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.loginTopo {
+    height: 80px;
+    position: relative;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.capacete {
+    width: clamp(45px, 8vw, 80px);
+    height: clamp(25px, 5vw, 60px);
+    object-fit: cover;
+
+    position: absolute;
+    left: clamp(10px, 3vw, 30px);
+}
+
+.loginConteudo {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background-color: rgb(240, 239, 238);
+}
+
+.formCadastro {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0c0000;
+}
+
+.campo input {
+    width: 100%;
+    height: 42px;
+    border: none;
+    border-bottom: 1px solid #999;
+    outline: none;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.campo input:focus {
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.15);
+}
+
+.botaoCadastrar {
+    width: 50%;
+    height: 45px;
+    margin-top: 10px;
+    align-self: center;
+    border: none;
+    border-radius: 8px;
+    background-color: #141102;
+    color: rgb(250, 250, 248);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.botaoCadastrar:hover {
+    background-color: #e67e00;
+}
+
+/* --- Novas Regras Adicionadas para a Etapa 2 --- */
+.acoes {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start; /* Empurra os dois botões para a direita */
+    width: 100%;
+    margin-top: 10px;
+}
+
+.botaoVoltar {
+    width: 20%;
+    height: 25px;
+    border: 1px solid #141102;
+    border-radius: 8px;
+    background-color: transparent;
+    color: #141102;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+
+    align-self: flex-start; /* Força o botão a ir para a esquerda */
+}
+
+.botaoVoltar:hover {
+    background-color: #ccc;
+}
+
+
+
+/* --- TELA DE AGRADECIMENTO (ETAPA 3) --- */
+
+.sucessoContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.emailImg {
+  width: 68px;       /* Altere este valor para o tamanho desejado */
+  height: auto;      /* Mantém a proporção da imagem sem esticar */
+  margin-top: 15px;  /* Cria um espaçamento entre o texto e o ícone */
+  display: block;    /* Ajuda no alinhamento vertical */
+}
+
+.sucessoTitulo {
+    font-size: 40px;
+    font-weight: 700;
+    color: #141102;
+    margin-bottom: 15px;
+}
+
+.sucessoTexto {
+    font-size: 24px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.sucessoSubtexto {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Animação suave de entrada para a tela de agradecimento */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

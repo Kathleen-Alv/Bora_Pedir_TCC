@@ -1,0 +1,74 @@
+paara ter a api : 
+
+npm install express dotenv cors
+
+npm install mariadb
+
+npm install bcrypt
+npm install bcryptjs
+npm install uuid
+
+
+
+
+banco : 
+
+criar o banco bora_pedir_delivery
+
+-- 1. Tabela Base de Autenticação
+CREATE TABLE usuarios (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. Perfil de Entregador
+CREATE TABLE entregadores (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id BIGINT NOT NULL UNIQUE,
+    nome VARCHAR(150) NOT NULL,
+    cpf VARCHAR(11) NOT NULL UNIQUE,
+    cnh VARCHAR(11) NOT NULL UNIQUE,
+    data_nascimento DATE NOT NULL,
+    placa VARCHAR(7) NOT NULL,
+    situacao_cadastral ENUM('PENDENTE', 'APROVADO', 'SUSPENSO', 'INATIVO') NOT NULL DEFAULT 'PENDENTE',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Vínculo de chave estrangeira
+    CONSTRAINT fk_entregador_usuario FOREIGN KEY (usuario_id) 
+        REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+-- Tabela de Comércio (Simples para o Pré-Cadastro)
+CREATE TABLE comercios (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id BIGINT NOT NULL UNIQUE,
+    cnpj VARCHAR(14) NOT NULL UNIQUE,
+    telefone VARCHAR(15) NOT NULL,
+    situacao_cadastral ENUM('PENDENTE', 'APROVADO', 'SUSPENSO', 'INATIVO') NOT NULL DEFAULT 'PENDENTE',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Liga o comércio ao ID que foi gerado lá na tabela usuarios
+    CONSTRAINT fk_comercio_usuario FOREIGN KEY (usuario_id) 
+        REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+O server.js: é tipo o app.tsx , serve para colocar e organizar as rotas
+
+para definir a configuração do banco de dados : crie uma pasta separada  
+
+
+
+
+// Configuração de email e seu envios 
+
+npm install nodemailer dotenv
+
