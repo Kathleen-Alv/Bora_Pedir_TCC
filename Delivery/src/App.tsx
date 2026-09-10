@@ -10,7 +10,7 @@ import { CadastroEntregador } from './pages/CadastroEntregador/CadastroEntregado
 import { Login } from './pages/Login/login';
 import { PortalGestao } from './pages/PortalGestao/PortalGestao';
 import { EsqueciMinhaSenha } from './components/esqueciMinhaSenha/esqueciMinhaSenha';
-
+import { AdminBoraPedir } from './pages/adminBoraPedir/adminBoraPedir';
 
 export function App() {
   return (
@@ -45,6 +45,11 @@ export function App() {
         <Route
         path="/esqueciMinhaSenha"
         element={<EsqueciMinhaSenha/>}
+        />
+
+        <Route
+        path="/adminBoraPedir"
+        element={<AdminBoraPedir/>}
         />
 
 
