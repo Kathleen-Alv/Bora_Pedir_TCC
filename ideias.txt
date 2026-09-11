@@ -7,3 +7,36 @@ deixar ele barrigudinho
 
 Footer parecendo uma carta 
 estilo e um selo
+
+Fazer um Sistema de Foto para Entregador
+
+
+┌──────────────────────────────┐
+│      HISTÓRICO REJEIÇÕES     │
+│ decisões administrativas      │
+└──────────────────────────────┘
+
+
+
+
+Fazer a configuração do email de pendencia , se for cadastrado ou rejeita retorna .
+
+
+fazer a tela para completar o cadastro do comercio
+
+primeiro_acesso boolean = true ou completar = false
+
+┌──────────────────────────────┐
+│      primeiro_acesso = True  │        
+└──────────────────────────────┘
+                =
+┌──────────────────────────────┐
+│      Componente de cadastro  │
+└──────────────────────────────┘
+Para Motoboy Tambem exigindo Foto
+
+
+┌──────────────────────────────┐
+│     Eviar Notificações por
+  email, fazer um disparador   │
+└──────────────────────────────┘

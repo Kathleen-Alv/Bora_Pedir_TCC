@@ -1,6 +1,11 @@
 // Importa o framework Express, que facilita a criação de servidores HTTP e o gerenciamento de rotas/middlewares.
 import express from 'express';
 
+
+// Email Configuração
+import 'dotenv/config';
+
+
 // Importa o pacote CORS (Cross-Origin Resource Sharing), necessário para permitir que aplicações frontend em origens diferentes façam requisições para esta API.
 import cors from 'cors';
 
@@ -11,6 +16,7 @@ import cadastroComercioRoutes from './src/api/routes/cadastroComercio.routes.js'
 
 import adminRoutes from './src/api/routes/adminRoutes.routes.js';
 
+import emailRoutes from './src/api/routes/email.routes.js';
 
 // Inicializa uma instância da aplicação Express (o núcleo da sua API).
 const app = express();
@@ -40,6 +46,8 @@ app.use('/api/comercios', cadastroComercioRoutes);
 
 
 app.use('/api/admin', adminRoutes);
+
+app.use('/api/email', emailRoutes);
 
 
 // =========================

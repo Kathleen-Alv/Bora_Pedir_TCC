@@ -1,94 +1,303 @@
 import bcrypt from 'bcryptjs';
-import { db } from '../../configBancoDeDados/database.js'; 
+import { db } from '../../configBancoDeDados/database.js';
+import { enviarEmail } from '../../services/emailService.js';
+
+
+// ================================================================
+// CADASTRO DE COMÉRCIO
+// ================================================================
 
 export async function cadastroComercio(req, res) {
-    // 1. Recebe o nome do responsável junto com os dados do pré-cadastro
-    const { nome_responsavel, cnpj, telefone, email, senha } = req.body;
 
-    // Validação dos campos obrigatórios
-    if (!nome_responsavel || !cnpj || !telefone || !email || !senha) {
+    // ============================================================
+    // 1. RECEBE OS DADOS
+    // ============================================================
+
+    const {
+        nome_responsavel,
+        cnpj,
+        telefone,
+        email,
+        senha
+    } = req.body;
+
+
+    // ============================================================
+    // 2. VALIDAÇÃO DOS CAMPOS
+    // ============================================================
+
+    if (
+        !nome_responsavel ||
+        !cnpj ||
+        !telefone ||
+        !email ||
+        !senha
+    ) {
+
         return res.status(400).json({
-            message: 'Todos os campos são obrigatórios. Verifique o envio de: nome_responsavel, cnpj, telefone, email, senha'
+
+            message:
+                'Todos os campos são obrigatórios. Verifique o envio de: nome_responsavel, cnpj, telefone, email, senha'
+
         });
+
     }
+
 
     let conexao;
 
+
     try {
+
+        // ========================================================
+        // 3. ABRE CONEXÃO COM O BANCO
+        // ========================================================
+
         conexao = await db.getConnection();
+
         await conexao.beginTransaction();
 
-        // 2. Limpa o CNPJ (remove pontuações e traços)
-        const cnpjLimpo = cnpj.replace(/\D/g, ''); 
 
-        // Checa se o CNPJ já está cadastrado no sistema
+        // ========================================================
+        // 4. LIMPA O CNPJ
+        // ========================================================
+
+        const cnpjLimpo = cnpj.replace(/\D/g, '');
+
+
+        // ========================================================
+        // 5. VERIFICA SE O CNPJ JÁ EXISTE
+        // ========================================================
+
         const comercioExistente = await conexao.query(
+
             'SELECT id FROM comercios WHERE cnpj = ?',
+
             [cnpjLimpo]
+
         );
 
-        if (comercioExistente && comercioExistente.length > 0) {
+
+        if (
+            comercioExistente &&
+            comercioExistente.length > 0
+        ) {
+
             await conexao.rollback();
+
             return res.status(409).json({
-                message: 'Este CNPJ já está cadastrado no sistema.'
+
+                message:
+                    'Este CNPJ já está cadastrado no sistema.'
+
             });
+
         }
 
-        // 3. Checa se o e-mail já existe na tabela de usuários
+
+        // ========================================================
+        // 6. VERIFICA SE O E-MAIL JÁ EXISTE
+        // ========================================================
+
         let usuarioId;
+
+
         const usuariosExistentes = await conexao.query(
+
             'SELECT id FROM usuarios WHERE email = ?',
+
             [email]
+
         );
 
-        if (usuariosExistentes && usuariosExistentes.length > 0) {
+
+        // ========================================================
+        // 7. USUÁRIO JÁ EXISTE
+        // ========================================================
+
+        if (
+            usuariosExistentes &&
+            usuariosExistentes.length > 0
+        ) {
+
             usuarioId = usuariosExistentes[0].id;
 
-            // Se o usuário já existe, verifica se ele tem perfil de comércio
+
+            // ----------------------------------------------------
+            // Verifica se esse usuário já possui comércio
+            // ----------------------------------------------------
+
             const comercioDoUsuario = await conexao.query(
+
                 'SELECT id FROM comercios WHERE usuario_id = ?',
+
                 [usuarioId]
+
             );
 
-            if (comercioDoUsuario && comercioDoUsuario.length > 0) {
+
+            if (
+                comercioDoUsuario &&
+                comercioDoUsuario.length > 0
+            ) {
+
                 await conexao.rollback();
-                return res.status(409).json({
-                    message: 'Este e-mail já está vinculado a um comércio cadastrado.'
-                });
-            }
-        } else {
-            // Se o e-mail não existe, cria a nova conta em 'usuarios'
-            const senhaHash = await bcrypt.hash(senha, 10);
-            const resultadoUsuario = await conexao.query(
-                'INSERT INTO usuarios (email, senha_hash) VALUES (?, ?)',
-                [email, senhaHash]
-            );
 
-            usuarioId = resultadoUsuario.insertId; 
+                return res.status(409).json({
+
+                    message:
+                        'Este e-mail já está vinculado a um comércio cadastrado.'
+
+                });
+
+            }
+
         }
 
-        // 4. Salva o pré-cadastro com o NOME DO RESPONSÁVEL na tabela 'comercios'
+
+        // ========================================================
+        // 8. USUÁRIO NÃO EXISTE
+        // ========================================================
+
+        else {
+
+            // ----------------------------------------------------
+            // Cria o hash da senha
+            // ----------------------------------------------------
+
+            const senhaHash = await bcrypt.hash(
+                senha,
+                10
+            );
+
+
+            // ----------------------------------------------------
+            // Cria o usuário
+            // ----------------------------------------------------
+
+            const resultadoUsuario = await conexao.query(
+
+                `
+                INSERT INTO usuarios
+                (
+                    email,
+                    senha_hash
+                )
+                VALUES (?, ?)
+                `,
+
+                [
+                    email,
+                    senhaHash
+                ]
+
+            );
+
+
+            usuarioId = resultadoUsuario.insertId;
+
+        }
+
+
+        // ========================================================
+        // 9. SALVA O COMÉRCIO
+        // ========================================================
+
         await conexao.query(
-            'INSERT INTO comercios (usuario_id, nome_responsavel, cnpj, telefone) VALUES (?, ?, ?, ?)',
-            [usuarioId, nome_responsavel, cnpjLimpo, telefone]
+
+            `
+            INSERT INTO comercios
+            (
+                usuario_id,
+                nome_responsavel,
+                cnpj,
+                telefone
+            )
+            VALUES (?, ?, ?, ?)
+            `,
+
+            [
+                usuarioId,
+                nome_responsavel,
+                cnpjLimpo,
+                telefone
+            ]
+
         );
 
-        // Confirma a transação no banco
+
+        // ========================================================
+        // 10. CONFIRMA A TRANSAÇÃO
+        // ========================================================
+
         await conexao.commit();
 
+
+        // ========================================================
+        // 11. ENVIA O E-MAIL
+        // ========================================================
+
+        await enviarEmail(
+
+            email,
+
+            'Cadastro em análise - Bora Pedir',
+
+            nome_responsavel
+
+        );
+
+
+        // ========================================================
+        // 12. RESPONDE PARA O FRONTEND
+        // ========================================================
+
         return res.status(201).json({
-            message: 'Pré-cadastro realizado com sucesso! Aguarde a aprovação da sua conta.'
+
+            message:
+                'Pré-cadastro realizado com sucesso! Aguarde a aprovação da sua conta.'
+
         });
 
+
     } catch (error) {
-        if (conexao) await conexao.rollback();
-        console.error('Erro no cadastro de comércio:', error);
+
+        // ========================================================
+        // 13. DESFAZ A TRANSAÇÃO SE HOUVER ERRO
+        // ========================================================
+
+        if (conexao) {
+
+            await conexao.rollback();
+
+        }
+
+
+        console.error(
+            'Erro no cadastro de comércio:',
+            error
+        );
+
 
         return res.status(500).json({
-            error: 'Erro interno ao realizar o cadastro do comércio.'
+
+            error:
+                'Erro interno ao realizar o cadastro do comércio.'
+
         });
 
     } finally {
-        if (conexao) conexao.release();
+
+        // ========================================================
+        // 14. LIBERA A CONEXÃO
+        // ========================================================
+
+        if (conexao) {
+
+            conexao.release();
+
+        }
+
     }
+
 }

@@ -16,3 +16,22 @@ Termino: 00:46
 terminei o backend de cadastro do entregador e comercio
 
 10/09/2026
+
+Começo:16:00
+Termino:18:55
+
+Fiz a tela de admin , para receber os cadastros e mostrar as estatisticas do sistema
+
+inicio: 21:40
+Termino: 23:12
+Fiz a tela do Entregador , para receber os cadastros
+
+
+11/09/2026
+
+inicio: 08:00
+Termino: 10:50
+
+Email Pendente do cadastro implementado , Falta o do APROVADO 
+
+

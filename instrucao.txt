@@ -73,3 +73,29 @@ para definir a configuração do banco de dados : crie uma pasta separada
 
 npm install nodemailer dotenv
 
+
+TS:
+npm install -D @types/nodemailer
+
+é puro TypeScript
+
+
+
+Faça uma Senha pelo Google , e gere um codigo criptografado
+
+coloque pelo .env
+crie um template/ para visualizar 
+
+a base do Email é html puro , junto com o CSS no mesmo arquivo
+
+
+
+
+
+
+
+
+
+
+
+

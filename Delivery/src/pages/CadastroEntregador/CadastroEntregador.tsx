@@ -24,6 +24,10 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
     senhaConfirmar: '',
   });
 
+  // =========================
+  // FORMATAÇÕES
+  // =========================
+
   const formatarCPF = (value: string) => {
     return value
       .replace(/\D/g, '')
@@ -42,59 +46,110 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
   };
 
   const formatarCNH = (value: string) => {
-    return value.replace(/\D/g, '');
+    return value.replace(/\D/g, '').slice(0, 11);
   };
+
+  const formatarPlaca = (value: string) => {
+    return value
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toUpperCase()
+      .slice(0, 7);
+  };
+
+  // =========================
+  // VALIDAÇÃO DE IDADE
+  // =========================
 
   const validarMaioridade = (dataNascimentoStr: string): boolean => {
     const dataNasc = new Date(dataNascimentoStr);
     const hoje = new Date();
 
     let idade = hoje.getFullYear() - dataNasc.getFullYear();
+
     const mes = hoje.getMonth() - dataNasc.getMonth();
 
-    if (mes < 0 || (mes === 0 && hoje.getDate() < dataNasc.getDate())) {
+    if (
+      mes < 0 ||
+      (mes === 0 && hoje.getDate() < dataNasc.getDate())
+    ) {
       idade--;
     }
 
     return idade >= 18;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // =========================
+  // ALTERAÇÃO DOS CAMPOS
+  // =========================
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
 
     if (name === 'cpf') {
-      setFormData({ ...formData, cpf: formatarCPF(value) });
+      setFormData({
+        ...formData,
+        cpf: formatarCPF(value),
+      });
+
     } else if (name === 'celular') {
-      setFormData({ ...formData, celular: formatarCelular(value) });
+      setFormData({
+        ...formData,
+        celular: formatarCelular(value),
+      });
+
     } else if (name === 'cnh') {
-      setFormData({ ...formData, cnh: formatarCNH(value) });
+      setFormData({
+        ...formData,
+        cnh: formatarCNH(value),
+      });
+
     } else if (name === 'placa') {
-      setFormData({ ...formData, placa: value.toUpperCase() });
+      setFormData({
+        ...formData,
+        placa: formatarPlaca(value),
+      });
+
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
     }
   };
+
+  // =========================
+  // PRÓXIMA ETAPA
+  // =========================
 
   const proximaEtapa = () => {
     if (!formData.nome.trim()) {
       alert('Por favor, preencha o seu Nome.');
       return;
     }
+
     if (formData.cpf.length < 14) {
       alert('Por favor, digite um CPF válido.');
       return;
     }
+
     if (formData.celular.length < 15) {
-      alert('Por favor, digite um número de Celular/WhatsApp válido.');
+      alert(
+        'Por favor, digite um número de Celular/WhatsApp válido.'
+      );
       return;
     }
+
     if (!formData.dataNascimento) {
       alert('Por favor, informe sua Data de Nascimento.');
       return;
     }
 
     if (!validarMaioridade(formData.dataNascimento)) {
-      alert('É necessário ter pelo menos 18 anos para se cadastrar como entregador.');
+      alert(
+        'É necessário ter pelo menos 18 anos para se cadastrar como entregador.'
+      );
       return;
     }
 
@@ -106,23 +161,44 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
     setEtapa((prev) => prev + 1);
   };
 
-  const etapaAnterior = () => setEtapa((prev) => prev - 1);
+  // =========================
+  // ETAPA ANTERIOR
+  // =========================
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const etapaAnterior = () => {
+    setEtapa((prev) => prev - 1);
+  };
+
+  // =========================
+  // ENVIO DO CADASTRO
+  // =========================
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
 
+    // Validação da placa
     if (!formData.placa.trim()) {
       alert('Por favor, informe a Placa da Moto.');
       return;
     }
+
+    if (formData.placa.length !== 7) {
+      alert('A placa deve conter exatamente 7 caracteres.');
+      return;
+    }
+
     if (!formData.email.trim()) {
       alert('Por favor, informe o seu Email.');
       return;
     }
+
     if (!formData.senha) {
       alert('Por favor, digite uma Senha.');
       return;
     }
+
     if (formData.senha !== formData.senhaConfirmar) {
       alert('As senhas não coincidem!');
       return;
@@ -131,78 +207,136 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
     setCarregando(true);
 
     try {
-      // Ajustado para coincidir com a rota definida no Express (/api/entregadores/cadastro)
-      const response = await fetch('http://localhost:3000/api/entregadores/cadastro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nome: formData.nome,
-          cpf: formData.cpf,
-          celular: formData.celular,
-          cnh: formData.cnh,
-          dataNascimento: formData.dataNascimento,
-          placa: formData.placa,
-          email: formData.email,
-          senha: formData.senha,
-        }),
-      });
+      const response = await fetch(
+        'http://localhost:3000/api/entregadores/cadastro',
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+          },
+
+          body: JSON.stringify({
+            nome: formData.nome,
+            cpf: formData.cpf,
+            celular: formData.celular,
+            cnh: formData.cnh,
+            dataNascimento: formData.dataNascimento,
+
+            // A placa já chega aqui com no máximo 7 caracteres
+            placa: formData.placa,
+
+            email: formData.email,
+            senha: formData.senha,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || 'Erro ao realizar o cadastro.');
+        alert(
+          data.message ||
+          'Erro ao realizar o cadastro.'
+        );
+
         return;
       }
 
       setEtapa(3);
+
     } catch (error) {
-      console.error('Erro ao comunicar com o servidor:', error);
-      alert('Não foi possível conectar ao servidor backend.');
+      console.error(
+        'Erro ao comunicar com o servidor:',
+        error
+      );
+
+      alert(
+        'Não foi possível conectar ao servidor backend.'
+      );
+
     } finally {
       setCarregando(false);
     }
   };
 
-  const primeiroNome = formData.nome.trim().split(' ')[0];
+  // =========================
+  // PRIMEIRO NOME
+  // =========================
+
+  const primeiroNome =
+    formData.nome.trim().split(' ')[0];
+
+  // =========================
+  // HTML
+  // =========================
 
   return (
     <>
       <Header />
 
       <div className={styles.loginContainer}>
-        <div className={styles.loginContainerEsquerda}></div>
 
-        <div className={styles.loginContainerDireita}>
+        {/* LADO ESQUERDO */}
+        <div
+          className={styles.loginContainerEsquerda}
+        >
+        </div>
+
+        {/* LADO DIREITO */}
+        <div
+          className={styles.loginContainerDireita}
+        >
           <div className={styles.login}>
+
+            {/* TOPO */}
             <div className={styles.loginTopo}>
+
               <img
                 src={capaceteIcon}
                 alt="Capacete"
                 className={styles.capacete}
               />
-              <h1>Cadastro de Entregador</h1>
+
+              <h1>
+                Cadastro de Entregador
+              </h1>
+
             </div>
 
+            {/* CONTEÚDO */}
             <div className={styles.loginConteudo}>
-              {/* ETAPA 1 */}
+
+              {/* =========================
+                  ETAPA 1
+              ========================= */}
+
               {etapa === 1 && (
-                <form className={styles.formCadastro}>
+                <form
+                  className={styles.formCadastro}
+                >
+
+                  {/* NOME */}
                   <div className={styles.campo}>
-                    <label htmlFor="nome">Digite seu Nome</label>
+                    <label htmlFor="nome">
+                      Digite seu Nome
+                    </label>
+
                     <input
                       type="text"
                       id="nome"
                       name="nome"
-                      placeholder=""
                       value={formData.nome}
                       onChange={handleChange}
                     />
                   </div>
 
+                  {/* CPF */}
                   <div className={styles.campo}>
-                    <label htmlFor="cpf">Digite seu CPF</label>
+                    <label htmlFor="cpf">
+                      Digite seu CPF
+                    </label>
+
                     <input
                       type="text"
                       id="cpf"
@@ -214,8 +348,12 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
                     />
                   </div>
 
+                  {/* CELULAR */}
                   <div className={styles.campo}>
-                    <label htmlFor="celular">Celular / WhatsApp</label>
+                    <label htmlFor="celular">
+                      Celular / WhatsApp
+                    </label>
+
                     <input
                       type="text"
                       id="celular"
@@ -227,19 +365,29 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
                     />
                   </div>
 
+                  {/* DATA DE NASCIMENTO */}
                   <div className={styles.campo}>
-                    <label htmlFor="dataNascimento">Data de nascimento</label>
+                    <label htmlFor="dataNascimento">
+                      Data de nascimento
+                    </label>
+
                     <input
                       type="date"
                       id="dataNascimento"
                       name="dataNascimento"
-                      value={formData.dataNascimento}
+                      value={
+                        formData.dataNascimento
+                      }
                       onChange={handleChange}
                     />
                   </div>
 
+                  {/* CNH */}
                   <div className={styles.campo}>
-                    <label htmlFor="cnh">Digite sua CNH</label>
+                    <label htmlFor="cnh">
+                      Digite sua CNH
+                    </label>
+
                     <input
                       type="text"
                       id="cnh"
@@ -251,33 +399,56 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
                     />
                   </div>
 
+                  {/* BOTÃO */}
                   <button
                     type="button"
                     onClick={proximaEtapa}
-                    className={styles.botaoCadastrar}
+                    className={
+                      styles.botaoCadastrar
+                    }
                   >
                     Próximo
                   </button>
+
                 </form>
               )}
 
-              {/* ETAPA 2 */}
+              {/* =========================
+                  ETAPA 2
+              ========================= */}
+
               {etapa === 2 && (
-                <form className={styles.formCadastro} onSubmit={handleSubmit}>
+                <form
+                  className={styles.formCadastro}
+                  onSubmit={handleSubmit}
+                >
+
+                  {/* PLACA */}
                   <div className={styles.campo}>
-                    <label htmlFor="placa">Placa da Moto</label>
+
+                    <label htmlFor="placa">
+                      Placa da Moto
+                    </label>
+
                     <input
                       type="text"
                       id="placa"
                       name="placa"
                       placeholder="Ex: ABC1D23"
+                      maxLength={7}
                       value={formData.placa}
                       onChange={handleChange}
                     />
+
                   </div>
 
+                  {/* EMAIL */}
                   <div className={styles.campo}>
-                    <label htmlFor="email">Email</label>
+
+                    <label htmlFor="email">
+                      Email
+                    </label>
+
                     <input
                       type="email"
                       id="email"
@@ -286,10 +457,16 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
                       value={formData.email}
                       onChange={handleChange}
                     />
+
                   </div>
 
+                  {/* SENHA */}
                   <div className={styles.campo}>
-                    <label htmlFor="senha">Senha</label>
+
+                    <label htmlFor="senha">
+                      Senha
+                    </label>
+
                     <input
                       type="password"
                       id="senha"
@@ -298,52 +475,97 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
                       value={formData.senha}
                       onChange={handleChange}
                     />
+
                   </div>
 
+                  {/* CONFIRMAR SENHA */}
                   <div className={styles.campo}>
-                    <label htmlFor="senhaConfirmar">Confirme sua Senha</label>
+
+                    <label htmlFor="senhaConfirmar">
+                      Confirme sua Senha
+                    </label>
+
                     <input
                       type="password"
                       id="senhaConfirmar"
                       name="senhaConfirmar"
                       placeholder="Confirme sua senha"
-                      value={formData.senhaConfirmar}
+                      value={
+                        formData.senhaConfirmar
+                      }
                       onChange={handleChange}
                     />
+
                   </div>
 
+                  {/* AÇÕES */}
                   <div className={styles.acoes}>
+
                     <button
                       type="button"
                       onClick={etapaAnterior}
-                      className={styles.botaoVoltar}
+                      className={
+                        styles.botaoVoltar
+                      }
                       disabled={carregando}
                     >
                       Voltar
                     </button>
 
-                    <button 
-                      type="submit" 
-                      className={styles.botaoCadastrar}
+                    <button
+                      type="submit"
+                      className={
+                        styles.botaoCadastrar
+                      }
                       disabled={carregando}
                     >
-                      {carregando ? 'Cadastrando...' : 'Cadastrar'}
+                      {carregando
+                        ? 'Cadastrando...'
+                        : 'Cadastrar'}
                     </button>
+
                   </div>
+
                 </form>
               )}
 
-              {/* ETAPA 3 */}
+              {/* =========================
+                  ETAPA 3
+              ========================= */}
+
               {etapa === 3 && (
-                <div className={styles.sucessoContainer}>
-                  <h2 className={styles.sucessoTitulo}>
+                <div
+                  className={
+                    styles.sucessoContainer
+                  }
+                >
+
+                  <h2
+                    className={
+                      styles.sucessoTitulo
+                    }
+                  >
                     Obrigado, {primeiroNome}!
                   </h2>
-                  <p className={styles.sucessoTexto}>
-                    Por mostrar interesse em operar por nossa plataforma.
+
+                  <p
+                    className={
+                      styles.sucessoTexto
+                    }
+                  >
+                    Por mostrar interesse em
+                    operar por nossa plataforma.
                   </p>
-                  <p className={styles.sucessoSubtexto}>
-                    Seu cadastro está sendo analisado. Verifique o seu e-mail para acompanhar o retorno.
+
+                  <p
+                    className={
+                      styles.sucessoSubtexto
+                    }
+                  >
+                    Seu cadastro está sendo
+                    analisado. Verifique o seu
+                    e-mail para acompanhar o
+                    retorno.
                   </p>
 
                   <img
@@ -351,13 +573,16 @@ export function CadastroEntregador({ children }: CadastroEntregadorProps) {
                     alt="E-mail"
                     className={styles.emailImg}
                   />
+
                 </div>
               )}
+
             </div>
           </div>
         </div>
 
         {children}
+
       </div>
     </>
   );
