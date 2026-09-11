@@ -5,16 +5,11 @@ import { fileURLToPath } from 'url';
 
 
 // =========================
-// CAMINHO DO TEMPLATE
+// CAMINHO BASE DOS TEMPLATES
 // =========================
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const caminhoTemplate = path.join(
-    __dirname,
-    '../templates/comercio/emailPendente.html'
-);
 
 
 // =========================
@@ -32,19 +27,68 @@ const transporter = nodemailer.createTransport({
 
 
 // =========================
-// ENVIO DO EMAIL
+// ENVIO DO EMAIL Pendente
 // =========================
 
-export async function enviarEmail(destinatario, assunto, nome) {
+export async function enviarEmailPendente(
+    destinatario,
+    assunto,
+    nome,
+    tipoCadastro
+) {
 
-    // Lê o arquivo HTML
+    // =========================
+    // ESCOLHE O TEMPLATE
+    // =========================
+
+    const caminhoTemplate = path.join(
+        __dirname,
+        `../templates/${tipoCadastro}/emailPendente.html`
+    );
+
+
+    // =========================
+    // VERIFICA SE O TEMPLATE EXISTE
+    // =========================
+
+    if (!fs.existsSync(caminhoTemplate)) {
+
+        throw new Error(
+            `Template de email não encontrado: ${caminhoTemplate}`
+        );
+
+    }
+
+
+    // =========================
+    // LÊ O TEMPLATE
+    // =========================
+
     let html = fs.readFileSync(
         caminhoTemplate,
         'utf-8'
     );
 
-    // Substitui {{nome_responsavel}}! pelo nome do usuário
-    html = html.replace('{{nome_responsavel}}', nome);
+
+    // =========================
+    // SUBSTITUI O NOME
+    // =========================
+
+    html = html.replace(
+        '{{nome}}',
+        nome
+    );
+
+    // Compatibilidade com o template do comércio
+    html = html.replace(
+        '{{nome_responsavel}}',
+        nome
+    );
+
+
+    // =========================
+    // ENVIA O EMAIL
+    // =========================
 
     const info = await transporter.sendMail({
 
@@ -55,9 +99,112 @@ export async function enviarEmail(destinatario, assunto, nome) {
         subject: assunto,
 
         html: html
+
     });
 
-    console.log('Email enviado:', info.messageId);
+
+    // =========================
+    // LOG
+    // =========================
+
+    console.log(
+        'Email enviado:',
+        info.messageId
+    );
+
+
+    return info;
+}
+
+
+// =========================
+// ENVIO DO EMAIL Aprovado
+// =========================
+
+
+
+export async function enviarEmailAprovado(
+    destinatario,
+    assunto,
+    nome,
+    tipoCadastro
+) {
+
+    // =========================
+    // ESCOLHE O TEMPLATE
+    // =========================
+
+    const caminhoTemplate = path.join(
+        __dirname,
+        `../templates/${tipoCadastro}/emailAprovado.html`
+    );
+
+
+    // =========================
+    // VERIFICA SE O TEMPLATE EXISTE
+    // =========================
+
+    if (!fs.existsSync(caminhoTemplate)) {
+
+        throw new Error(
+            `Template de email não encontrado: ${caminhoTemplate}`
+        );
+
+    }
+
+
+    // =========================
+    // LÊ O TEMPLATE
+    // =========================
+
+    let html = fs.readFileSync(
+        caminhoTemplate,
+        'utf-8'
+    );
+
+
+    // =========================
+    // SUBSTITUI O NOME
+    // =========================
+
+    html = html.replace(
+        '{{nome}}',
+        nome
+    );
+
+    // Compatibilidade com o template do comércio
+    html = html.replace(
+        '{{nome_responsavel}}',
+        nome
+    );
+
+
+    // =========================
+    // ENVIA O EMAIL
+    // =========================
+
+    const info = await transporter.sendMail({
+
+        from: `"Bora Pedir Delivery" <${process.env.EMAIL_USER}>`,
+
+        to: destinatario,
+
+        subject: assunto,
+
+        html: html
+
+    });
+
+
+    // =========================
+    // LOG
+    // =========================
+
+    console.log(
+        'Email enviado:',
+        info.messageId
+    );
+
 
     return info;
 }

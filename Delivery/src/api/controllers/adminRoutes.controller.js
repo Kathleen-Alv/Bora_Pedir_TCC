@@ -1,5 +1,7 @@
 import { db } from '../../configBancoDeDados/database.js';
 
+import { enviarEmailAprovado } from '../../services/emailService.js';
+
 
 /* Busca dados de comercio e entregador */
 export async function buscarDadosDashboard(req, res) {
@@ -146,8 +148,7 @@ export async function buscarEntregadoresPendentes(req, res) {
 }
 
 
-/*Aprovação de Cadastro */
-
+/*Aprovação de Cadastro  Email*/
 
 export async function aprovacaoCadastroComercio(req, res) {
 
@@ -155,15 +156,51 @@ export async function aprovacaoCadastroComercio(req, res) {
 
         const { id } = req.params;
 
-        const aprovacao = await db.query(`
+        // Busca os dados do comércio
+        const dadosComercio = await db.query(`
+            SELECT
+                c.nome_responsavel,
+                u.email
+            FROM comercios c
+            INNER JOIN usuarios u
+                ON c.usuario_id = u.id
+            WHERE c.id = ?
+              AND c.situacao_cadastral = 'PENDENTE'
+        `, [id]);
+
+        if (
+            !dadosComercio ||
+            dadosComercio.length === 0
+        ) {
+
+            return res.status(404).json({
+                mensagem:
+                    'Comércio não encontrado ou já foi aprovado.'
+            });
+
+        }
+
+        const comercio = dadosComercio[0];
+
+        // Aprova o comércio
+        await db.query(`
             UPDATE comercios
             SET situacao_cadastral = 'APROVADO'
             WHERE id = ?
               AND situacao_cadastral = 'PENDENTE'
         `, [id]);
 
+        // Envia email de aprovação
+        await enviarEmailAprovado(
+            comercio.email,
+            'Cadastro aprovado - Bora Pedir',
+            comercio.nome_responsavel,
+            'comercio'
+        );
+
         res.json({
-            mensagem: 'Comércio aprovado com sucesso'
+            mensagem:
+                'Comércio aprovado com sucesso e email enviado.'
         });
 
     } catch (erro) {
@@ -174,13 +211,13 @@ export async function aprovacaoCadastroComercio(req, res) {
         );
 
         res.status(500).json({
-            mensagem: 'Erro ao aprovar comércio'
+            mensagem:
+                'Erro ao aprovar comércio'
         });
 
     }
 
 }
-
 
 
 export async function aprovacaoCadastroEntregadores(req, res) {
@@ -189,15 +226,51 @@ export async function aprovacaoCadastroEntregadores(req, res) {
 
         const { id } = req.params;
 
-        const aprovacao = await db.query(`
+        // Busca os dados do entregador
+        const dadosEntregador = await db.query(`
+            SELECT
+                e.nome,
+                u.email
+            FROM entregadores e
+            INNER JOIN usuarios u
+                ON e.usuario_id = u.id
+            WHERE e.id = ?
+              AND e.situacao_cadastral = 'PENDENTE'
+        `, [id]);
+
+        if (
+            !dadosEntregador ||
+            dadosEntregador.length === 0
+        ) {
+
+            return res.status(404).json({
+                mensagem:
+                    'Entregador não encontrado ou já foi aprovado.'
+            });
+
+        }
+
+        const entregador = dadosEntregador[0];
+
+        // Aprova o entregador
+        await db.query(`
             UPDATE entregadores
             SET situacao_cadastral = 'APROVADO'
             WHERE id = ?
               AND situacao_cadastral = 'PENDENTE'
         `, [id]);
 
+        // Envia email de aprovação
+        await enviarEmailAprovado(
+            entregador.email,
+            'Cadastro aprovado - Bora Pedir',
+            entregador.nome,
+            'entregador'
+        );
+
         res.json({
-            mensagem: 'Entregador aprovado com sucesso'
+            mensagem:
+                'Entregador aprovado com sucesso e email enviado.'
         });
 
     } catch (erro) {
@@ -208,9 +281,93 @@ export async function aprovacaoCadastroEntregadores(req, res) {
         );
 
         res.status(500).json({
-            mensagem: 'Erro ao aprovar entregador'
+            mensagem:
+                'Erro ao aprovar entregador'
         });
 
     }
 
+}
+
+
+
+/* Dados Sobre Os Comercio do sistema Ex: Aprovado , Inativo ,  */
+
+export async function buscarDadosComercios(req, res) {
+    try {
+        const resultado = await db.query(`
+            SELECT
+                c.id AS id,
+                c.nome_responsavel AS nome,
+                c.cnpj AS documento,
+                'Comércio' AS tipo,
+                c.telefone AS telefone,
+                u.email AS email,
+                CASE
+                    WHEN c.situacao_cadastral = 'APROVADO' THEN 'Aprovado'
+                    WHEN c.situacao_cadastral = 'INATIVO' THEN 'Inativo'
+                    WHEN c.situacao_cadastral = 'SUSPENSO' THEN 'Suspenso'
+                END AS status
+            FROM comercios c
+            INNER JOIN usuarios u
+                ON c.usuario_id = u.id
+            WHERE c.situacao_cadastral IN ('APROVADO', 'INATIVO', 'SUSPENSO')
+            ORDER BY c.nome_responsavel ASC
+        `);
+        const dadosComercios = resultado.map((comercio) => ({
+            id: Number(comercio.id),
+            nome: comercio.nome,
+            documento: comercio.documento,
+            tipo: comercio.tipo,
+            telefone: comercio.telefone || 'Não informado',
+            email: comercio.email,
+            status: comercio.status
+        }));
+        res.json(dadosComercios);
+    } catch (erro) {
+        console.error('Erro ao buscar dados dos comércios:', erro);
+        res.status(500).json({
+            mensagem: 'Erro ao buscar dados dos comércios'
+        });
+    }
+}
+
+
+export async function buscarDadosEntregadores(req, res) {
+    try {
+        const resultado = await db.query(`
+            SELECT
+                e.id AS id,
+                e.nome AS nome,
+                e.cpf AS documento,
+                'Entregador' AS tipo,
+                NULL AS telefone,
+                u.email AS email,
+                CASE
+                    WHEN e.situacao_cadastral = 'APROVADO' THEN 'Aprovado'
+                    WHEN e.situacao_cadastral = 'INATIVO' THEN 'Inativo'
+                    WHEN e.situacao_cadastral = 'SUSPENSO' THEN 'Suspenso'
+                END AS status
+            FROM entregadores e
+            INNER JOIN usuarios u
+                ON e.usuario_id = u.id
+            WHERE e.situacao_cadastral IN ('APROVADO', 'INATIVO', 'SUSPENSO')
+            ORDER BY e.nome ASC
+        `);
+        const dadosEntregadores = resultado.map((entregador) => ({
+            id: Number(entregador.id),
+            nome: entregador.nome,
+            documento: entregador.documento,
+            tipo: entregador.tipo,
+            telefone: entregador.telefone || 'Não informado',
+            email: entregador.email,
+            status: entregador.status
+        }));
+        res.json(dadosEntregadores);
+    } catch (erro) {
+        console.error('Erro ao buscar dados dos entregadores:', erro);
+        res.status(500).json({
+            mensagem: 'Erro ao buscar dados dos entregadores'
+        });
+    }
 }

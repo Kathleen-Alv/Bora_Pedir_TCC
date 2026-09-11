@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { db } from '../../configBancoDeDados/database.js';
-import { enviarEmail } from '../../services/emailService.js';
+import { enviarEmailPendente } from '../../services/emailService.js';
 
 
 // ================================================================
@@ -237,14 +237,11 @@ export async function cadastroComercio(req, res) {
         // 11. ENVIA O E-MAIL
         // ========================================================
 
-        await enviarEmail(
-
-            email,
-
-            'Cadastro em análise - Bora Pedir',
-
-            nome_responsavel
-
+      await enviarEmailPendente(
+        email,
+        'Cadastro em análise - Bora Pedir',
+        nome_responsavel,
+        'comercio'
         );
 
 

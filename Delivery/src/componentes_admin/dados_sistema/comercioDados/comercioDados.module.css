@@ -286,47 +286,31 @@
 /* =========================
    STATUS
 ========================= */
-
 .status {
     display: inline-flex;
-
     align-items: center;
-
     gap: 6px;
-
     min-width: 80px;
-
     padding: 5px 9px;
-
     border-radius: 20px;
-
     font-size: 11px;
     font-weight: 600;
 }
-
 .ponto {
     font-size: 8px;
 }
-
-.ativo {
+.aprovado {
     background-color: #dff3e4;
-
     color: #28743b;
 }
-
 .suspenso {
     background-color: #fff1d6;
-
     color: #996600;
 }
-
 .inativo {
-    background-color: #eeeeee;
-
-    color: #777777;
+    background-color: #f5dada;
+    color: #ad1616;
 }
-
-
 /* =========================
    SEM RESULTADO
 ========================= */

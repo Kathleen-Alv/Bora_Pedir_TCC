@@ -1,5 +1,5 @@
 import express from 'express';
-import { enviarEmail } from '../../services/emailService.js';
+import { enviarEmailPendente } from '../../services/emailService.js';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ router.get('/teste', async (req, res) => {
 
     try {
 
-        await enviarEmail(
+        await enviarEmailPendente(
             'kathleen.alv.1111@gmail.com',
             'Teste de Email - Bora Pedir',
             'Olá! Este é um email de teste enviado pelo sistema Bora Pedir.'
