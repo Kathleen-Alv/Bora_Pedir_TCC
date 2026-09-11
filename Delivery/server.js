@@ -41,6 +41,7 @@ app.use('/api/comercios', cadastroComercioRoutes);
 
 app.use('/api/admin', adminRoutes);
 
+
 // =========================
 // TESTE DA API
 // =========================

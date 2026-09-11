@@ -70,9 +70,24 @@ export function ComerciosAdmin() {
   // APROVAR
   // =========================
 
-  function aprovarCadastro() {
-    if (!cadastroSelecionado) return;
+  async function aprovarCadastro() {
 
+  if (!cadastroSelecionado) return;
+
+  try {
+
+    const resposta = await fetch(
+      `http://localhost:3000/api/admin/comercios/${cadastroSelecionado.id}/aprovar`,
+      {
+        method: 'PATCH'
+      }
+    );
+
+    if (!resposta.ok) {
+      throw new Error('Erro ao aprovar comércio');
+    }
+
+    // Se o banco aprovou, remove da lista de pendentes
     setCadastros((cadastrosAtuais) =>
       cadastrosAtuais.filter(
         (cadastro) =>
@@ -80,8 +95,18 @@ export function ComerciosAdmin() {
       )
     );
 
+    // Fecha o modal
     setCadastroSelecionado(null);
+
+  } catch (erro) {
+
+    console.error(
+      'Erro ao aprovar comércio:',
+      erro
+    );
+
   }
+}
 
   // =========================
   // ABRIR REJEIÇÃO

@@ -6,6 +6,7 @@ import { ComerciosAdmin } from '../../componentes_admin/comercios/comercioAdmin'
 import { ComercioDados } from '../../componentes_admin/dados_sistema/comercioDados/comercioDados';
 
 import styles from './adminBoraPedir.module.css';
+import { EntregadorAdmin } from '../../componentes_admin/entregadores/entregadorAdmin';
 
 export function AdminBoraPedir() {
 
@@ -76,7 +77,7 @@ export function AdminBoraPedir() {
               className={styles.menuItem}
               onClick={() => setTelaAtual('entregadores')}
             >
-              <span>Dados de Comércios Entregadores</span>
+              <span>Dados de Entregadores</span>
             </button>
 
           </div>
@@ -130,7 +131,7 @@ export function AdminBoraPedir() {
           )}
 
           {telaAtual === 'entregadores' && (
-            <h1>Entregadores</h1>
+            <EntregadorAdmin/>
           )}
 
           {telaAtual === 'abertas' && (
