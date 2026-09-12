@@ -9,7 +9,7 @@
 
     border: 1px solid #0d1013;
 
-    background-color: #000000;
+    background-color: #fff7f7;
 }
 
 
@@ -21,7 +21,7 @@
     width: 250px;
     height: 100%;
 
-    background-color: #000000;
+    background-color: #f1eaea;
 
     display: flex;
     align-items: center;
@@ -51,7 +51,7 @@
     flex: 1;
     height: 100%;
 
-    background-color: #ebebeb;
+    background-color: #faf3f3;
 
     display: flex;
     align-items: center;

@@ -332,42 +332,76 @@ export async function buscarDadosComercios(req, res) {
     }
 }
 
-
 export async function buscarDadosEntregadores(req, res) {
+
     try {
+
         const resultado = await db.query(`
             SELECT
                 e.id AS id,
                 e.nome AS nome,
                 e.cpf AS documento,
+                e.cnh AS cnh,
+                e.data_nascimento AS data_nascimento,
+                e.placa AS placa,
                 'Entregador' AS tipo,
-                NULL AS telefone,
                 u.email AS email,
+
                 CASE
-                    WHEN e.situacao_cadastral = 'APROVADO' THEN 'Aprovado'
-                    WHEN e.situacao_cadastral = 'INATIVO' THEN 'Inativo'
-                    WHEN e.situacao_cadastral = 'SUSPENSO' THEN 'Suspenso'
+                    WHEN e.situacao_cadastral = 'APROVADO'
+                        THEN 'Aprovado'
+
+                    WHEN e.situacao_cadastral = 'INATIVO'
+                        THEN 'Inativo'
+
+                    WHEN e.situacao_cadastral = 'SUSPENSO'
+                        THEN 'Suspenso'
                 END AS status
+
             FROM entregadores e
+
             INNER JOIN usuarios u
                 ON e.usuario_id = u.id
-            WHERE e.situacao_cadastral IN ('APROVADO', 'INATIVO', 'SUSPENSO')
+
+            WHERE e.situacao_cadastral IN (
+                'APROVADO',
+                'INATIVO',
+                'SUSPENSO'
+            )
+
             ORDER BY e.nome ASC
         `);
-        const dadosEntregadores = resultado.map((entregador) => ({
-            id: Number(entregador.id),
-            nome: entregador.nome,
-            documento: entregador.documento,
-            tipo: entregador.tipo,
-            telefone: entregador.telefone || 'Não informado',
-            email: entregador.email,
-            status: entregador.status
-        }));
+
+
+       const dadosEntregadores = resultado.map((entregador) => ({
+    id: Number(entregador.id),
+    nome: entregador.nome,
+    documento: entregador.documento,
+    cnh: entregador.cnh,
+    data_nascimento: new Date(entregador.data_nascimento).toLocaleDateString('pt-BR', {
+        timeZone: 'UTC'
+    }),
+    placa: entregador.placa,
+    telefone: 'Não informado',
+    tipo: entregador.tipo,
+    email: entregador.email,
+    status: entregador.status
+}));
         res.json(dadosEntregadores);
+
+
     } catch (erro) {
-        console.error('Erro ao buscar dados dos entregadores:', erro);
+
+        console.error(
+            'Erro ao buscar dados dos entregadores:',
+            erro
+        );
+
         res.status(500).json({
-            mensagem: 'Erro ao buscar dados dos entregadores'
+            mensagem:
+                'Erro ao buscar dados dos entregadores'
         });
+
     }
+
 }

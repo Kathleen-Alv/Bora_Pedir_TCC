@@ -1,0 +1,776 @@
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+    width: 100%;
+    min-height: 100vh;
+
+    background-color: #ffffff;
+
+    color: #171717;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    width: 100%;
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 12px 0 5px;
+
+    box-sizing: border-box;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+
+.nomeComercio {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.nomeComercio h1 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.iconeEditar {
+    border: none;
+    background: transparent;
+
+    font-size: 17px;
+
+    color: #858585;
+
+    cursor: pointer;
+
+    padding: 2px;
+}
+
+
+.separador {
+    color: #888888;
+
+    font-size: 18px;
+}
+
+
+.semAumento {
+    display: flex;
+    align-items: center;
+
+    height: 26px;
+
+    padding: 0 9px;
+
+    border-left: 1px solid #eeeeee;
+
+    color: #9b9b9b;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+.acoesTopo {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.botaoTopo {
+    height: 34px;
+
+    padding: 0 11px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #bfc4ca;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #222222;
+
+    cursor: pointer;
+}
+
+
+.botaoTopo:hover {
+    background-color: #f7f7f7;
+}
+
+
+/* =========================
+   FILTROS
+========================= */
+
+.filtros {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 9px 5px;
+
+    box-sizing: border-box;
+}
+
+
+.filtros input,
+.filtros select {
+    height: 33px;
+
+    border: 1px solid #c5c9cf;
+
+    border-radius: 9px;
+
+    background-color: #ffffff;
+
+    padding: 0 12px;
+
+    color: #777d85;
+
+    font-size: 13px;
+
+    outline: none;
+
+    box-sizing: border-box;
+}
+
+
+.filtros input {
+    width: 180px;
+}
+
+
+.filtros select {
+    width: 180px;
+
+    cursor: pointer;
+}
+
+
+.filtros input:focus,
+.filtros select:focus {
+    border-color: #999999;
+}
+
+
+.novoItem {
+    height: 33px;
+
+    margin-left: auto;
+
+    padding: 0 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background-color: #ffd600;
+
+    color: #111111;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.novoItem:hover {
+    background-color: #f4cb00;
+}
+
+
+/* =========================
+   CONTEÚDO
+========================= */
+
+.conteudo {
+    width: 100%;
+
+    display: flex;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   CATEGORIAS
+========================= */
+
+.categorias {
+    width: 305px;
+
+    min-width: 305px;
+
+    padding: 14px 5px 0;
+
+    box-sizing: border-box;
+}
+
+
+.tituloCategorias {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+}
+
+
+.tituloCategorias h2 {
+    margin: 0;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+.adicionarCategoria {
+    width: 29px;
+    height: 29px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #c5c9cf;
+
+    border-radius: 8px;
+
+    background-color: #ffffff;
+
+    font-size: 22px;
+
+    cursor: pointer;
+}
+
+
+.listaCategorias {
+    width: 100%;
+
+    max-height: 400px;
+
+    overflow-y: auto;
+
+    padding-right: 4px;
+
+    box-sizing: border-box;
+}
+
+
+.categoria {
+    width: 100%;
+
+    min-height: 45px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 12px;
+
+    border: none;
+
+    border-radius: 4px;
+
+    background-color: transparent;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    color: #161616;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+.categoria:hover {
+    background-color: #f7f7f7;
+}
+
+
+.categoriaSelecionada {
+    background-color: #f0f0f2;
+}
+
+
+.categoria small {
+    color: #a4a4a4;
+
+    font-size: 12px;
+}
+
+
+.categoriaSelecionada small {
+    color: #111111;
+
+    font-weight: 700;
+}
+
+
+/* =========================
+   ÁREA DOS ITENS
+========================= */
+
+.areaItens {
+    flex: 1;
+
+    min-width: 0;
+
+    margin-right: 10px;
+
+    border-left: 1px solid #eeeeee;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   BARRA DE AÇÕES
+========================= */
+
+.barraItens {
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 0 15px;
+
+    background-color: #f2f2f4;
+
+    border-bottom: 1px solid #e3e3e3;
+
+    box-sizing: border-box;
+}
+
+
+.barraItens strong {
+    font-size: 13px;
+
+    white-space: nowrap;
+}
+
+
+.selecionarTudo {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+}
+
+
+.barraItens input,
+.item input {
+    width: 16px;
+    height: 16px;
+
+    accent-color: #777777;
+
+    cursor: pointer;
+}
+
+
+.acaoItem {
+    border: none;
+
+    background: transparent;
+
+    color: #777d85;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    padding: 0;
+}
+
+
+.acaoItem:hover {
+    color: #222222;
+}
+
+
+/* =========================
+   CABEÇALHO DA TABELA
+========================= */
+
+.cabecalhoTabela {
+    height: 38px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 100px 200px;
+
+    align-items: center;
+
+    padding: 0 15px;
+
+    box-sizing: border-box;
+
+    color: #777d85;
+
+    font-size: 12px;
+}
+
+
+.cabecalhoTabela span:nth-child(2) {
+    text-align: left;
+}
+
+
+.cabecalhoTabela span:nth-child(3) {
+    text-align: left;
+}
+
+
+/* =========================
+   LISTA DE ITENS
+========================= */
+
+.listaItens {
+    width: 100%;
+}
+
+
+.item {
+    min-height: 72px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 100px 200px;
+
+    align-items: center;
+
+    padding: 0 15px;
+
+    border-bottom: 1px solid #eeeeee;
+
+    box-sizing: border-box;
+}
+
+
+.item:hover {
+    background-color: #fafafa;
+}
+
+
+/* =========================
+   NOME DO ITEM
+========================= */
+
+.itemNome {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.itemNome img {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border-radius: 5px;
+
+    object-fit: cover;
+
+    background-color: #eeeeee;
+}
+
+
+.infoItem {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+
+.nomeItem {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 13px;
+
+    color: #1c1c1c;
+}
+
+
+.grupoItens {
+    width: fit-content;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 3px 7px;
+
+    border: none;
+
+    border-radius: 4px;
+
+    background-color: #f5f5f5;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    color: #222222;
+
+    cursor: pointer;
+}
+
+
+.grupoItens span {
+    font-size: 13px;
+}
+
+
+/* =========================
+   PREÇO
+========================= */
+
+.preco {
+    font-size: 13px;
+
+    font-weight: 500;
+
+    color: #171717;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.statusArea {
+    display: flex;
+    align-items: center;
+
+    gap: 27px;
+}
+
+
+.status {
+    min-width: 120px;
+
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 11px;
+
+    border-radius: 9px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    box-sizing: border-box;
+}
+
+
+.ponto {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+}
+
+
+.disponivel {
+    background-color: #e2f7ed;
+
+    color: #111111;
+}
+
+
+.disponivel .ponto {
+    background-color: #22b96b;
+}
+
+
+.indisponivel {
+    background-color: #f8dddd;
+
+    color: #8d2020;
+}
+
+
+.indisponivel .ponto {
+    background-color: #d32929;
+}
+
+
+.menuItem {
+    border: none;
+
+    background: transparent;
+
+    color: #777777;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    padding: 0;
+}
+
+
+.menuItem:hover {
+    color: #111111;
+}
+
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+.listaCategorias::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+.listaCategorias::-webkit-scrollbar-thumb {
+    background-color: #d2d2d2;
+
+    border-radius: 10px;
+}
+
+
+.listaItens {
+    max-height: 370px;
+
+    overflow-y: auto;
+}
+
+
+.listaItens::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+.listaItens::-webkit-scrollbar-thumb {
+    background-color: #d0d0d0;
+
+    border-radius: 10px;
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 900px) {
+
+    .categorias {
+        width: 230px;
+        min-width: 230px;
+    }
+
+    .filtros select {
+        width: 150px;
+    }
+
+    .filtros input {
+        width: 150px;
+    }
+
+    .cabecalhoTabela,
+    .item {
+        grid-template-columns: 1fr 80px 170px;
+    }
+
+    .statusArea {
+        gap: 10px;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 8px;
+
+        padding: 10px;
+    }
+
+    .acoesTopo {
+        width: 100%;
+    }
+
+    .filtros {
+        flex-wrap: wrap;
+    }
+
+    .novoItem {
+        margin-left: 0;
+    }
+
+    .categorias {
+        width: 190px;
+        min-width: 190px;
+    }
+
+    .cabecalhoTabela,
+    .item {
+        grid-template-columns: 1fr 80px 150px;
+    }
+
+}

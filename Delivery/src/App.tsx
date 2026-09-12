@@ -12,6 +12,9 @@ import { PortalGestao } from './pages/PortalGestao/PortalGestao';
 import { EsqueciMinhaSenha } from './components/esqueciMinhaSenha/esqueciMinhaSenha';
 import { AdminBoraPedir } from './pages/adminBoraPedir/adminBoraPedir';
 
+import { GestaoPedidos } from './pages/GestaoPedidos/gestaoPedidos.tsx';
+import { PrimeiroAcessoComercio } from './pages/PortalGestao/componentes_gestao/PrimeiroAcesso/primeiroAcessoComercio.tsx';
+
 export function App() {
   return (
     <BrowserRouter>
@@ -53,6 +56,23 @@ export function App() {
         />
 
 
+        
+        <Route
+        path="/primeiro_acesso"
+        element={<PrimeiroAcessoComercio/>}
+        />
+
+         <Route
+        path="/gestao_pedidos"
+        element={<GestaoPedidos/>}
+        />
+
+
+
+
+        
+
+        
 
 
 
