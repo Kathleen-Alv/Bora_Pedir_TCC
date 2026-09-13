@@ -18,6 +18,11 @@ import adminRoutes from './src/api/routes/adminRoutes.routes.js';
 
 import emailRoutes from './src/api/routes/email.routes.js';
 
+
+import loginComercioRoutes from './src/api/routes/loginComercio.routes.js';
+
+import recuperacaoSenhaRoutes from './src/api/routes/recuperacaoSenha.routes.js';
+
 // Inicializa uma instância da aplicação Express (o núcleo da sua API).
 const app = express();
 
@@ -48,6 +53,10 @@ app.use('/api/comercios', cadastroComercioRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use('/api/email', emailRoutes);
+
+app.use('/api/login-comercio', loginComercioRoutes);
+
+app.use('/api/recuperacao-senha',recuperacaoSenhaRoutes);
 
 
 // =========================

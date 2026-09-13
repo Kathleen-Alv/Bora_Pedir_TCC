@@ -29,7 +29,7 @@ export function Header() {
       <div>
         <button
           className={styles.button}
-          onClick={() => navigate('/portal_gestao')}
+          onClick={() => navigate('/login_comercial')}
         >
           Portal Do Comerciante
         </button>

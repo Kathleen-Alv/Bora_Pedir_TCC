@@ -208,3 +208,86 @@ export async function enviarEmailAprovado(
 
     return info;
 }
+
+
+
+/* RECUPERAÇÃO DE SENHA */
+
+
+export async function enviarCodigoRecuperacao(
+    destinatario,
+    codigo
+) {
+
+    // =========================
+    // CAMINHO DO TEMPLATE
+    // =========================
+
+    const caminhoTemplate = path.join(
+        __dirname,
+        '../templates/recuperacaoSenha/codigoRecuperacao.html'
+    );
+
+
+    // =========================
+    // VERIFICA SE O TEMPLATE EXISTE
+    // =========================
+
+    if (!fs.existsSync(caminhoTemplate)) {
+
+        throw new Error(
+            `Template de recuperação não encontrado: ${caminhoTemplate}`
+        );
+
+    }
+
+
+    // =========================
+    // LÊ O TEMPLATE
+    // =========================
+
+    let html = fs.readFileSync(
+        caminhoTemplate,
+        'utf-8'
+    );
+
+
+    // =========================
+    // SUBSTITUI O CÓDIGO
+    // =========================
+
+    html = html.replace(
+        '{{codigo}}',
+        codigo
+    );
+
+
+    // =========================
+    // ENVIA O EMAIL
+    // =========================
+
+    const info = await transporter.sendMail({
+
+        from: `"Bora Pedir Delivery" <${process.env.EMAIL_USER}>`,
+
+        to: destinatario,
+
+        subject: 'Código de recuperação de senha',
+
+        html: html
+
+    });
+
+
+    // =========================
+    // LOG
+    // =========================
+
+    console.log(
+        'Email de recuperação enviado:',
+        info.messageId
+    );
+
+
+    return info;
+}

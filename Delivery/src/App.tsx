@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home/home';
 import { CadastroComercial } from './pages/CadastroComercial/cadastroComercio'; 
 import { CadastroEntregador } from './pages/CadastroEntregador/CadastroEntregador';
-import { Login } from './pages/Login/login';
+import { Login } from './pages/PortalGestao/Login/login.tsx';
 import { PortalGestao } from './pages/PortalGestao/PortalGestao';
 import { EsqueciMinhaSenha } from './components/esqueciMinhaSenha/esqueciMinhaSenha';
 import { AdminBoraPedir } from './pages/adminBoraPedir/adminBoraPedir';
@@ -35,7 +35,7 @@ export function App() {
         />
 
         <Route
-          path="/portal_gestao"
+          path="/login_comercial"
           element={<Login />}
         />
 

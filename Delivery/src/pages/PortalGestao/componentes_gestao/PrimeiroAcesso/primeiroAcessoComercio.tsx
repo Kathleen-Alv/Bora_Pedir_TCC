@@ -540,11 +540,8 @@ export function PrimeiroAcessoComercio() {
 
                                 <div className={styles.acoes}>
 
-                                    <button
-                                        type="button"
-                                        className={styles.botaoCancelar}
-                                    >
-                                        Cancelar
+                                    <button>
+                                        
                                     </button>
 
                                     <button
@@ -714,62 +711,11 @@ export function PrimeiroAcessoComercio() {
                                     </div>
 
 
-                                    <div
-                                        className={`${styles.campo} ${styles.campoTipoPix}`}
-                                    >
-
-                                        <label htmlFor="tipoPix">
-                                            Tipo de chave PIX
-                                        </label>
-
-                                        <select id="tipoPix">
-
-                                            <option value="">
-                                                Selecione
-                                            </option>
-
-                                            <option value="cpf">
-                                                CPF
-                                            </option>
-
-                                            <option value="cnpj">
-                                                CNPJ
-                                            </option>
-
-                                            <option value="email">
-                                                E-mail
-                                            </option>
-
-                                            <option value="telefone">
-                                                Telefone
-                                            </option>
-
-                                            <option value="aleatoria">
-                                                Chave aleatória
-                                            </option>
-
-                                        </select>
-
-                                    </div>
 
                                 </div>
 
 
-                                {/* CHAVE PIX */}
-
-                                <div className={styles.campo}>
-
-                                    <label htmlFor="chavePix">
-                                        Chave PIX
-                                    </label>
-
-                                    <input
-                                        id="chavePix"
-                                        type="text"
-                                        placeholder="Digite sua chave PIX"
-                                    />
-
-                                </div>
+                               
 
 
                                 {/* AÇÕES */}
