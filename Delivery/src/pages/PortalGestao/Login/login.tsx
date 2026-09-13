@@ -97,6 +97,8 @@ export function Login({ children }: LoginProps) {
 
             console.log('Login realizado:', dados);
 
+            localStorage.setItem('token', dados.token);
+
 
             // ====================================================
             // PRIMEIRO ACESSO

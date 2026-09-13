@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { db } from '../../configBancoDeDados/database.js';
 
 
@@ -140,7 +141,33 @@ export async function loginComercio(req, res) {
 
 
         // ========================================================
-        // 8. LOGIN REALIZADO COM SUCESSO
+        // 8. CRIA O TOKEN JWT
+        // ========================================================
+
+        const token = jwt.sign(
+
+            {
+                id:
+                    Number(usuario.usuario_id),
+
+                tipo:
+                    'comercio',
+
+                comercio_id:
+                    Number(usuario.comercio_id)
+            },
+
+            process.env.JWT_SECRET,
+
+            {
+                expiresIn: '8h'
+            }
+
+        );
+
+
+        // ========================================================
+        // 9. LOGIN REALIZADO COM SUCESSO
         // ========================================================
 
         return res.status(200).json({
@@ -152,10 +179,12 @@ export async function loginComercio(req, res) {
                 'comercio',
 
             comercio_id:
-            Number(usuario.comercio_id),
+                Number(usuario.comercio_id),
 
             primeiro_acesso:
-                Boolean(usuario.primeiro_acesso)
+                Boolean(usuario.primeiro_acesso),
+
+            token
 
         });
 
@@ -163,7 +192,7 @@ export async function loginComercio(req, res) {
     } catch (error) {
 
         // ========================================================
-        // 9. TRATAMENTO DE ERRO
+        // 10. TRATAMENTO DE ERRO
         // ========================================================
 
         console.error(
@@ -183,7 +212,7 @@ export async function loginComercio(req, res) {
     } finally {
 
         // ========================================================
-        // 10. LIBERA A CONEXÃO
+        // 11. LIBERA A CONEXÃO
         // ========================================================
 
         if (conexao) {

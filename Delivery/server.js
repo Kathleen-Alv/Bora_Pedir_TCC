@@ -1,80 +1,152 @@
-// Importa o framework Express, que facilita a criação de servidores HTTP e o gerenciamento de rotas/middlewares.
+// ================================================================
+// IMPORTS
+// ================================================================
+
+// Express
 import express from 'express';
 
-
-// Email Configuração
+// Configuração do .env
 import 'dotenv/config';
 
-
-// Importa o pacote CORS (Cross-Origin Resource Sharing), necessário para permitir que aplicações frontend em origens diferentes façam requisições para esta API.
+// CORS
 import cors from 'cors';
 
-// Importa os roteadores de arquivos externos modularizados.
-import cadastroEntregadorRoutes from './src/api/routes/cadastroEntregador.routes.js';
-import cadastroComercioRoutes from './src/api/routes/cadastroComercio.routes.js'; // CORRIGIDO: adicionado o '/' após o '.'
+// Path
+import path from 'path';
 
 
-import adminRoutes from './src/api/routes/adminRoutes.routes.js';
+// ================================================================
+// ROTAS
+// ================================================================
 
-import emailRoutes from './src/api/routes/email.routes.js';
+import cadastroEntregadorRoutes
+    from './src/api/routes/cadastroEntregador.routes.js';
+
+import cadastroComercioRoutes
+    from './src/api/routes/cadastroComercio.routes.js';
+
+import adminRoutes
+    from './src/api/routes/adminRoutes.routes.js';
+
+import emailRoutes
+    from './src/api/routes/email.routes.js';
+
+import loginComercioRoutes
+    from './src/api/routes/loginComercio.routes.js';
+
+import recuperacaoSenhaRoutes
+    from './src/api/routes/recuperacaoSenha.routes.js';
+
+import comercioRoutes
+    from './src/api/routes/comercio.routes.js';
 
 
-import loginComercioRoutes from './src/api/routes/loginComercio.routes.js';
+// ================================================================
+// APLICAÇÃO
+// ================================================================
 
-import recuperacaoSenhaRoutes from './src/api/routes/recuperacaoSenha.routes.js';
-
-// Inicializa uma instância da aplicação Express (o núcleo da sua API).
 const app = express();
 
-// Define a porta em que o servidor local responderá a requisições HTTP.
 const PORT = 3000;
 
-// =========================
-// MIDDLEWARES
-// =========================
 
-// Habilita o CORS para todas as origens por padrão.
+// ================================================================
+// MIDDLEWARES
+// ================================================================
+
 app.use(cors());
 
-// Configura o Express para interpretar requisições cujo corpo (body) venha no formato JSON, convertendo-o para um objeto JavaScript acessível via `req.body`.
 app.use(express.json());
 
-// =========================
+
+// ================================================================
+// ARQUIVOS ESTÁTICOS
+// ================================================================
+
+// Permite acessar as imagens salvas dentro de /uploads
+
+app.use(
+    '/uploads',
+    express.static(
+        path.join(process.cwd(), 'uploads')
+    )
+);
+
+
+// ================================================================
 // ROTAS
-// =========================
+// ================================================================
 
-// Registra as rotas importadas.
-app.use('/api/entregadores', cadastroEntregadorRoutes);
-
-// AJUSTADO: alterado para '/api/comercios' (no plural) para alinhar com o fetch do React e com a rota de entregadores
-app.use('/api/comercios', cadastroComercioRoutes);
-
-
-app.use('/api/admin', adminRoutes);
-
-app.use('/api/email', emailRoutes);
-
-app.use('/api/login-comercio', loginComercioRoutes);
-
-app.use('/api/recuperacao-senha',recuperacaoSenhaRoutes);
+// Cadastro de entregadores
+app.use(
+    '/api/entregadores',
+    cadastroEntregadorRoutes
+);
 
 
-// =========================
+// Cadastro de comércio
+app.use(
+    '/api/comercios',
+    cadastroComercioRoutes
+);
+
+
+// Administração
+app.use(
+    '/api/admin',
+    adminRoutes
+);
+
+
+// Emails
+app.use(
+    '/api/email',
+    emailRoutes
+);
+
+
+// Login de comércio
+app.use(
+    '/api/login-comercio',
+    loginComercioRoutes
+);
+
+
+// Recuperação de senha
+app.use(
+    '/api/recuperacao-senha',
+    recuperacaoSenhaRoutes
+);
+
+
+// Primeiro acesso / gerenciamento do comércio
+app.use(
+    '/api/comercios',
+    comercioRoutes
+);
+
+
+// ================================================================
 // TESTE DA API
-// =========================
+// ================================================================
 
-// Define uma rota de teste na raiz do servidor ('/').
 app.get('/', (req, res) => {
+
     res.json({
         message: 'API funcionando!'
     });
+
 });
 
-// =========================
-// INICIAR SERVIDOR
-// =========================
 
-// Coloca o servidor para escutar na porta 3000.
+// ================================================================
+// INICIAR SERVIDOR
+// ================================================================
+
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+
+    console.log(
+        `Servidor rodando em http://localhost:${PORT}`
+    );
+
 });

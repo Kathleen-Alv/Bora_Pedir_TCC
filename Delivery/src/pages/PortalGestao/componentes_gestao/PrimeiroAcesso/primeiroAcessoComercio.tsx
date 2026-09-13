@@ -2,6 +2,11 @@
 import { useState } from 'react';
 import styles from './primeiroAcessoComercio.module.css';
 
+
+/* =========================================================
+   TIPOS
+========================================================= */
+
 type Horario = {
     id: number;
     dia: string;
@@ -9,120 +14,139 @@ type Horario = {
     fechamento: string;
 };
 
+
+/* =========================================================
+   COMPONENTE
+========================================================= */
+
 export function PrimeiroAcessoComercio() {
 
+    /* =========================================================
+       ETAPA ATUAL
+    ========================================================= */
+
     const [etapaAtual, setEtapaAtual] = useState(1);
+
+
+    /* =========================================================
+       DADOS DO COMÉRCIO
+    ========================================================= */
+
+    const [nomeComercio, setNomeComercio] = useState('');
+    const [categoria, setCategoria] = useState('');
+
+
+    /* =========================================================
+       HORÁRIOS
+    ========================================================= */
 
     const [horarios, setHorarios] = useState<Horario[]>([
         {
             id: 1,
-            dia: '',
+            dia: 'segunda',
             abertura: '',
             fechamento: ''
         }
     ]);
 
-    // =========================
-    // IMAGENS
-    // =========================
 
-    const [logo, setLogo] = useState<string>('');
-    const [banner, setBanner] = useState<string>('');
+    /* =========================================================
+       DADOS BANCÁRIOS
+    ========================================================= */
 
-
-    // =========================
-    // PRÓXIMA ETAPA
-    // =========================
-
-    function proximaEtapa() {
-
-        if (etapaAtual < 4) {
-            setEtapaAtual(etapaAtual + 1);
-        }
-
-    }
+    const [banco, setBanco] = useState('');
+    const [agencia, setAgencia] = useState('');
+    const [conta, setConta] = useState('');
+    const [tipoConta, setTipoConta] = useState('');
 
 
-    // =========================
-    // ETAPA ANTERIOR
-    // =========================
+    /* =========================================================
+       ENDEREÇO
+    ========================================================= */
 
-    function etapaAnterior() {
+    const [cep, setCep] = useState('');
+    const [endereco, setEndereco] = useState('');
+    const [numero, setNumero] = useState('');
+    const [complemento, setComplemento] = useState('');
+    const [bairro, setBairro] = useState('');
+    const [cidade, setCidade] = useState('');
+    const [estado, setEstado] = useState('');
 
-        if (etapaAtual > 1) {
-            setEtapaAtual(etapaAtual - 1);
-        }
 
-    }
+    /* =========================================================
+       IMAGENS
+    ========================================================= */
+
+    const [logo, setLogo] = useState<File | null>(null);
+    const [banner, setBanner] = useState<File | null>(null);
+
+    const [logoPreview, setLogoPreview] = useState('');
+    const [bannerPreview, setBannerPreview] = useState('');
 
 
-    // =========================
-    // ADICIONAR HORÁRIO
-    // =========================
+    /* =========================================================
+       ADICIONAR HORÁRIO
+    ========================================================= */
 
     function adicionarHorario() {
 
         const novoHorario: Horario = {
             id: Date.now(),
-            dia: '',
+            dia: 'segunda',
             abertura: '',
             fechamento: ''
         };
 
-        setHorarios([
-            ...horarios,
+        setHorarios((horariosAtuais) => [
+            ...horariosAtuais,
             novoHorario
         ]);
-
     }
 
 
-    // =========================
-    // REMOVER HORÁRIO
-    // =========================
+    /* =========================================================
+       REMOVER HORÁRIO
+    ========================================================= */
 
     function removerHorario(id: number) {
 
-        if (horarios.length === 1) {
-            return;
-        }
-
-        setHorarios(
-            horarios.filter(
+        setHorarios((horariosAtuais) =>
+            horariosAtuais.filter(
                 (horario) => horario.id !== id
             )
         );
-
     }
 
 
-    // =========================
-    // ALTERAR HORÁRIO
-    // =========================
+    /* =========================================================
+       ALTERAR HORÁRIO
+    ========================================================= */
 
     function alterarHorario(
         id: number,
-        campo: keyof Horario,
+        campo: 'dia' | 'abertura' | 'fechamento',
         valor: string
     ) {
 
-        setHorarios(
-            horarios.map((horario) =>
-                horario.id === id
-                    ? {
-                        ...horario,
-                        [campo]: valor
-                    }
-                    : horario
-            )
-        );
+        setHorarios((horariosAtuais) =>
+            horariosAtuais.map((horario) => {
 
+                if (horario.id !== id) {
+                    return horario;
+                }
+
+                return {
+                    ...horario,
+                    [campo]: valor
+                };
+            })
+        );
     }
 
 
-    // =========================
-    // SELECIONAR LOGO
-    // =========================
+    /* =========================================================
+       SELECIONAR LOGO
+    ========================================================= */
 
     function selecionarLogo(
         evento: React.ChangeEvent<HTMLInputElement>
@@ -134,16 +158,17 @@ export function PrimeiroAcessoComercio() {
             return;
         }
 
-        const imagem = URL.createObjectURL(arquivo);
+        setLogo(arquivo);
 
-        setLogo(imagem);
-
+        setLogoPreview(
+            URL.createObjectURL(arquivo)
+        );
     }
 
 
-    // =========================
-    // SELECIONAR BANNER
-    // =========================
+    /* =========================================================
+       SELECIONAR BANNER
+    ========================================================= */
 
     function selecionarBanner(
         evento: React.ChangeEvent<HTMLInputElement>
@@ -155,86 +180,532 @@ export function PrimeiroAcessoComercio() {
             return;
         }
 
-        const imagem = URL.createObjectURL(arquivo);
+        setBanner(arquivo);
 
-        setBanner(imagem);
-
+        setBannerPreview(
+            URL.createObjectURL(arquivo)
+        );
     }
 
 
+    /* =========================================================
+       VALIDAR ETAPA 1
+    ========================================================= */
+
+    function validarEtapa1() {
+
+        if (!nomeComercio.trim()) {
+
+            alert(
+                'Informe o nome do comércio.'
+            );
+
+            return false;
+        }
+
+        if (!categoria) {
+
+            alert(
+                'Selecione uma categoria.'
+            );
+
+            return false;
+        }
+
+        if (horarios.length === 0) {
+
+            alert(
+                'Adicione pelo menos um horário.'
+            );
+
+            return false;
+        }
+
+        for (const horario of horarios) {
+
+            if (
+                !horario.dia ||
+                !horario.abertura ||
+                !horario.fechamento
+            ) {
+
+                alert(
+                    'Preencha todos os campos do horário de atendimento.'
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /* =========================================================
+       VALIDAR ETAPA 2
+    ========================================================= */
+
+    function validarEtapa2() {
+
+        if (!banco) {
+
+            alert(
+                'Selecione o banco.'
+            );
+
+            return false;
+        }
+
+        if (!agencia.trim()) {
+
+            alert(
+                'Informe a agência.'
+            );
+
+            return false;
+        }
+
+        if (!conta.trim()) {
+
+            alert(
+                'Informe a conta.'
+            );
+
+            return false;
+        }
+
+        if (!tipoConta) {
+
+            alert(
+                'Selecione o tipo da conta.'
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /* =========================================================
+       VALIDAR ETAPA 3
+    ========================================================= */
+
+    function validarEtapa3() {
+
+        if (!cep.trim()) {
+
+            alert(
+                'Informe o CEP.'
+            );
+
+            return false;
+        }
+
+        if (!endereco.trim()) {
+
+            alert(
+                'Informe o endereço.'
+            );
+
+            return false;
+        }
+
+        if (!numero.trim()) {
+
+            alert(
+                'Informe o número.'
+            );
+
+            return false;
+        }
+
+        if (!bairro.trim()) {
+
+            alert(
+                'Informe o bairro.'
+            );
+
+            return false;
+        }
+
+        if (!cidade.trim()) {
+
+            alert(
+                'Informe a cidade.'
+            );
+
+            return false;
+        }
+
+        if (!estado) {
+
+            alert(
+                'Selecione o estado.'
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /* =========================================================
+       PRÓXIMA ETAPA
+    ========================================================= */
+
+    function proximaEtapa() {
+
+        if (etapaAtual === 1) {
+
+            if (!validarEtapa1()) {
+                return;
+            }
+
+            setEtapaAtual(2);
+
+            return;
+        }
+
+        if (etapaAtual === 2) {
+
+            if (!validarEtapa2()) {
+                return;
+            }
+
+            setEtapaAtual(3);
+
+            return;
+        }
+
+        if (etapaAtual === 3) {
+
+            if (!validarEtapa3()) {
+                return;
+            }
+
+            setEtapaAtual(4);
+
+            return;
+        }
+    }
+
+
+    /* =========================================================
+       VOLTAR ETAPA
+    ========================================================= */
+
+    function etapaAnterior() {
+
+        if (etapaAtual > 1) {
+
+            setEtapaAtual(
+                etapaAtual - 1
+            );
+        }
+    }
+
+
+    /* =========================================================
+       FINALIZAR CADASTRO
+    ========================================================= */
+
+    async function finalizarCadastro() {
+
+        if (!logo) {
+
+            alert(
+                'Selecione uma logo.'
+            );
+
+            return;
+        }
+
+        if (!banner) {
+
+            alert(
+                'Selecione um banner.'
+            );
+
+            return;
+        }
+
+
+        /* =====================================================
+           TOKEN
+        ===================================================== */
+
+        const token =
+            localStorage.getItem('token');
+
+        if (!token) {
+
+            alert(
+                'Sessão expirada. Faça login novamente.'
+            );
+
+            window.location.href =
+                '/login_comercial';
+
+            return;
+        }
+
+
+        /* =====================================================
+           FORMDATA
+        ===================================================== */
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            'nomeComercio',
+            nomeComercio
+        );
+
+        formData.append(
+            'categoria',
+            categoria
+        );
+
+
+        /* =====================================================
+           BANCO
+        ===================================================== */
+
+        formData.append(
+            'banco',
+            banco
+        );
+
+        formData.append(
+            'agencia',
+            agencia
+        );
+
+        formData.append(
+            'conta',
+            conta
+        );
+
+        formData.append(
+            'tipoConta',
+            tipoConta
+        );
+
+
+        /* =====================================================
+           ENDEREÇO
+        ===================================================== */
+
+        formData.append(
+            'cep',
+            cep
+        );
+
+        formData.append(
+            'endereco',
+            endereco
+        );
+
+        formData.append(
+            'numero',
+            numero
+        );
+
+        formData.append(
+            'complemento',
+            complemento
+        );
+
+        formData.append(
+            'bairro',
+            bairro
+        );
+
+        formData.append(
+            'cidade',
+            cidade
+        );
+
+        formData.append(
+            'estado',
+            estado
+        );
+
+
+        /* =====================================================
+           HORÁRIOS
+        ===================================================== */
+
+        formData.append(
+            'horarios',
+            JSON.stringify(horarios)
+        );
+
+
+        /* =====================================================
+           IMAGENS
+        ===================================================== */
+
+        formData.append(
+            'logo',
+            logo
+        );
+
+        formData.append(
+            'banner',
+            banner
+        );
+
+
+        /* =====================================================
+           ENVIO PARA API
+        ===================================================== */
+
+        try {
+
+            const resposta =
+                await fetch(
+                    'http://localhost:3000/api/comercios/primeiro-acesso',
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        },
+
+                        body: formData
+                    }
+                );
+
+
+            const dados =
+                await resposta.json();
+
+
+            /* =================================================
+               ERRO
+            ================================================= */
+
+            if (!resposta.ok) {
+
+                alert(
+                    dados.message ||
+                    'Erro ao finalizar cadastro.'
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               SUCESSO
+            ================================================= */
+
+            alert(
+                'Cadastro concluído com sucesso!'
+            );
+
+            window.location.href =
+                '/gestao';
+
+        } catch (erro) {
+
+            console.error(
+                'Erro ao enviar cadastro:',
+                erro
+            );
+
+            alert(
+                'Não foi possível conectar ao servidor.'
+            );
+        }
+    }
+
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
+
     return (
-        <main className={styles.container}>
 
-            <section className={styles.card}>
+        <div className={styles.container}>
 
+            <div className={styles.card}>
 
-                {/* =========================
+                {/* =================================================
                     TOPO
-                ========================= */}
+                ================================================= */}
 
                 <div className={styles.topo}>
+
+                    <h1>
+                        Configure seu comércio
+                    </h1>
+
+                    <p>
+                        Complete os dados para começar.
+                    </p>
+
                 </div>
 
 
-                {/* =========================
+                {/* =================================================
                     ETAPAS
-                ========================= */}
+                ================================================= */}
 
                 <div className={styles.etapas}>
 
-
-                    {/* ETAPA 1 */}
-
                     <div
-                        className={`${styles.etapa} ${
+                        className={
                             etapaAtual === 1
-                                ? styles.etapaAtiva
-                                : ''
-                        }`}
+                                ? `${styles.etapa} ${styles.etapaAtiva}`
+                                : styles.etapa
+                        }
                     >
 
                         <span>1</span>
 
                         <p>
-                            Dados do comércio
+                            Comércio
                         </p>
 
                     </div>
 
 
-                    <div className={styles.linha}></div>
+                    <div className={styles.linha} />
 
-
-                    {/* ETAPA 2 */}
 
                     <div
-                        className={`${styles.etapa} ${
+                        className={
                             etapaAtual === 2
-                                ? styles.etapaAtiva
-                                : ''
-                        }`}
+                                ? `${styles.etapa} ${styles.etapaAtiva}`
+                                : styles.etapa
+                        }
                     >
 
                         <span>2</span>
 
                         <p>
-                            Dados bancários
+                            Banco
                         </p>
 
                     </div>
 
 
-                    <div className={styles.linha}></div>
+                    <div className={styles.linha} />
 
-
-                    {/* ETAPA 3 */}
 
                     <div
-                        className={`${styles.etapa} ${
+                        className={
                             etapaAtual === 3
-                                ? styles.etapaAtiva
-                                : ''
-                        }`}
+                                ? `${styles.etapa} ${styles.etapaAtiva}`
+                                : styles.etapa
+                        }
                     >
 
                         <span>3</span>
@@ -246,23 +717,21 @@ export function PrimeiroAcessoComercio() {
                     </div>
 
 
-                    <div className={styles.linha}></div>
+                    <div className={styles.linha} />
 
-
-                    {/* ETAPA 4 */}
 
                     <div
-                        className={`${styles.etapa} ${
+                        className={
                             etapaAtual === 4
-                                ? styles.etapaAtiva
-                                : ''
-                        }`}
+                                ? `${styles.etapa} ${styles.etapaAtiva}`
+                                : styles.etapa
+                        }
                     >
 
                         <span>4</span>
 
                         <p>
-                            Logo e banner
+                            Imagens
                         </p>
 
                     </div>
@@ -270,110 +739,136 @@ export function PrimeiroAcessoComercio() {
                 </div>
 
 
-                {/* =========================
+                {/* =================================================
                     CONTEÚDO
-                ========================= */}
+                ================================================= */}
 
                 <div className={styles.conteudo}>
 
 
-                    {/* ==================================================
-                        ETAPA 1 - DADOS DO COMÉRCIO
-                    ================================================== */}
+                    {/* =================================================
+                        ETAPA 1
+                    ================================================= */}
 
                     {etapaAtual === 1 && (
 
-                        <div>
+                        <form
+                            className={styles.form}
+                            onSubmit={(evento) => {
 
-                            <div className={styles.tituloConteudo}>
+                                evento.preventDefault();
+
+                                proximaEtapa();
+                            }}
+                        >
+
+                            <div
+                                className={
+                                    styles.tituloConteudo
+                                }
+                            >
 
                                 <h2>
-                                    Vamos começar!
+                                    Dados do comércio
                                 </h2>
-
-                                <p>
-                                    Complete as informações do seu comércio
-                                    para liberar seu acesso ao painel.
-                                </p>
 
                             </div>
 
 
-                            <form className={styles.form}>
+                            {/* NOME */}
+
+                            <div className={styles.campo}>
+
+                                <label>
+                                    Nome do comércio
+                                </label>
+
+                                <input
+                                    type="text"
+                                    placeholder="Digite o nome do comércio"
+                                    value={nomeComercio}
+                                    onChange={(e) =>
+                                        setNomeComercio(
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                            </div>
 
 
-                                {/* NOME DO COMÉRCIO */}
+                            {/* CATEGORIA */}
 
-                                <div className={styles.campo}>
+                            <div className={styles.campo}>
 
-                                    <label htmlFor="nomeComercio">
-                                        Nome do comércio
-                                    </label>
+                                <label>
+                                    Categoria
+                                </label>
 
-                                    <input
-                                        id="nomeComercio"
-                                        type="text"
-                                        placeholder="Ex: Sabor da Casa"
-                                    />
+                                <select
+                                    value={categoria}
+                                    onChange={(e) =>
+                                        setCategoria(
+                                            e.target.value
+                                        )
+                                    }
+                                >
 
-                                </div>
+                                    <option value="">
+                                        Selecione uma categoria
+                                    </option>
 
+                                    <option value="lanches">
+                                        Lanches
+                                    </option>
 
-                                {/* CATEGORIA */}
+                                    <option value="pizzaria">
+                                        Pizzaria
+                                    </option>
 
-                                <div className={styles.campo}>
+                                    <option value="japonesa">
+                                        Japonesa
+                                    </option>
 
-                                    <label htmlFor="categoria">
-                                        Categoria
-                                    </label>
+                                    <option value="brasileira">
+                                        Brasileira
+                                    </option>
 
-                                    <select id="categoria">
+                                    <option value="doces">
+                                        Doces
+                                    </option>
 
-                                        <option value="">
-                                            Selecione uma categoria
-                                        </option>
+                                    <option value="bebidas">
+                                        Bebidas
+                                    </option>
 
-                                        <option value="lanches">
-                                            Lanches
-                                        </option>
+                                    <option value="outros">
+                                        Outros
+                                    </option>
 
-                                        <option value="pizzaria">
-                                            Pizzaria
-                                        </option>
+                                </select>
 
-                                        <option value="japonesa">
-                                            Comida japonesa
-                                        </option>
-
-                                        <option value="brasileira">
-                                            Comida brasileira
-                                        </option>
-
-                                        <option value="doces">
-                                            Doces e sobremesas
-                                        </option>
-
-                                        <option value="bebidas">
-                                            Bebidas
-                                        </option>
-
-                                        <option value="outros">
-                                            Outros
-                                        </option>
-
-                                    </select>
-
-                                </div>
+                            </div>
 
 
-                                {/* =========================
-                                    HORÁRIO
-                                ========================= */}
+                            {/* =================================================
+                                HORÁRIO DE ATENDIMENTO
+                            ================================================= */}
 
-                                <div className={styles.tituloHorario}>
+                            <div
+                                className={
+                                    styles.horario
+                                }
+                            >
+
+                                <div
+                                    className={
+                                        styles.tituloHorario
+                                    }
+                                >
 
                                     <h3>
-                                        Horário de funcionamento
+                                        Horário de atendimento
                                     </h3>
 
                                     <p>
@@ -384,254 +879,308 @@ export function PrimeiroAcessoComercio() {
                                 </div>
 
 
-                                <div className={styles.listaHorarios}>
+                                <div
+                                    className={
+                                        styles.listaHorarios
+                                    }
+                                >
 
-                                    {horarios.map((horario) => (
+                                    {horarios.map(
+                                        (horario) => (
 
-                                        <div
-                                            className={styles.linhaHorario}
-                                            key={horario.id}
-                                        >
+                                            <div
+                                                key={horario.id}
+                                                className={
+                                                    styles.linhaHorario
+                                                }
+                                            >
 
+                                                {/* DIA */}
 
-                                            {/* DIA */}
-
-                                            <div className={styles.campoDia}>
-
-                                                <label
-                                                    htmlFor={`dia-${horario.id}`}
-                                                >
-                                                    Dia da semana
-                                                </label>
-
-                                                <select
-                                                    id={`dia-${horario.id}`}
-                                                    value={horario.dia}
-                                                    onChange={(evento) =>
-                                                        alterarHorario(
-                                                            horario.id,
-                                                            'dia',
-                                                            evento.target.value
-                                                        )
+                                                <div
+                                                    className={
+                                                        styles.campoDia
                                                     }
                                                 >
 
-                                                    <option value="">
-                                                        Selecione o dia
-                                                    </option>
+                                                    <label>
+                                                        Dia
+                                                    </label>
 
-                                                    <option value="segunda">
-                                                        Segunda-feira
-                                                    </option>
-
-                                                    <option value="terca">
-                                                        Terça-feira
-                                                    </option>
-
-                                                    <option value="quarta">
-                                                        Quarta-feira
-                                                    </option>
-
-                                                    <option value="quinta">
-                                                        Quinta-feira
-                                                    </option>
-
-                                                    <option value="sexta">
-                                                        Sexta-feira
-                                                    </option>
-
-                                                    <option value="sabado">
-                                                        Sábado
-                                                    </option>
-
-                                                    <option value="domingo">
-                                                        Domingo
-                                                    </option>
-
-                                                </select>
-
-                                            </div>
-
-
-                                            {/* HORÁRIO */}
-
-                                            <div className={styles.campoHorario}>
-
-                                                <label>
-                                                    Horário
-                                                </label>
-
-                                                <div className={styles.horarioLinha}>
-
-                                                    <span>
-                                                        das
-                                                    </span>
-
-                                                    <input
-                                                        type="time"
-                                                        value={horario.abertura}
-                                                        onChange={(evento) =>
+                                                    <select
+                                                        value={
+                                                            horario.dia
+                                                        }
+                                                        onChange={(e) =>
                                                             alterarHorario(
                                                                 horario.id,
-                                                                'abertura',
-                                                                evento.target.value
+                                                                'dia',
+                                                                e.target.value
                                                             )
                                                         }
-                                                    />
+                                                    >
+
+                                                        <option value="segunda">
+                                                            Segunda
+                                                        </option>
+
+                                                        <option value="terca">
+                                                            Terça
+                                                        </option>
+
+                                                        <option value="quarta">
+                                                            Quarta
+                                                        </option>
+
+                                                        <option value="quinta">
+                                                            Quinta
+                                                        </option>
+
+                                                        <option value="sexta">
+                                                            Sexta
+                                                        </option>
+
+                                                        <option value="sabado">
+                                                            Sábado
+                                                        </option>
+
+                                                        <option value="domingo">
+                                                            Domingo
+                                                        </option>
+
+                                                    </select>
+
+                                                </div>
+
+
+                                                {/* HORÁRIOS */}
+
+                                                <div
+                                                    className={
+                                                        styles.horarioLinha
+                                                    }
+                                                >
+
+                                                    <div
+                                                        className={
+                                                            styles.campoHorario
+                                                        }
+                                                    >
+
+                                                        <label>
+                                                            Abertura
+                                                        </label>
+
+                                                        <input
+                                                            type="time"
+                                                            value={
+                                                                horario.abertura
+                                                            }
+                                                            onChange={(e) =>
+                                                                alterarHorario(
+                                                                    horario.id,
+                                                                    'abertura',
+                                                                    e.target.value
+                                                                )
+                                                            }
+                                                        />
+
+                                                    </div>
+
 
                                                     <span>
                                                         até
                                                     </span>
 
-                                                    <input
-                                                        type="time"
-                                                        value={horario.fechamento}
-                                                        onChange={(evento) =>
-                                                            alterarHorario(
-                                                                horario.id,
-                                                                'fechamento',
-                                                                evento.target.value
-                                                            )
+
+                                                    <div
+                                                        className={
+                                                            styles.campoHorario
                                                         }
-                                                    />
+                                                    >
+
+                                                        <label>
+                                                            Fechamento
+                                                        </label>
+
+                                                        <input
+                                                            type="time"
+                                                            value={
+                                                                horario.fechamento
+                                                            }
+                                                            onChange={(e) =>
+                                                                alterarHorario(
+                                                                    horario.id,
+                                                                    'fechamento',
+                                                                    e.target.value
+                                                                )
+                                                            }
+                                                        />
+
+                                                    </div>
+
+
+                                                    {horarios.length > 1 && (
+
+                                                        <button
+                                                            type="button"
+                                                            className={
+                                                                styles.botaoRemover
+                                                            }
+                                                            onClick={() =>
+                                                                removerHorario(
+                                                                    horario.id
+                                                                )
+                                                            }
+                                                        >
+                                                            ×
+                                                        </button>
+
+                                                    )}
 
                                                 </div>
 
                                             </div>
 
-
-                                            {/* REMOVER */}
-
-                                            {horarios.length > 1 && (
-
-                                                <button
-                                                    type="button"
-                                                    className={styles.botaoRemover}
-                                                    onClick={() =>
-                                                        removerHorario(
-                                                            horario.id
-                                                        )
-                                                    }
-                                                >
-                                                    ×
-                                                </button>
-
-                                            )}
-
-                                        </div>
-
-                                    ))}
+                                        )
+                                    )}
 
                                 </div>
 
 
-                                {/* ADICIONAR */}
-
                                 <button
                                     type="button"
-                                    className={styles.botaoAdicionar}
-                                    onClick={adicionarHorario}
+                                    className={
+                                        styles.botaoAdicionar
+                                    }
+                                    onClick={
+                                        adicionarHorario
+                                    }
                                 >
                                     + Adicionar horário
                                 </button>
 
+                            </div>
 
-                                {/* AÇÕES */}
 
-                                <div className={styles.acoes}>
+                            {/* AÇÕES */}
 
-                                    <button>
-                                        
-                                    </button>
+                            <div
+                                className={
+                                    styles.acoes
+                                }
+                            >
 
-                                    <button
-                                        type="button"
-                                        className={styles.botaoProximo}
-                                        onClick={proximaEtapa}
-                                    >
-                                        Próximo
-                                    </button>
+                                <button
+                                    type="submit"
+                                    className={
+                                        styles.botaoProximo
+                                    }
+                                >
+                                    Próximo
+                                </button>
 
-                                </div>
+                            </div>
 
-                            </form>
-
-                        </div>
+                        </form>
 
                     )}
 
 
-                    {/* ==================================================
+                    {/* =================================================
                         ETAPA 2 - DADOS BANCÁRIOS
-                    ================================================== */}
+                    ================================================= */}
 
                     {etapaAtual === 2 && (
 
-                        <div>
+                        <form
+                            className={styles.form}
+                            onSubmit={(evento) => {
 
-                            <div className={styles.tituloConteudo}>
+                                evento.preventDefault();
+
+                                proximaEtapa();
+                            }}
+                        >
+
+                            <div
+                                className={
+                                    styles.tituloSecao
+                                }
+                            >
 
                                 <h2>
                                     Dados bancários
                                 </h2>
 
                                 <p>
-                                    Informe os dados da conta que será
-                                    utilizada para receber os pagamentos
-                                    do seu comércio.
+                                    Informe os dados bancários do comércio.
                                 </p>
 
                             </div>
 
 
-                            <form className={styles.form}>
+                            <div
+                                className={
+                                    styles.linhaBancaria
+                                }
+                            >
 
-
-                                {/* BANCO / AGÊNCIA / CONTA */}
-
-                                <div className={styles.linhaBancaria}>
-
+                                <div
+                                    className={
+                                        styles.campoBanco
+                                    }
+                                >
 
                                     <div
-                                        className={`${styles.campo} ${styles.campoBanco}`}
+                                        className={
+                                            styles.campo
+                                        }
                                     >
 
-                                        <label htmlFor="banco">
+                                        <label>
                                             Banco
                                         </label>
 
-                                        <select id="banco">
+                                        <select
+                                            value={banco}
+                                            onChange={(e) =>
+                                                setBanco(
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
 
                                             <option value="">
-                                                Selecione o banco
+                                                Selecione
                                             </option>
 
                                             <option value="001">
-                                                Banco do Brasil
+                                                001 - Banco do Brasil
                                             </option>
 
                                             <option value="033">
-                                                Santander
+                                                033 - Santander
                                             </option>
 
                                             <option value="104">
-                                                Caixa Econômica Federal
+                                                104 - Caixa
                                             </option>
 
                                             <option value="237">
-                                                Bradesco
+                                                237 - Bradesco
                                             </option>
 
                                             <option value="341">
-                                                Itaú
+                                                341 - Itaú
                                             </option>
 
                                             <option value="260">
-                                                Nubank
+                                                260 - Nubank
                                             </option>
 
                                             <option value="077">
-                                                Inter
+                                                077 - Inter
                                             </option>
 
                                             <option value="outro">
@@ -642,36 +1191,33 @@ export function PrimeiroAcessoComercio() {
 
                                     </div>
 
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.campoAgencia
+                                    }
+                                >
 
                                     <div
-                                        className={`${styles.campo} ${styles.campoAgencia}`}
+                                        className={
+                                            styles.campo
+                                        }
                                     >
 
-                                        <label htmlFor="agencia">
+                                        <label>
                                             Agência
                                         </label>
 
                                         <input
-                                            id="agencia"
                                             type="text"
-                                            placeholder="0000"
-                                        />
-
-                                    </div>
-
-
-                                    <div
-                                        className={`${styles.campo} ${styles.campoConta}`}
-                                    >
-
-                                        <label htmlFor="conta">
-                                            Conta
-                                        </label>
-
-                                        <input
-                                            id="conta"
-                                            type="text"
-                                            placeholder="00000-0"
+                                            value={agencia}
+                                            onChange={(e) =>
+                                                setAgencia(
+                                                    e.target.value
+                                                )
+                                            }
                                         />
 
                                     </div>
@@ -679,440 +1225,641 @@ export function PrimeiroAcessoComercio() {
                                 </div>
 
 
-                                {/* TIPO DE CONTA / PIX */}
-
-                                <div className={styles.linhaBancaria}>
-
+                                <div
+                                    className={
+                                        styles.campoConta
+                                    }
+                                >
 
                                     <div
-                                        className={`${styles.campo} ${styles.campoTipoConta}`}
+                                        className={
+                                            styles.campo
+                                        }
                                     >
 
-                                        <label htmlFor="tipoConta">
+                                        <label>
+                                            Conta
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={conta}
+                                            onChange={(e) =>
+                                                setConta(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.campoTipoConta
+                                    }
+                                >
+
+                                    <div
+                                        className={
+                                            styles.campo
+                                        }
+                                    >
+
+                                        <label>
                                             Tipo de conta
                                         </label>
 
-                                        <select id="tipoConta">
+                                        <select
+                                            value={tipoConta}
+                                            onChange={(e) =>
+                                                setTipoConta(
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
 
                                             <option value="">
                                                 Selecione
                                             </option>
 
                                             <option value="corrente">
-                                                Conta corrente
+                                                Corrente
                                             </option>
 
                                             <option value="poupanca">
-                                                Conta poupança
+                                                Poupança
                                             </option>
 
                                         </select>
 
                                     </div>
 
-
-
                                 </div>
-
-
-                               
-
-
-                                {/* AÇÕES */}
-
-                                <div className={styles.acoes}>
-
-                                    <button
-                                        type="button"
-                                        className={styles.botaoCancelar}
-                                        onClick={etapaAnterior}
-                                    >
-                                        Voltar
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className={styles.botaoProximo}
-                                        onClick={proximaEtapa}
-                                    >
-                                        Próximo
-                                    </button>
-
-                                </div>
-
-                            </form>
-
-                        </div>
-
-                    )}
-
-
-                    {/* ==================================================
-                        ETAPA 3 - ENDEREÇO
-                    ================================================== */}
-
-                    {etapaAtual === 3 && (
-
-                        <div>
-
-                            <div className={styles.tituloConteudo}>
-
-                                <h2>
-                                    Endereço do comércio
-                                </h2>
-
-                                <p>
-                                    Informe o endereço onde seu comércio
-                                    está localizado.
-                                </p>
 
                             </div>
 
 
-                            <form className={styles.form}>
-
-
-                                {/* CEP / ENDEREÇO / NÚMERO */}
-
-                                <div className={styles.linhaEndereco}>
-
-
-                                    <div
-                                        className={`${styles.campo} ${styles.campoCep}`}
-                                    >
-
-                                        <label htmlFor="cep">
-                                            CEP
-                                        </label>
-
-                                        <input
-                                            id="cep"
-                                            type="text"
-                                            placeholder="00000-000"
-                                        />
-
-                                    </div>
-
-
-                                    <div
-                                        className={`${styles.campo} ${styles.campoEndereco}`}
-                                    >
-
-                                        <label htmlFor="endereco">
-                                            Endereço
-                                        </label>
-
-                                        <input
-                                            id="endereco"
-                                            type="text"
-                                            placeholder="Rua, Avenida..."
-                                        />
-
-                                    </div>
-
-
-                                    <div
-                                        className={`${styles.campo} ${styles.campoNumero}`}
-                                    >
-
-                                        <label htmlFor="numero">
-                                            Número
-                                        </label>
-
-                                        <input
-                                            id="numero"
-                                            type="text"
-                                            placeholder="123"
-                                        />
-
-                                    </div>
-
-                                </div>
-
-
-                                {/* COMPLEMENTO */}
-
-                                <div className={styles.campo}>
-
-                                    <label htmlFor="complemento">
-                                        Complemento
-                                    </label>
-
-                                    <input
-                                        id="complemento"
-                                        type="text"
-                                        placeholder="Ex: Loja 2"
-                                    />
-
-                                </div>
-
-
-                                {/* BAIRRO / CIDADE / ESTADO */}
-
-                                <div className={styles.linhaBancaria}>
-
-
-                                    <div className={styles.campoTipoConta}>
-
-                                        <div className={styles.campo}>
-
-                                            <label htmlFor="bairro">
-                                                Bairro
-                                            </label>
-
-                                            <input
-                                                id="bairro"
-                                                type="text"
-                                                placeholder="Bairro"
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div className={styles.campoTipoConta}>
-
-                                        <div className={styles.campo}>
-
-                                            <label htmlFor="cidade">
-                                                Cidade
-                                            </label>
-
-                                            <input
-                                                id="cidade"
-                                                type="text"
-                                                placeholder="Cidade"
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div className={styles.campoNumero}>
-
-                                        <div className={styles.campo}>
-
-                                            <label htmlFor="estado">
-                                                Estado
-                                            </label>
-
-                                            <select id="estado">
-
-                                                <option value="">
-                                                    UF
-                                                </option>
-
-                                                <option value="SP">
-                                                    SP
-                                                </option>
-
-                                                <option value="RJ">
-                                                    RJ
-                                                </option>
-
-                                                <option value="MG">
-                                                    MG
-                                                </option>
-
-                                                <option value="PR">
-                                                    PR
-                                                </option>
-
-                                                <option value="SC">
-                                                    SC
-                                                </option>
-
-                                                <option value="RS">
-                                                    RS
-                                                </option>
-
-                                                <option value="BA">
-                                                    BA
-                                                </option>
-
-                                            </select>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {/* AÇÕES */}
-
-                                <div className={styles.acoes}>
-
-                                    <button
-                                        type="button"
-                                        className={styles.botaoCancelar}
-                                        onClick={etapaAnterior}
-                                    >
-                                        Voltar
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className={styles.botaoProximo}
-                                        onClick={proximaEtapa}
-                                    >
-                                        Próximo
-                                    </button>
-
-                                </div>
-
-                            </form>
-
-                        </div>
-
-                    )}
-
-
-                    {/* ==================================================
-                        ETAPA 4 - LOGO E BANNER
-                    ================================================== */}
-
-                    {etapaAtual === 4 && (
-
-                        <div className={styles.secaoImagens}>
-
-
-                            <div className={styles.tituloConteudo}>
-
-                                <h2>
-                                    Personalize seu comércio
-                                </h2>
-
-                                <p>
-                                    Adicione o logo e o banner que serão
-                                    exibidos na página do seu comércio.
-                                </p>
-
-                            </div>
-
-
-                            {/* =========================
-                                BANNER
-                            ========================= */}
-
-                            <div className={styles.bannerContainer}>
-
-
-                                {/* INPUT DO BANNER */}
-
-                                <input
-                                    id="bannerComercio"
-                                    type="file"
-                                    accept="image/*"
-                                    className={styles.inputImagem}
-                                    onChange={selecionarBanner}
-                                />
-
-
-                                {/* BANNER */}
-
-                                <label
-                                    htmlFor="bannerComercio"
-                                    className={styles.bannerUpload}
-                                >
-
-                                    {banner ? (
-
-                                        <img
-                                            src={banner}
-                                            alt="Banner do comércio"
-                                            className={styles.imagemBanner}
-                                        />
-
-                                    ) : (
-
-                                        <span>
-                                            + Adicionar banner
-                                        </span>
-
-                                    )}
-
-                                </label>
-
-
-                                {/* =========================
-                                    INPUT DO LOGO
-                                ========================= */}
-
-                                <input
-                                    id="logoComercio"
-                                    type="file"
-                                    accept="image/*"
-                                    className={styles.inputImagem}
-                                    onChange={selecionarLogo}
-                                />
-
-
-                                {/* LOGO */}
-
-                                <label
-                                    htmlFor="logoComercio"
-                                    className={styles.logoUpload}
-                                >
-
-                                    {logo ? (
-
-                                        <img
-                                            src={logo}
-                                            alt="Logo do comércio"
-                                            className={styles.imagemLogo}
-                                        />
-
-                                    ) : (
-
-                                        <span>
-                                            +
-                                        </span>
-
-                                    )}
-
-                                </label>
-
-                            </div>
-
-
-                            {/* =========================
-                                INFORMAÇÃO
-                            ========================= */}
-
-                            <div className={styles.infoImagem}>
-
-                                <p>
-                                    Recomendamos uma imagem quadrada
-                                    para o logo e uma imagem de boa
-                                    qualidade para o banner.
-                                </p>
-
-                            </div>
-
-
-                            {/* =========================
-                                AÇÕES
-                            ========================= */}
-
-                            <div className={styles.acoes}>
+                            <div
+                                className={
+                                    styles.acoes
+                                }
+                            >
 
                                 <button
                                     type="button"
-                                    className={styles.botaoVoltar}
-                                    onClick={etapaAnterior}
+                                    className={
+                                        styles.botaoVoltar
+                                    }
+                                    onClick={
+                                        etapaAnterior
+                                    }
                                 >
                                     Voltar
                                 </button>
 
+                                <button
+                                    type="submit"
+                                    className={
+                                        styles.botaoProximo
+                                    }
+                                >
+                                    Próximo
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    )}
+
+
+                    {/* =================================================
+                        ETAPA 3 - ENDEREÇO
+                    ================================================= */}
+
+                    {etapaAtual === 3 && (
+
+                        <form
+                            className={styles.form}
+                            onSubmit={(evento) => {
+
+                                evento.preventDefault();
+
+                                proximaEtapa();
+                            }}
+                        >
+
+                            <div
+                                className={
+                                    styles.tituloConteudo
+                                }
+                            >
+
+                                <h2>
+                                    Endereço
+                                </h2>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.linhaEndereco
+                                }
+                            >
+
+                                <div
+                                    className={
+                                        styles.campoCep
+                                    }
+                                >
+
+                                    <div
+                                        className={
+                                            styles.campo
+                                        }
+                                    >
+
+                                        <label>
+                                            CEP
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            placeholder="00000-000"
+                                            value={cep}
+                                            onChange={(e) =>
+                                                setCep(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.campoEndereco
+                                    }
+                                >
+
+                                    <div
+                                        className={
+                                            styles.campo
+                                        }
+                                    >
+
+                                        <label>
+                                            Endereço
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            placeholder="Rua, Avenida..."
+                                            value={endereco}
+                                            onChange={(e) =>
+                                                setEndereco(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.campoNumero
+                                    }
+                                >
+
+                                    <div
+                                        className={
+                                            styles.campo
+                                        }
+                                    >
+
+                                        <label>
+                                            Número
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            placeholder="123"
+                                            value={numero}
+                                            onChange={(e) =>
+                                                setNumero(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className={styles.campo}>
+
+                                <label>
+                                    Complemento
+                                </label>
+
+                                <input
+                                    type="text"
+                                    value={complemento}
+                                    onChange={(e) =>
+                                        setComplemento(
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+
+                            <div className={styles.campo}>
+
+                                <label>
+                                    Bairro
+                                </label>
+
+                                <input
+                                    type="text"
+                                    value={bairro}
+                                    onChange={(e) =>
+                                        setBairro(
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+
+                            <div className={styles.campo}>
+
+                                <label>
+                                    Cidade
+                                </label>
+
+                                <input
+                                    type="text"
+                                    value={cidade}
+                                    onChange={(e) =>
+                                        setCidade(
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+
+                            <div className={styles.campo}>
+
+                                <label>
+                                    Estado
+                                </label>
+
+                                
+                            <select
+                                value={estado}
+                                onChange={(e) =>
+                                    setEstado(e.target.value)
+                                }
+                            >
+                                <option value="">
+                                    Selecione o estado
+                                </option>
+
+                                <option value="AC">
+                                    Acre
+                                </option>
+
+                                <option value="AL">
+                                    Alagoas
+                                </option>
+
+                                <option value="AP">
+                                    Amapá
+                                </option>
+
+                                <option value="AM">
+                                    Amazonas
+                                </option>
+
+                                <option value="BA">
+                                    Bahia
+                                </option>
+
+                                <option value="CE">
+                                    Ceará
+                                </option>
+
+                                <option value="DF">
+                                    Distrito Federal
+                                </option>
+
+                                <option value="ES">
+                                    Espírito Santo
+                                </option>
+
+                                <option value="GO">
+                                    Goiás
+                                </option>
+
+                                <option value="MA">
+                                    Maranhão
+                                </option>
+
+                                <option value="MT">
+                                    Mato Grosso
+                                </option>
+
+                                <option value="MS">
+                                    Mato Grosso do Sul
+                                </option>
+
+                                <option value="MG">
+                                    Minas Gerais
+                                </option>
+
+                                <option value="PA">
+                                    Pará
+                                </option>
+
+                                <option value="PB">
+                                    Paraíba
+                                </option>
+
+                                <option value="PR">
+                                    Paraná
+                                </option>
+
+                                <option value="PE">
+                                    Pernambuco
+                                </option>
+
+                                <option value="PI">
+                                    Piauí
+                                </option>
+
+                                <option value="RJ">
+                                    Rio de Janeiro
+                                </option>
+
+                                <option value="RN">
+                                    Rio Grande do Norte
+                                </option>
+
+                                <option value="RS">
+                                    Rio Grande do Sul
+                                </option>
+
+                                <option value="RO">
+                                    Rondônia
+                                </option>
+
+                                <option value="RR">
+                                    Roraima
+                                </option>
+
+                                <option value="SC">
+                                    Santa Catarina
+                                </option>
+
+                                <option value="SP">
+                                    São Paulo
+                                </option>
+
+                                <option value="SE">
+                                    Sergipe
+                                </option>
+
+                                <option value="TO">
+                                    Tocantins
+                                </option>
+                            </select>
+
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.acoes
+                                }
+                            >
 
                                 <button
                                     type="button"
-                                    className={styles.botaoProximo}
+                                    className={
+                                        styles.botaoVoltar
+                                    }
+                                    onClick={
+                                        etapaAnterior
+                                    }
                                 >
-                                    Finalizar
+                                    Voltar
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className={
+                                        styles.botaoProximo
+                                    }
+                                >
+                                    Próximo
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    )}
+
+
+                    {/* =================================================
+                        ETAPA 4 - IMAGENS
+                    ================================================= */}
+
+                    {etapaAtual === 4 && (
+
+                        <div
+                            className={
+                                styles.form
+                            }
+                        >
+
+                            <div
+                                className={
+                                    styles.tituloConteudo
+                                }
+                            >
+
+                                <h2>
+                                    Imagens do comércio
+                                </h2>
+
+                                <p>
+                                    Adicione a logo e o banner que serão
+                                    exibidos para seus clientes.
+                                </p>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.secaoImagens
+                                }
+                            >
+
+                                {/* =================================================
+                                    BANNER
+                                ================================================= */}
+
+                                <div
+                                    className={
+                                        styles.bannerContainer
+                                    }
+                                >
+
+                                    <label
+                                        htmlFor="banner"
+                                        className={
+                                            styles.bannerUpload
+                                        }
+                                    >
+
+                                        {bannerPreview ? (
+
+                                            <img
+                                                src={
+                                                    bannerPreview
+                                                }
+                                                alt="Preview do banner"
+                                                className={
+                                                    styles.imagemBanner
+                                                }
+                                            />
+
+                                        ) : (
+
+                                            <span>
+                                                Clique para adicionar o banner
+                                            </span>
+
+                                        )}
+
+                                        <input
+                                            id="banner"
+                                            type="file"
+                                            accept="image/*"
+                                            className={
+                                                styles.inputImagem
+                                            }
+                                            onChange={
+                                                selecionarBanner
+                                            }
+                                        />
+
+                                    </label>
+
+
+                                    {/* =================================================
+                                        LOGO
+                                    ================================================= */}
+
+                                    <label
+                                        htmlFor="logo"
+                                        className={
+                                            styles.logoUpload
+                                        }
+                                    >
+
+                                        {logoPreview ? (
+
+                                            <img
+                                                src={
+                                                    logoPreview
+                                                }
+                                                alt="Preview da logo"
+                                                className={
+                                                    styles.imagemLogo
+                                                }
+                                            />
+
+                                        ) : (
+
+                                            <span>
+                                                Clique para adicionar a logo
+                                            </span>
+
+                                        )}
+
+                                        <input
+                                            id="logo"
+                                            type="file"
+                                            accept="image/*"
+                                            className={
+                                                styles.inputImagem
+                                            }
+                                            onChange={
+                                                selecionarLogo
+                                            }
+                                        />
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* =================================================
+                                AÇÕES
+                            ================================================= */}
+
+                            <div
+                                className={
+                                    styles.acoes
+                                }
+                            >
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.botaoVoltar
+                                    }
+                                    onClick={
+                                        etapaAnterior
+                                    }
+                                >
+                                    Voltar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.botaoProximo
+                                    }
+                                    onClick={
+                                        finalizarCadastro
+                                    }
+                                >
+                                    Finalizar cadastro
                                 </button>
 
                             </div>
@@ -1123,9 +1870,9 @@ export function PrimeiroAcessoComercio() {
 
                 </div>
 
-            </section>
+            </div>
 
-        </main>
+        </div>
     );
 }
 
