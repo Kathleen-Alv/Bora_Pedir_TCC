@@ -1,0 +1,135 @@
+/* =========================
+   OVERLAY & CONTAINER
+========================= */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  position: relative;
+  width: 90%;
+  max-width: 400px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+.modalClose {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  color: #888888;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modalClose:hover {
+  color: #111111;
+}
+
+.modalContent h2 {
+  margin: 0 0 18px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #171717;
+}
+
+/* =========================
+   FORMULÁRIO
+========================= */
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.fieldGroup label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #555555;
+}
+
+.fieldGroup input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #c5c9cf;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #222222;
+  background-color: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.fieldGroup input:focus {
+  border-color: #888888;
+}
+
+/* =========================
+   AÇÕES
+========================= */
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btnCancel {
+  height: 36px;
+  padding: 0 16px;
+  background-color: #ffffff;
+  border: 1px solid #bfc4ca;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444444;
+  cursor: pointer;
+}
+
+.btnCancel:hover {
+  background-color: #f5f5f5;
+}
+
+.btnSave {
+  height: 36px;
+  padding: 0 18px;
+  background-color: #ffd600;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111111;
+  cursor: pointer;
+}
+
+.btnSave:hover {
+  background-color: #f4cb00;
+}

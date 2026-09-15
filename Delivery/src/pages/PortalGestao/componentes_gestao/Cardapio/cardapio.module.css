@@ -6,7 +6,7 @@
     width: 100%;
     min-height: 100vh;
 
-    background-color: #ffffff;
+    background-color: #ebe1e1;
 
     color: #171717;
 
@@ -180,6 +180,37 @@
 .filtros input:focus,
 .filtros select:focus {
     border-color: #999999;
+}
+
+
+
+.botoesAcao {
+    margin-left: auto;
+    display: flex;
+    gap: 15px; /* Controla o espaço exato entre eles */
+}
+
+
+.novaCategoria{
+     height: 33px;
+
+    margin-left: auto;
+
+    padding: 0 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background-color: #df1616;
+
+    color: #111111;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
 }
 
 
