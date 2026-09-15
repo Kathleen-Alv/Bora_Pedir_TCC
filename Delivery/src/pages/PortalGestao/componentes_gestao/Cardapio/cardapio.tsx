@@ -15,65 +15,9 @@ type Item = {
     disponivel: boolean;
 };
 
-const categoriasIniciais: Categoria[] = [
-    { id: 1, nome: 'Barcas - Serve 4 Pessoas', quantidade: 2 },
-    { id: 2, nome: 'Lasanha e Massas', quantidade: 3 },
-    { id: 3, nome: 'Baião de Dois', quantidade: 18 },
-    { id: 4, nome: 'Escondidinho de Batata', quantidade: 10 },
-    { id: 5, nome: 'Cardápio do Dia', quantidade: 37 },
-    { id: 6, nome: 'Lanches', quantidade: 11 },
-    { id: 7, nome: 'Tapioca', quantidade: 9 },
-    { id: 8, nome: 'Batata Recheada', quantidade: 6 },
-];
-
-const itensIniciais: Item[] = [
-    {
-        id: 1,
-        nome: 'Baião de Dois C/ Almôndegas',
-        preco: 0,
-        imagem: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=100',
-        disponivel: true,
-    },
-    {
-        id: 2,
-        nome: 'Baião de Dois C/ Mocotó.',
-        preco: 0,
-        imagem: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=100',
-        disponivel: true,
-    },
-    {
-        id: 3,
-        nome: 'Baião de Dois C/ Calabresa Acebolada',
-        preco: 0,
-        imagem: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=100',
-        disponivel: true,
-    },
-    {
-        id: 4,
-        nome: 'Baião de Dois C/ Carne Moída',
-        preco: 0,
-        imagem: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=100',
-        disponivel: true,
-    },
-    {
-        id: 5,
-        nome: 'Baião de Dois C/ Contra Filé',
-        preco: 0,
-        imagem: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=100',
-        disponivel: true,
-    },
-    {
-        id: 6,
-        nome: 'Baião de Dois C/ Frango',
-        preco: 0,
-        imagem: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=100',
-        disponivel: true,
-    },
-];
-
 export function Cardapio() {
 
-    const [categoriaSelecionada, setCategoriaSelecionada] = useState(3);
+    const [categoriaSelecionada, setCategoriaSelecionada] = useState<number | null>(null);
 
     const [categorias, setCategorias] =
         useState<Categoria[]>(categoriasIniciais);
