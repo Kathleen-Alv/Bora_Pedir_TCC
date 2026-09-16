@@ -41,6 +41,10 @@ import comercioRoutes
     from './src/api/routes/comercio.routes.js';
 
 
+import cardapioRoutes
+     from './src/api/routes/cardapio.routes.js';
+
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -123,6 +127,13 @@ app.use(
 app.use(
     '/api/comercios',
     comercioRoutes
+);
+
+//CARDAPIO ROUTES
+
+app.use(
+    '/api/cardapio',
+    cardapioRoutes
 );
 
 
