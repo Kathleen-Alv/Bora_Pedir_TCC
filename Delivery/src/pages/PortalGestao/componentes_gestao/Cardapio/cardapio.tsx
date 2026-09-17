@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from 'react';
 
 import styles from './cardapio.module.css';
 
 import { NovoItem } from './novoItem/novoItem';
 import { NovaCategoria } from './novaCategoria/novaCategoria';
+import { MenuItem } from './menuItem/menuItem';
 
 
 // ================================================================
@@ -23,6 +23,7 @@ type Item = {
     nome: string;
     preco: number;
     imagem: string;
+    descricao: string;
     disponivel: boolean;
     categoriaId: number;
     statusVenda: 'ativo' | 'pausado';
@@ -61,7 +62,8 @@ type DadosComercio = {
 // API
 // ================================================================
 
-const API_URL = 'http://localhost:3000/api/cardapio';
+const API_URL =
+    'http://localhost:3000/api/cardapio';
 
 
 // ================================================================
@@ -71,6 +73,23 @@ const API_URL = 'http://localhost:3000/api/cardapio';
 function obterToken(): string | null {
 
     return localStorage.getItem('token');
+
+}
+
+
+// ================================================================
+// CONVERTER BOOLEANO
+// ================================================================
+
+function converterBooleano(
+    valor: unknown
+): boolean {
+
+    return (
+        valor === true ||
+        valor === 1 ||
+        valor === '1'
+    );
 
 }
 
@@ -89,12 +108,6 @@ export function Cardapio() {
     const [categorias, setCategorias] =
         useState<Categoria[]>([]);
 
-
-    // ============================================================
-    // AGORA OS ITENS COMEÇAM VAZIOS
-    //
-    // Eles serão carregados do banco de dados.
-    // ============================================================
 
     const [itens, setItens] =
         useState<Item[]>([]);
@@ -140,6 +153,14 @@ export function Cardapio() {
         useState(false);
 
 
+    const [excluindoItemId, setExcluindoItemId] =
+        useState<number | null>(null);
+
+
+    const [excluindoSelecionados, setExcluindoSelecionados] =
+        useState(false);
+
+
     const [erro, setErro] =
         useState('');
 
@@ -158,7 +179,8 @@ export function Cardapio() {
             setErro('');
 
 
-            const token = obterToken();
+            const token =
+                obterToken();
 
 
             if (!token) {
@@ -172,21 +194,25 @@ export function Cardapio() {
             }
 
 
-            const resposta = await fetch(
-                `${API_URL}/categorias`,
-                {
-                    method: 'GET',
+            const resposta =
+                await fetch(
+                    `${API_URL}/categorias`,
+                    {
+                        method: 'GET',
 
-                    headers: {
-                        Authorization: `Bearer ${token}`,
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
 
-                        'Content-Type': 'application/json'
+                            'Content-Type':
+                                'application/json'
+                        }
                     }
-                }
-            );
+                );
 
 
-            const dados = await resposta.json();
+            const dados =
+                await resposta.json();
 
 
             if (!resposta.ok) {
@@ -199,7 +225,8 @@ export function Cardapio() {
             }
 
 
-            const categoriasRecebidas: Categoria[] =
+            const categoriasRecebidas:
+                Categoria[] =
                 dados.categorias || [];
 
 
@@ -207,11 +234,6 @@ export function Cardapio() {
                 categoriasRecebidas
             );
 
-
-            // ----------------------------------------------------
-            // SE NÃO HOUVER CATEGORIA SELECIONADA,
-            // SELECIONA A PRIMEIRA
-            // ----------------------------------------------------
 
             if (
                 categoriaSelecionada === null &&
@@ -233,7 +255,9 @@ export function Cardapio() {
             );
 
 
-            if (error instanceof Error) {
+            if (
+                error instanceof Error
+            ) {
 
                 setErro(
                     error.message
@@ -247,9 +271,12 @@ export function Cardapio() {
 
             }
 
+
         } finally {
 
-            setCarregandoCategorias(false);
+            setCarregandoCategorias(
+                false
+            );
 
         }
 
@@ -258,7 +285,7 @@ export function Cardapio() {
 
 
     // ============================================================
-    // CARREGAR ITENS DO BANCO DE DADOS
+    // CARREGAR ITENS
     // ============================================================
 
     async function carregarItens() {
@@ -270,7 +297,8 @@ export function Cardapio() {
             setErro('');
 
 
-            const token = obterToken();
+            const token =
+                obterToken();
 
 
             if (!token) {
@@ -284,21 +312,25 @@ export function Cardapio() {
             }
 
 
-            const resposta = await fetch(
-                `${API_URL}/itens`,
-                {
-                    method: 'GET',
+            const resposta =
+                await fetch(
+                    `${API_URL}/itens`,
+                    {
+                        method: 'GET',
 
-                    headers: {
-                        Authorization: `Bearer ${token}`,
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
 
-                        'Content-Type': 'application/json'
+                            'Content-Type':
+                                'application/json'
+                        }
                     }
-                }
-            );
+                );
 
 
-            const dados = await resposta.json();
+            const dados =
+                await resposta.json();
 
 
             if (!resposta.ok) {
@@ -311,33 +343,37 @@ export function Cardapio() {
             }
 
 
-            const itensRecebidos: ItemRecebidoAPI[] =
+            const itensRecebidos:
+                ItemRecebidoAPI[] =
                 dados.itens || [];
 
 
-            // ----------------------------------------------------
-            // CONVERTE O FORMATO DA API PARA O FORMATO DA TELA
-            // ----------------------------------------------------
-
-            const itensFormatados: Item[] =
+            const itensFormatados:
+                Item[] =
                 itensRecebidos.map(
                     (item) => ({
 
-                        id: Number(
-                            item.id
-                        ),
+                        id:
+                            Number(
+                                item.id
+                            ),
 
-                        nome: item.nome,
+                        nome:
+                            item.nome,
 
-                        preco: Number(
-                            item.preco
-                        ),
+                        preco:
+                            Number(
+                                item.preco
+                            ),
 
                         imagem:
                             item.foto || '',
 
+                        descricao:
+                            item.descricao || '',
+
                         disponivel:
-                            Boolean(
+                            converterBooleano(
                                 item.disponivel
                             ),
 
@@ -347,7 +383,9 @@ export function Cardapio() {
                             ),
 
                         statusVenda:
-                            item.disponivel
+                            converterBooleano(
+                                item.disponivel
+                            )
                                 ? 'ativo'
                                 : 'pausado'
 
@@ -368,7 +406,9 @@ export function Cardapio() {
             );
 
 
-            if (error instanceof Error) {
+            if (
+                error instanceof Error
+            ) {
 
                 setErro(
                     error.message
@@ -382,9 +422,12 @@ export function Cardapio() {
 
             }
 
+
         } finally {
 
-            setCarregandoItens(false);
+            setCarregandoItens(
+                false
+            );
 
         }
 
@@ -400,7 +443,8 @@ export function Cardapio() {
 
         try {
 
-            const token = obterToken();
+            const token =
+                obterToken();
 
 
             if (!token) {
@@ -414,21 +458,25 @@ export function Cardapio() {
             }
 
 
-            const resposta = await fetch(
-                `${API_URL}/dados`,
-                {
-                    method: 'GET',
+            const resposta =
+                await fetch(
+                    `${API_URL}/dados`,
+                    {
+                        method: 'GET',
 
-                    headers: {
-                        Authorization: `Bearer ${token}`,
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
 
-                        'Content-Type': 'application/json'
+                            'Content-Type':
+                                'application/json'
+                        }
                     }
-                }
-            );
+                );
 
 
-            const dados = await resposta.json();
+            const dados =
+                await resposta.json();
 
 
             if (!resposta.ok) {
@@ -441,7 +489,8 @@ export function Cardapio() {
             }
 
 
-            const comercio: DadosComercio =
+            const comercio:
+                DadosComercio =
                 dados.comercio;
 
 
@@ -503,7 +552,8 @@ export function Cardapio() {
     // ============================================================
 
     async function handleSalvarCategoria(
-        nomeCategoria: string
+        nomeCategoria: string,
+        continuarCadastrando: boolean = false
     ) {
 
         try {
@@ -513,7 +563,8 @@ export function Cardapio() {
             setErro('');
 
 
-            const token = obterToken();
+            const token =
+                obterToken();
 
 
             if (!token) {
@@ -525,25 +576,31 @@ export function Cardapio() {
             }
 
 
-            const resposta = await fetch(
-                `${API_URL}/categorias`,
-                {
-                    method: 'POST',
+            const resposta =
+                await fetch(
+                    `${API_URL}/categorias`,
+                    {
+                        method: 'POST',
 
-                    headers: {
-                        Authorization: `Bearer ${token}`,
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
 
-                        'Content-Type': 'application/json'
-                    },
+                            'Content-Type':
+                                'application/json'
+                        },
 
-                    body: JSON.stringify({
-                        nome: nomeCategoria
-                    })
-                }
-            );
+                        body:
+                            JSON.stringify({
+                                nome:
+                                    nomeCategoria
+                            })
+                    }
+                );
 
 
-            const dados = await resposta.json();
+            const dados =
+                await resposta.json();
 
 
             if (!resposta.ok) {
@@ -556,29 +613,46 @@ export function Cardapio() {
             }
 
 
-            const novaCategoria: Categoria =
+            const novaCategoria:
+                Categoria =
                 dados.categoria;
 
 
+            // ----------------------------------------------------
+            // ADICIONA A NOVA CATEGORIA
+            // ----------------------------------------------------
+
             setCategorias(
                 (categoriasAtuais) => [
-
                     ...categoriasAtuais,
-
                     novaCategoria
-
                 ]
             );
 
+
+            // ----------------------------------------------------
+            // SELECIONA A NOVA CATEGORIA
+            // ----------------------------------------------------
 
             setCategoriaSelecionada(
                 novaCategoria.id
             );
 
 
-            setMostrarNovaCategoria(
-                false
-            );
+            // ----------------------------------------------------
+            // FECHA SOMENTE SE NÃO FOR
+            // ADICIONAR OUTRA
+            // ----------------------------------------------------
+
+            if (
+                !continuarCadastrando
+            ) {
+
+                setMostrarNovaCategoria(
+                    false
+                );
+
+            }
 
 
         } catch (error) {
@@ -589,7 +663,9 @@ export function Cardapio() {
             );
 
 
-            if (error instanceof Error) {
+            if (
+                error instanceof Error
+            ) {
 
                 setErro(
                     error.message
@@ -603,9 +679,21 @@ export function Cardapio() {
 
             }
 
+
+            // ----------------------------------------------------
+            // IMPORTANTE:
+            // O NovaCategoria também precisa saber
+            // que ocorreu erro.
+            // ----------------------------------------------------
+
+            throw error;
+
+
         } finally {
 
-            setSalvandoCategoria(false);
+            setSalvandoCategoria(
+                false
+            );
 
         }
 
@@ -621,23 +709,30 @@ export function Cardapio() {
         item: ItemCriadoAPI
     ) {
 
-        const novoItem: Item = {
+        const novoItem:
+            Item = {
 
-            id: Number(
-                item.id
-            ),
+            id:
+                Number(
+                    item.id
+                ),
 
-            nome: item.nome,
+            nome:
+                item.nome,
 
-            preco: Number(
-                item.preco
-            ),
+            preco:
+                Number(
+                    item.preco
+                ),
 
             imagem:
                 item.foto || '',
 
+            descricao:
+                item.descricao || '',
+
             disponivel:
-                Boolean(
+                converterBooleano(
                     item.disponivel
                 ),
 
@@ -647,42 +742,27 @@ export function Cardapio() {
                 ),
 
             statusVenda:
-                item.disponivel
+                converterBooleano(
+                    item.disponivel
+                )
                     ? 'ativo'
                     : 'pausado'
 
         };
 
 
-        // --------------------------------------------------------
-        // ADICIONA O ITEM À LISTA
-        //
-        // Ele aparece imediatamente sem precisar atualizar a página.
-        // --------------------------------------------------------
-
         setItens(
             (itensAtuais) => [
-
                 ...itensAtuais,
-
                 novoItem
-
             ]
         );
 
-
-        // --------------------------------------------------------
-        // SELECIONA A CATEGORIA DO ITEM
-        // --------------------------------------------------------
 
         setCategoriaSelecionada(
             novoItem.categoriaId
         );
 
-
-        // --------------------------------------------------------
-        // ATUALIZA A QUANTIDADE DA CATEGORIA
-        // --------------------------------------------------------
 
         setCategorias(
             (categoriasAtuais) =>
@@ -715,11 +795,203 @@ export function Cardapio() {
         );
 
 
-        // --------------------------------------------------------
-        // LIMPA SELEÇÕES
-        // --------------------------------------------------------
-
         setItensSelecionados([]);
+
+    }
+
+
+
+    // ============================================================
+    // ALTERAR ITEM
+    // ============================================================
+
+    function handleAlterarItem(
+        item: Item
+    ) {
+
+        console.log(
+            'Item selecionado para alteração:',
+            item
+        );
+
+
+        alert(
+            `Alterar item: ${item.nome}`
+        );
+
+    }
+
+
+
+    // ============================================================
+    // EXCLUIR ITEM
+    // ============================================================
+
+    async function handleExcluirItem(
+        item: Item
+    ) {
+
+        const confirmar =
+            window.confirm(
+                `Deseja realmente excluir o item "${item.nome}"?`
+            );
+
+
+        if (!confirmar) {
+
+            return;
+
+        }
+
+
+        try {
+
+            setExcluindoItemId(
+                item.id
+            );
+
+            setErro('');
+
+
+            const token =
+                obterToken();
+
+
+            if (!token) {
+
+                throw new Error(
+                    'Sessão expirada. Faça login novamente.'
+                );
+
+            }
+
+
+            const resposta =
+                await fetch(
+                    `${API_URL}/itens/${item.id}`,
+                    {
+                        method: 'DELETE',
+
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+
+            let dados: {
+                message?: string;
+            } = {};
+
+
+            try {
+
+                dados =
+                    await resposta.json();
+
+            } catch {
+
+                // DELETE pode não retornar JSON.
+
+            }
+
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    dados.message ||
+                    'Erro ao excluir item.'
+                );
+
+            }
+
+
+            setItens(
+                (itensAtuais) =>
+                    itensAtuais.filter(
+                        (itemAtual) =>
+                            itemAtual.id !==
+                            item.id
+                    )
+            );
+
+
+            setItensSelecionados(
+                (selecionados) =>
+                    selecionados.filter(
+                        (id) =>
+                            id !== item.id
+                    )
+            );
+
+
+            setCategorias(
+                (categoriasAtuais) =>
+
+                    categoriasAtuais.map(
+                        (categoria) => {
+
+                            if (
+                                categoria.id ===
+                                item.categoriaId
+                            ) {
+
+                                return {
+
+                                    ...categoria,
+
+                                    quantidade:
+                                        Math.max(
+                                            0,
+                                            categoria.quantidade - 1
+                                        )
+
+                                };
+
+                            }
+
+
+                            return categoria;
+
+                        }
+                    )
+
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                'Erro ao excluir item:',
+                error
+            );
+
+
+            if (
+                error instanceof Error
+            ) {
+
+                setErro(
+                    error.message
+                );
+
+            } else {
+
+                setErro(
+                    'Erro ao excluir item.'
+                );
+
+            }
+
+
+        } finally {
+
+            setExcluindoItemId(
+                null
+            );
+
+        }
 
     }
 
@@ -749,11 +1021,8 @@ export function Cardapio() {
 
 
                 return [
-
                     ...selecionados,
-
                     id
-
                 ];
 
             }
@@ -780,7 +1049,9 @@ export function Cardapio() {
             idsVisiveis.length > 0 &&
             idsVisiveis.every(
                 (id) =>
-                    itensSelecionados.includes(id)
+                    itensSelecionados.includes(
+                        id
+                    )
             );
 
 
@@ -790,7 +1061,9 @@ export function Cardapio() {
                 (selecionados) =>
                     selecionados.filter(
                         (id) =>
-                            !idsVisiveis.includes(id)
+                            !idsVisiveis.includes(
+                                id
+                            )
                     )
             );
 
@@ -805,6 +1078,263 @@ export function Cardapio() {
                     ])
 
                 ]
+            );
+
+        }
+
+    }
+
+
+
+    // ============================================================
+    // EXCLUIR ITENS SELECIONADOS
+    // ============================================================
+
+    async function handleExcluirSelecionados() {
+
+        if (
+            itensSelecionados.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        const confirmar =
+            window.confirm(
+                `Deseja realmente excluir ${itensSelecionados.length} item(ns) selecionado(s)?`
+            );
+
+
+        if (!confirmar) {
+
+            return;
+
+        }
+
+
+        try {
+
+            setExcluindoSelecionados(
+                true
+            );
+
+            setErro('');
+
+
+            const token =
+                obterToken();
+
+
+            if (!token) {
+
+                throw new Error(
+                    'Sessão expirada. Faça login novamente.'
+                );
+
+            }
+
+
+            const idsParaExcluir = [
+                ...itensSelecionados
+            ];
+
+
+            const itensExcluidos:
+                Item[] = [];
+
+
+            // ----------------------------------------------------
+            // EXCLUI UM POR UM
+            // ----------------------------------------------------
+
+            for (
+                const id of idsParaExcluir
+            ) {
+
+                const resposta =
+                    await fetch(
+                        `${API_URL}/itens/${id}`,
+                        {
+                            method: 'DELETE',
+
+                            headers: {
+                                Authorization:
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+
+                if (!resposta.ok) {
+
+                    let dados: {
+                        message?: string;
+                    } = {};
+
+
+                    try {
+
+                        dados =
+                            await resposta.json();
+
+                    } catch {
+
+                        // Sem resposta JSON.
+
+                    }
+
+
+                    throw new Error(
+                        dados.message ||
+                        `Erro ao excluir o item ${id}.`
+                    );
+
+                }
+
+
+                const itemEncontrado =
+                    itens.find(
+                        (item) =>
+                            item.id === id
+                    );
+
+
+                if (itemEncontrado) {
+
+                    itensExcluidos.push(
+                        itemEncontrado
+                    );
+
+                }
+
+            }
+
+
+            // ----------------------------------------------------
+            // REMOVE DA LISTA
+            // ----------------------------------------------------
+
+            setItens(
+                (itensAtuais) =>
+                    itensAtuais.filter(
+                        (item) =>
+                            !idsParaExcluir.includes(
+                                item.id
+                            )
+                    )
+            );
+
+
+            // ----------------------------------------------------
+            // ATUALIZA CATEGORIAS
+            // ----------------------------------------------------
+
+            setCategorias(
+                (categoriasAtuais) => {
+
+                    const quantidadePorCategoria =
+                        new Map<number, number>();
+
+
+                    itensExcluidos.forEach(
+                        (item) => {
+
+                            const quantidadeAtual =
+                                quantidadePorCategoria.get(
+                                    item.categoriaId
+                                ) || 0;
+
+
+                            quantidadePorCategoria.set(
+                                item.categoriaId,
+                                quantidadeAtual + 1
+                            );
+
+                        }
+                    );
+
+
+                    return categoriasAtuais.map(
+                        (categoria) => {
+
+                            const quantidadeRemovida =
+                                quantidadePorCategoria.get(
+                                    categoria.id
+                                ) || 0;
+
+
+                            if (
+                                quantidadeRemovida === 0
+                            ) {
+
+                                return categoria;
+
+                            }
+
+
+                            return {
+
+                                ...categoria,
+
+                                quantidade:
+                                    Math.max(
+                                        0,
+                                        categoria.quantidade -
+                                        quantidadeRemovida
+                                    )
+
+                            };
+
+                        }
+                    );
+
+                }
+            );
+
+
+            // ----------------------------------------------------
+            // LIMPA SELEÇÃO
+            // ----------------------------------------------------
+
+            setItensSelecionados([]);
+
+
+        } catch (error) {
+
+            console.error(
+                'Erro ao excluir itens:',
+                error
+            );
+
+
+            if (
+                error instanceof Error
+            ) {
+
+                setErro(
+                    error.message
+                );
+
+            } else {
+
+                setErro(
+                    'Erro ao excluir itens.'
+                );
+
+            }
+
+
+            await carregarItens();
+
+            await carregarCategorias();
+
+
+        } finally {
+
+            setExcluindoSelecionados(
+                false
             );
 
         }
@@ -937,16 +1467,24 @@ export function Cardapio() {
 
     return (
 
-        <div className={styles.container}>
+        <div
+            className={styles.container}
+        >
 
 
             {/* =====================================================
                 HEADER
             ===================================================== */}
 
-            <header className={styles.header}>
+            <header
+                className={styles.header}
+            >
 
-                <div className={styles.nomeComercio}>
+                <div
+                    className={
+                        styles.nomeComercio
+                    }
+                >
 
                     <h1>
                         {nomeComercio}
@@ -984,7 +1522,11 @@ export function Cardapio() {
                 </div>
 
 
-                <div className={styles.acoesTopo}>
+                <div
+                    className={
+                        styles.acoesTopo
+                    }
+                >
 
                     <button
                         type="button"
@@ -1015,7 +1557,11 @@ export function Cardapio() {
                 FILTROS
             ===================================================== */}
 
-            <div className={styles.filtros}>
+            <div
+                className={
+                    styles.filtros
+                }
+            >
 
                 <input
                     type="text"
@@ -1053,11 +1599,48 @@ export function Cardapio() {
                 </select>
 
 
+                {/* =================================================
+                    BOTÕES DE AÇÃO
+                ================================================= */}
+
                 <div
                     className={
                         styles.botoesAcao
                     }
                 >
+
+                    {/* -------------------------------------------------
+                        EXCLUIR SELEÇÃO
+                    ------------------------------------------------- */}
+
+                    {itensSelecionados.length >= 1 && (
+
+                        <button
+                            type="button"
+                            className={
+                                styles.ExcluirSelecao
+                            }
+                            onClick={
+                                handleExcluirSelecionados
+                            }
+                            disabled={
+                                excluindoSelecionados
+                            }
+                        >
+
+                            {excluindoSelecionados
+                                ? 'Excluindo...'
+                                : 'Excluir seleção'
+                            }
+
+                        </button>
+
+                    )}
+
+
+                    {/* -------------------------------------------------
+                        NOVA CATEGORIA
+                    ------------------------------------------------- */}
 
                     <button
                         type="button"
@@ -1076,6 +1659,10 @@ export function Cardapio() {
                         + Nova categoria
                     </button>
 
+
+                    {/* -------------------------------------------------
+                        NOVO ITEM
+                    ------------------------------------------------- */}
 
                     <button
                         type="button"
@@ -1107,11 +1694,9 @@ export function Cardapio() {
             {erro && (
 
                 <div
-                    style={{
-                        padding: '8px 15px',
-                        color: '#8d2020',
-                        fontSize: '13px'
-                    }}
+                    className={
+                        styles.mensagemErro
+                    }
                 >
                     {erro}
                 </div>
@@ -1179,11 +1764,9 @@ export function Cardapio() {
                         {carregandoCategorias ? (
 
                             <div
-                                style={{
-                                    padding: '10px',
-                                    color: '#777',
-                                    fontSize: '13px'
-                                }}
+                                className={
+                                    styles.mensagemLista
+                                }
                             >
                                 Carregando categorias...
                             </div>
@@ -1191,11 +1774,9 @@ export function Cardapio() {
                         ) : categorias.length === 0 ? (
 
                             <div
-                                style={{
-                                    padding: '10px',
-                                    color: '#777',
-                                    fontSize: '13px'
-                                }}
+                                className={
+                                    styles.mensagemLista
+                                }
                             >
                                 Nenhuma categoria cadastrada.
                             </div>
@@ -1264,7 +1845,7 @@ export function Cardapio() {
 
 
                     {/* =============================================
-                        BARRA DE AÇÕES
+                        BARRA DE AÇÕES DOS ITENS
                     ============================================= */}
 
                     <div
@@ -1303,20 +1884,6 @@ export function Cardapio() {
                             </span>
 
                         </label>
-
-
-                        {itensSelecionados.length > 0 && (
-
-                            <button
-                                type="button"
-                                className={
-                                    styles.acaoItem
-                                }
-                            >
-                                Excluir
-                            </button>
-
-                        )}
 
                     </div>
 
@@ -1361,11 +1928,9 @@ export function Cardapio() {
                         {carregandoItens ? (
 
                             <div
-                                style={{
-                                    padding: '30px 15px',
-                                    color: '#777',
-                                    fontSize: '13px'
-                                }}
+                                className={
+                                    styles.mensagemListaItens
+                                }
                             >
                                 Carregando itens...
                             </div>
@@ -1373,11 +1938,9 @@ export function Cardapio() {
                         ) : itensFiltrados.length === 0 ? (
 
                             <div
-                                style={{
-                                    padding: '30px 15px',
-                                    color: '#777',
-                                    fontSize: '13px'
-                                }}
+                                className={
+                                    styles.mensagemListaItens
+                                }
                             >
                                 Nenhum item encontrado.
                             </div>
@@ -1436,13 +1999,9 @@ export function Cardapio() {
                                             ) : (
 
                                                 <div
-                                                    style={{
-                                                        width: '48px',
-                                                        height: '48px',
-                                                        borderRadius: '5px',
-                                                        backgroundColor: '#eeeeee',
-                                                        flexShrink: 0
-                                                    }}
+                                                    className={
+                                                        styles.imagemVazia
+                                                    }
                                                 />
 
                                             )}
@@ -1495,9 +2054,16 @@ export function Cardapio() {
                                                 styles.preco
                                             }
                                         >
-                                            R$ {item.preco
-                                                .toFixed(2)
-                                                .replace('.', ',')}
+
+                                            R$ {
+                                                item.preco
+                                                    .toFixed(2)
+                                                    .replace(
+                                                        '.',
+                                                        ','
+                                                    )
+                                            }
+
                                         </div>
 
 
@@ -1539,15 +2105,23 @@ export function Cardapio() {
                                             </div>
 
 
-                                            <button
-                                                type="button"
-                                                className={
-                                                    styles.menuItem
+                                            {/* =================================
+                                                MENU DE OPÇÕES
+                                            ================================= */}
+
+                                            <MenuItem
+                                                onAlterar={() =>
+                                                    handleAlterarItem(
+                                                        item
+                                                    )
                                                 }
-                                                title="Opções"
-                                            >
-                                                ⋮
-                                            </button>
+
+                                                onExcluir={() =>
+                                                    handleExcluirItem(
+                                                        item
+                                                    )
+                                                }
+                                            />
 
                                         </div>
 

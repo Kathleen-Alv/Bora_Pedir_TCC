@@ -105,12 +105,12 @@
 .btnCancel {
   height: 36px;
   padding: 0 16px;
-  background-color: #ffffff;
+  background-color: #b41212;
   border: 1px solid #bfc4ca;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #444444;
+  color: #000000;
   cursor: pointer;
 }
 
@@ -132,4 +132,22 @@
 
 .btnSave:hover {
   background-color: #f4cb00;
+}
+
+
+
+.btnSaveOutra {
+    background-color: #e5e761;
+    color: #333333;
+    border: 1px solid #050505;
+    border-radius: 5px;
+}
+
+.btnSaveOutra:hover {
+    background-color: #e2e2e2;
+}
+
+.btnSaveOutra:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

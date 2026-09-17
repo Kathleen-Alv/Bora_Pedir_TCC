@@ -144,13 +144,81 @@ export function NovoItem({
 
 
         // --------------------------------------------------------
-        // CRIA PRÉ-VISUALIZAÇÃO
+        // LIBERA PREVIEW ANTERIOR
+        // --------------------------------------------------------
+
+        if (preview) {
+
+            URL.revokeObjectURL(
+                preview
+            );
+
+        }
+
+
+        // --------------------------------------------------------
+        // CRIA NOVA PRÉ-VISUALIZAÇÃO
         // --------------------------------------------------------
 
         const url =
-            URL.createObjectURL(arquivo);
+            URL.createObjectURL(
+                arquivo
+            );
+
 
         setPreview(url);
+
+    }
+
+
+    // ============================================================
+    // LIMPAR FORMULÁRIO
+    // ============================================================
+
+    function limparFormulario() {
+
+        setCategoriaId('');
+
+        setNome('');
+
+        setPreco('');
+
+        setDescricao('');
+
+        setFoto(null);
+
+
+        // --------------------------------------------------------
+        // LIBERA URL DA IMAGEM
+        // --------------------------------------------------------
+
+        if (preview) {
+
+            URL.revokeObjectURL(
+                preview
+            );
+
+        }
+
+
+        setPreview(null);
+
+
+        // --------------------------------------------------------
+        // LIMPA INPUT DE ARQUIVO
+        // --------------------------------------------------------
+
+        const inputFoto =
+            document.getElementById(
+                'fotoItem'
+            ) as HTMLInputElement | null;
+
+
+        if (inputFoto) {
+
+            inputFoto.value = '';
+
+        }
 
     }
 
@@ -160,7 +228,8 @@ export function NovoItem({
     // ============================================================
 
     async function handleSubmit(
-        evento: React.FormEvent
+        evento: React.FormEvent,
+        continuarCadastrando: boolean
     ) {
 
         evento.preventDefault();
@@ -249,17 +318,6 @@ export function NovoItem({
 
             // ====================================================
             // FORM DATA
-            // ====================================================
-            //
-            // Aqui NÃO usamos JSON.
-            //
-            // O FormData permite enviar:
-            // - categoria
-            // - nome
-            // - preço
-            // - descrição
-            // - arquivo da imagem
-            //
             // ====================================================
 
             const formulario =
@@ -352,24 +410,27 @@ export function NovoItem({
             // LIMPA FORMULÁRIO
             // ====================================================
 
-            setCategoriaId('');
-
-            setNome('');
-
-            setPreco('');
-
-            setDescricao('');
-
-            setFoto(null);
-
-            setPreview(null);
+            limparFormulario();
 
 
             // ====================================================
-            // FECHA MODAL
+            // LIMPA ERRO
             // ====================================================
 
-            onFechar();
+            setErro('');
+
+
+            // ====================================================
+            // DECIDE SE FECHA OU CONTINUA
+            // ====================================================
+
+            if (
+                !continuarCadastrando
+            ) {
+
+                onFechar();
+
+            }
 
 
         } catch (error) {
@@ -413,30 +474,16 @@ export function NovoItem({
 
         <div
             className={styles.modalOverlay}
-            onClick={onFechar}
         >
 
             <div
                 className={styles.modalContent}
-                onClick={(evento) =>
-                    evento.stopPropagation()
-                }
             >
 
 
                 {/* =================================================
-                    FECHAR
+                    TÍTULO
                 ================================================= */}
-
-                <button
-                    type="button"
-                    className={styles.modalClose}
-                    onClick={onFechar}
-                    disabled={salvando}
-                >
-                    &times;
-                </button>
-
 
                 <h2>
                     Novo Item
@@ -445,12 +492,17 @@ export function NovoItem({
 
                 <form
                     className={styles.modalForm}
-                    onSubmit={handleSubmit}
+                    onSubmit={(evento) =>
+                        handleSubmit(
+                            evento,
+                            false
+                        )
+                    }
                 >
 
 
                     {/* =================================================
-                        FOTO — PRIMEIRO
+                        FOTO
                     ================================================= */}
 
                     <div
@@ -576,10 +628,16 @@ export function NovoItem({
                                 (categoria) => (
 
                                     <option
-                                        key={categoria.id}
-                                        value={categoria.id}
+                                        key={
+                                            categoria.id
+                                        }
+                                        value={
+                                            categoria.id
+                                        }
                                     >
-                                        {categoria.nome}
+                                        {
+                                            categoria.nome
+                                        }
                                     </option>
 
                                 )
@@ -681,6 +739,11 @@ export function NovoItem({
                         className={styles.modalActions}
                     >
 
+
+                        {/* =============================================
+                            CANCELAR
+                        ============================================= */}
+
                         <button
                             type="button"
                             className={styles.btnCancel}
@@ -691,16 +754,51 @@ export function NovoItem({
                         </button>
 
 
+
+                        {/* =============================================
+                            CADASTRAR E ADICIONAR OUTRO
+                        ============================================= */}
+
+                        <button
+                            type="button"
+                            className={
+                                styles.btnSaveOutra
+                            }
+                            onClick={(evento) =>
+                                handleSubmit(
+                                    evento,
+                                    true
+                                )
+                            }
+                            disabled={salvando}
+                        >
+
+                            {salvando
+                                ? 'Salvando...'
+                                : 'Cadastrar e adicionar outro Item'
+                            }
+
+                        </button>
+
+
+
+                        {/* =============================================
+                            CADASTRAR
+                        ============================================= */}
+
                         <button
                             type="submit"
                             className={styles.btnSave}
                             disabled={salvando}
                         >
+
                             {salvando
                                 ? 'Salvando...'
-                                : 'Salvar Item'
+                                : 'Cadastrar'
                             }
+
                         </button>
+
 
                     </div>
 
@@ -711,4 +809,5 @@ export function NovoItem({
         </div>
 
     );
+
 }
