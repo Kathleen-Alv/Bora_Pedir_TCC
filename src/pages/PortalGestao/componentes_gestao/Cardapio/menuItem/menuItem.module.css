@@ -1,0 +1,171 @@
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    z-index: 20;
+}
+
+
+/* =========================
+   BOTÃO DOS TRÊS PONTOS
+========================= */
+
+.botaoMenu {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+
+    position: relative;
+
+    z-index: 21;
+}
+
+
+.botaoMenu:hover {
+    background-color: #f1f4f2;
+}
+
+
+.botaoMenu:active {
+    transform: scale(0.95);
+}
+
+
+/* =========================
+   BOLINHAS
+========================= */
+
+.botaoMenu span {
+    width: 4px;
+    height: 4px;
+
+    border-radius: 50%;
+
+    background-color: #555555;
+}
+
+
+/* =========================
+   MENU
+========================= */
+
+.menu {
+    position: fixed;
+
+    width: 155px;
+
+    padding: 6px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dfe5e1;
+
+    border-radius: 9px;
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.10),
+        0 2px 5px rgba(0, 0, 0, 0.05);
+
+    z-index: 99999;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   OPÇÕES
+========================= */
+
+.opcao {
+    width: 100%;
+
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 10px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: #333333;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.opcao:hover {
+    background-color: #f5f5f5;
+}
+
+
+/* =========================
+   ÍCONE
+========================= */
+
+.icone {
+    width: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 15px;
+}
+
+
+/* =========================
+   EXCLUIR
+========================= */
+
+.opcaoExcluir {
+    color: #d62828;
+}
+
+
+.opcaoExcluir:hover {
+    background-color: #fff0f0;
+}
+
+.opcaoVerItem{
+    color: #0c0c0b;
+
+}

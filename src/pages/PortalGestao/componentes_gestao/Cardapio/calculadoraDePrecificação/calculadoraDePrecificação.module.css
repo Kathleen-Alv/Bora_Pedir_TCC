@@ -1,0 +1,1182 @@
+.container {
+    min-height: 100%;
+    padding: 16px;
+    background: #f5f8f6;
+    color: #202622;
+}
+
+
+/* ================================================================
+   HEADER
+================================================================ */
+
+.header {
+    width: 100%;
+    max-width: 540px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    padding-right: 35px;
+}
+
+.icone {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e7f5ea;
+    border-radius: 8px;
+
+    font-size: 18px;
+}
+
+.header h1 {
+    margin: 0;
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.header p {
+    margin: 1px 0 0;
+
+    color: #68736d;
+    font-size: 14px;
+}
+
+
+/* ================================================================
+   CONTEÚDO
+================================================================ */
+
+.conteudo {
+    width: 100%;
+    max-width: 540px;
+
+    margin: 0 auto;
+}
+
+
+/* ================================================================
+   CARD
+================================================================ */
+
+.card {
+    background: #fff;
+
+    border: 1px solid #e1e9e4;
+    border-radius: 9px;
+
+    padding: 13px;
+    margin-bottom: 8px;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .03);
+}
+
+
+/* ================================================================
+   TÍTULO DO CARD
+================================================================ */
+
+.tituloCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.numero {
+    min-width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #07ac15;
+    color: #fff;
+
+    border-radius: 50%;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.tituloCard h2 {
+    margin: 0 0 2px;
+
+    font-size: 14px;
+}
+
+.tituloCard p {
+    margin: 0;
+
+    color: #7a847e;
+    font-size: 10px;
+}
+
+
+/* ================================================================
+   CAMPO
+================================================================ */
+
+.campo {
+    margin-top: 11px;
+}
+
+.campo label,
+.personalizado label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    margin-bottom: 4px;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.campo label span {
+    padding: 2px 5px;
+
+    border-radius: 12px;
+
+    background: #f0f3f1;
+    color: #7a847e;
+
+    font-size: 9px;
+}
+
+
+/* ================================================================
+   INPUT MOEDA
+================================================================ */
+
+.inputMoeda {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+
+    border: 1px solid #d7e0da;
+    border-radius: 7px;
+
+    overflow: hidden;
+
+    transition: .2s;
+}
+
+.inputMoeda:focus-within {
+    border-color: #07ac15;
+
+    box-shadow:
+        0 0 0 2px rgba(7, 172, 21, .07);
+}
+
+.inputMoeda span {
+    padding-left: 8px;
+
+    color: #68736d;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.inputMoeda input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    padding: 7px 8px 7px 5px;
+
+    font-size: 12px;
+}
+
+.campo small {
+    display: block;
+
+    margin-top: 4px;
+
+    color: #89928d;
+
+    font-size: 9px;
+}
+
+
+/* ================================================================
+   TAXA
+================================================================ */
+
+.taxa {
+    margin-top: 10px;
+
+    padding: 8px 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #f7faf8;
+
+    border: 1px solid #e4ebe6;
+    border-radius: 7px;
+}
+
+.taxa strong {
+    display: block;
+
+    font-size: 11px;
+}
+
+.taxa span {
+    display: block;
+
+    margin-top: 1px;
+
+    color: #7d8781;
+
+    font-size: 9px;
+}
+
+.valorTaxa {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    color: #07ac15;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+
+/* ================================================================
+   BOTÃO INFORMAÇÃO DA TAXA
+================================================================ */
+
+.botaoInfo {
+    display: block;
+
+    margin-top: 5px;
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #078b12;
+
+    font-size: 9px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.botaoInfo:hover {
+    text-decoration: underline;
+}
+
+
+/* ================================================================
+   OPÇÕES DE MARGEM
+================================================================ */
+
+.opcoesMargem {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 5px;
+
+    margin-top: 10px;
+}
+
+.margem,
+.margemSelecionada {
+    padding: 8px 4px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+    text-align: center;
+}
+
+.margem {
+    background: #fff;
+
+    border: 1px solid #dce5df;
+}
+
+.margem:hover {
+    border-color: #07ac15;
+
+    transform: translateY(-1px);
+}
+
+.margemSelecionada {
+    background: #eaf8ec;
+
+    border: 1px solid #07ac15;
+}
+
+.margem strong,
+.margemSelecionada strong {
+    display: block;
+
+    font-size: 14px;
+}
+
+.margem span,
+.margemSelecionada span {
+    color: #7b857f;
+
+    font-size: 9px;
+}
+
+.margemSelecionada strong {
+    color: #078b12;
+}
+
+
+/* ================================================================
+   MARGEM PERSONALIZADA
+================================================================ */
+
+.personalizado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 10px;
+    padding-top: 10px;
+
+    border-top: 1px solid #edf1ee;
+}
+
+.personalizado label {
+    margin: 0;
+}
+
+.inputPorcentagem {
+    display: flex;
+    align-items: center;
+
+    width: 65px;
+
+    border: 1px solid #d7e0da;
+    border-radius: 6px;
+
+    overflow: hidden;
+}
+
+.inputPorcentagem input {
+    width: 100%;
+
+    padding: 6px;
+
+    border: none;
+    outline: none;
+
+    text-align: right;
+
+    font-size: 11px;
+}
+
+.inputPorcentagem span {
+    padding-right: 6px;
+
+    color: #6d7771;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* ================================================================
+   BOTÃO CALCULAR
+================================================================ */
+
+.botaoCalcular {
+    width: 100%;
+
+    padding: 8px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #07ac15;
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.botaoCalcular:hover {
+    background: #078f12;
+
+    transform: translateY(-1px);
+}
+
+
+/* ================================================================
+   RESULTADO
+================================================================ */
+
+.resultado {
+    margin-top: 9px;
+
+    background: #fff;
+
+    border: 1px solid #dce8df;
+    border-radius: 9px;
+
+    overflow: hidden;
+
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .04);
+}
+
+
+/* ================================================================
+   TOPO DO RESULTADO
+================================================================ */
+
+.resultadoTopo {
+    padding: 13px;
+
+    text-align: center;
+
+    background: #f0f9f2;
+}
+
+.resultadoTopo span {
+    display: block;
+
+    color: #68736d;
+
+    font-size: 10px;
+}
+
+.resultadoTopo strong {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #078b12;
+
+    font-size: 24px;
+}
+
+.resultadoTopo p {
+    margin: 3px 0 0;
+
+    color: #7a847e;
+
+    font-size: 9px;
+}
+
+
+/* ================================================================
+   DETALHES
+================================================================ */
+
+.detalhes {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    border-bottom: 1px solid #e7ece9;
+}
+
+.detalhes div {
+    padding: 8px;
+
+    text-align: center;
+
+    border-right: 1px solid #e7ece9;
+}
+
+.detalhes div:last-child {
+    border-right: none;
+}
+
+.detalhes span {
+    display: block;
+
+    color: #7a847e;
+
+    font-size: 9px;
+}
+
+.detalhes strong {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 12px;
+}
+
+.lucro {
+    color: #078b12;
+}
+
+
+/* ================================================================
+   PARA ONDE VAI O DINHEIRO
+================================================================ */
+
+.dinheiro {
+    padding: 11px;
+
+    border-bottom: 1px solid #e7ece9;
+}
+
+.dinheiro h3 {
+    margin: 0 0 7px;
+
+    font-size: 11px;
+}
+
+.linhaDinheiro {
+    padding: 6px 8px;
+
+    background: #f7f9f8;
+
+    border-radius: 6px;
+
+    margin-bottom: 4px;
+}
+
+.linhaDinheiro div,
+.linhaLucro div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.linhaDinheiro span,
+.linhaLucro span {
+    color: #68736d;
+
+    font-size: 10px;
+}
+
+.linhaDinheiro strong {
+    font-size: 11px;
+}
+
+.desconto {
+    color: #a05252;
+}
+
+.linhaLucro {
+    margin-top: 5px;
+    padding: 8px;
+
+    background: #eaf8ec;
+
+    border: 1px solid #bce4c1;
+
+    border-radius: 6px;
+}
+
+.linhaLucro span {
+    color: #078b12;
+
+    font-weight: 600;
+}
+
+.linhaLucro strong {
+    color: #078b12;
+
+    font-size: 13px;
+}
+
+
+/* ================================================================
+   OUTRAS OPÇÕES
+================================================================ */
+
+.outrasOpcoes {
+    padding: 11px;
+}
+
+.outrasOpcoes h3 {
+    margin: 0 0 7px;
+
+    font-size: 11px;
+}
+
+.listaOpcoes {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.opcao,
+.opcaoAtiva {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 6px 8px;
+
+    border-radius: 6px;
+}
+
+.opcao {
+    background: #f7f9f8;
+}
+
+.opcaoAtiva {
+    background: #eaf8ec;
+
+    border: 1px solid #bce4c1;
+}
+
+.opcao div {
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+}
+
+.opcao strong,
+.opcaoAtiva strong {
+    font-size: 11px;
+}
+
+.opcao span,
+.opcaoAtiva span {
+    color: #7b857f;
+
+    font-size: 9px;
+}
+
+.opcao b,
+.opcaoAtiva b {
+    font-size: 11px;
+}
+
+.opcaoAtiva b {
+    color: #078b12;
+}
+
+
+/* ================================================================
+   AVISO
+================================================================ */
+
+.aviso {
+    margin: 0 11px 11px;
+
+    padding: 7px 8px;
+
+    background: #fff9e8;
+
+    border: 1px solid #f0e4b9;
+
+    border-radius: 6px;
+
+    color: #756b4d;
+
+    font-size: 9px;
+
+    line-height: 1.35;
+}
+
+
+/* ================================================================
+   SEM RESULTADO
+================================================================ */
+
+.semResultado {
+    margin-top: 9px;
+
+    padding: 20px 14px;
+
+    text-align: center;
+
+    background: #fff;
+
+    border: 1px dashed #d8e2db;
+
+    border-radius: 9px;
+}
+
+.semResultado span {
+    font-size: 21px;
+}
+
+.semResultado h3 {
+    margin: 6px 0 3px;
+
+    font-size: 13px;
+}
+
+.semResultado p {
+    max-width: 360px;
+
+    margin: 0 auto;
+
+    color: #7a847e;
+
+    font-size: 10px;
+
+    line-height: 1.35;
+}
+
+
+/* ================================================================
+   MODAL - FUNDO
+================================================================ */
+
+.overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 16px;
+
+    background: rgba(20, 28, 23, .45);
+}
+
+
+/* ================================================================
+   MODAL
+================================================================ */
+
+.modalTaxa {
+    width: 100%;
+
+    max-width: 390px;
+
+    background: #fff;
+
+    border: 1px solid #dce8df;
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, .15);
+}
+
+
+/* ================================================================
+   CABEÇALHO MODAL
+================================================================ */
+
+.modalCabecalho {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid #edf1ee;
+}
+
+.modalCabecalho h2 {
+    margin: 0;
+
+    font-size: 16px;
+
+    color: #202622;
+}
+
+.modalCabecalho p {
+    margin: 3px 0 0;
+
+    color: #7a847e;
+
+    font-size: 9px;
+}
+
+
+/* ================================================================
+   FECHAR X
+================================================================ */
+
+.fecharModal {
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: #f1f4f2;
+
+    color: #68736d;
+
+    font-size: 18px;
+
+    cursor: pointer;
+}
+
+.fecharModal:hover {
+    background: #e7ece9;
+}
+
+
+/* ================================================================
+   EXEMPLO DA TAXA
+================================================================ */
+
+.exemploTaxa {
+    margin-top: 12px;
+
+    padding: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background: #f0f9f2;
+
+    border: 1px solid #dcecdf;
+
+    border-radius: 8px;
+}
+
+.exemploTaxa span {
+    color: #68736d;
+
+    font-size: 10px;
+}
+
+.exemploTaxa strong {
+    color: #078b12;
+
+    font-size: 15px;
+}
+
+
+/* ================================================================
+   INFORMAÇÕES DA TAXA
+================================================================ */
+
+.infoTaxa {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    margin-top: 8px;
+
+    border: 1px solid #e1e9e4;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+.infoTaxa div {
+    padding: 10px;
+
+    text-align: center;
+
+    background: #fff;
+}
+
+.infoTaxa div + div {
+    border-left: 1px solid #e1e9e4;
+}
+
+.infoTaxa span {
+    display: block;
+
+    color: #7a847e;
+
+    font-size: 9px;
+}
+
+.infoTaxa strong {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 12px;
+}
+
+
+/* ================================================================
+   EXPLICAÇÃO DA TAXA
+================================================================ */
+
+.explicacaoTaxa {
+    margin-top: 10px;
+
+    padding: 10px;
+
+    background: #f7f9f8;
+
+    border: 1px solid #e4ebe6;
+
+    border-radius: 8px;
+}
+
+.explicacaoTaxa strong {
+    font-size: 11px;
+}
+
+.explicacaoTaxa p {
+    margin: 5px 0 0;
+
+    color: #68736d;
+
+    font-size: 9px;
+
+    line-height: 1.5;
+}
+
+
+/* ================================================================
+   EXEMPLO PASSO A PASSO
+================================================================ */
+
+.exemploPasso {
+    margin-top: 8px;
+
+    padding: 9px;
+
+    background: #fff;
+
+    border: 1px solid #e1e9e4;
+
+    border-radius: 8px;
+}
+
+.exemploPasso > strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+}
+
+.exemploPasso div {
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 4px 0;
+
+    border-bottom: 1px solid #f0f2f1;
+}
+
+.exemploPasso div:last-child {
+    border-bottom: none;
+}
+
+.exemploPasso span {
+    color: #68736d;
+
+    font-size: 9px;
+}
+
+.exemploPasso b {
+    font-size: 10px;
+}
+
+
+/* ================================================================
+   DICA
+================================================================ */
+
+.dicaTaxa {
+    display: flex;
+
+    gap: 6px;
+
+    align-items: flex-start;
+
+    margin-top: 8px;
+
+    padding: 8px;
+
+    background: #fff9e8;
+
+    border: 1px solid #f0e4b9;
+
+    border-radius: 7px;
+
+    color: #756b4d;
+
+    font-size: 9px;
+
+    line-height: 1.4;
+}
+
+
+/* ================================================================
+   BOTÃO FECHAR MODAL
+================================================================ */
+
+.botaoFechar {
+    width: 100%;
+
+    margin-top: 11px;
+
+    padding: 8px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: #07ac15;
+
+    color: #fff;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.botaoFechar:hover {
+    background: #078f12;
+}
+
+
+/* ================================================================
+   RESPONSIVO
+================================================================ */
+
+@media (max-width: 700px) {
+
+    .container {
+        padding: 12px 8px;
+    }
+
+    .header,
+    .conteudo {
+        max-width: 100%;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .card {
+        padding: 11px;
+    }
+
+    .opcoesMargem {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .personalizado {
+        align-items: flex-start;
+
+        gap: 8px;
+    }
+
+    .detalhes {
+        grid-template-columns: 1fr;
+    }
+
+    .detalhes div {
+        border-right: none;
+
+        border-bottom: 1px solid #e7ece9;
+    }
+
+    .detalhes div:last-child {
+        border-bottom: none;
+    }
+
+    .resultadoTopo strong {
+        font-size: 22px;
+    }
+
+    .modalTaxa {
+        max-width: 100%;
+
+        padding: 13px;
+    }
+}
+
+
+.cabecalhoPrecificacao {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.cabecalhoPrecificacao h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.cabecalhoPrecificacao p {
+    margin: 2px 0 0;
+    color: #68736d;
+    font-size: 10px;
+}
+
+.fecharPrecificacao {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 6px;
+    background: #f1f4f2;
+    color: #68736d;
+
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.fecharPrecificacao:hover {
+    background: #e4ebe6;
+    color: #202622;
+}

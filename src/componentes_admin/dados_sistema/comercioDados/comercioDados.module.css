@@ -1,0 +1,659 @@
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+    width: 100%;
+    min-height: 100%;
+    padding: 30px;
+
+    background-color: #f5f4f2;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   TOPO
+========================= */
+
+.topo {
+    margin-bottom: 25px;
+}
+
+.topo h1 {
+    margin: 0;
+
+    color: #171717;
+
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.topo p {
+    margin: 7px 0 0;
+
+    color: #777777;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   PESQUISA
+========================= */
+
+.pesquisaContainer {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    margin-bottom: 20px;
+}
+
+.campoPesquisa {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    max-width: 600px;
+    height: 48px;
+
+    padding: 0 14px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dddddd;
+    border-radius: 9px;
+
+    box-sizing: border-box;
+
+    transition: border-color 0.2s ease;
+}
+
+.campoPesquisa:focus-within {
+    border-color: #888888;
+}
+
+.lupa {
+    display: flex;
+    align-items: center;
+
+    margin-right: 10px;
+
+    color: #777777;
+
+    font-size: 16px;
+}
+
+.campoPesquisa input {
+    flex: 1;
+
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    background-color: transparent;
+
+    color: #222222;
+
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.campoPesquisa input::placeholder {
+    color: #999999;
+}
+
+.limparPesquisa {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 25px;
+    height: 25px;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: #eeeeee;
+
+    color: #666666;
+
+    font-size: 17px;
+
+    cursor: pointer;
+}
+
+.limparPesquisa:hover {
+    background-color: #dddddd;
+}
+
+.infoPesquisa {
+    color: #888888;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =========================
+   LISTA
+========================= */
+
+.lista {
+    width: 100%;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e2e2e2;
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.listaHeader {
+    display: grid;
+
+    grid-template-columns:
+        90px
+        minmax(200px, 1fr)
+        180px
+        120px
+        130px
+        40px;
+
+    align-items: center;
+
+    min-height: 50px;
+
+    padding: 0 20px;
+
+    background-color: #f8f8f8;
+
+    border-bottom: 1px solid #e5e5e5;
+
+    color: #777777;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   LINHA
+========================= */
+
+.linha {
+    display: grid;
+
+    grid-template-columns:
+        90px
+        minmax(200px, 1fr)
+        180px
+        120px
+        130px
+        40px;
+
+    align-items: center;
+
+    width: 100%;
+    min-height: 65px;
+
+    padding: 0 20px;
+
+    border: none;
+    border-bottom: 1px solid #eeeeee;
+
+    background-color: #ffffff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+
+    transition: background-color 0.2s ease;
+}
+
+.linha:last-child {
+    border-bottom: none;
+}
+
+.linha:hover {
+    background-color: #f7f8f8;
+}
+
+
+/* =========================
+   DADOS
+========================= */
+
+.id {
+    color: #777777;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.nome {
+    color: #222222;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.documento {
+    color: #666666;
+
+    font-size: 13px;
+}
+
+.tipo {
+    color: #555555;
+
+    font-size: 12px;
+}
+
+.seta {
+    color: #999999;
+
+    font-size: 18px;
+
+    text-align: center;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.ponto {
+    font-size: 8px;
+}
+.aprovado {
+    background-color: #dff3e4;
+    color: #28743b;
+}
+.suspenso {
+    background-color: #fff1d6;
+    color: #996600;
+}
+.inativo {
+    background-color: #f5dada;
+    color: #ad1616;
+}
+/* =========================
+   SEM RESULTADO
+========================= */
+
+.semResultado {
+    padding: 50px 20px;
+
+    color: #888888;
+
+    font-size: 14px;
+
+    text-align: center;
+}
+
+
+/* =========================
+   PAGINAÇÃO
+========================= */
+
+.paginacao {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 5px;
+
+    margin-top: 20px;
+}
+
+.pagina,
+.paginaSeta {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border: 1px solid #dddddd;
+    border-radius: 7px;
+
+    background-color: #ffffff;
+
+    color: #555555;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.pagina:hover,
+.paginaSeta:hover {
+    background-color: #f1f1f1;
+}
+
+.paginaAtiva {
+    background-color: #171717;
+
+    border-color: #171717;
+
+    color: #ffffff;
+}
+
+.paginaSeta:disabled {
+    opacity: 0.4;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modalOverlay {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background-color: rgba(0, 0, 0, 0.55);
+
+    z-index: 1000;
+
+    box-sizing: border-box;
+}
+
+.modal {
+    width: 100%;
+    max-width: 600px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    padding: 28px;
+
+    background-color: #ffffff;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.2);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   TOPO MODAL
+========================= */
+
+.modalTopo {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: flex-start;
+
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+.modalCategoria {
+    color: #888888;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 0.8px;
+
+    text-transform: uppercase;
+}
+
+.modalTopo h2 {
+    margin: 5px 0 0;
+
+    color: #171717;
+
+    font-size: 22px;
+}
+
+.fechar {
+    width: 35px;
+    height: 35px;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: #f2f2f2;
+
+    color: #555555;
+
+    font-size: 24px;
+
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.fechar:hover {
+    background-color: #e5e5e5;
+}
+
+
+/* =========================
+   INFORMAÇÕES
+========================= */
+
+.informacoes {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 20px;
+
+    padding: 25px 0;
+}
+
+.informacao {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.informacao span {
+    color: #888888;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+}
+
+.informacao strong {
+    color: #222222;
+
+    font-size: 14px;
+
+    word-break: break-word;
+}
+
+
+/* =========================
+   CONTROLE STATUS
+========================= */
+
+.controleStatus {
+    padding: 20px 0;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.controleStatus > span {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #555555;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.botoesStatus {
+    display: flex;
+
+    gap: 8px;
+}
+
+.botoesStatus button {
+    flex: 1;
+
+    height: 40px;
+
+    border: 1px solid #dddddd;
+    border-radius: 7px;
+
+    background-color: #ffffff;
+
+    color: #666666;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.botoesStatus button:hover {
+    background-color: #f5f5f5;
+}
+
+.botoesStatus .statusSelecionado {
+    border-color: #171717;
+
+    background-color: #171717;
+
+    color: #ffffff;
+}
+
+
+/* =========================
+   RODAPÉ MODAL
+========================= */
+
+.modalRodape {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.botaoFechar,
+.botaoSalvar {
+    height: 42px;
+
+    padding: 0 18px;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.botaoFechar {
+    border: 1px solid #dddddd;
+
+    background-color: #ffffff;
+
+    color: #555555;
+}
+
+.botaoSalvar {
+    border: none;
+
+    background-color: #171717;
+
+    color: #ffffff;
+}
+
+.botaoSalvar:hover {
+    background-color: #333333;
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 900px) {
+
+    .container {
+        padding: 20px;
+    }
+
+    .lista {
+        overflow-x: auto;
+    }
+
+    .listaHeader,
+    .linha {
+        min-width: 850px;
+    }
+
+}

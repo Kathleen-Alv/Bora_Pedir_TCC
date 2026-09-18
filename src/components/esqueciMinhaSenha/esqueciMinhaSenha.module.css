@@ -1,0 +1,499 @@
+/* =========================
+   CONTAINER PRINCIPAL
+========================= */
+
+.conteinerSenha {
+    width: 100%;
+    min-height: 680px;
+
+    background-color: #f4f5f6;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 40px 20px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.senha {
+    width: 100%;
+    max-width: 450px;
+
+    min-height: 380px;
+
+    background-color: #ffffff;
+
+    border-radius: 8px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+    padding: 40px 30px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* =========================
+   TÍTULO
+========================= */
+
+.senha h2 {
+    width: 100%;
+
+    margin: 0 0 10px 0;
+
+    color: #333333;
+
+    font-size: 24px;
+
+    text-align: center;
+}
+
+
+/* =========================
+   DESCRIÇÃO
+========================= */
+
+.descricao {
+    width: 100%;
+
+    margin: 0 0 25px 0;
+
+    color: #666666;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    text-align: center;
+}
+
+
+/* =========================
+   E-MAIL DO USUÁRIO
+========================= */
+
+.emailUsuario {
+    display: block;
+
+    margin-top: 8px;
+
+    color: #333333;
+
+    font-size: 14px;
+
+    word-break: break-word;
+}
+
+
+/* =========================
+   FORMULÁRIO
+========================= */
+
+.formulario {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+/* =========================
+   CAMPO
+========================= */
+
+.campo {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+/* =========================
+   LABEL
+========================= */
+
+.campo label {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #333333;
+}
+
+
+/* =========================
+   INPUT
+========================= */
+
+.campo input {
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 15px;
+
+    border: 1px solid #cccccc;
+
+    border-radius: 6px;
+
+    outline: none;
+
+    font-size: 15px;
+
+    color: #333333;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+
+/* =========================
+   INPUT FOCUS
+========================= */
+
+.campo input:focus {
+    border-color: #002ca3;
+
+    box-shadow:
+        0 0 0 2px rgba(0, 44, 163, 0.1);
+}
+
+
+/* =========================
+   INPUT PLACEHOLDER
+========================= */
+
+.campo input::placeholder {
+    color: #999999;
+}
+
+
+/* =========================
+   BOTÃO EDITAR E-MAIL
+========================= */
+
+.btnEditarEmail {
+    background: none;
+
+    border: none;
+
+    color: #002ca3;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    text-decoration: underline;
+
+    padding: 0;
+
+    margin-left: 4px;
+}
+
+
+/* =========================
+   BOTÃO AVANÇAR
+========================= */
+
+.botaoAvancar {
+    width: 100%;
+
+    height: 48px;
+
+    background-color: #002ca3;
+
+    color: #ffffff;
+
+    border: none;
+
+    border-radius: 6px;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s,
+        opacity 0.2s;
+}
+
+
+/* =========================
+   BOTÃO HOVER
+========================= */
+
+.botaoAvancar:hover {
+    background-color: #002076;
+}
+
+
+/* =========================
+   BOTÃO DESABILITADO
+========================= */
+
+.botaoAvancar:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================
+   ERRO
+========================= */
+
+.erro {
+    width: 100%;
+
+    margin: -5px 0 0 0;
+
+    color: #d32f2f;
+
+    font-size: 13px;
+
+    text-align: center;
+
+    line-height: 1.4;
+}
+
+
+/* =========================
+   CÓDIGO OTP
+========================= */
+
+.containerInputsOtp {
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-bottom: 5px;
+}
+
+
+/* =========================
+   INPUT DO CÓDIGO
+========================= */
+
+.inputQuadrado {
+    width: 50px;
+
+    height: 60px;
+
+    border: 2px solid #cccccc;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background-color: #ffffff;
+
+    text-align: center;
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+    color: #333333;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+
+/* =========================
+   INPUT OTP FOCUS
+========================= */
+
+.inputQuadrado:focus {
+    border-color: #002ca3;
+
+    box-shadow:
+        0 0 5px rgba(0, 44, 163, 0.3);
+}
+
+
+/* =========================
+   REENVIAR CÓDIGO
+========================= */
+
+.containerReenviar {
+    margin-top: 0;
+
+    text-align: center;
+}
+
+
+/* =========================
+   TIMER
+========================= */
+
+.textoTimer {
+    font-size: 14px;
+
+    color: #777777;
+}
+
+
+/* =========================
+   BOTÃO REENVIAR
+========================= */
+
+.btnReenviarAtivo {
+    background: none;
+
+    border: none;
+
+    padding: 0;
+
+    color: #002ca3;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    text-decoration: underline;
+
+    cursor: pointer;
+}
+
+
+/* =========================
+   SUCESSO
+========================= */
+
+.sucessoSenha {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+}
+
+
+/* =========================
+   ÍCONE DE SUCESSO
+========================= */
+
+.iconeSucesso {
+    width: 70px;
+
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 20px;
+
+    background-color: #eaf8ee;
+
+    border: 3px solid #2e9d50;
+
+    border-radius: 50%;
+
+    color: #2e9d50;
+
+    font-size: 38px;
+
+    font-weight: bold;
+}
+
+
+/* =========================
+   TÍTULO SUCESSO
+========================= */
+
+.sucessoSenha h2 {
+    margin: 0 0 15px 0;
+
+    color: #333333;
+
+    font-size: 24px;
+
+    line-height: 1.3;
+}
+
+
+/* =========================
+   DESCRIÇÃO SUCESSO
+========================= */
+
+.sucessoSenha .descricao {
+    max-width: 350px;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 500px) {
+
+    .conteinerSenha {
+        min-height: 600px;
+
+        padding: 30px 15px;
+    }
+
+    .senha {
+        padding: 35px 20px;
+    }
+
+    .containerInputsOtp {
+        gap: 6px;
+    }
+
+    .inputQuadrado {
+        width: 44px;
+
+        height: 54px;
+
+        font-size: 22px;
+    }
+
+    .senha h2 {
+        font-size: 22px;
+    }
+}

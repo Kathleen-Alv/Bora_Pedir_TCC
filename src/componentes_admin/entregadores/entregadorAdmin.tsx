@@ -1,0 +1,568 @@
+import { useEffect, useState } from 'react';
+
+import styles from './entregadorAdmin.module.css';
+
+type Cadastro = {
+  id: number;
+  usuario_id: number;
+  nome: string;
+  cpf: string;
+  cnh: string;
+  data_nascimento: string;
+  placa: string;
+  situacao_cadastral:
+    | 'PENDENTE'
+    | 'APROVADO'
+    | 'SUSPENSO'
+    | 'INATIVO';
+  criado_em: string;
+  atualizado_em: string;
+};
+
+export function EntregadorAdmin() {
+  const [cadastros, setCadastros] = useState<Cadastro[]>([]);
+
+  const [cadastroSelecionado, setCadastroSelecionado] =
+    useState<Cadastro | null>(null);
+
+  const [modoRejeicao, setModoRejeicao] = useState(false);
+
+  const [motivoRejeicao, setMotivoRejeicao] = useState('');
+
+  const [carregando, setCarregando] = useState(true);
+
+  const [erro, setErro] = useState(false);
+
+  // =========================
+  // BUSCAR ENTREGADORES
+  // =========================
+
+  useEffect(() => {
+    async function buscarEntregadores() {
+      try {
+        setCarregando(true);
+
+        const resposta = await fetch(
+          'http://localhost:3000/api/admin/entregadores'
+        );
+
+        if (!resposta.ok) {
+          throw new Error('Erro ao buscar entregadores');
+        }
+
+        const dados: Cadastro[] = await resposta.json();
+
+        setCadastros(dados);
+        setErro(false);
+
+      } catch (erro) {
+        console.error(
+          'Erro ao carregar entregadores:',
+          erro
+        );
+
+        setErro(true);
+
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    buscarEntregadores();
+  }, []);
+
+  // =========================
+  // APROVAR
+  // =========================
+
+async function aprovarCadastro() {
+
+  if (!cadastroSelecionado) return;
+
+  try {
+
+    const resposta = await fetch(
+      `http://localhost:3000/api/admin/entregadores/${cadastroSelecionado.id}/aprovar`,
+      {
+        method: 'PATCH'
+      }
+    );
+
+    if (!resposta.ok) {
+      throw new Error('Erro ao aprovar entregador');
+    }
+
+    // Se o banco aprovou, remove da lista de pendentes
+    setCadastros((cadastrosAtuais) =>
+      cadastrosAtuais.filter(
+        (cadastro) =>
+          cadastro.id !== cadastroSelecionado.id
+      )
+    );
+
+    // Fecha o modal
+    setCadastroSelecionado(null);
+
+  } catch (erro) {
+
+    console.error(
+      'Erro ao aprovar comércio:',
+      erro
+    );
+
+  }
+}
+
+  // =========================
+  // ABRIR REJEIÇÃO
+  // =========================
+
+  function abrirRejeicao() {
+    setModoRejeicao(true);
+  }
+
+  // =========================
+  // CANCELAR REJEIÇÃO
+  // =========================
+
+  function cancelarRejeicao() {
+    setModoRejeicao(false);
+    setMotivoRejeicao('');
+  }
+
+  // =========================
+  // REJEITAR
+  // =========================
+
+  function rejeitarCadastro() {
+    if (!cadastroSelecionado) return;
+
+    if (!motivoRejeicao.trim()) return;
+
+    setCadastros((cadastrosAtuais) =>
+      cadastrosAtuais.filter(
+        (cadastro) =>
+          cadastro.id !== cadastroSelecionado.id
+      )
+    );
+
+    setCadastroSelecionado(null);
+
+    setModoRejeicao(false);
+
+    setMotivoRejeicao('');
+  }
+
+  // =========================
+  // FECHAR MODAL
+  // =========================
+
+  function fecharModal() {
+    setCadastroSelecionado(null);
+
+    setModoRejeicao(false);
+
+    setMotivoRejeicao('');
+  }
+
+  // =========================
+  // FORMATAR DATA
+  // =========================
+
+  function formatarData(data: string) {
+    return new Date(data).toLocaleDateString('pt-BR');
+  }
+
+  // =========================
+  // CARREGANDO
+  // =========================
+
+  if (carregando) {
+    return (
+      <div className={styles.container}>
+
+        <div className={styles.topo}>
+          <div>
+            <h1>Análise de Entregadores</h1>
+
+            <p>
+              Analise os cadastros enviados pelos entregadores.
+            </p>
+          </div>
+        </div>
+
+        <p>Carregando cadastros...</p>
+
+      </div>
+    );
+  }
+
+  // =========================
+  // ERRO
+  // =========================
+
+  if (erro) {
+    return (
+      <div className={styles.container}>
+
+        <div className={styles.topo}>
+          <div>
+            <h1>Análise de Entregadores</h1>
+
+            <p>
+              Analise os cadastros enviados pelos entregadores.
+            </p>
+          </div>
+        </div>
+
+        <p>
+          Não foi possível carregar os cadastros.
+        </p>
+
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+
+      {/* =========================
+          TOPO
+      ========================= */}
+
+      <div className={styles.topo}>
+
+        <div>
+          <h1>Análise de Entregadores</h1>
+
+          <p>
+            Analise os cadastros enviados pelos entregadores.
+          </p>
+        </div>
+
+      </div>
+
+      {/* =========================
+          LISTA
+      ========================= */}
+
+      <div className={styles.lista}>
+
+        <div className={styles.listaHeader}>
+
+          <span>ID</span>
+
+          <span>Entregador</span>
+
+          <span>Status</span>
+
+          <span>Data</span>
+
+          <span></span>
+
+        </div>
+
+        {cadastros.length === 0 ? (
+
+          <div>
+            <p>
+              Não existem cadastros pendentes.
+            </p>
+          </div>
+
+        ) : (
+
+          cadastros.map((cadastro) => (
+
+            <button
+              key={cadastro.id}
+              className={styles.linha}
+              onClick={() =>
+                setCadastroSelecionado(cadastro)
+              }
+            >
+
+              <span className={styles.id}>
+                #{cadastro.id}
+              </span>
+
+              <span className={styles.nome}>
+                {cadastro.nome}
+              </span>
+
+              <span>
+
+                <span
+                  className={`${styles.status} ${
+                    cadastro.situacao_cadastral ===
+                    'PENDENTE'
+                      ? styles.pendente
+                      : cadastro.situacao_cadastral ===
+                        'APROVADO'
+                      ? styles.aprovado
+                      : styles.rejeitado
+                  }`}
+                >
+                  {cadastro.situacao_cadastral}
+                </span>
+
+              </span>
+
+              <span className={styles.data}>
+                {formatarData(cadastro.criado_em)}
+              </span>
+
+              <span className={styles.seta}>
+                →
+              </span>
+
+            </button>
+
+          ))
+
+        )}
+
+      </div>
+
+      {/* =========================
+          MODAL
+      ========================= */}
+
+      {cadastroSelecionado && (
+
+        <div
+          className={styles.modalOverlay}
+          onClick={fecharModal}
+        >
+
+          <div
+            className={styles.modal}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+
+            {/* =========================
+                TOPO MODAL
+            ========================= */}
+
+            <div className={styles.modalTopo}>
+
+              <div>
+
+                <span className={styles.modalCategoria}>
+                  ENTREGADOR
+                </span>
+
+                <h2>
+                  {cadastroSelecionado.nome}
+                </h2>
+
+              </div>
+
+              <button
+                className={styles.fechar}
+                onClick={fecharModal}
+              >
+                ×
+              </button>
+
+            </div>
+
+            {/* =========================
+                STATUS
+            ========================= */}
+
+            <div className={styles.modalStatus}>
+
+              <span>
+                ID: #{cadastroSelecionado.id}
+              </span>
+
+              <span
+                className={`${styles.status} ${
+                  cadastroSelecionado.situacao_cadastral ===
+                  'PENDENTE'
+                    ? styles.pendente
+                    : cadastroSelecionado.situacao_cadastral ===
+                      'APROVADO'
+                    ? styles.aprovado
+                    : styles.rejeitado
+                }`}
+              >
+                {cadastroSelecionado.situacao_cadastral}
+              </span>
+
+            </div>
+
+            {/* =========================
+                INFORMAÇÕES
+            ========================= */}
+
+            <div className={styles.informacoes}>
+
+              <div className={styles.informacao}>
+
+                <span>
+                  Nome
+                </span>
+
+                <strong>
+                  {cadastroSelecionado.nome}
+                </strong>
+
+              </div>
+
+              <div className={styles.informacao}>
+
+                <span>
+                  CPF
+                </span>
+
+                <strong>
+                  {cadastroSelecionado.cpf}
+                </strong>
+
+              </div>
+
+              <div className={styles.informacao}>
+
+                <span>
+                  CNH
+                </span>
+
+                <strong>
+                  {cadastroSelecionado.cnh}
+                </strong>
+
+              </div>
+
+              <div className={styles.informacao}>
+
+                <span>
+                  Data de nascimento
+                </span>
+
+                <strong>
+                  {formatarData(
+                    cadastroSelecionado.data_nascimento
+                  )}
+                </strong>
+
+              </div>
+
+              <div className={styles.informacao}>
+
+                <span>
+                  Placa
+                </span>
+
+                <strong>
+                  {cadastroSelecionado.placa}
+                </strong>
+
+              </div>
+
+              <div className={styles.informacao}>
+
+                <span>
+                  Data do cadastro
+                </span>
+
+                <strong>
+                  {formatarData(
+                    cadastroSelecionado.criado_em
+                  )}
+                </strong>
+
+              </div>
+
+            </div>
+
+            {/* =========================
+                REJEIÇÃO
+            ========================= */}
+
+            {modoRejeicao && (
+
+              <div className={styles.rejeicao}>
+
+                <label htmlFor="motivo">
+                  Motivo da rejeição
+                </label>
+
+                <textarea
+                  id="motivo"
+                  value={motivoRejeicao}
+                  onChange={(event) =>
+                    setMotivoRejeicao(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Informe o motivo da rejeição..."
+                />
+
+                <div className={styles.acoesRejeicao}>
+
+                  <button
+                    className={styles.botaoCancelar}
+                    onClick={cancelarRejeicao}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    className={
+                      styles.botaoConfirmarRejeicao
+                    }
+                    onClick={rejeitarCadastro}
+                    disabled={
+                      !motivoRejeicao.trim()
+                    }
+                  >
+                    Confirmar rejeição
+                  </button>
+
+                </div>
+
+              </div>
+
+            )}
+
+            {/* =========================
+                AÇÕES
+            ========================= */}
+
+            {!modoRejeicao &&
+              cadastroSelecionado.situacao_cadastral ===
+                'PENDENTE' && (
+
+                <div className={styles.acoes}>
+
+                  <button
+                    className={styles.botaoRejeitar}
+                    onClick={abrirRejeicao}
+                  >
+                    Rejeitar
+                  </button>
+
+                  <button
+                    className={styles.botaoAprovar}
+                    onClick={aprovarCadastro}
+                  >
+                    Aprovar
+                  </button>
+
+                </div>
+
+              )}
+
+          </div>
+
+        </div>
+
+      )}
+
+    </div>
+  );
+}
