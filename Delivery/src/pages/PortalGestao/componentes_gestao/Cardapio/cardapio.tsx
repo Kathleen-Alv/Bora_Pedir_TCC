@@ -1,96 +1,40 @@
+import styles from './cardapio.module.css';
 import { useEffect, useState } from 'react';
 
-import styles from './cardapio.module.css';
+import { NovoItem } from './novoItem/novoItem.tsx';
+import { NovaCategoria } from './novaCategoria/novaCategoria.tsx';
+import { MenuItem } from './menuItem/menuItem.tsx';
+import { VerItem } from './verItem/verItem.tsx';
 
-import { NovoItem } from './novoItem/novoItem';
-import { NovaCategoria } from './novaCategoria/novaCategoria';
-import { MenuItem } from './menuItem/menuItem';
-
-
-// ================================================================
-// TIPOS
-// ================================================================
-
-type Categoria = {
-    id: number;
-    nome: string;
-    quantidade: number;
-};
-
-
-type Item = {
-    id: number;
-    nome: string;
-    preco: number;
-    imagem: string;
-    descricao: string;
-    disponivel: boolean;
-    categoriaId: number;
-    statusVenda: 'ativo' | 'pausado';
-};
-
-
-type ItemCriadoAPI = {
-    id: number;
-    categoria_id: number;
-    nome: string;
-    foto: string | null;
-    preco: number;
-    descricao: string | null;
-    disponivel: boolean;
-};
-
-
-type ItemRecebidoAPI = {
-    id: number;
-    categoria_id: number;
-    nome: string;
-    foto: string | null;
-    preco: number;
-    descricao: string | null;
-    disponivel: boolean;
-};
-
-
-type DadosComercio = {
-    id: number;
-    nome_comercio: string;
-};
+import { useCardapio } from './hooks/useCardapio.tsx';
 
 
 // ================================================================
-// API
+// MONTAR URL DA IMAGEM
 // ================================================================
 
-const API_URL =
-    'http://localhost:3000/api/cardapio';
+function montarUrlImagem(
+    imagem: string | null | undefined
+): string | null {
 
+    if (!imagem) {
+        return null;
+    }
 
-// ================================================================
-// TOKEN
-// ================================================================
+    if (
+        imagem.startsWith('http://') ||
+        imagem.startsWith('https://') ||
+        imagem.startsWith('blob:') ||
+        imagem.startsWith('data:')
+    ) {
+        return imagem;
+    }
 
-function obterToken(): string | null {
-
-    return localStorage.getItem('token');
-
-}
-
-
-// ================================================================
-// CONVERTER BOOLEANO
-// ================================================================
-
-function converterBooleano(
-    valor: unknown
-): boolean {
-
-    return (
-        valor === true ||
-        valor === 1 ||
-        valor === '1'
-    );
-
+    return `http://localhost:3000${
+        imagem.startsWith('/')
+            ? imagem
+            : `/${imagem}`
+    }`;
 }
 
 
@@ -100,1365 +44,228 @@ function converterBooleano(
 
 export function Cardapio() {
 
-
     // ============================================================
-    // ESTADOS
+    // ESTADOS DO MENU DA CATEGORIA
     // ============================================================
 
-    const [categorias, setCategorias] =
-        useState<Categoria[]>([]);
-
-
-    const [itens, setItens] =
-        useState<Item[]>([]);
-
-
-    const [categoriaSelecionada, setCategoriaSelecionada] =
+    const [categoriaMenuAberto, setCategoriaMenuAberto] =
         useState<number | null>(null);
 
-
-    const [itensSelecionados, setItensSelecionados] =
-        useState<number[]>([]);
-
-
-    const [mostrarNovoItem, setMostrarNovoItem] =
-        useState(false);
-
-
-    const [mostrarNovaCategoria, setMostrarNovaCategoria] =
-        useState(false);
-
-
-    const [busca, setBusca] =
-        useState('');
-
-
-    const [filtroStatus, setFiltroStatus] =
-        useState('todos');
-
-
-    const [nomeComercio, setNomeComercio] =
-        useState('Carregando...');
-
-
-    const [carregandoCategorias, setCarregandoCategorias] =
-        useState(false);
-
-
-    const [carregandoItens, setCarregandoItens] =
-        useState(false);
-
-
-    const [salvandoCategoria, setSalvandoCategoria] =
-        useState(false);
-
-
-    const [excluindoItemId, setExcluindoItemId] =
-        useState<number | null>(null);
-
-
-    const [excluindoSelecionados, setExcluindoSelecionados] =
-        useState(false);
-
-
-    const [erro, setErro] =
-        useState('');
-
+    const [posicaoMenuCategoria, setPosicaoMenuCategoria] =
+        useState({
+            top: 0,
+            left: 0
+        });
 
 
     // ============================================================
-    // CARREGAR CATEGORIAS
-    // ============================================================
-
-    async function carregarCategorias() {
-
-        try {
-
-            setCarregandoCategorias(true);
-
-            setErro('');
-
-
-            const token =
-                obterToken();
-
-
-            if (!token) {
-
-                setErro(
-                    'Sessão expirada. Faça login novamente.'
-                );
-
-                return;
-
-            }
-
-
-            const resposta =
-                await fetch(
-                    `${API_URL}/categorias`,
-                    {
-                        method: 'GET',
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-
-                            'Content-Type':
-                                'application/json'
-                        }
-                    }
-                );
-
-
-            const dados =
-                await resposta.json();
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    dados.message ||
-                    'Erro ao carregar categorias.'
-                );
-
-            }
-
-
-            const categoriasRecebidas:
-                Categoria[] =
-                dados.categorias || [];
-
-
-            setCategorias(
-                categoriasRecebidas
-            );
-
-
-            if (
-                categoriaSelecionada === null &&
-                categoriasRecebidas.length > 0
-            ) {
-
-                setCategoriaSelecionada(
-                    categoriasRecebidas[0].id
-                );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                'Erro ao carregar categorias:',
-                error
-            );
-
-
-            if (
-                error instanceof Error
-            ) {
-
-                setErro(
-                    error.message
-                );
-
-            } else {
-
-                setErro(
-                    'Erro ao carregar categorias.'
-                );
-
-            }
-
-
-        } finally {
-
-            setCarregandoCategorias(
-                false
-            );
-
-        }
-
-    }
-
-
-
-    // ============================================================
-    // CARREGAR ITENS
-    // ============================================================
-
-    async function carregarItens() {
-
-        try {
-
-            setCarregandoItens(true);
-
-            setErro('');
-
-
-            const token =
-                obterToken();
-
-
-            if (!token) {
-
-                setErro(
-                    'Sessão expirada. Faça login novamente.'
-                );
-
-                return;
-
-            }
-
-
-            const resposta =
-                await fetch(
-                    `${API_URL}/itens`,
-                    {
-                        method: 'GET',
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-
-                            'Content-Type':
-                                'application/json'
-                        }
-                    }
-                );
-
-
-            const dados =
-                await resposta.json();
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    dados.message ||
-                    'Erro ao carregar itens.'
-                );
-
-            }
-
-
-            const itensRecebidos:
-                ItemRecebidoAPI[] =
-                dados.itens || [];
-
-
-            const itensFormatados:
-                Item[] =
-                itensRecebidos.map(
-                    (item) => ({
-
-                        id:
-                            Number(
-                                item.id
-                            ),
-
-                        nome:
-                            item.nome,
-
-                        preco:
-                            Number(
-                                item.preco
-                            ),
-
-                        imagem:
-                            item.foto || '',
-
-                        descricao:
-                            item.descricao || '',
-
-                        disponivel:
-                            converterBooleano(
-                                item.disponivel
-                            ),
-
-                        categoriaId:
-                            Number(
-                                item.categoria_id
-                            ),
-
-                        statusVenda:
-                            converterBooleano(
-                                item.disponivel
-                            )
-                                ? 'ativo'
-                                : 'pausado'
-
-                    })
-                );
-
-
-            setItens(
-                itensFormatados
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                'Erro ao carregar itens:',
-                error
-            );
-
-
-            if (
-                error instanceof Error
-            ) {
-
-                setErro(
-                    error.message
-                );
-
-            } else {
-
-                setErro(
-                    'Erro ao carregar itens.'
-                );
-
-            }
-
-
-        } finally {
-
-            setCarregandoItens(
-                false
-            );
-
-        }
-
-    }
-
-
-
-    // ============================================================
-    // CARREGAR DADOS DO COMÉRCIO
-    // ============================================================
-
-    async function carregarDadosComercio() {
-
-        try {
-
-            const token =
-                obterToken();
-
-
-            if (!token) {
-
-                setNomeComercio(
-                    'Comércio'
-                );
-
-                return;
-
-            }
-
-
-            const resposta =
-                await fetch(
-                    `${API_URL}/dados`,
-                    {
-                        method: 'GET',
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-
-                            'Content-Type':
-                                'application/json'
-                        }
-                    }
-                );
-
-
-            const dados =
-                await resposta.json();
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    dados.message ||
-                    'Erro ao carregar dados do comércio.'
-                );
-
-            }
-
-
-            const comercio:
-                DadosComercio =
-                dados.comercio;
-
-
-            if (
-                !comercio ||
-                !comercio.nome_comercio
-            ) {
-
-                setNomeComercio(
-                    'Comércio'
-                );
-
-                return;
-
-            }
-
-
-            setNomeComercio(
-                comercio.nome_comercio
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                'Erro ao carregar dados do comércio:',
-                error
-            );
-
-
-            setNomeComercio(
-                'Comércio'
-            );
-
-        }
-
-    }
-
-
-
-    // ============================================================
-    // EFFECT
+    // FECHAR MENU DA CATEGORIA AO CLICAR FORA
     // ============================================================
 
     useEffect(() => {
 
-        carregarCategorias();
+        function fecharMenuCategoria() {
+            setCategoriaMenuAberto(null);
+        }
 
-        carregarItens();
+        document.addEventListener(
+            'click',
+            fecharMenuCategoria
+        );
 
-        carregarDadosComercio();
+        return () => {
+
+            document.removeEventListener(
+                'click',
+                fecharMenuCategoria
+            );
+
+        };
 
     }, []);
 
 
-
     // ============================================================
-    // CRIAR CATEGORIA
+    // ABRIR MENU DA CATEGORIA
     // ============================================================
 
-    async function handleSalvarCategoria(
-        nomeCategoria: string,
-        continuarCadastrando: boolean = false
+    function abrirMenuCategoria(
+        event: React.MouseEvent<HTMLButtonElement>,
+        categoriaId: number
     ) {
 
-        try {
+        event.stopPropagation();
 
-            setSalvandoCategoria(true);
+        if (categoriaMenuAberto === categoriaId) {
 
-            setErro('');
-
-
-            const token =
-                obterToken();
-
-
-            if (!token) {
-
-                throw new Error(
-                    'Sessão expirada. Faça login novamente.'
-                );
-
-            }
-
-
-            const resposta =
-                await fetch(
-                    `${API_URL}/categorias`,
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-
-                            'Content-Type':
-                                'application/json'
-                        },
-
-                        body:
-                            JSON.stringify({
-                                nome:
-                                    nomeCategoria
-                            })
-                    }
-                );
-
-
-            const dados =
-                await resposta.json();
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    dados.message ||
-                    'Erro ao criar categoria.'
-                );
-
-            }
-
-
-            const novaCategoria:
-                Categoria =
-                dados.categoria;
-
-
-            // ----------------------------------------------------
-            // ADICIONA A NOVA CATEGORIA
-            // ----------------------------------------------------
-
-            setCategorias(
-                (categoriasAtuais) => [
-                    ...categoriasAtuais,
-                    novaCategoria
-                ]
-            );
-
-
-            // ----------------------------------------------------
-            // SELECIONA A NOVA CATEGORIA
-            // ----------------------------------------------------
-
-            setCategoriaSelecionada(
-                novaCategoria.id
-            );
-
-
-            // ----------------------------------------------------
-            // FECHA SOMENTE SE NÃO FOR
-            // ADICIONAR OUTRA
-            // ----------------------------------------------------
-
-            if (
-                !continuarCadastrando
-            ) {
-
-                setMostrarNovaCategoria(
-                    false
-                );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                'Erro ao criar categoria:',
-                error
-            );
-
-
-            if (
-                error instanceof Error
-            ) {
-
-                setErro(
-                    error.message
-                );
-
-            } else {
-
-                setErro(
-                    'Erro ao criar categoria.'
-                );
-
-            }
-
-
-            // ----------------------------------------------------
-            // IMPORTANTE:
-            // O NovaCategoria também precisa saber
-            // que ocorreu erro.
-            // ----------------------------------------------------
-
-            throw error;
-
-
-        } finally {
-
-            setSalvandoCategoria(
-                false
-            );
-
-        }
-
-    }
-
-
-
-    // ============================================================
-    // ITEM CRIADO
-    // ============================================================
-
-    function handleItemCriado(
-        item: ItemCriadoAPI
-    ) {
-
-        const novoItem:
-            Item = {
-
-            id:
-                Number(
-                    item.id
-                ),
-
-            nome:
-                item.nome,
-
-            preco:
-                Number(
-                    item.preco
-                ),
-
-            imagem:
-                item.foto || '',
-
-            descricao:
-                item.descricao || '',
-
-            disponivel:
-                converterBooleano(
-                    item.disponivel
-                ),
-
-            categoriaId:
-                Number(
-                    item.categoria_id
-                ),
-
-            statusVenda:
-                converterBooleano(
-                    item.disponivel
-                )
-                    ? 'ativo'
-                    : 'pausado'
-
-        };
-
-
-        setItens(
-            (itensAtuais) => [
-                ...itensAtuais,
-                novoItem
-            ]
-        );
-
-
-        setCategoriaSelecionada(
-            novoItem.categoriaId
-        );
-
-
-        setCategorias(
-            (categoriasAtuais) =>
-
-                categoriasAtuais.map(
-                    (categoria) => {
-
-                        if (
-                            categoria.id ===
-                            novoItem.categoriaId
-                        ) {
-
-                            return {
-
-                                ...categoria,
-
-                                quantidade:
-                                    categoria.quantidade + 1
-
-                            };
-
-                        }
-
-
-                        return categoria;
-
-                    }
-                )
-
-        );
-
-
-        setItensSelecionados([]);
-
-    }
-
-
-
-    // ============================================================
-    // ALTERAR ITEM
-    // ============================================================
-
-    function handleAlterarItem(
-        item: Item
-    ) {
-
-        console.log(
-            'Item selecionado para alteração:',
-            item
-        );
-
-
-        alert(
-            `Alterar item: ${item.nome}`
-        );
-
-    }
-
-
-
-    // ============================================================
-    // EXCLUIR ITEM
-    // ============================================================
-
-    async function handleExcluirItem(
-        item: Item
-    ) {
-
-        const confirmar =
-            window.confirm(
-                `Deseja realmente excluir o item "${item.nome}"?`
-            );
-
-
-        if (!confirmar) {
+            setCategoriaMenuAberto(null);
 
             return;
-
         }
 
+        const botao =
+            event.currentTarget;
 
-        try {
+        const rect =
+            botao.getBoundingClientRect();
 
-            setExcluindoItemId(
-                item.id
-            );
+        const larguraMenu =
+            170;
 
-            setErro('');
+        setPosicaoMenuCategoria({
+            top: rect.bottom + 4,
+            left: rect.right - larguraMenu
+        });
 
-
-            const token =
-                obterToken();
-
-
-            if (!token) {
-
-                throw new Error(
-                    'Sessão expirada. Faça login novamente.'
-                );
-
-            }
-
-
-            const resposta =
-                await fetch(
-                    `${API_URL}/itens/${item.id}`,
-                    {
-                        method: 'DELETE',
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`
-                        }
-                    }
-                );
-
-
-            let dados: {
-                message?: string;
-            } = {};
-
-
-            try {
-
-                dados =
-                    await resposta.json();
-
-            } catch {
-
-                // DELETE pode não retornar JSON.
-
-            }
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    dados.message ||
-                    'Erro ao excluir item.'
-                );
-
-            }
-
-
-            setItens(
-                (itensAtuais) =>
-                    itensAtuais.filter(
-                        (itemAtual) =>
-                            itemAtual.id !==
-                            item.id
-                    )
-            );
-
-
-            setItensSelecionados(
-                (selecionados) =>
-                    selecionados.filter(
-                        (id) =>
-                            id !== item.id
-                    )
-            );
-
-
-            setCategorias(
-                (categoriasAtuais) =>
-
-                    categoriasAtuais.map(
-                        (categoria) => {
-
-                            if (
-                                categoria.id ===
-                                item.categoriaId
-                            ) {
-
-                                return {
-
-                                    ...categoria,
-
-                                    quantidade:
-                                        Math.max(
-                                            0,
-                                            categoria.quantidade - 1
-                                        )
-
-                                };
-
-                            }
-
-
-                            return categoria;
-
-                        }
-                    )
-
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                'Erro ao excluir item:',
-                error
-            );
-
-
-            if (
-                error instanceof Error
-            ) {
-
-                setErro(
-                    error.message
-                );
-
-            } else {
-
-                setErro(
-                    'Erro ao excluir item.'
-                );
-
-            }
-
-
-        } finally {
-
-            setExcluindoItemId(
-                null
-            );
-
-        }
-
+        setCategoriaMenuAberto(
+            categoriaId
+        );
     }
 
 
-
     // ============================================================
-    // SELECIONAR ITEM
-    // ============================================================
-
-    function alternarItem(
-        id: number
-    ) {
-
-        setItensSelecionados(
-            (selecionados) => {
-
-                if (
-                    selecionados.includes(id)
-                ) {
-
-                    return selecionados.filter(
-                        (itemId) =>
-                            itemId !== id
-                    );
-
-                }
-
-
-                return [
-                    ...selecionados,
-                    id
-                ];
-
-            }
-        );
-
-    }
-
-
-
-    // ============================================================
-    // SELECIONAR TODOS
+    // HOOK DO CARDÁPIO
     // ============================================================
 
-    function alternarTodos() {
+    const {
 
-        const idsVisiveis =
-            itensFiltrados.map(
-                (item) =>
-                    item.id
-            );
+        // --------------------------------------------------------
+        // DADOS
+        // --------------------------------------------------------
 
+        categorias,
 
-        const todosSelecionados =
-            idsVisiveis.length > 0 &&
-            idsVisiveis.every(
-                (id) =>
-                    itensSelecionados.includes(
-                        id
-                    )
-            );
+        itens,
 
+        nomeComercio,
 
-        if (todosSelecionados) {
 
-            setItensSelecionados(
-                (selecionados) =>
-                    selecionados.filter(
-                        (id) =>
-                            !idsVisiveis.includes(
-                                id
-                            )
-                    )
-            );
+        // --------------------------------------------------------
+        // CATEGORIA
+        // --------------------------------------------------------
 
-        } else {
+        categoriaSelecionada,
 
-            setItensSelecionados(
-                (selecionados) => [
+        setCategoriaSelecionada,
 
-                    ...new Set([
-                        ...selecionados,
-                        ...idsVisiveis
-                    ])
+        categoriaAtual,
 
-                ]
-            );
 
-        }
+        // --------------------------------------------------------
+        // SELEÇÃO
+        // --------------------------------------------------------
 
-    }
+        itensSelecionados,
 
+        todosSelecionados,
 
+        alternarItem,
 
-    // ============================================================
-    // EXCLUIR ITENS SELECIONADOS
-    // ============================================================
+        alternarTodos,
 
-    async function handleExcluirSelecionados() {
 
-        if (
-            itensSelecionados.length === 0
-        ) {
+        // --------------------------------------------------------
+        // FILTROS
+        // --------------------------------------------------------
 
-            return;
+        busca,
 
-        }
+        setBusca,
 
+        filtroStatus,
 
-        const confirmar =
-            window.confirm(
-                `Deseja realmente excluir ${itensSelecionados.length} item(ns) selecionado(s)?`
-            );
+        setFiltroStatus,
 
+        itensFiltrados,
 
-        if (!confirmar) {
 
-            return;
+        // --------------------------------------------------------
+        // NOVO ITEM
+        // --------------------------------------------------------
 
-        }
+        mostrarNovoItem,
 
+        setMostrarNovoItem,
 
-        try {
+        itemEmAlteracao,
 
-            setExcluindoSelecionados(
-                true
-            );
+        setItemEmAlteracao,
 
-            setErro('');
+        handleAlterarItem,
 
+        handleFecharNovoItem,
 
-            const token =
-                obterToken();
+        handleItemCriado,
 
+        handleItemAlterado,
 
-            if (!token) {
 
-                throw new Error(
-                    'Sessão expirada. Faça login novamente.'
-                );
+        // --------------------------------------------------------
+        // VER ITEM
+        // --------------------------------------------------------
 
-            }
+        itemEmVisualizacao,
 
+        handleVerItem,
 
-            const idsParaExcluir = [
-                ...itensSelecionados
-            ];
+        handleFecharVerItem,
 
 
-            const itensExcluidos:
-                Item[] = [];
+        // --------------------------------------------------------
+        // NOVA CATEGORIA
+        // --------------------------------------------------------
 
+        mostrarNovaCategoria,
 
-            // ----------------------------------------------------
-            // EXCLUI UM POR UM
-            // ----------------------------------------------------
+        setMostrarNovaCategoria,
 
-            for (
-                const id of idsParaExcluir
-            ) {
+        categoriaEmEdicao,
 
-                const resposta =
-                    await fetch(
-                        `${API_URL}/itens/${id}`,
-                        {
-                            method: 'DELETE',
+        setCategoriaEmEdicao,
 
-                            headers: {
-                                Authorization:
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
+        handleSalvarCategoria,
 
+        handleAlterarCategoria,
 
-                if (!resposta.ok) {
+        handleFecharNovaCategoria,
 
-                    let dados: {
-                        message?: string;
-                    } = {};
 
+        // --------------------------------------------------------
+        // EXCLUSÃO
+        // --------------------------------------------------------
 
-                    try {
+        handleExcluirItem,
 
-                        dados =
-                            await resposta.json();
+        handleExcluirSelecionados,
 
-                    } catch {
+        excluindoSelecionados,
 
-                        // Sem resposta JSON.
 
-                    }
+        // --------------------------------------------------------
+        // DISPONIBILIDADE
+        // --------------------------------------------------------
 
+        handleAlterarDisponibilidade,
 
-                    throw new Error(
-                        dados.message ||
-                        `Erro ao excluir o item ${id}.`
-                    );
 
-                }
+        // --------------------------------------------------------
+        // CARREGAMENTO
+        // --------------------------------------------------------
 
+        carregandoCategorias,
 
-                const itemEncontrado =
-                    itens.find(
-                        (item) =>
-                            item.id === id
-                    );
+        carregandoItens,
 
+        salvandoCategoria,
 
-                if (itemEncontrado) {
 
-                    itensExcluidos.push(
-                        itemEncontrado
-                    );
+        // --------------------------------------------------------
+        // ERROS
+        // --------------------------------------------------------
 
-                }
+        erro
 
-            }
-
-
-            // ----------------------------------------------------
-            // REMOVE DA LISTA
-            // ----------------------------------------------------
-
-            setItens(
-                (itensAtuais) =>
-                    itensAtuais.filter(
-                        (item) =>
-                            !idsParaExcluir.includes(
-                                item.id
-                            )
-                    )
-            );
-
-
-            // ----------------------------------------------------
-            // ATUALIZA CATEGORIAS
-            // ----------------------------------------------------
-
-            setCategorias(
-                (categoriasAtuais) => {
-
-                    const quantidadePorCategoria =
-                        new Map<number, number>();
-
-
-                    itensExcluidos.forEach(
-                        (item) => {
-
-                            const quantidadeAtual =
-                                quantidadePorCategoria.get(
-                                    item.categoriaId
-                                ) || 0;
-
-
-                            quantidadePorCategoria.set(
-                                item.categoriaId,
-                                quantidadeAtual + 1
-                            );
-
-                        }
-                    );
-
-
-                    return categoriasAtuais.map(
-                        (categoria) => {
-
-                            const quantidadeRemovida =
-                                quantidadePorCategoria.get(
-                                    categoria.id
-                                ) || 0;
-
-
-                            if (
-                                quantidadeRemovida === 0
-                            ) {
-
-                                return categoria;
-
-                            }
-
-
-                            return {
-
-                                ...categoria,
-
-                                quantidade:
-                                    Math.max(
-                                        0,
-                                        categoria.quantidade -
-                                        quantidadeRemovida
-                                    )
-
-                            };
-
-                        }
-                    );
-
-                }
-            );
-
-
-            // ----------------------------------------------------
-            // LIMPA SELEÇÃO
-            // ----------------------------------------------------
-
-            setItensSelecionados([]);
-
-
-        } catch (error) {
-
-            console.error(
-                'Erro ao excluir itens:',
-                error
-            );
-
-
-            if (
-                error instanceof Error
-            ) {
-
-                setErro(
-                    error.message
-                );
-
-            } else {
-
-                setErro(
-                    'Erro ao excluir itens.'
-                );
-
-            }
-
-
-            await carregarItens();
-
-            await carregarCategorias();
-
-
-        } finally {
-
-            setExcluindoSelecionados(
-                false
-            );
-
-        }
-
-    }
-
-
-
-    // ============================================================
-    // FILTRAR ITENS
-    // ============================================================
-
-    const itensFiltrados =
-        itens.filter(
-            (item) => {
-
-
-                // ------------------------------------------------
-                // CATEGORIA
-                // ------------------------------------------------
-
-                if (
-                    categoriaSelecionada !== null &&
-                    item.categoriaId !==
-                        categoriaSelecionada
-                ) {
-
-                    return false;
-
-                }
-
-
-                // ------------------------------------------------
-                // BUSCA
-                // ------------------------------------------------
-
-                if (
-                    busca.trim()
-                ) {
-
-                    const textoBusca =
-                        busca
-                            .trim()
-                            .toLowerCase();
-
-
-                    if (
-                        !item.nome
-                            .toLowerCase()
-                            .includes(
-                                textoBusca
-                            )
-                    ) {
-
-                        return false;
-
-                    }
-
-                }
-
-
-                // ------------------------------------------------
-                // STATUS
-                // ------------------------------------------------
-
-                if (
-                    filtroStatus !== 'todos'
-                ) {
-
-                    if (
-                        filtroStatus === 'ativos' &&
-                        !item.disponivel
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    if (
-                        filtroStatus === 'pausados' &&
-                        item.disponivel
-                    ) {
-
-                        return false;
-
-                    }
-
-                }
-
-
-                return true;
-
-            }
-        );
-
-
-
-    // ============================================================
-    // TODOS VISÍVEIS SELECIONADOS
-    // ============================================================
-
-    const todosSelecionados =
-        itensFiltrados.length > 0 &&
-        itensFiltrados.every(
-            (item) =>
-                itensSelecionados.includes(
-                    item.id
-                )
-        );
-
-
-
-    // ============================================================
-    // CATEGORIA ATUAL
-    // ============================================================
-
-    const categoriaAtual =
-        categorias.find(
-            (categoria) =>
-                categoria.id ===
-                categoriaSelecionada
-        );
-
+    } = useCardapio();
 
 
     // ============================================================
@@ -1498,7 +305,7 @@ export function Cardapio() {
                         }
                         title="Editar comércio"
                     >
-                        ✎
+                        🏬
                     </button>
 
 
@@ -1508,15 +315,6 @@ export function Cardapio() {
                         }
                     >
                         |
-                    </span>
-
-
-                    <span
-                        className={
-                            styles.semAumento
-                        }
-                    >
-                        Sem aumento
                     </span>
 
                 </div>
@@ -1550,7 +348,6 @@ export function Cardapio() {
                 </div>
 
             </header>
-
 
 
             {/* =====================================================
@@ -1599,19 +396,11 @@ export function Cardapio() {
                 </select>
 
 
-                {/* =================================================
-                    BOTÕES DE AÇÃO
-                ================================================= */}
-
                 <div
                     className={
                         styles.botoesAcao
                     }
                 >
-
-                    {/* -------------------------------------------------
-                        EXCLUIR SELEÇÃO
-                    ------------------------------------------------- */}
 
                     {itensSelecionados.length >= 1 && (
 
@@ -1638,20 +427,35 @@ export function Cardapio() {
                     )}
 
 
-                    {/* -------------------------------------------------
-                        NOVA CATEGORIA
-                    ------------------------------------------------- */}
+                    {/* =================================================
+                        CADASTRAR NOVA CATEGORIA
+                    ================================================= */}
 
                     <button
                         type="button"
                         className={
                             styles.novaCategoria
                         }
-                        onClick={() =>
+                        onClick={() => {
+
+                            // ----------------------------------------
+                            // Garante que não estamos editando
+                            // uma categoria existente.
+                            // ----------------------------------------
+
+                            setCategoriaEmEdicao(
+                                null
+                            );
+
+                            // ----------------------------------------
+                            // Abre o modal de cadastro.
+                            // ----------------------------------------
+
                             setMostrarNovaCategoria(
                                 true
-                            )
-                        }
+                            );
+
+                        }}
                         disabled={
                             salvandoCategoria
                         }
@@ -1660,20 +464,26 @@ export function Cardapio() {
                     </button>
 
 
-                    {/* -------------------------------------------------
+                    {/* =================================================
                         NOVO ITEM
-                    ------------------------------------------------- */}
+                    ================================================= */}
 
                     <button
                         type="button"
                         className={
                             styles.novoItem
                         }
-                        onClick={() =>
+                        onClick={() => {
+
+                            setItemEmAlteracao(
+                                null
+                            );
+
                             setMostrarNovoItem(
                                 true
-                            )
-                        }
+                            );
+
+                        }}
                         disabled={
                             categorias.length === 0
                         }
@@ -1686,9 +496,8 @@ export function Cardapio() {
             </div>
 
 
-
             {/* =====================================================
-                ERRO
+                MENSAGEM DE ERRO
             ===================================================== */}
 
             {erro && (
@@ -1702,7 +511,6 @@ export function Cardapio() {
                 </div>
 
             )}
-
 
 
             {/* =====================================================
@@ -1737,16 +545,30 @@ export function Cardapio() {
                         </h2>
 
 
+                        {/* =============================================
+                            ADICIONAR CATEGORIA
+                        ============================================= */}
+
                         <button
                             type="button"
                             className={
                                 styles.adicionarCategoria
                             }
-                            onClick={() =>
+                            onClick={() => {
+
+                                // ----------------------------------------
+                                // Abre como NOVA categoria.
+                                // ----------------------------------------
+
+                                setCategoriaEmEdicao(
+                                    null
+                                );
+
                                 setMostrarNovaCategoria(
                                     true
-                                )
-                            }
+                                );
+
+                            }}
                             title="Adicionar categoria"
                         >
                             +
@@ -1754,6 +576,10 @@ export function Cardapio() {
 
                     </div>
 
+
+                    {/* =================================================
+                        LISTA DE CATEGORIAS
+                    ================================================= */}
 
                     <div
                         className={
@@ -1786,11 +612,10 @@ export function Cardapio() {
                             categorias.map(
                                 (categoria) => (
 
-                                    <button
+                                    <div
                                         key={
                                             categoria.id
                                         }
-                                        type="button"
                                         className={`
                                             ${styles.categoria}
                                             ${
@@ -1799,28 +624,76 @@ export function Cardapio() {
                                                     ? styles.categoriaSelecionada
                                                     : ''
                                             }
-                                        `}
-                                        onClick={() =>
-                                            setCategoriaSelecionada(
+                                            ${
+                                                categoriaMenuAberto ===
                                                 categoria.id
-                                            )
-                                        }
+                                                    ? styles.categoriaMenuAberto
+                                                    : ''
+                                            }
+                                        `}
                                     >
 
-                                        <span>
-                                            {
-                                                categoria.nome
+                                        {/* =================================
+                                            BOTÃO DA CATEGORIA
+                                        ================================= */}
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                styles.botaoCategoria
                                             }
-                                        </span>
-
-
-                                        <small>
-                                            {
-                                                categoria.quantidade
+                                            onClick={() =>
+                                                setCategoriaSelecionada(
+                                                    categoria.id
+                                                )
                                             }
-                                        </small>
+                                        >
 
-                                    </button>
+                                            <span>
+                                                {
+                                                    categoria.nome
+                                                }
+                                            </span>
+
+
+                                            <small>
+                                                {
+                                                    categoria.quantidade
+                                                }
+                                            </small>
+
+                                        </button>
+
+
+                                        {/* =================================
+                                            TRÊS PONTINHOS
+                                        ================================= */}
+
+                                        <div
+                                            className={
+                                                styles.containerMenuCategoria
+                                            }
+                                        >
+
+                                            <button
+                                                type="button"
+                                                className={
+                                                    styles.menuCategoria
+                                                }
+                                                onClick={(event) =>
+                                                    abrirMenuCategoria(
+                                                        event,
+                                                        categoria.id
+                                                    )
+                                                }
+                                                title="Opções da categoria"
+                                            >
+                                                ⋮
+                                            </button>
+
+                                        </div>
+
+                                    </div>
 
                                 )
                             )
@@ -1829,8 +702,112 @@ export function Cardapio() {
 
                     </div>
 
-                </aside>
 
+                    {/* =================================================
+                        MENU FLUTUANTE DA CATEGORIA
+                    ================================================= */}
+
+                    {categoriaMenuAberto !== null && (
+
+                        <div
+                            className={
+                                styles.opcoesCategoria
+                            }
+                            style={{
+                                top:
+                                    posicaoMenuCategoria.top,
+                                left:
+                                    posicaoMenuCategoria.left
+                            }}
+                            onClick={(event) =>
+                                event.stopPropagation()
+                            }
+                        >
+
+                            {/* =========================================
+                                EDITAR CATEGORIA
+                            ========================================= */}
+
+                            <button
+                                type="button"
+                                className={
+                                    styles.opcaoCategoria
+                                }
+                                onClick={() => {
+
+                                    const categoria =
+                                        categorias.find(
+                                            (item) =>
+                                                item.id ===
+                                                categoriaMenuAberto
+                                        );
+
+                                    if (!categoria) {
+                                        return;
+                                    }
+
+                                    // ------------------------------------
+                                    // Coloca a categoria no estado
+                                    // de edição e abre o mesmo modal.
+                                    // ------------------------------------
+
+                                    handleAlterarCategoria(
+                                        categoria
+                                    );
+
+                                    setCategoriaMenuAberto(
+                                        null
+                                    );
+
+                                }}
+                            >
+
+                                <span>
+                                    ✏
+                                </span>
+
+                                Editar categoria
+
+                            </button>
+
+
+                            {/* =========================================
+                                EXCLUIR CATEGORIA
+                            ========================================= */}
+
+                            <button
+                                type="button"
+                                className={`
+                                    ${styles.opcaoCategoria}
+                                    ${styles.opcaoExcluirCategoria}
+                                `}
+                                onClick={() => {
+
+                                    console.log(
+                                        'Excluir categoria:',
+                                        categoriaMenuAberto
+                                    );
+
+                                    setCategoriaMenuAberto(
+                                        null
+                                    );
+
+                                }}
+                            >
+
+                                <span>
+                                    🗑
+                                </span>
+
+                                Excluir categoria
+
+                            </button>
+
+                        </div>
+
+                    )}
+
+                </aside>
 
 
                 {/* =================================================
@@ -1844,9 +821,9 @@ export function Cardapio() {
                 >
 
 
-                    {/* =============================================
-                        BARRA DE AÇÕES DOS ITENS
-                    ============================================= */}
+                    {/* =================================================
+                        BARRA DOS ITENS
+                    ================================================= */}
 
                     <div
                         className={
@@ -1862,36 +839,113 @@ export function Cardapio() {
                         </strong>
 
 
-                        <label
+                        <div
                             className={
-                                styles.selecionarTudo
+                                styles.acoesDisponibilidade
                             }
                         >
 
-                            <input
-                                type="checkbox"
-                                checked={
-                                    todosSelecionados
+
+                            {/* =========================================
+                                SELECIONAR TUDO
+                            ========================================= */}
+
+                            <label
+                                className={
+                                    styles.selecionarTudo
                                 }
-                                onChange={
-                                    alternarTodos
-                                }
-                            />
+                            >
+
+                                <input
+                                    type="checkbox"
+                                    checked={
+                                        todosSelecionados
+                                    }
+                                    onChange={
+                                        alternarTodos
+                                    }
+                                />
 
 
-                            <span>
-                                Selecionar tudo
-                            </span>
+                                <span>
+                                    Selecionar tudo
+                                </span>
 
-                        </label>
+                            </label>
+
+
+                            {/* =========================================
+                                ALTERAR DISPONIBILIDADE
+                            ========================================= */}
+
+                            {itensSelecionados.length > 0 && (
+
+                                <div
+                                    className={
+                                        styles.alterarDisponibilidade
+                                    }
+                                >
+
+                                    <span
+                                        className={
+                                            styles.textoDisponibilidade
+                                        }
+                                    >
+                                        Alterar disponibilidade
+                                    </span>
+
+
+                                    {/* ---------------------------------
+                                        BOTÃO D
+                                    --------------------------------- */}
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.botaoDisponibilidade
+                                        }
+                                        onClick={() =>
+                                            handleAlterarDisponibilidade(
+                                                true
+                                            )
+                                        }
+                                        title="Marcar selecionados como disponíveis"
+                                    >
+                                        D
+                                    </button>
+
+
+                                    {/* ---------------------------------
+                                        BOTÃO I
+                                    --------------------------------- */}
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.botaoDisponibilidade
+                                        }
+                                        onClick={() =>
+                                            handleAlterarDisponibilidade(
+                                                false
+                                            )
+                                        }
+                                        title="Marcar selecionados como indisponíveis"
+                                    >
+                                        I
+                                    </button>
+
+                                </div>
+
+                            )}
+
+                        </div>
 
                     </div>
 
 
-
-                    {/* =============================================
+                    {/* =================================================
                         CABEÇALHO DA TABELA
-                    ============================================= */}
+                    ================================================= */}
 
                     <div
                         className={
@@ -1914,10 +968,9 @@ export function Cardapio() {
                     </div>
 
 
-
-                    {/* =============================================
+                    {/* =================================================
                         LISTA DE ITENS
-                    ============================================= */}
+                    ================================================= */}
 
                     <div
                         className={
@@ -1961,7 +1014,7 @@ export function Cardapio() {
 
 
                                         {/* =================================
-                                            NOME
+                                            NOME / IMAGEM / SELEÇÃO
                                         ================================= */}
 
                                         <div
@@ -1989,7 +1042,9 @@ export function Cardapio() {
 
                                                 <img
                                                     src={
-                                                        item.imagem
+                                                        montarUrlImagem(
+                                                            item.imagem
+                                                        ) || ''
                                                     }
                                                     alt={
                                                         item.nome
@@ -2044,7 +1099,6 @@ export function Cardapio() {
                                         </div>
 
 
-
                                         {/* =================================
                                             PREÇO
                                         ================================= */}
@@ -2067,9 +1121,8 @@ export function Cardapio() {
                                         </div>
 
 
-
                                         {/* =================================
-                                            STATUS
+                                            DISPONIBILIDADE / MENU
                                         ================================= */}
 
                                         <div
@@ -2077,6 +1130,11 @@ export function Cardapio() {
                                                 styles.statusArea
                                             }
                                         >
+
+
+                                            {/* ---------------------------------
+                                                STATUS VISUAL
+                                            --------------------------------- */}
 
                                             <div
                                                 className={`
@@ -2105,11 +1163,18 @@ export function Cardapio() {
                                             </div>
 
 
-                                            {/* =================================
-                                                MENU DE OPÇÕES
-                                            ================================= */}
+                                            {/* ---------------------------------
+                                                MENU DOS TRÊS PONTOS
+                                            --------------------------------- */}
 
                                             <MenuItem
+
+                                                onVerItem={() =>
+                                                    handleVerItem(
+                                                        item
+                                                    )
+                                                }
+
                                                 onAlterar={() =>
                                                     handleAlterarItem(
                                                         item
@@ -2121,6 +1186,7 @@ export function Cardapio() {
                                                         item
                                                     )
                                                 }
+
                                             />
 
                                         </div>
@@ -2138,50 +1204,138 @@ export function Cardapio() {
 
             </div>
 
+            {/* =====================================================
+    MODAL NOVA / EDITAR CATEGORIA
+===================================================== */}
+
+{mostrarNovaCategoria && (
+
+    <NovaCategoria
+
+        categoriaEmEdicao={
+            categoriaEmEdicao
+        }
+
+        /*
+         * No Cardápio não queremos mostrar:
+         *
+         * "Salvar e adicionar outra Categoria"
+         *
+         * Esse botão continua disponível em outros
+         * lugares que utilizarem o componente NovaCategoria.
+         */
+        mostrarSalvarOutraCategoria={
+            false
+        }
+
+        onFechar={() => {
+
+            /*
+             * Fecha o modal e limpa a categoria
+             * que estava sendo editada.
+             */
+            handleFecharNovaCategoria();
+
+        }}
+
+        onSalvar={async (
+            nomeCategoria,
+            continuarCadastrando
+        ) => {
+
+         
+            const sucesso =
+                await handleSalvarCategoria(
+                    nomeCategoria
+                );
+
+          
+            if (
+                sucesso &&
+                !continuarCadastrando
+            ) {
+
+                handleFecharNovaCategoria();
+
+            }
+
+        }}
+
+    />
+
+)}
+
 
 
             {/* =====================================================
-                MODAL NOVA CATEGORIA
-            ===================================================== */}
-
-            {mostrarNovaCategoria && (
-
-                <NovaCategoria
-                    onFechar={() =>
-                        setMostrarNovaCategoria(
-                            false
-                        )
-                    }
-
-                    onSalvar={
-                        handleSalvarCategoria
-                    }
-                />
-
-            )}
-
-
-
-            {/* =====================================================
-                MODAL NOVO ITEM
+                MODAL NOVO / ALTERAR ITEM
             ===================================================== */}
 
             {mostrarNovoItem && (
 
                 <NovoItem
+
                     categorias={
                         categorias
                     }
 
-                    onFechar={() =>
-                        setMostrarNovoItem(
-                            false
-                        )
+                    itemParaAlterar={
+                        itemEmAlteracao || undefined
+                    }
+
+                    modoAlteracao={
+                        itemEmAlteracao !== null
+                    }
+
+                    onFechar={
+                        handleFecharNovoItem
                     }
 
                     onItemCriado={
                         handleItemCriado
                     }
+
+                    onItemAlterado={
+                        (item) => {
+
+                            handleItemAlterado(
+                                item
+                            );
+
+                            handleFecharNovoItem();
+
+                        }
+                    }
+
+                />
+
+            )}
+
+
+            {/* =====================================================
+                MODAL VER ITEM
+            ===================================================== */}
+
+            {itemEmVisualizacao && (
+
+                <VerItem
+
+                    item={
+                        itemEmVisualizacao
+                    }
+
+                    categorias={
+                        categorias
+                    }
+
+                    onFechar={
+                        handleFecharVerItem
+                    }
+
+                    montarUrlImagem={
+                        montarUrlImagem
+                    }
+
                 />
 
             )}
@@ -2190,4 +1344,4 @@ export function Cardapio() {
 
     );
 
-}
+} 

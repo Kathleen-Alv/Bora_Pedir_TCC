@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styles from './menuItem.module.css';
 
 type MenuItemProps = {
+    onVerItem: () => void;
     onAlterar: () => void;
     onExcluir: () => void;
 };
@@ -12,6 +13,7 @@ type PosicaoMenu = {
 };
 
 export function MenuItem({
+    onVerItem,
     onAlterar,
     onExcluir
 }: MenuItemProps) {
@@ -174,6 +176,23 @@ export function MenuItem({
 
 
     // ============================================================
+    // VER ITEM
+    // ============================================================
+
+    function handleVerItem(
+        event: React.MouseEvent<HTMLButtonElement>
+    ) {
+
+        event.stopPropagation();
+
+        setAberto(false);
+
+        onVerItem();
+
+    }
+
+
+    // ============================================================
     // ALTERAR ITEM
     // ============================================================
 
@@ -292,10 +311,15 @@ export function MenuItem({
 
                     </button>
 
-                     <button
+
+                    {/* =================================================
+                        VER ITEM
+                    ================================================= */}
+
+                    <button
                         type="button"
                         className={`${styles.opcao} ${styles.opcaoVerItem}`}
-                        onClick={handleExcluir}
+                        onClick={handleVerItem}
                     >
 
                         <span className={styles.icone}>
@@ -307,9 +331,6 @@ export function MenuItem({
                         </span>
 
                     </button>
-
-
-                    
 
                 </div>
 

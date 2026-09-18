@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import styles from './novoItem.module.css';
 
 
-// ================================================================
+// ============================================================
 // TIPOS
-// ================================================================
+// ============================================================
 
 type Categoria = {
     id: number;
@@ -13,6 +12,16 @@ type Categoria = {
     quantidade: number;
 };
 
+type ItemParaAlterar = {
+    id: number;
+    nome: string;
+    preco: number;
+    imagem: string;
+    descricao: string;
+    disponivel: boolean;
+    categoriaId: number;
+    statusVenda: 'ativo' | 'pausado';
+};
 
 type ItemCriado = {
     id: number;
@@ -24,50 +33,100 @@ type ItemCriado = {
     disponivel: boolean;
 };
 
-
 type NovoItemProps = {
     categorias: Categoria[];
+
     onFechar: () => void;
+
     onItemCriado: (item: ItemCriado) => void;
+
+    itemParaAlterar?: ItemParaAlterar;
+
+    modoAlteracao?: boolean;
+
+    onItemAlterado?: (item: ItemCriado) => void;
 };
 
 
-// ================================================================
-// API
-// ================================================================
+// ============================================================
+// URL DA API
+// ============================================================
 
 const API_URL =
     'http://localhost:3000/api/cardapio';
 
+const API_SERVIDOR =
+    'http://localhost:3000';
 
-// ================================================================
-// TOKEN
-// ================================================================
 
-function obterToken(): string | null {
+// ============================================================
+// CONVERTER BOOLEANO
+// ============================================================
 
-    return localStorage.getItem('token');
+function converterBooleano(
+    valor: unknown
+): boolean {
 
+    return (
+        valor === true ||
+        valor === 1 ||
+        valor === '1' ||
+        valor === 'true'
+    );
 }
 
 
-// ================================================================
+// ============================================================
+// MONTAR URL DA IMAGEM
+// ============================================================
+
+function montarUrlImagem(
+    imagem: string | null | undefined
+): string {
+
+    if (!imagem) {
+        return '';
+    }
+
+    // URL completa
+    if (
+        imagem.startsWith('http://') ||
+        imagem.startsWith('https://') ||
+        imagem.startsWith('blob:') ||
+        imagem.startsWith('data:')
+    ) {
+        return imagem;
+    }
+
+    // Caminho começando com /
+    if (imagem.startsWith('/')) {
+        return `${API_SERVIDOR}${imagem}`;
+    }
+
+    // Caminho sem /
+    return `${API_SERVIDOR}/${imagem}`;
+}
+
+
+// ============================================================
 // COMPONENTE
-// ================================================================
+// ============================================================
 
 export function NovoItem({
     categorias,
     onFechar,
-    onItemCriado
+    onItemCriado,
+    itemParaAlterar,
+    modoAlteracao = false,
+    onItemAlterado
 }: NovoItemProps) {
 
-
-    // ============================================================
+    // ========================================================
     // ESTADOS
-    // ============================================================
+    // ========================================================
 
     const [categoriaId, setCategoriaId] =
-        useState('');
+        useState<number | ''>('');
 
     const [nome, setNome] =
         useState('');
@@ -82,7 +141,7 @@ export function NovoItem({
         useState<File | null>(null);
 
     const [preview, setPreview] =
-        useState<string | null>(null);
+        useState('');
 
     const [salvando, setSalvando] =
         useState(false);
@@ -90,92 +149,57 @@ export function NovoItem({
     const [erro, setErro] =
         useState('');
 
+    
+    // ========================================================
+    // PREENCHER FORMULÁRIO NA ALTERAÇÃO
+    // ========================================================
 
-    // ============================================================
-    // SELECIONAR FOTO
-    // ============================================================
+    useEffect(() => {
 
-    function handleSelecionarFoto(
-        evento: React.ChangeEvent<HTMLInputElement>
-    ) {
+        if (
+            modoAlteracao &&
+            itemParaAlterar
+        ) {
 
-        const arquivo =
-            evento.target.files?.[0] || null;
+            setCategoriaId(
+                Number(
+                    itemParaAlterar.categoriaId
+                )
+            );
 
+            setNome(
+                itemParaAlterar.nome || ''
+            );
 
-        if (!arquivo) {
+            setPreco(
+                Number(
+                    itemParaAlterar.preco
+                )
+                    .toFixed(2)
+                    .replace('.', ',')
+            );
+
+            setDescricao(
+                itemParaAlterar.descricao || ''
+            );
+
+            setFoto(null);
+
+            setPreview(
+                montarUrlImagem(
+                    itemParaAlterar.imagem
+                )
+            );
+
+            setErro('');
+
             return;
         }
 
 
-        // --------------------------------------------------------
-        // VERIFICA SE É IMAGEM
-        // --------------------------------------------------------
-
-        if (!arquivo.type.startsWith('image/')) {
-
-            setErro(
-                'Selecione apenas arquivos de imagem.'
-            );
-
-            return;
-
-        }
-
-
-        // --------------------------------------------------------
-        // VERIFICA TAMANHO
-        // --------------------------------------------------------
-
-        if (arquivo.size > 5 * 1024 * 1024) {
-
-            setErro(
-                'A imagem deve ter no máximo 5 MB.'
-            );
-
-            return;
-
-        }
-
-
-        setErro('');
-
-        setFoto(arquivo);
-
-
-        // --------------------------------------------------------
-        // LIBERA PREVIEW ANTERIOR
-        // --------------------------------------------------------
-
-        if (preview) {
-
-            URL.revokeObjectURL(
-                preview
-            );
-
-        }
-
-
-        // --------------------------------------------------------
-        // CRIA NOVA PRÉ-VISUALIZAÇÃO
-        // --------------------------------------------------------
-
-        const url =
-            URL.createObjectURL(
-                arquivo
-            );
-
-
-        setPreview(url);
-
-    }
-
-
-    // ============================================================
-    // LIMPAR FORMULÁRIO
-    // ============================================================
-
-    function limparFormulario() {
+        // ====================================================
+        // NOVO ITEM
+        // ====================================================
 
         setCategoriaId('');
 
@@ -187,49 +211,134 @@ export function NovoItem({
 
         setFoto(null);
 
+        setPreview('');
 
-        // --------------------------------------------------------
-        // LIBERA URL DA IMAGEM
-        // --------------------------------------------------------
+        setErro('');
 
-        if (preview) {
+    }, [
+        modoAlteracao,
+        itemParaAlterar
+    ]);
+
+
+    // ========================================================
+    // LIMPAR URL BLOB
+    // ========================================================
+
+    useEffect(() => {
+
+        return () => {
+
+            if (
+                preview &&
+                preview.startsWith('blob:')
+            ) {
+
+                URL.revokeObjectURL(
+                    preview
+                );
+            }
+        };
+
+    }, [preview]);
+
+
+    // ========================================================
+    // SELECIONAR FOTO
+    // ========================================================
+
+    function handleSelecionarFoto(
+        evento: React.ChangeEvent<HTMLInputElement>
+    ) {
+
+        setErro('');
+
+        const arquivo =
+            evento.target.files?.[0];
+
+
+        if (!arquivo) {
+            return;
+        }
+
+
+        // ====================================================
+        // VERIFICAR TIPO
+        // ====================================================
+
+        if (
+            !arquivo.type.startsWith('image/')
+        ) {
+
+            setErro(
+                'Selecione um arquivo de imagem válido.'
+            );
+
+            evento.target.value = '';
+
+            return;
+        }
+
+
+        // ====================================================
+        // LIMITE DE 5 MB
+        // ====================================================
+
+        const tamanhoMaximo =
+            5 * 1024 * 1024;
+
+
+        if (
+            arquivo.size > tamanhoMaximo
+        ) {
+
+            setErro(
+                'A imagem deve ter no máximo 5 MB.'
+            );
+
+            evento.target.value = '';
+
+            return;
+        }
+
+
+        // ====================================================
+        // SALVAR FOTO
+        // ====================================================
+
+        setFoto(arquivo);
+
+
+        // Remove preview anterior
+        if (
+            preview &&
+            preview.startsWith('blob:')
+        ) {
 
             URL.revokeObjectURL(
                 preview
             );
-
         }
 
 
-        setPreview(null);
+        const novaPreview =
+            URL.createObjectURL(
+                arquivo
+            );
 
 
-        // --------------------------------------------------------
-        // LIMPA INPUT DE ARQUIVO
-        // --------------------------------------------------------
-
-        const inputFoto =
-            document.getElementById(
-                'fotoItem'
-            ) as HTMLInputElement | null;
-
-
-        if (inputFoto) {
-
-            inputFoto.value = '';
-
-        }
-
+        setPreview(
+            novaPreview
+        );
     }
 
 
-    // ============================================================
+    // ========================================================
     // SALVAR ITEM
-    // ============================================================
+    // ========================================================
 
-    async function handleSubmit(
-        evento: React.FormEvent,
-        continuarCadastrando: boolean
+    async function handleSalvar(
+        evento: React.FormEvent<HTMLFormElement>
     ) {
 
         evento.preventDefault();
@@ -237,9 +346,9 @@ export function NovoItem({
         setErro('');
 
 
-        // --------------------------------------------------------
-        // CATEGORIA
-        // --------------------------------------------------------
+        // ====================================================
+        // VALIDAR CATEGORIA
+        // ====================================================
 
         if (!categoriaId) {
 
@@ -248,195 +357,352 @@ export function NovoItem({
             );
 
             return;
-
         }
 
 
-        // --------------------------------------------------------
-        // NOME
-        // --------------------------------------------------------
+        // ====================================================
+        // VALIDAR NOME
+        // ====================================================
 
         if (!nome.trim()) {
 
             setErro(
-                'Digite o nome do item.'
+                'Informe o nome do item.'
             );
 
             return;
-
         }
 
 
-        // --------------------------------------------------------
-        // PREÇO
-        // --------------------------------------------------------
+        // ====================================================
+        // VALIDAR PREÇO
+        // ====================================================
+
+        if (!preco.trim()) {
+
+            setErro(
+                'Informe o preço do item.'
+            );
+
+            return;
+        }
+
+
+        // ====================================================
+        // TRATAR PREÇO
+        // ====================================================
+
+        const precoTratado =
+            preco
+                .replace(/R\$/gi, '')
+                .replace(/\s/g, '')
+                .replace(/\./g, '')
+                .replace(',', '.');
+
 
         const precoNumerico =
-            Number(
-                preco.replace(',', '.')
-            );
+            Number(precoTratado);
 
 
         if (
-            !preco.trim() ||
             Number.isNaN(precoNumerico) ||
             precoNumerico <= 0
         ) {
 
             setErro(
-                'Digite um preço válido.'
+                'Informe um preço válido.'
             );
 
             return;
-
         }
 
 
-        // --------------------------------------------------------
+        // ====================================================
         // TOKEN
-        // --------------------------------------------------------
+        // ====================================================
 
         const token =
-            obterToken();
+            localStorage.getItem('token');
 
 
         if (!token) {
 
             setErro(
-                'Sessão expirada. Faça login novamente.'
+                'Sessão não encontrada. Faça login novamente.'
             );
 
             return;
-
         }
 
 
+        // ====================================================
+        // FORMDATA
+        // ====================================================
+
+        const dados =
+            new FormData();
+
+
+        dados.append(
+            'categoria_id',
+            String(categoriaId)
+        );
+
+
+        dados.append(
+            'nome',
+            nome.trim()
+        );
+
+
+        dados.append(
+            'preco',
+            String(precoNumerico)
+        );
+
+
+        dados.append(
+            'descricao',
+            descricao.trim()
+        );
+
+
+        // ====================================================
+        // DISPONIBILIDADE
+        // ====================================================
+
+        if (
+            modoAlteracao &&
+            itemParaAlterar
+        ) {
+
+            dados.append(
+                'disponivel',
+                itemParaAlterar.disponivel
+                    ? '1'
+                    : '0'
+            );
+
+        } else {
+
+            dados.append(
+                'disponivel',
+                '1'
+            );
+        }
+
+
+        // ====================================================
+        // FOTO
+        // ====================================================
+
+        if (foto) {
+
+            dados.append(
+                'foto',
+                foto
+            );
+        }
+
+
+        // ====================================================
+        // URL
+        // ====================================================
+
+        const url =
+            modoAlteracao &&
+            itemParaAlterar
+                ? `${API_URL}/itens/${itemParaAlterar.id}`
+                : `${API_URL}/itens`;
+
+
+        // ====================================================
+        // MÉTODO
+        // ====================================================
+
+        const metodo =
+            modoAlteracao
+                ? 'PATCH'
+                : 'POST';
+
+
+        setSalvando(true);
+
+
+        // ====================================================
+        // REQUISIÇÃO
+        // ====================================================
+
         try {
-
-            setSalvando(true);
-
-
-            // ====================================================
-            // FORM DATA
-            // ====================================================
-
-            const formulario =
-                new FormData();
-
-
-            formulario.append(
-                'categoria_id',
-                String(categoriaId)
-            );
-
-
-            formulario.append(
-                'nome',
-                nome.trim()
-            );
-
-
-            formulario.append(
-                'preco',
-                String(precoNumerico)
-            );
-
-
-            formulario.append(
-                'descricao',
-                descricao.trim()
-            );
-
-
-            // ----------------------------------------------------
-            // FOTO
-            // ----------------------------------------------------
-
-            if (foto) {
-
-                formulario.append(
-                    'foto',
-                    foto
-                );
-
-            }
-
-
-            // ====================================================
-            // ENVIA PARA O BACKEND
-            // ====================================================
 
             const resposta =
                 await fetch(
-                    `${API_URL}/itens`,
+                    url,
                     {
-                        method: 'POST',
+                        method: metodo,
 
                         headers: {
                             Authorization:
                                 `Bearer ${token}`
                         },
 
-                        body:
-                            formulario
+                        body: dados
                     }
                 );
 
 
-            const dados =
-                await resposta.json();
+            // =================================================
+            // PEGAR RESPOSTA COMO TEXTO
+            // =================================================
 
+            const textoResposta =
+                await resposta.text();
+
+
+            let dadosResposta: any;
+
+
+            // =================================================
+            // CONVERTER PARA JSON
+            // =================================================
+
+            try {
+
+                dadosResposta =
+                    JSON.parse(
+                        textoResposta
+                    );
+
+            } catch {
+
+                console.error(
+                    'Resposta recebida do servidor:',
+                    textoResposta
+                );
+
+                throw new Error(
+                    `O servidor não retornou JSON. Status: ${resposta.status}`
+                );
+            }
+
+
+            // =================================================
+            // VERIFICAR ERRO HTTP
+            // =================================================
 
             if (!resposta.ok) {
 
                 throw new Error(
-                    dados.message ||
-                    'Erro ao criar item.'
+                    dadosResposta?.message ||
+                    'Não foi possível salvar o item.'
                 );
-
             }
 
 
-            // ====================================================
-            // DEVOLVE ITEM PARA O CARDÁPIO
-            // ====================================================
+            // =================================================
+            // ITEM RETORNADO
+            // =================================================
+
+            const itemRecebido =
+                dadosResposta?.item;
+
+
+            if (!itemRecebido) {
+
+                throw new Error(
+                    'O servidor não retornou os dados do item.'
+                );
+            }
+
+
+            // =================================================
+            // FORMATAR ITEM
+            // =================================================
+
+            const itemResultado: ItemCriado = {
+
+                id:
+                    Number(
+                        itemRecebido.id
+                    ),
+
+                categoria_id:
+                    Number(
+                        itemRecebido.categoria_id
+                    ),
+
+                nome:
+                    itemRecebido.nome,
+
+                foto:
+                    itemRecebido.foto ||
+                    null,
+
+                preco:
+                    Number(
+                        itemRecebido.preco
+                    ),
+
+                descricao:
+                    itemRecebido.descricao ||
+                    null,
+
+                disponivel:
+                    converterBooleano(
+                        itemRecebido.disponivel
+                    )
+            };
+
+
+            // =================================================
+            // ALTERAÇÃO
+            // =================================================
+
+            if (modoAlteracao) {
+
+                if (onItemAlterado) {
+
+                    onItemAlterado(
+                        itemResultado
+                    );
+                }
+
+                return;
+            }
+
+
+            // =================================================
+            // CRIAÇÃO
+            // =================================================
 
             onItemCriado(
-                dados.item
+                itemResultado
             );
 
 
-            // ====================================================
-            // LIMPA FORMULÁRIO
-            // ====================================================
+            // =================================================
+            // LIMPAR FORMULÁRIO
+            // =================================================
 
-            limparFormulario();
+            setCategoriaId('');
 
+            setNome('');
 
-            // ====================================================
-            // LIMPA ERRO
-            // ====================================================
+            setPreco('');
+
+            setDescricao('');
+
+            setFoto(null);
+
+            setPreview('');
 
             setErro('');
-
-
-            // ====================================================
-            // DECIDE SE FECHA OU CONTINUA
-            // ====================================================
-
-            if (
-                !continuarCadastrando
-            ) {
-
-                onFechar();
-
-            }
 
 
         } catch (error) {
 
             console.error(
-                'Erro ao criar item:',
+                'Erro ao salvar item:',
                 error
             );
 
@@ -452,58 +718,99 @@ export function NovoItem({
             } else {
 
                 setErro(
-                    'Erro ao criar item.'
+                    'Erro ao salvar o item.'
                 );
-
             }
 
         } finally {
 
             setSalvando(false);
-
         }
-
     }
 
 
-    // ============================================================
+    // ========================================================
     // RENDER
-    // ============================================================
+    // ========================================================
 
     return (
 
         <div
             className={styles.modalOverlay}
+            onMouseDown={(evento) => {
+
+                if (
+                    evento.target ===
+                    evento.currentTarget
+                ) {
+
+                    if (!salvando) {
+                        onFechar();
+                    }
+                }
+            }}
         >
 
             <div
                 className={styles.modalContent}
+                onMouseDown={(evento) => {
+                    evento.stopPropagation();
+                }}
             >
 
+                {/* ==========================================
+                    BOTÃO FECHAR
+                ========================================== */}
 
-                {/* =================================================
+                <button
+                    type="button"
+                    className={styles.closeButton}
+                    onClick={onFechar}
+                    disabled={salvando}
+                    aria-label="Fechar"
+                >
+                    ×
+                </button>
+
+
+                {/* ==========================================
                     TÍTULO
-                ================================================= */}
+                ========================================== */}
 
                 <h2>
-                    Novo Item
+                    {modoAlteracao
+                        ? 'Alterar item'
+                        : 'Novo item'}
                 </h2>
 
 
+                {/* ==========================================
+                    ERRO
+                ========================================== */}
+
+                {erro && (
+
+                    <div
+                        className={styles.erro}
+                    >
+                        {erro}
+                    </div>
+
+                )}
+
+
+                {/* ==========================================
+                    FORMULÁRIO
+                ========================================== */}
+
                 <form
                     className={styles.modalForm}
-                    onSubmit={(evento) =>
-                        handleSubmit(
-                            evento,
-                            false
-                        )
-                    }
+                    onSubmit={handleSalvar}
                 >
 
-
-                    {/* =================================================
-                        FOTO
-                    ================================================= */}
+                    {/* ======================================
+                        FOTO — FICA NO TOPO
+                    ====================================== */}
 
                     <div
                         className={styles.fieldGroup}
@@ -519,7 +826,6 @@ export function NovoItem({
                         >
 
                             <label
-                                htmlFor="fotoItem"
                                 className={
                                     styles.uploadPlaceholder
                                 }
@@ -543,80 +849,59 @@ export function NovoItem({
 
                                 )}
 
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={
+                                        handleSelecionarFoto
+                                    }
+                                    disabled={salvando}
+                                    style={{
+                                        display: 'none'
+                                    }}
+                                />
+
                             </label>
-
-
-                            <input
-                                id="fotoItem"
-                                type="file"
-                                accept="image/*"
-                                onChange={
-                                    handleSelecionarFoto
-                                }
-                                disabled={salvando}
-                                hidden
-                            />
 
                         </div>
 
-                    </div>
 
-
-
-                    {/* =================================================
-                        NOME
-                    ================================================= */}
-
-                    <div
-                        className={styles.fieldGroup}
-                    >
-
-                        <label htmlFor="nomeItem">
-                            Nome do item
-                        </label>
-
-
-                        <input
-                            id="nomeItem"
-                            type="text"
-                            value={nome}
-                            onChange={(evento) =>
-                                setNome(
-                                    evento.target.value
-                                )
-                            }
-                            placeholder="Ex.: Baião de Dois"
-                            disabled={salvando}
-                            required
-                        />
+                        <small>
+                            Formatos de imagem aceitos.
+                            Tamanho máximo: 5 MB.
+                        </small>
 
                     </div>
 
 
-
-                    {/* =================================================
+                    {/* ======================================
                         CATEGORIA
-                    ================================================= */}
+                    ====================================== */}
 
                     <div
                         className={styles.fieldGroup}
                     >
 
-                        <label htmlFor="categoriaItem">
+                        <label>
                             Categoria
                         </label>
 
 
                         <select
-                            id="categoriaItem"
                             value={categoriaId}
-                            onChange={(evento) =>
+                            onChange={(evento) => {
+
                                 setCategoriaId(
                                     evento.target.value
-                                )
-                            }
+                                        ? Number(
+                                            evento.target.value
+                                        )
+                                        : ''
+                                );
+
+                            }}
                             disabled={salvando}
-                            required
                         >
 
                             <option value="">
@@ -628,16 +913,10 @@ export function NovoItem({
                                 (categoria) => (
 
                                     <option
-                                        key={
-                                            categoria.id
-                                        }
-                                        value={
-                                            categoria.id
-                                        }
+                                        key={categoria.id}
+                                        value={categoria.id}
                                     >
-                                        {
-                                            categoria.nome
-                                        }
+                                        {categoria.nome}
                                     </option>
 
                                 )
@@ -648,101 +927,96 @@ export function NovoItem({
                     </div>
 
 
-
-                    {/* =================================================
-                        PREÇO
-                    ================================================= */}
+                    {/* ======================================
+                        NOME
+                    ====================================== */}
 
                     <div
                         className={styles.fieldGroup}
                     >
 
-                        <label htmlFor="precoItem">
+                        <label>
+                            Nome do item
+                        </label>
+
+
+                        <input
+                            type="text"
+                            value={nome}
+                            onChange={(evento) =>
+                                setNome(
+                                    evento.target.value
+                                )
+                            }
+                            placeholder="Ex.: X-Bacon"
+                            disabled={salvando}
+                        />
+
+                    </div>
+
+
+                    {/* ======================================
+                        PREÇO
+                    ====================================== */}
+
+                    <div
+                        className={styles.fieldGroup}
+                    >
+
+                        <label>
                             Preço
                         </label>
 
 
                         <input
-                            id="precoItem"
                             type="text"
-                            inputMode="decimal"
                             value={preco}
                             onChange={(evento) =>
                                 setPreco(
                                     evento.target.value
                                 )
                             }
-                            placeholder="Ex.: 29,90"
+                            placeholder="Ex.: 25,90"
                             disabled={salvando}
-                            required
                         />
 
                     </div>
 
 
-
-                    {/* =================================================
+                    {/* ======================================
                         DESCRIÇÃO
-                    ================================================= */}
+                    ====================================== */}
 
                     <div
                         className={styles.fieldGroup}
                     >
 
-                        <label htmlFor="descricaoItem">
+                        <label>
                             Descrição
                         </label>
 
 
                         <textarea
-                            id="descricaoItem"
                             value={descricao}
                             onChange={(evento) =>
                                 setDescricao(
                                     evento.target.value
                                 )
                             }
-                            placeholder="Ingredientes, preparo ou detalhes do item..."
-                            rows={4}
+                            placeholder="Informe os ingredientes, preparo ou outras informações do item."
                             disabled={salvando}
                         />
 
                     </div>
 
 
-
-                    {/* =================================================
-                        ERRO
-                    ================================================= */}
-
-                    {erro && (
-
-                        <div
-                            style={{
-                                color: '#c62828',
-                                fontSize: '13px',
-                                fontWeight: 600
-                            }}
-                        >
-                            {erro}
-                        </div>
-
-                    )}
-
-
-
-                    {/* =================================================
-                        AÇÕES
-                    ================================================= */}
+                    {/* ======================================
+                        BOTÕES
+                    ====================================== */}
 
                     <div
                         className={styles.modalActions}
                     >
-
-
-                        {/* =============================================
-                            CANCELAR
-                        ============================================= */}
 
                         <button
                             type="button"
@@ -754,38 +1028,6 @@ export function NovoItem({
                         </button>
 
 
-
-                        {/* =============================================
-                            CADASTRAR E ADICIONAR OUTRO
-                        ============================================= */}
-
-                        <button
-                            type="button"
-                            className={
-                                styles.btnSaveOutra
-                            }
-                            onClick={(evento) =>
-                                handleSubmit(
-                                    evento,
-                                    true
-                                )
-                            }
-                            disabled={salvando}
-                        >
-
-                            {salvando
-                                ? 'Salvando...'
-                                : 'Cadastrar e adicionar outro Item'
-                            }
-
-                        </button>
-
-
-
-                        {/* =============================================
-                            CADASTRAR
-                        ============================================= */}
-
                         <button
                             type="submit"
                             className={styles.btnSave}
@@ -794,11 +1036,11 @@ export function NovoItem({
 
                             {salvando
                                 ? 'Salvando...'
-                                : 'Cadastrar'
-                            }
+                                : modoAlteracao
+                                    ? 'Salvar alterações'
+                                    : 'Salvar item'}
 
                         </button>
-
 
                     </div>
 
@@ -807,7 +1049,5 @@ export function NovoItem({
             </div>
 
         </div>
-
     );
-
 }

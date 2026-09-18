@@ -20,8 +20,9 @@
 .modalContent {
   position: relative;
   width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
+  max-width: 750px;
+  max-height: 100vh;
+  
   overflow-y: auto;
   background-color: #ffffff;
   border-radius: 12px;
@@ -210,4 +211,46 @@
 .btnSaveOutra:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+
+
+.closeButton {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: transparent;
+
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1;
+
+    color: #555;
+
+    cursor: pointer;
+
+    border-radius: 50%;
+
+    transition: 
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.closeButton:hover {
+    background-color: #f1f1f1;
+    color: #222;
+}
+
+.closeButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }

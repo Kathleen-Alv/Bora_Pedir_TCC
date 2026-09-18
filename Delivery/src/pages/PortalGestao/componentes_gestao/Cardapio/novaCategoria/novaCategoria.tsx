@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import styles from './novaCategoria.module.css';
 
@@ -8,12 +8,34 @@ import styles from './novaCategoria.module.css';
 // ================================================================
 
 type NovaCategoriaProps = {
+    // ------------------------------------------------------------
+    // Controla se o botão "Salvar e adicionar outra Categoria"
+    // deve aparecer.
+    //
+    // Por padrão fica TRUE para não quebrar outros lugares
+    // que utilizam este componente.
+    // ------------------------------------------------------------
+
+    mostrarSalvarOutraCategoria?: boolean;
+
     onFechar: () => void;
 
     onSalvar: (
         nomeCategoria: string,
         continuarCadastrando?: boolean
     ) => void | Promise<void>;
+
+    // ------------------------------------------------------------
+    // Categoria que será alterada.
+    //
+    // null = cadastro de nova categoria
+    // objeto = edição de categoria existente
+    // ------------------------------------------------------------
+
+    categoriaEmEdicao?: {
+        id: number;
+        nome: string;
+    } | null;
 };
 
 
@@ -23,40 +45,117 @@ type NovaCategoriaProps = {
 
 export function NovaCategoria({
     onFechar,
-    onSalvar
+    onSalvar,
+    categoriaEmEdicao = null,
+    mostrarSalvarOutraCategoria = true
 }: NovaCategoriaProps) {
 
 
     // ============================================================
-    // ESTADOS
+    // ESTADO DO NOME
     // ============================================================
 
-    const [nome, setNome] =
-        useState('');
-
-    const [erro, setErro] =
-        useState('');
-
-    const [salvando, setSalvando] =
-        useState(false);
+    const [nome, setNome] = useState(
+        categoriaEmEdicao?.nome || ''
+    );
 
 
     // ============================================================
-    // SALVAR CATEGORIA
+    // ESTADO DO ERRO
+    // ============================================================
+
+    const [erro, setErro] = useState('');
+
+
+    // ============================================================
+    // ESTADO DE SALVAMENTO
+    // ============================================================
+
+    const [salvando, setSalvando] = useState(false);
+
+
+    // ============================================================
+    // VERIFICA SE ESTÁ EDITANDO
+    // ============================================================
+
+    const editando =
+        categoriaEmEdicao !== null;
+
+
+    // ============================================================
+    // ATUALIZAR FORMULÁRIO
+    // ============================================================
+    //
+    // Quando abrir o modal para editar:
+    //
+    // categoriaEmEdicao:
+    //
+    // {
+    //     id: 1,
+    //     nome: "Bebidas"
+    // }
+    //
+    // O input ficará:
+    //
+    // [ Bebidas ]
+    //
+    // Quando abrir para cadastrar:
+    //
+    // categoriaEmEdicao = null
+    //
+    // O input ficará vazio.
+    //
+    // ============================================================
+
+    useEffect(() => {
+
+        if (categoriaEmEdicao) {
+
+            setNome(
+                categoriaEmEdicao.nome
+            );
+
+        } else {
+
+            setNome('');
+
+        }
+
+        setErro('');
+
+        setSalvando(false);
+
+    }, [categoriaEmEdicao]);
+
+
+    // ============================================================
+    // SALVAR
     // ============================================================
 
     async function handleSalvar(
         continuarCadastrando: boolean
     ) {
 
+        // --------------------------------------------------------
+        // LIMPA ERRO ANTERIOR
+        // --------------------------------------------------------
+
         setErro('');
+
+
+        // --------------------------------------------------------
+        // REMOVE ESPAÇOS DESNECESSÁRIOS
+        // --------------------------------------------------------
+
+        const nomeCategoria =
+            nome.trim();
 
 
         // --------------------------------------------------------
         // VALIDA NOME
         // --------------------------------------------------------
 
-        if (!nome.trim()) {
+        if (!nomeCategoria) {
 
             setErro(
                 'Digite o nome da categoria.'
@@ -73,28 +172,50 @@ export function NovaCategoria({
 
 
             // ----------------------------------------------------
-            // ENVIA PARA O CARDÁPIO
+            // ENVIA PARA O COMPONENTE PAI
             // ----------------------------------------------------
 
             await onSalvar(
-                nome.trim(),
+                nomeCategoria,
                 continuarCadastrando
             );
 
 
             // ----------------------------------------------------
-            // LIMPA O CAMPO
+            // SE FOR CADASTRO
+            // ----------------------------------------------------
+            //
+            // Quando o usuário escolher:
+            //
+            // "Salvar e adicionar outra Categoria"
+            //
+            // o campo deve ficar vazio para cadastrar a próxima.
+            //
             // ----------------------------------------------------
 
-            setNome('');
+            if (
+                !editando &&
+                continuarCadastrando
+            ) {
+
+                setNome('');
+
+            }
+
 
         } catch (error) {
 
             console.error(
-                'Erro ao criar categoria:',
+                editando
+                    ? 'Erro ao alterar categoria:'
+                    : 'Erro ao criar categoria:',
                 error
             );
 
+
+            // ----------------------------------------------------
+            // MOSTRA ERRO DEVOLVIDO PELO BACKEND
+            // ----------------------------------------------------
 
             if (error instanceof Error) {
 
@@ -105,7 +226,9 @@ export function NovaCategoria({
             } else {
 
                 setErro(
-                    'Não foi possível criar a categoria.'
+                    editando
+                        ? 'Não foi possível alterar a categoria.'
+                        : 'Não foi possível criar a categoria.'
                 );
 
             }
@@ -126,11 +249,15 @@ export function NovaCategoria({
     return (
 
         <div
-            className={styles.modalOverlay}
+            className={
+                styles.modalOverlay
+            }
         >
 
             <div
-                className={styles.modalContent}
+                className={
+                    styles.modalContent
+                }
             >
 
 
@@ -140,7 +267,9 @@ export function NovaCategoria({
 
                 <button
                     type="button"
-                    className={styles.modalClose}
+                    className={
+                        styles.modalClose
+                    }
                     onClick={onFechar}
                     disabled={salvando}
                     aria-label="Fechar"
@@ -155,7 +284,12 @@ export function NovaCategoria({
                 ================================================= */}
 
                 <h2>
-                    Nova Categoria
+
+                    {editando
+                        ? 'Editar Categoria'
+                        : 'Nova Categoria'
+                    }
+
                 </h2>
 
 
@@ -164,10 +298,16 @@ export function NovaCategoria({
                 ================================================= */}
 
                 <form
-                    className={styles.modalForm}
+                    className={
+                        styles.modalForm
+                    }
                     onSubmit={(evento) => {
 
                         evento.preventDefault();
+
+                        // --------------------------------------------
+                        // O botão principal sempre salva e fecha.
+                        // --------------------------------------------
 
                         handleSalvar(false);
 
@@ -180,7 +320,9 @@ export function NovaCategoria({
                     ================================================= */}
 
                     <div
-                        className={styles.fieldGroup}
+                        className={
+                            styles.fieldGroup
+                        }
                     >
 
                         <label
@@ -194,11 +336,24 @@ export function NovaCategoria({
                             type="text"
                             id="nomeCategoria"
                             value={nome}
-                            onChange={(evento) =>
+                            onChange={(evento) => {
+
                                 setNome(
                                     evento.target.value
-                                )
-                            }
+                                );
+
+                                // ------------------------------------
+                                // Limpa o erro enquanto o usuário
+                                // começa a corrigir o campo.
+                                // ------------------------------------
+
+                                if (erro) {
+
+                                    setErro('');
+
+                                }
+
+                            }}
                             placeholder="Ex: Sobremesas, Entradas..."
                             autoFocus
                             disabled={salvando}
@@ -214,7 +369,9 @@ export function NovaCategoria({
                     {erro && (
 
                         <div
-                            className={styles.erro}
+                            className={
+                                styles.erro
+                            }
                         >
                             {erro}
                         </div>
@@ -227,7 +384,9 @@ export function NovaCategoria({
                     ================================================= */}
 
                     <div
-                        className={styles.modalActions}
+                        className={
+                            styles.modalActions
+                        }
                     >
 
 
@@ -237,7 +396,9 @@ export function NovaCategoria({
 
                         <button
                             type="button"
-                            className={styles.btnCancel}
+                            className={
+                                styles.btnCancel
+                            }
                             onClick={onFechar}
                             disabled={salvando}
                         >
@@ -247,40 +408,67 @@ export function NovaCategoria({
 
                         {/* =============================================
                             SALVAR E ADICIONAR OUTRA
-                        ============================================= */}
+                            ============================================= */}
+                        {/*
+                            Esse botão:
 
-                        <button
-                            type="button"
-                            className={
-                                styles.btnSaveOutra
-                            }
-                            onClick={() =>
-                                handleSalvar(true)
-                            }
-                            disabled={salvando}
-                        >
+                            - NÃO aparece durante edição.
+                            - Aparece durante cadastro quando
+                              mostrarSalvarOutraCategoria = true.
 
-                            {salvando
-                                ? 'Salvando...'
-                                : 'Salvar e adicionar outra Categoria'
-                            }
+                            No Cardápio estamos passando:
 
-                        </button>
+                            mostrarSalvarOutraCategoria={false}
+
+                            portanto ele ficará escondido lá.
+                        */}
+
+                        {!editando &&
+                            mostrarSalvarOutraCategoria && (
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.btnSaveOutra
+                                    }
+                                    onClick={() =>
+                                        handleSalvar(true)
+                                    }
+                                    disabled={salvando}
+                                >
+
+                                    {salvando
+                                        ? 'Salvando...'
+                                        : 'Salvar e adicionar outra Categoria'
+                                    }
+
+                                </button>
+
+                            )}
 
 
                         {/* =============================================
-                            SALVAR CATEGORIA
+                            SALVAR PRINCIPAL
                         ============================================= */}
 
                         <button
                             type="submit"
-                            className={styles.btnSave}
+                            className={
+                                styles.btnSave
+                            }
                             disabled={salvando}
                         >
 
                             {salvando
+
                                 ? 'Salvando...'
-                                : 'Salvar Categoria'
+
+                                : editando
+
+                                    ? 'Salvar Alterações'
+
+                                    : 'Salvar Categoria'
+
                             }
 
                         </button>
