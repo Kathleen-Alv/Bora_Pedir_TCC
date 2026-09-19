@@ -14,6 +14,7 @@ import perfil from '../../assets/portalGestao/loja.png';
 import horarios from '../../assets/portalGestao/horario.png';
 import suporte from '../../assets/portalGestao/suporte.png';
 import precificacao from '../../assets/portalGestao/precificacao.png';
+import { Inicio } from './componentes_gestao/Inicio/inicio';
 
 /* SUB PÁGINAS */
 import { Cardapio } from '../PortalGestao/componentes_gestao/Cardapio/cardapio';
@@ -266,12 +267,7 @@ export function PortalGestao() {
 
           {/* INÍCIO */}
           {telaAtual === 'inicio' && (
-            <div>
-              <h1>Início</h1>
-              <p>
-                Bem-vindo ao painel de gestão do seu comércio.
-              </p>
-            </div>
+            <Inicio />
           )}
 
 

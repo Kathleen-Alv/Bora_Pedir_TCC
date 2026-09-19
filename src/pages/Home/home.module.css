@@ -1,23 +1,45 @@
+
 /* =========================
    BANNER PRINCIPAL
 ========================= */
+
 .bannerPrincipal {
   width: 100%;
-  height: 600px;
-  background-color: #f8e267;
+  height: 550px;
+  background-color: #fcd403;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow: hidden;
+}
+
+.imagemBanner {
+  width: 100%;
+  height: 100%;
+
+  object-fit: fill;
+
+  display: block;
+
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 
 /* =========================
    SEÇÃO SEJA UM PARCEIRO
 ========================= */
+
 .secaoParceiros {
   width: 100%;
   padding: 60px 20px;
   background-color: #b10813;
+
   display: flex;
   flex-direction: column;
   align-items: center;
+
   box-sizing: border-box;
 }
 
@@ -25,6 +47,7 @@
 /* =========================
    CABEÇALHO
 ========================= */
+
 .headerParceiros {
   text-align: center;
   color: #f7f6f4;
@@ -47,11 +70,14 @@
 /* =========================
    GRID DOS CARDS
 ========================= */
+
 .cardsGrid {
   display: flex;
   gap: 30px;
+
   max-width: 1000px;
   width: 100%;
+
   justify-content: center;
 }
 
@@ -59,12 +85,13 @@
 /* =========================
    CARD INDIVIDUAL
 ========================= */
+
 .cardParceiro {
   flex: 1;
+
   min-width: 300px;
   max-width: 460px;
 
-  /* Creme no lugar do azul */
   background-color: #fff8e7;
 
   border-radius: 16px;
@@ -83,6 +110,7 @@
 /* =========================
    INFORMAÇÕES
 ========================= */
+
 .cardInfo {
   display: flex;
   flex-direction: column;
@@ -90,8 +118,10 @@
 }
 
 
-/* TAG
+/* =========================
+   TAG
 ========================= */
+
 .tagParceiro {
   background-color: #fbff00;
   color: #080808;
@@ -106,29 +136,38 @@
 }
 
 
-/* TÍTULO
+/* =========================
+   TÍTULO
 ========================= */
+
 .cardParceiro h3 {
   color: #171717;
+
   font-size: 26px;
   font-weight: 700;
+
   margin: 0 0 10px 0;
 }
 
 
-/* DESCRIÇÃO
+/* =========================
+   DESCRIÇÃO
 ========================= */
+
 .cardParceiro p {
   color: #080802;
+
   font-size: 14px;
   line-height: 1.4;
+
   margin: 0;
 }
 
 
 /* =========================
-   IMAGEM
+   IMAGEM DOS CARDS
 ========================= */
+
 .imagemContainer {
   width: 100%;
   height: 280px;
@@ -154,6 +193,7 @@
 /* =========================
    BOTÃO
 ========================= */
+
 .btnParceiro {
   width: 100%;
   height: 50px;
@@ -174,7 +214,6 @@
 
 .btnParceiro:hover {
   background-color: #660303;
-    
 
   transform: translateY(-2px);
 }
@@ -183,7 +222,18 @@
 /* =========================
    RESPONSIVIDADE
 ========================= */
+
 @media (max-width: 768px) {
+
+  .bannerPrincipal {
+    height: 320px;
+  }
+
+  .imagemBanner {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 
   .cardsGrid {
     flex-direction: column;
