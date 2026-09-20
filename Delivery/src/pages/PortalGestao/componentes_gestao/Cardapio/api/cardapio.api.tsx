@@ -225,6 +225,48 @@ export async function criarCategoria(
 }
 
 
+export async function excluirCategoria(id: number) {
+    const token = obterToken();
+
+    if (!token) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+    }
+
+    const resposta = await fetch(`${API_URL}/categorias/${id}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const texto = await resposta.text();
+
+    let dados: { message?: string } = {};
+
+    try {
+        dados = texto ? JSON.parse(texto) : {};
+    } catch {
+        console.error(
+            'Erro ao interpretar resposta da exclusão da categoria.'
+        );
+        console.error('Status HTTP:', resposta.status);
+        console.error('Resposta recebida:', texto);
+
+        throw new Error(
+            'O servidor não retornou uma resposta JSON válida.'
+        );
+    }
+
+    if (!resposta.ok) {
+        throw new Error(
+            dados.message || 'Erro ao excluir categoria.'
+        );
+    }
+
+    return dados;
+}
+
+
 // ================================================================
 // EXCLUIR ITEM
 // ================================================================

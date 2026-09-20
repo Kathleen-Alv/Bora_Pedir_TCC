@@ -55,6 +55,7 @@
   color: #171717;
 }
 
+
 /* =========================
    FORMULÁRIO
 ========================= */
@@ -108,11 +109,11 @@
   gap: 12px;
 }
 
+
 /* =========================
    UPLOAD DE FOTO
 ========================= */
 
-/* Centraliza a caixa dentro do campo */
 .imageUpload {
   display: flex;
   justify-content: center;
@@ -123,7 +124,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 250px; /* Reduzido de 250px */
+  height: 250px;
   width: 55%;
   border: 2px dashed #c5c9cf;
   border-radius: 8px;
@@ -149,6 +150,7 @@
   object-fit: cover;
   object-position: center;
 }
+
 
 /* =========================
    AÇÕES
@@ -194,63 +196,212 @@
 }
 
 .btnSaveOutra {
-    background-color: #eeeeee;
-    color: #333333;
-    border: 1px solid #d5d5d5;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.2s;
+  background-color: #eeeeee;
+  color: #333333;
+  border: 1px solid #d5d5d5;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
 }
 
 .btnSaveOutra:hover {
-    background-color: #e2e2e2;
+  background-color: #e2e2e2;
 }
 
 .btnSaveOutra:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 
+/* =========================
+   BOTÃO FECHAR
+========================= */
 
 .closeButton {
-    position: absolute;
-    top: 16px;
-    right: 18px;
+  position: absolute;
+  top: 16px;
+  right: 18px;
 
-    width: 32px;
-    height: 32px;
+  width: 32px;
+  height: 32px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    border: none;
-    background: transparent;
+  border: none;
+  background: transparent;
 
-    font-size: 26px;
-    font-weight: 400;
-    line-height: 1;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
 
-    color: #555;
+  color: #555;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    border-radius: 50%;
+  border-radius: 50%;
 
-    transition: 
-        background-color 0.2s ease,
-        color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .closeButton:hover {
-    background-color: #f1f1f1;
-    color: #222;
+  background-color: #f1f1f1;
+  color: #222;
 }
 
 .closeButton:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+
+/* =========================================================
+   MODO DIVIDIDO
+   SOMENTE QUANDO A PRECIFICAÇÃO ESTÁ ABERTA
+========================================================= */
+
+.modalContentDividido {
+  width: 92vw !important;
+  max-width: 1200px !important;
+
+  height: 90vh !important;
+  max-height: 90vh !important;
+
+  padding: 0 !important;
+
+  border-radius: 12px !important;
+
+  overflow: hidden !important;
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+
+  display: flex;
+  flex-direction: row;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   ÁREA INTERNA DO MODAL
+   AQUI ESTÁ A DIVISÃO 50% / 50%
+========================================================= */
+
+.modalContentDividido .modalBody {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  align-items: stretch;
+
+  margin: 0;
+  padding: 0;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   LADO ESQUERDO
+   CADASTRO
+========================================================= */
+
+.modalContentDividido .cadastroArea {
+  width: 50%;
+  min-width: 50%;
+  max-width: 50%;
+
+  height: 100%;
+
+  flex: 0 0 50%;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background-color: #ffffff;
+}
+
+
+/* =========================================================
+   LADO DIREITO
+   PRECIFICAÇÃO
+========================================================= */
+
+.precificacaoArea {
+  width: 50%;
+  min-width: 50%;
+  max-width: 50%;
+
+  height: 100%;
+
+  flex: 0 0 50%;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background-color: #ffffff;
+
+  border-left: 1px solid #dde8e1;
+}
+
+
+/* =========================================================
+   GARANTE QUE A CALCULADORA OCUPE O LADO DIREITO
+========================================================= */
+
+.precificacaoArea > * {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+.btnPrecificacao {
+  height: 36px;
+  padding: 0 16px;
+
+  background-color: #e8f5e9;
+  border: 1px solid #81c784;
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+  color: #2e7d32;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btnPrecificacao:hover {
+  background-color: #c8e6c9;
+  border-color: #66bb6a;
+  transform: translateY(-1px);
+}
+
+.btnPrecificacao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }

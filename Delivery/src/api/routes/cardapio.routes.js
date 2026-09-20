@@ -9,6 +9,7 @@ import {
     alterarDisponibilidadeItem,
     excluirItem,
     alterarCategoria,
+    excluirCategoria,
     listarItens
 } from '../controllers/cardapio/cardapio.controller.js';
 
@@ -32,6 +33,18 @@ router.post(
     '/categorias',
     autenticar,
     criarCategoria
+);
+
+router.patch(
+    '/categorias/:id',
+    autenticar,
+    alterarCategoria
+);
+
+router.delete(
+    '/categorias/:id',
+    autenticar,
+    excluirCategoria
 );
 
 
@@ -80,6 +93,11 @@ router.patch(
     alterarItem
 );
 
+
+// ============================================================
+// ALTERAR DISPONIBILIDADE DO ITEM
+// ============================================================
+
 router.patch(
     '/itens/:id/disponibilidade',
     autenticar,
@@ -87,26 +105,14 @@ router.patch(
 );
 
 
-
 // ============================================================
 // EXCLUIR ITEM
 // ============================================================
 
 router.delete(
-
     '/itens/:id',
-
     autenticar,
-
     excluirItem
-
-);
-
-
-router.patch(
-    '/categorias/:id',
-    autenticar,
-    alterarCategoria
 );
 
 

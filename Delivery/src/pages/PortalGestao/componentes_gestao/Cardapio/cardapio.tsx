@@ -59,6 +59,22 @@ export function Cardapio() {
 
 
     // ============================================================
+    // ESTADO DA CATEGORIA QUE SERÁ EXCLUÍDA
+    // ============================================================
+
+    const [categoriaParaExcluir, setCategoriaParaExcluir] =
+        useState<{
+            id: number;
+            nome: string;
+            quantidade: number;
+        } | null>(null);
+
+
+    const [excluindoCategoria, setExcluindoCategoria] =
+        useState(false);
+
+
+    // ============================================================
     // FECHAR MENU DA CATEGORIA AO CLICAR FORA
     // ============================================================
 
@@ -224,6 +240,7 @@ export function Cardapio() {
         setCategoriaEmEdicao,
 
         handleSalvarCategoria,
+        handleExcluirCategoria,
 
         handleAlterarCategoria,
 
@@ -267,6 +284,66 @@ export function Cardapio() {
 
     } = useCardapio();
 
+
+    // ============================================================
+    // ABRIR CONFIRMAÇÃO DE EXCLUSÃO DA CATEGORIA
+    // ============================================================
+
+    function abrirConfirmacaoExcluirCategoria(
+        categoriaId: number
+    ) {
+
+        const categoria =
+            categorias.find(
+                (item) =>
+                    item.id === categoriaId
+            );
+
+        if (!categoria) {
+            return;
+        }
+
+        setCategoriaParaExcluir({
+            id: categoria.id,
+            nome: categoria.nome,
+            quantidade: categoria.quantidade
+        });
+
+        setCategoriaMenuAberto(null);
+    }
+
+
+    // ============================================================
+    // CONFIRMAR EXCLUSÃO
+    // ============================================================
+    //
+    // POR ENQUANTO NÃO EXCLUI DO BANCO.
+    //
+    // O próximo passo será ligar esta função ao:
+    //
+    // DELETE /api/cardapio/categorias/:id
+    //
+    // e excluir também todos os itens da categoria.
+    //
+    // ============================================================
+
+async function confirmarExclusaoCategoria() {
+    if (!categoriaParaExcluir) {
+        return;
+    }
+
+    setExcluindoCategoria(true);
+
+    const sucesso = await handleExcluirCategoria(
+        categoriaParaExcluir.id
+    );
+
+    setExcluindoCategoria(false);
+
+    if (sucesso) {
+        setCategoriaParaExcluir(null);
+    }
+}
 
     // ============================================================
     // RENDER
@@ -438,18 +515,9 @@ export function Cardapio() {
                         }
                         onClick={() => {
 
-                            // ----------------------------------------
-                            // Garante que não estamos editando
-                            // uma categoria existente.
-                            // ----------------------------------------
-
                             setCategoriaEmEdicao(
                                 null
                             );
-
-                            // ----------------------------------------
-                            // Abre o modal de cadastro.
-                            // ----------------------------------------
 
                             setMostrarNovaCategoria(
                                 true
@@ -545,20 +613,12 @@ export function Cardapio() {
                         </h2>
 
 
-                        {/* =============================================
-                            ADICIONAR CATEGORIA
-                        ============================================= */}
-
                         <button
                             type="button"
                             className={
                                 styles.adicionarCategoria
                             }
                             onClick={() => {
-
-                                // ----------------------------------------
-                                // Abre como NOVA categoria.
-                                // ----------------------------------------
 
                                 setCategoriaEmEdicao(
                                     null
@@ -746,11 +806,6 @@ export function Cardapio() {
                                         return;
                                     }
 
-                                    // ------------------------------------
-                                    // Coloca a categoria no estado
-                                    // de edição e abre o mesmo modal.
-                                    // ------------------------------------
-
                                     handleAlterarCategoria(
                                         categoria
                                     );
@@ -783,13 +838,8 @@ export function Cardapio() {
                                 `}
                                 onClick={() => {
 
-                                    console.log(
-                                        'Excluir categoria:',
+                                    abrirConfirmacaoExcluirCategoria(
                                         categoriaMenuAberto
-                                    );
-
-                                    setCategoriaMenuAberto(
-                                        null
                                     );
 
                                 }}
@@ -820,11 +870,6 @@ export function Cardapio() {
                     }
                 >
 
-
-                    {/* =================================================
-                        BARRA DOS ITENS
-                    ================================================= */}
-
                     <div
                         className={
                             styles.barraItens
@@ -845,11 +890,6 @@ export function Cardapio() {
                             }
                         >
 
-
-                            {/* =========================================
-                                SELECIONAR TUDO
-                            ========================================= */}
-
                             <label
                                 className={
                                     styles.selecionarTudo
@@ -866,17 +906,12 @@ export function Cardapio() {
                                     }
                                 />
 
-
                                 <span>
                                     Selecionar tudo
                                 </span>
 
                             </label>
 
-
-                            {/* =========================================
-                                ALTERAR DISPONIBILIDADE
-                            ========================================= */}
 
                             {itensSelecionados.length > 0 && (
 
@@ -895,10 +930,6 @@ export function Cardapio() {
                                     </span>
 
 
-                                    {/* ---------------------------------
-                                        BOTÃO D
-                                    --------------------------------- */}
-
                                     <button
                                         type="button"
                                         className={
@@ -914,10 +945,6 @@ export function Cardapio() {
                                         D
                                     </button>
 
-
-                                    {/* ---------------------------------
-                                        BOTÃO I
-                                    --------------------------------- */}
 
                                     <button
                                         type="button"
@@ -1012,11 +1039,6 @@ export function Cardapio() {
                                         }
                                     >
 
-
-                                        {/* =================================
-                                            NOME / IMAGEM / SELEÇÃO
-                                        ================================= */}
-
                                         <div
                                             className={
                                                 styles.itemNome
@@ -1099,10 +1121,6 @@ export function Cardapio() {
                                         </div>
 
 
-                                        {/* =================================
-                                            PREÇO
-                                        ================================= */}
-
                                         <div
                                             className={
                                                 styles.preco
@@ -1121,20 +1139,11 @@ export function Cardapio() {
                                         </div>
 
 
-                                        {/* =================================
-                                            DISPONIBILIDADE / MENU
-                                        ================================= */}
-
                                         <div
                                             className={
                                                 styles.statusArea
                                             }
                                         >
-
-
-                                            {/* ---------------------------------
-                                                STATUS VISUAL
-                                            --------------------------------- */}
 
                                             <div
                                                 className={`
@@ -1153,7 +1162,6 @@ export function Cardapio() {
                                                     }
                                                 />
 
-
                                                 {
                                                     item.disponivel
                                                         ? 'Disponível'
@@ -1162,10 +1170,6 @@ export function Cardapio() {
 
                                             </div>
 
-
-                                            {/* ---------------------------------
-                                                MENU DOS TRÊS PONTOS
-                                            --------------------------------- */}
 
                                             <MenuItem
 
@@ -1204,67 +1208,53 @@ export function Cardapio() {
 
             </div>
 
+
             {/* =====================================================
-    MODAL NOVA / EDITAR CATEGORIA
-===================================================== */}
+                MODAL NOVA / EDITAR CATEGORIA
+            ===================================================== */}
 
-{mostrarNovaCategoria && (
+            {mostrarNovaCategoria && (
 
-    <NovaCategoria
+                <NovaCategoria
 
-        categoriaEmEdicao={
-            categoriaEmEdicao
-        }
+                    categoriaEmEdicao={
+                        categoriaEmEdicao
+                    }
 
-        /*
-         * No Cardápio não queremos mostrar:
-         *
-         * "Salvar e adicionar outra Categoria"
-         *
-         * Esse botão continua disponível em outros
-         * lugares que utilizarem o componente NovaCategoria.
-         */
-        mostrarSalvarOutraCategoria={
-            false
-        }
+                    mostrarSalvarOutraCategoria={
+                        false
+                    }
 
-        onFechar={() => {
+                    onFechar={() => {
 
-            /*
-             * Fecha o modal e limpa a categoria
-             * que estava sendo editada.
-             */
-            handleFecharNovaCategoria();
+                        handleFecharNovaCategoria();
 
-        }}
+                    }}
 
-        onSalvar={async (
-            nomeCategoria,
-            continuarCadastrando
-        ) => {
+                    onSalvar={async (
+                        nomeCategoria,
+                        continuarCadastrando
+                    ) => {
 
-         
-            const sucesso =
-                await handleSalvarCategoria(
-                    nomeCategoria
-                );
+                        const sucesso =
+                            await handleSalvarCategoria(
+                                nomeCategoria
+                            );
 
-          
-            if (
-                sucesso &&
-                !continuarCadastrando
-            ) {
+                        if (
+                            sucesso &&
+                            !continuarCadastrando
+                        ) {
 
-                handleFecharNovaCategoria();
+                            handleFecharNovaCategoria();
 
-            }
+                        }
 
-        }}
+                    }}
 
-    />
+                />
 
-)}
-
+            )}
 
 
             {/* =====================================================
@@ -1340,8 +1330,133 @@ export function Cardapio() {
 
             )}
 
+
+            {/* =====================================================
+                MODAL CONFIRMAÇÃO DE EXCLUSÃO DA CATEGORIA
+            ===================================================== */}
+
+            {categoriaParaExcluir && (
+
+                <div
+                    className={
+                        styles.modalExcluirOverlay
+                    }
+                    onMouseDown={(evento) => {
+
+                        if (
+                            evento.target ===
+                            evento.currentTarget &&
+                            !excluindoCategoria
+                        ) {
+
+                            setCategoriaParaExcluir(
+                                null
+                            );
+
+                        }
+
+                    }}
+                >
+
+                    <div
+                        className={
+                            styles.modalExcluir
+                        }
+                        onMouseDown={(evento) =>
+                            evento.stopPropagation()
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.modalExcluirIcone
+                            }
+                        >
+                            ⚠️
+                        </div>
+
+
+                        <h2>
+                            Excluir categoria
+                        </h2>
+
+
+                        <p>
+                            Tem certeza que deseja excluir
+                            a categoria{' '}
+
+                            <strong>
+                                "{categoriaParaExcluir.nome}"
+                            </strong>
+                            ?
+                        </p>
+
+
+                        <p
+                            className={
+                                styles.avisoExclusao
+                            }
+                        >
+                            Todos os itens pertencentes a esta
+                            categoria também serão excluídos.
+                        </p>
+
+
+                        <div
+                            className={
+                                styles.modalExcluirAcoes
+                            }
+                        >
+
+                            <button
+                                type="button"
+                                className={
+                                    styles.btnCancelarExclusao
+                                }
+                                onClick={() =>
+                                    setCategoriaParaExcluir(
+                                        null
+                                    )
+                                }
+                                disabled={
+                                    excluindoCategoria
+                                }
+                            >
+                                Cancelar
+                            </button>
+
+
+                            <button
+                                type="button"
+                                className={
+                                    styles.btnConfirmarExclusao
+                                }
+                                onClick={
+                                    confirmarExclusaoCategoria
+                                }
+                                disabled={
+                                    excluindoCategoria
+                                }
+                            >
+
+                                {excluindoCategoria
+                                    ? 'Excluindo...'
+                                    : 'Excluir categoria'
+                                }
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
+
         </div>
 
     );
 
-} 
+}
+

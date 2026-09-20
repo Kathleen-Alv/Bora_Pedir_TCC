@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
+
 import styles from './novoItem.module.css';
+
+import { Precificacao } from '../calculadoraDePrecificação/calculadoraDePrecificação';
 
 
 // ============================================================
@@ -35,15 +38,10 @@ type ItemCriado = {
 
 type NovoItemProps = {
     categorias: Categoria[];
-
     onFechar: () => void;
-
     onItemCriado: (item: ItemCriado) => void;
-
     itemParaAlterar?: ItemParaAlterar;
-
     modoAlteracao?: boolean;
-
     onItemAlterado?: (item: ItemCriado) => void;
 };
 
@@ -66,7 +64,6 @@ const API_SERVIDOR =
 function converterBooleano(
     valor: unknown
 ): boolean {
-
     return (
         valor === true ||
         valor === 1 ||
@@ -149,7 +146,10 @@ export function NovoItem({
     const [erro, setErro] =
         useState('');
 
-    
+    const [mostrarPrecificacao, setMostrarPrecificacao] =
+        useState(false);
+
+
     // ========================================================
     // PREENCHER FORMULÁRIO NA ALTERAÇÃO
     // ========================================================
@@ -202,17 +202,11 @@ export function NovoItem({
         // ====================================================
 
         setCategoriaId('');
-
         setNome('');
-
         setPreco('');
-
         setDescricao('');
-
         setFoto(null);
-
         setPreview('');
-
         setErro('');
 
     }, [
@@ -256,7 +250,6 @@ export function NovoItem({
         const arquivo =
             evento.target.files?.[0];
 
-
         if (!arquivo) {
             return;
         }
@@ -286,7 +279,6 @@ export function NovoItem({
 
         const tamanhoMaximo =
             5 * 1024 * 1024;
-
 
         if (
             arquivo.size > tamanhoMaximo
@@ -325,7 +317,6 @@ export function NovoItem({
             URL.createObjectURL(
                 arquivo
             );
-
 
         setPreview(
             novaPreview
@@ -685,17 +676,11 @@ export function NovoItem({
             // =================================================
 
             setCategoriaId('');
-
             setNome('');
-
             setPreco('');
-
             setDescricao('');
-
             setFoto(null);
-
             setPreview('');
-
             setErro('');
 
 
@@ -737,6 +722,7 @@ export function NovoItem({
 
         <div
             className={styles.modalOverlay}
+
             onMouseDown={(evento) => {
 
                 if (
@@ -752,15 +738,20 @@ export function NovoItem({
         >
 
             <div
-                className={styles.modalContent}
+                className={
+                    mostrarPrecificacao
+                        ? `${styles.modalContent} ${styles.modalContentDividido}`
+                        : styles.modalContent
+                }
+
                 onMouseDown={(evento) => {
                     evento.stopPropagation();
                 }}
             >
 
-                {/* ==========================================
+                {/* ==================================================
                     BOTÃO FECHAR
-                ========================================== */}
+                ================================================== */}
 
                 <button
                     type="button"
@@ -773,278 +764,365 @@ export function NovoItem({
                 </button>
 
 
-                {/* ==========================================
-                    TÍTULO
-                ========================================== */}
+                {/* ==================================================
+                    ÁREA DIVIDIDA
+                ================================================== */}
 
-                <h2>
-                    {modoAlteracao
-                        ? 'Alterar item'
-                        : 'Novo item'}
-                </h2>
+                <div className={styles.modalBody}>
 
 
-                {/* ==========================================
-                    ERRO
-                ========================================== */}
+                    {/* ==================================================
+                        LADO ESQUERDO — CADASTRO
+                    ================================================== */}
 
-                {erro && (
+                    <div className={styles.cadastroArea}>
 
-                    <div
-                        className={styles.erro}
-                    >
-                        {erro}
-                    </div>
+                        {/* ==================================================
+                            TÍTULO
+                        ================================================== */}
 
-                )}
-
-
-                {/* ==========================================
-                    FORMULÁRIO
-                ========================================== */}
-
-                <form
-                    className={styles.modalForm}
-                    onSubmit={handleSalvar}
-                >
-
-                    {/* ======================================
-                        FOTO — FICA NO TOPO
-                    ====================================== */}
-
-                    <div
-                        className={styles.fieldGroup}
-                    >
-
-                        <label>
-                            Foto do item
-                        </label>
+                        <h2>
+                            {modoAlteracao
+                                ? 'Alterar item'
+                                : 'Novo item'}
+                        </h2>
 
 
-                        <div
-                            className={styles.imageUpload}
+                        {/* ==================================================
+                            ERRO
+                        ================================================== */}
+
+                        {erro && (
+
+                            <div
+                                className={styles.erro}
+                            >
+                                {erro}
+                            </div>
+
+                        )}
+
+
+                        {/* ==================================================
+                            FORMULÁRIO
+                        ================================================== */}
+
+                        <form
+                            className={styles.modalForm}
+                            onSubmit={handleSalvar}
                         >
 
-                            <label
-                                className={
-                                    styles.uploadPlaceholder
-                                }
+                            {/* ======================================
+                                FOTO
+                            ====================================== */}
+
+                            <div
+                                className={styles.fieldGroup}
                             >
 
-                                {preview ? (
+                                <label>
+                                    Foto do item
+                                </label>
 
-                                    <img
-                                        src={preview}
-                                        alt="Pré-visualização do item"
+
+                                <div
+                                    className={
+                                        styles.imageUpload
+                                    }
+                                >
+
+                                    <label
                                         className={
-                                            styles.previewImage
+                                            styles.uploadPlaceholder
                                         }
-                                    />
+                                    >
 
-                                ) : (
+                                        {preview ? (
 
-                                    <span>
-                                        Clique para adicionar uma foto
-                                    </span>
+                                            <img
+                                                src={preview}
+                                                alt="Pré-visualização do item"
+                                                className={
+                                                    styles.previewImage
+                                                }
+                                            />
 
-                                )}
+                                        ) : (
+
+                                            <span>
+                                                Clique para adicionar uma foto
+                                            </span>
+
+                                        )}
+
+
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={
+                                                handleSelecionarFoto
+                                            }
+                                            disabled={
+                                                salvando
+                                            }
+                                            style={{
+                                                display: 'none'
+                                            }}
+                                        />
+
+                                    </label>
+
+                                </div>
+
+
+                                <small>
+                                    Formatos de imagem aceitos.
+                                    Tamanho máximo: 5 MB.
+                                </small>
+
+                            </div>
+
+
+                            {/* ======================================
+                                CATEGORIA
+                            ====================================== */}
+
+                            <div
+                                className={styles.fieldGroup}
+                            >
+
+                                <label>
+                                    Categoria
+                                </label>
+
+
+                                <select
+                                    value={categoriaId}
+
+                                    onChange={(evento) => {
+
+                                        setCategoriaId(
+                                            evento.target.value
+                                                ? Number(
+                                                    evento.target.value
+                                                )
+                                                : ''
+                                        );
+
+                                    }}
+
+                                    disabled={salvando}
+                                >
+
+                                    <option value="">
+                                        Selecione uma categoria
+                                    </option>
+
+
+                                    {categorias.map(
+                                        (categoria) => (
+
+                                            <option
+                                                key={categoria.id}
+                                                value={categoria.id}
+                                            >
+                                                {categoria.nome}
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
+
+
+                            {/* ======================================
+                                NOME
+                            ====================================== */}
+
+                            <div
+                                className={styles.fieldGroup}
+                            >
+
+                                <label>
+                                    Nome do item
+                                </label>
 
 
                                 <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={
-                                        handleSelecionarFoto
+                                    type="text"
+                                    value={nome}
+
+                                    onChange={(evento) =>
+                                        setNome(
+                                            evento.target.value
+                                        )
                                     }
+
+                                    placeholder="Ex.: X-Bacon"
+
                                     disabled={salvando}
-                                    style={{
-                                        display: 'none'
-                                    }}
                                 />
 
-                            </label>
+                            </div>
+
+
+                            {/* ======================================
+                                PREÇO
+                            ====================================== */}
+
+                            <div
+                                className={styles.fieldGroup}
+                            >
+
+                                <label>
+                                    Preço
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    value={preco}
+
+                                    onChange={(evento) =>
+                                        setPreco(
+                                            evento.target.value
+                                        )
+                                    }
+
+                                    placeholder="Ex.: 25,90"
+
+                                    disabled={salvando}
+                                />
+
+                            </div>
+
+
+                            {/* ======================================
+                                DESCRIÇÃO
+                            ====================================== */}
+
+                            <div
+                                className={styles.fieldGroup}
+                            >
+
+                                <label>
+                                    Descrição
+                                </label>
+
+
+                                <textarea
+                                    value={descricao}
+
+                                    onChange={(evento) =>
+                                        setDescricao(
+                                            evento.target.value
+                                        )
+                                    }
+
+                                    placeholder="Informe os ingredientes, preparo ou outras informações do item."
+
+                                    disabled={salvando}
+                                />
+
+                            </div>
+
+
+                            {/* ======================================
+                                BOTÕES
+                            ====================================== */}
+
+                            <div
+                                className={
+                                    styles.modalActions
+                                }
+                            >
+
+                                <button
+                                    type="button"
+
+                                    className={
+                                        styles.btnPrecificacao
+                                    }
+
+                                    onClick={() =>
+                                        setMostrarPrecificacao(
+                                            true
+                                        )
+                                    }
+
+                                    disabled={salvando}
+                                >
+                                    💰 Precificação
+                                </button>
+
+
+                                <button
+                                    type="button"
+
+                                    className={
+                                        styles.btnCancel
+                                    }
+
+                                    onClick={onFechar}
+
+                                    disabled={salvando}
+                                >
+                                    Cancelar
+                                </button>
+
+
+                                <button
+                                    type="submit"
+
+                                    className={
+                                        styles.btnSave
+                                    }
+
+                                    disabled={salvando}
+                                >
+
+                                    {salvando
+                                        ? 'Salvando...'
+                                        : modoAlteracao
+                                            ? 'Salvar alterações'
+                                            : 'Salvar item'}
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+
+                    {/* ==================================================
+                        LADO DIREITO — PRECIFICAÇÃO
+                    ================================================== */}
+
+                    {mostrarPrecificacao && (
+
+                        <div
+                            className={
+                                styles.precificacaoArea
+                            }
+                        >
+
+                            <Precificacao
+                                onFechar={() =>
+                                    setMostrarPrecificacao(
+                                        false
+                                    )
+                                }
+                            />
 
                         </div>
 
+                    )}
 
-                        <small>
-                            Formatos de imagem aceitos.
-                            Tamanho máximo: 5 MB.
-                        </small>
-
-                    </div>
-
-
-                    {/* ======================================
-                        CATEGORIA
-                    ====================================== */}
-
-                    <div
-                        className={styles.fieldGroup}
-                    >
-
-                        <label>
-                            Categoria
-                        </label>
-
-
-                        <select
-                            value={categoriaId}
-                            onChange={(evento) => {
-
-                                setCategoriaId(
-                                    evento.target.value
-                                        ? Number(
-                                            evento.target.value
-                                        )
-                                        : ''
-                                );
-
-                            }}
-                            disabled={salvando}
-                        >
-
-                            <option value="">
-                                Selecione uma categoria
-                            </option>
-
-
-                            {categorias.map(
-                                (categoria) => (
-
-                                    <option
-                                        key={categoria.id}
-                                        value={categoria.id}
-                                    >
-                                        {categoria.nome}
-                                    </option>
-
-                                )
-                            )}
-
-                        </select>
-
-                    </div>
-
-
-                    {/* ======================================
-                        NOME
-                    ====================================== */}
-
-                    <div
-                        className={styles.fieldGroup}
-                    >
-
-                        <label>
-                            Nome do item
-                        </label>
-
-
-                        <input
-                            type="text"
-                            value={nome}
-                            onChange={(evento) =>
-                                setNome(
-                                    evento.target.value
-                                )
-                            }
-                            placeholder="Ex.: X-Bacon"
-                            disabled={salvando}
-                        />
-
-                    </div>
-
-
-                    {/* ======================================
-                        PREÇO
-                    ====================================== */}
-
-                    <div
-                        className={styles.fieldGroup}
-                    >
-
-                        <label>
-                            Preço
-                        </label>
-
-
-                        <input
-                            type="text"
-                            value={preco}
-                            onChange={(evento) =>
-                                setPreco(
-                                    evento.target.value
-                                )
-                            }
-                            placeholder="Ex.: 25,90"
-                            disabled={salvando}
-                        />
-
-                    </div>
-
-
-                    {/* ======================================
-                        DESCRIÇÃO
-                    ====================================== */}
-
-                    <div
-                        className={styles.fieldGroup}
-                    >
-
-                        <label>
-                            Descrição
-                        </label>
-
-
-                        <textarea
-                            value={descricao}
-                            onChange={(evento) =>
-                                setDescricao(
-                                    evento.target.value
-                                )
-                            }
-                            placeholder="Informe os ingredientes, preparo ou outras informações do item."
-                            disabled={salvando}
-                        />
-
-                    </div>
-
-
-                    {/* ======================================
-                        BOTÕES
-                    ====================================== */}
-
-                    <div
-                        className={styles.modalActions}
-                    >
-
-                        <button
-                            type="button"
-                            className={styles.btnCancel}
-                            onClick={onFechar}
-                            disabled={salvando}
-                        >
-                            Cancelar
-                        </button>
-
-
-                        <button
-                            type="submit"
-                            className={styles.btnSave}
-                            disabled={salvando}
-                        >
-
-                            {salvando
-                                ? 'Salvando...'
-                                : modoAlteracao
-                                    ? 'Salvar alterações'
-                                    : 'Salvar item'}
-
-                        </button>
-
-                    </div>
-
-                </form>
+                </div>
 
             </div>
 

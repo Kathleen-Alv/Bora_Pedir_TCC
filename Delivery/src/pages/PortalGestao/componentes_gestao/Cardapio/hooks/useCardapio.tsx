@@ -7,7 +7,8 @@ import {
     criarCategoria,
     alterarCategoria,
     alterarDisponibilidadeItem,
-    excluirItem
+    excluirItem,
+    excluirCategoria
 } from '../api/cardapio.api';
 
 import type {
@@ -1437,6 +1438,55 @@ async function handleAlterarDisponibilidade(
 
 }
 
+// ================================================================
+// EXCLUIR CATEGORIA
+// ================================================================
+
+async function handleExcluirCategoria(categoriaId: number) {
+    try {
+        await excluirCategoria(categoriaId);
+
+        const itensExcluidos = itens
+            .filter((item) => item.categoriaId === categoriaId)
+            .map((item) => item.id);
+
+        setCategorias((categoriasAtuais) =>
+            categoriasAtuais.filter(
+                (categoria) => categoria.id !== categoriaId
+            )
+        );
+
+        setItens((itensAtuais) =>
+            itensAtuais.filter(
+                (item) => item.categoriaId !== categoriaId
+            )
+        );
+
+        setItensSelecionados((selecionadosAtuais) =>
+            selecionadosAtuais.filter(
+                (id) => !itensExcluidos.includes(id)
+            )
+        );
+
+        if (categoriaSelecionada === categoriaId) {
+            setCategoriaSelecionada(null);
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error('Erro ao excluir categoria:', error);
+
+        alert(
+            error instanceof Error
+                ? error.message
+                : 'Erro ao excluir categoria.'
+        );
+
+        return false;
+    }
+}
+
 
     // ================================================================
     // RETORNO DO HOOK
@@ -1505,6 +1555,8 @@ async function handleAlterarDisponibilidade(
 
         handleItemCriado,
         handleItemAlterado,
+
+        handleExcluirCategoria,
 
         // ------------------------------------------------------------
         // VER ITEM

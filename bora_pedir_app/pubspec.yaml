@@ -1,0 +1,38 @@
+name: bora_pedir_app
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/logoInicio.png
+    - assets/splash.png
+    - assets/logo_foreground.png
+    - assets/categorias/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo_foreground.png"
+  # Coloque o código HEX exato da cor de fundo da sua imagem (ex: #FFFFFF para branco, #000000 para preto)
+  adaptive_icon_background: "#FFBB1121" 
+  adaptive_icon_foreground: "assets/logo_foreground.png"

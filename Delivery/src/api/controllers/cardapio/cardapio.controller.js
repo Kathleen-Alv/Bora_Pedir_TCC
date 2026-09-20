@@ -1986,6 +1986,19 @@ export async function alterarCategoria(req, res) {
         }
 
 
+
+    // ================================================================
+// EXCLUIR CATEGORIA
+// ================================================================
+//
+// Exclui a categoria e todos os itens pertencentes a ela.
+//
+// Também verifica se a categoria pertence ao comércio
+// autenticado pelo token.
+//
+// ================================================================
+
+
         // ========================================================
         // ID DA CATEGORIA
         // ========================================================
@@ -2264,6 +2277,220 @@ export async function alterarCategoria(req, res) {
         // ========================================================
         // LIBERAR CONEXÃO
         // ========================================================
+
+        if (conexao) {
+
+            conexao.release();
+
+        }
+
+    }
+
+}
+
+// ================================================================
+// EXCLUIR CATEGORIA
+// ================================================================
+
+export async function excluirCategoria(req, res) {
+
+    let conexao;
+
+    try {
+
+        const comercioId =
+            req.usuario.comercio_id;
+
+        if (!comercioId) {
+
+            return res.status(403).json({
+
+                message:
+                    'Comércio não identificado no token.'
+
+            });
+
+        }
+
+
+        const categoriaId =
+            Number(req.params.id);
+
+
+        if (
+            !categoriaId ||
+            Number.isNaN(categoriaId)
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    'ID da categoria inválido.'
+
+            });
+
+        }
+
+
+        conexao =
+            await db.getConnection();
+
+
+        // ========================================================
+        // VERIFICA SE A CATEGORIA PERTENCE AO COMÉRCIO
+        // ========================================================
+
+        const categorias =
+            await conexao.query(
+                `
+                SELECT
+                    cc.id,
+                    cc.nome
+                FROM categorias_cardapio cc
+                INNER JOIN cardapios c
+                    ON c.id = cc.cardapio_id
+                WHERE
+                    cc.id = ?
+                    AND c.comercio_id = ?
+                LIMIT 1
+                `,
+                [
+                    categoriaId,
+                    comercioId
+                ]
+            );
+
+
+        if (
+            !categorias ||
+            categorias.length === 0
+        ) {
+
+            return res.status(404).json({
+
+                message:
+                    'Categoria não encontrada para este comércio.'
+
+            });
+
+        }
+
+
+        const categoria =
+            categorias[0];
+
+
+        // ========================================================
+        // INICIAR TRANSAÇÃO
+        // ========================================================
+
+        await conexao.beginTransaction();
+
+
+        // ========================================================
+        // EXCLUIR ITENS DA CATEGORIA
+        // ========================================================
+
+        const resultadoItens =
+            await conexao.query(
+                `
+                DELETE FROM itens_cardapio
+                WHERE categoria_id = ?
+                `,
+                [
+                    categoriaId
+                ]
+            );
+
+
+        // ========================================================
+        // EXCLUIR CATEGORIA
+        // ========================================================
+
+        await conexao.query(
+            `
+            DELETE FROM categorias_cardapio
+            WHERE id = ?
+            `,
+            [
+                categoriaId
+            ]
+        );
+
+
+        // ========================================================
+        // CONFIRMAR TRANSAÇÃO
+        // ========================================================
+
+        await conexao.commit();
+
+
+        // ========================================================
+        // RESPOSTA
+        // ========================================================
+
+        return res.status(200).json({
+
+            message:
+                'Categoria e seus itens foram excluídos com sucesso.',
+
+            categoria: {
+
+                id:
+                    categoriaId,
+
+                nome:
+                    categoria.nome,
+
+                itens_excluidos:
+                    Number(
+                        resultadoItens.affectedRows || 0
+                    )
+
+            }
+
+        });
+
+
+    } catch (error) {
+
+        // ========================================================
+        // DESFAZER TRANSAÇÃO
+        // ========================================================
+
+        if (conexao) {
+
+            try {
+
+                await conexao.rollback();
+
+            } catch (erroRollback) {
+
+                console.error(
+                    'Erro ao desfazer exclusão:',
+                    erroRollback
+                );
+
+            }
+
+        }
+
+
+        console.error(
+            'Erro ao excluir categoria:',
+            error
+        );
+
+
+        return res.status(500).json({
+
+            message:
+                'Erro interno ao excluir categoria.'
+
+        });
+
+
+    } finally {
 
         if (conexao) {
 

@@ -15,6 +15,8 @@ import { AdminBoraPedir } from './pages/adminBoraPedir/adminBoraPedir';
 import { GestaoPedidos } from './pages/GestaoPedidos/gestaoPedidos.tsx';
 import { PrimeiroAcessoComercio } from './pages/PortalGestao/componentes_gestao/PrimeiroAcesso/primeiroAcessoComercio.tsx';
 
+import { Precificacao } from './pages/PortalGestao/componentes_gestao/Cardapio/calculadoraDePrecificação/calculadoraDePrecificação.tsx';
+
 export function App() {
   return (
     <BrowserRouter>
@@ -66,6 +68,8 @@ export function App() {
         path="/gestao_pedidos"
         element={<GestaoPedidos/>}
         />
+
+
 
 
 
