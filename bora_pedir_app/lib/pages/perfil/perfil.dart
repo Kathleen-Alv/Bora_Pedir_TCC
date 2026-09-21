@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/bottom_navigation.dart';
+import '../../services/auth_storage.dart';
 import '../inicio/inicio.dart';
 import 'conta/conta.dart';
 import 'criar_conta/criar_conta.dart';
@@ -13,22 +15,59 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
-  // =============================================================
-  // FUTURAMENTE:
-  // Essa variável será substituída pela verificação real
-  // do usuário logado.
-  // =============================================================
-
   bool usuarioEstaLogado = false;
+  bool carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _verificarLogin();
+  }
+
+  Future<void> _verificarLogin() async {
+    final logado = await AuthStorage.estaLogado();
+
+    if (!mounted) return;
+
+    setState(() {
+      usuarioEstaLogado = logado;
+      carregando = false;
+    });
+  }
+
+  void _selecionarItem(int indice) {
+    // O BottomNavigation já faz a navegação.
+    // Este método existe apenas para atualizar o item selecionado.
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (carregando) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF8F8F8),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFC8102E),
+          ),
+        ),
+      );
+    }
+
     // =============================================================
     // USUÁRIO LOGADO
     // =============================================================
 
     if (usuarioEstaLogado) {
-      return const ContaPage();
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8F8F8),
+
+        body: const ContaPage(),
+
+        bottomNavigationBar: BottomNavigation(
+          paginaAtual: 3,
+          onItemSelecionado: _selecionarItem,
+        ),
+      );
     }
 
     // =============================================================
@@ -37,6 +76,7 @@ class _PerfilPageState extends State<PerfilPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFC8102E),
+
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -47,9 +87,9 @@ class _PerfilPageState extends State<PerfilPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // =====================================================
-                // ÍCONE / LOGO
-                // =====================================================
+                // ===================================================
+                // LOGO
+                // ===================================================
 
                 Container(
                   width: 92,
@@ -87,9 +127,9 @@ class _PerfilPageState extends State<PerfilPage> {
 
                 const SizedBox(height: 30),
 
-                // =====================================================
-                // FRASE
-                // =====================================================
+                // ===================================================
+                // TÍTULO
+                // ===================================================
 
                 const Text(
                   'Bora fazer parte?',
@@ -104,6 +144,10 @@ class _PerfilPageState extends State<PerfilPage> {
 
                 const SizedBox(height: 10),
 
+                // ===================================================
+                // DESCRIÇÃO
+                // ===================================================
+
                 const Text(
                   'Entre na sua conta ou crie uma nova\n'
                   'para aproveitar o Bora Pedir.',
@@ -117,9 +161,9 @@ class _PerfilPageState extends State<PerfilPage> {
 
                 const SizedBox(height: 34),
 
-                // =====================================================
+                // ===================================================
                 // CRIAR CONTA
-                // =====================================================
+                // ===================================================
 
                 SizedBox(
                   width: double.infinity,
@@ -153,9 +197,9 @@ class _PerfilPageState extends State<PerfilPage> {
 
                 const SizedBox(height: 12),
 
-                // =====================================================
+                // ===================================================
                 // ENTRAR
-                // =====================================================
+                // ===================================================
 
                 SizedBox(
                   width: double.infinity,
@@ -191,9 +235,9 @@ class _PerfilPageState extends State<PerfilPage> {
 
                 const SizedBox(height: 25),
 
-                // =====================================================
+                // ===================================================
                 // CONTINUAR COMO VISITANTE
-                // =====================================================
+                // ===================================================
 
                 TextButton(
                   onPressed: () {
@@ -220,6 +264,15 @@ class _PerfilPageState extends State<PerfilPage> {
             ),
           ),
         ),
+      ),
+
+      // =============================================================
+      // NAVBAR
+      // =============================================================
+
+      bottomNavigationBar: BottomNavigation(
+        paginaAtual: 3,
+        onItemSelecionado: _selecionarItem,
       ),
     );
   }

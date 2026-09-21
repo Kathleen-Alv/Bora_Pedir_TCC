@@ -31,7 +31,94 @@ Fiz a tela do Entregador , para receber os cadastros
 
 inicio: 08:00
 Termino: 10:50
+Feito no senai:
+Email Pendente do cadastro Comercio implementado
 
-Email Pendente do cadastro implementado , Falta o do APROVADO 
+
+inicio: 17:24
+Termino: 19:10
+
+
+*Email Pendente do cadastro Comercio/Entregador
+implementado e testado pelo 2 metodos
+
+*Email do APROVADO testado e Funciona
+
+*Dados do Sistema implementado
+
+
+inicio: 19:50
+Termino: 23:02
+
+primeiro Acesso feito / Falta implementar
+Agrecimo do Gestor de Pedidos 
+acrecimo de função no portal gestão
+
+
+12/09/2026
+
+inicio: 22:15
+Termino: 02:31 do dia 13/09/2026
+
+*Recuperacao de senha do comercio feito e Testado
+*logica do primeiro acesso funcionando e Testado
+*Autenticação do Login Feito e Testado
+
+
+13/09/2026
+
+Sem Produção , não teve tempo
+
+
+
+14/09/2026
+
+inicio:22:10
+Termino:22:52
+
+banco de dados Acrecentado tabelas e arrumou a logica
+
+
+
+
+
+15/09/2026
+
+inicio:08:00
+Termino:12:00
+
+Trabalhando no cardapio
+
+
+16/09/2026
+
+inicio:08:00
+Termino:11:00
+
+* Terminou a implementação do Categoria e Itens
+Falta verificar se cria item sem Categoria
+
+Falta melhorar a visualizaçõa do itens , formatar o numero do preço
+
+
+
+17/09/2026
+
+inicio:08:10
+Termino:
+
+
+*Retornar alteracaoDeItem
+*implementado Cardapio , Falta melhorias
+
+
+
+
+
+
+
+
+
+
 
 

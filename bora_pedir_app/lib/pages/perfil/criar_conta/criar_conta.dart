@@ -1,5 +1,6 @@
-
 import 'package:flutter/material.dart';
+
+import '../../../services/auth_service.dart';
 
 class CriarContaPage extends StatefulWidget {
   const CriarContaPage({super.key});
@@ -15,6 +16,7 @@ class _CriarContaPageState extends State<CriarContaPage> {
   final senhaController = TextEditingController();
 
   bool mostrarSenha = false;
+  bool carregando = false;
 
   @override
   void dispose() {
@@ -24,6 +26,90 @@ class _CriarContaPageState extends State<CriarContaPage> {
     senhaController.dispose();
 
     super.dispose();
+  }
+
+  // =============================================================
+  // CADASTRO
+  // =============================================================
+
+  Future<void> criarConta() async {
+    final nome = nomeController.text.trim();
+    final email = emailController.text.trim();
+    final telefone = telefoneController.text.trim();
+    final senha = senhaController.text;
+
+    if (
+      nome.isEmpty ||
+      email.isEmpty ||
+      telefone.isEmpty ||
+      senha.isEmpty
+    ) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Preencha todos os campos.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return;
+    }
+
+    setState(() {
+      carregando = true;
+    });
+
+    try {
+      final resposta =
+          await AuthService.cadastrarCliente(
+        nome: nome,
+        telefone: telefone,
+        email: email,
+        senha: senha,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        carregando = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            resposta['message'] ??
+                'Conta criada com sucesso!',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Limpa os campos depois do cadastro.
+      nomeController.clear();
+      emailController.clear();
+      telefoneController.clear();
+      senhaController.clear();
+
+    } catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        carregando = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.toString().replaceFirst(
+              'Exception: ',
+              '',
+            ),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -54,8 +140,14 @@ class _CriarContaPageState extends State<CriarContaPage> {
             30,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
+
+              // ===================================================
+              // ÍCONE
+              // ===================================================
+
               Center(
                 child: Container(
                   width: 72,
@@ -73,6 +165,10 @@ class _CriarContaPageState extends State<CriarContaPage> {
               ),
 
               const SizedBox(height: 22),
+
+              // ===================================================
+              // TÍTULO
+              // ===================================================
 
               const Center(
                 child: Text(
@@ -100,6 +196,10 @@ class _CriarContaPageState extends State<CriarContaPage> {
 
               const SizedBox(height: 30),
 
+              // ===================================================
+              // NOME
+              // ===================================================
+
               const Text(
                 'Nome',
                 style: TextStyle(
@@ -118,6 +218,10 @@ class _CriarContaPageState extends State<CriarContaPage> {
               ),
 
               const SizedBox(height: 18),
+
+              // ===================================================
+              // E-MAIL
+              // ===================================================
 
               const Text(
                 'E-mail',
@@ -139,6 +243,10 @@ class _CriarContaPageState extends State<CriarContaPage> {
 
               const SizedBox(height: 18),
 
+              // ===================================================
+              // TELEFONE
+              // ===================================================
+
               const Text(
                 'Telefone',
                 style: TextStyle(
@@ -159,6 +267,10 @@ class _CriarContaPageState extends State<CriarContaPage> {
 
               const SizedBox(height: 18),
 
+              // ===================================================
+              // SENHA
+              // ===================================================
+
               const Text(
                 'Senha',
                 style: TextStyle(
@@ -175,13 +287,16 @@ class _CriarContaPageState extends State<CriarContaPage> {
                 obscureText: !mostrarSenha,
                 decoration: InputDecoration(
                   hintText: 'Digite sua senha',
+
                   prefixIcon: const Icon(
                     Icons.lock_outline,
                   ),
+
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
-                        mostrarSenha = !mostrarSenha;
+                        mostrarSenha =
+                            !mostrarSenha;
                       });
                     },
                     icon: Icon(
@@ -190,27 +305,41 @@ class _CriarContaPageState extends State<CriarContaPage> {
                           : Icons.visibility_off_outlined,
                     ),
                   ),
+
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
+
+                  contentPadding:
+                      const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 14,
                   ),
+
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
+                    borderRadius:
+                        BorderRadius.circular(14),
+                    borderSide:
+                        const BorderSide(
                       color: Color(0xFFE0E0E0),
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
+
+                  enabledBorder:
+                      OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(14),
+                    borderSide:
+                        const BorderSide(
                       color: Color(0xFFE0E0E0),
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
+
+                  focusedBorder:
+                      OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(14),
+                    borderSide:
+                        const BorderSide(
                       color: Color(0xFFC8102E),
                       width: 1.5,
                     ),
@@ -220,32 +349,62 @@ class _CriarContaPageState extends State<CriarContaPage> {
 
               const SizedBox(height: 28),
 
+              // ===================================================
+              // BOTÃO CRIAR CONTA
+              // ===================================================
+
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Cadastro será conectado à API depois.
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC8102E),
-                    foregroundColor: Colors.white,
+                  onPressed:
+                      carregando
+                          ? null
+                          : criarConta,
+
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color(0xFFC8102E),
+                    foregroundColor:
+                        Colors.white,
+                    disabledBackgroundColor:
+                        const Color(0xFFC8102E)
+                            .withOpacity(0.6),
                     elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Criar conta',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+
+                  child: carregando
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child:
+                              CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Criar conta',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight:
+                                FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
 
               const SizedBox(height: 18),
+
+              // ===================================================
+              // JÁ TENHO UMA CONTA
+              // ===================================================
 
               Center(
                 child: TextButton(
@@ -257,7 +416,8 @@ class _CriarContaPageState extends State<CriarContaPage> {
                     style: TextStyle(
                       color: Color(0xFFC8102E),
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontWeight:
+                          FontWeight.w600,
                     ),
                   ),
                 ),
@@ -269,39 +429,59 @@ class _CriarContaPageState extends State<CriarContaPage> {
     );
   }
 
+  // =============================================================
+  // CAMPO PADRÃO
+  // =============================================================
+
   Widget _campo({
     required TextEditingController controller,
     required String hint,
     required IconData icone,
-    TextInputType teclado = TextInputType.text,
+    TextInputType teclado =
+        TextInputType.text,
   }) {
     return TextField(
       controller: controller,
       keyboardType: teclado,
       decoration: InputDecoration(
         hintText: hint,
+
         prefixIcon: Icon(icone),
+
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
+
+        contentPadding:
+            const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
+
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
+          borderRadius:
+              BorderRadius.circular(14),
+          borderSide:
+              const BorderSide(
             color: Color(0xFFE0E0E0),
           ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
+
+        enabledBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(14),
+          borderSide:
+              const BorderSide(
             color: Color(0xFFE0E0E0),
           ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
+
+        focusedBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(14),
+          borderSide:
+              const BorderSide(
             color: Color(0xFFC8102E),
             width: 1.5,
           ),

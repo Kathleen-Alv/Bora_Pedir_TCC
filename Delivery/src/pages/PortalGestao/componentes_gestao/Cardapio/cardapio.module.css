@@ -6,7 +6,7 @@
     width: 100%;
     min-height: 100vh;
 
-    background-color: #ebe1e1;
+    background-color: #fffdfd;
 
     color: #171717;
 
@@ -238,9 +238,9 @@
 
     border-radius: 10px;
 
-    background-color: #ffd600;
+    background-color: #0ff10f;
 
-    color: #111111;
+    color: #000000;
 
     font-size: 14px;
     font-weight: 700;
@@ -249,9 +249,7 @@
 }
 
 
-.novoItem:hover {
-    background-color: #f4cb00;
-}
+
 
 
 /* =========================
@@ -416,8 +414,8 @@
     gap: 14px;
 
     padding: 0 15px;
-
-    background-color: #f2f2f4;
+    color: ghostwhite;
+    background-color: #66666a;
 
     border-bottom: 1px solid #e3e3e3;
 
@@ -447,7 +445,7 @@
     width: 16px;
     height: 16px;
 
-    accent-color: #777777;
+    accent-color: #000000;
 
     cursor: pointer;
 }

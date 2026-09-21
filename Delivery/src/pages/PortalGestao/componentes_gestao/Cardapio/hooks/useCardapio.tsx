@@ -36,12 +36,14 @@ export function useCardapio() {
     const [itens, setItens] =
         useState<Item[]>([]);
 
+
     // ============================================================
     // ESTADO DA CATEGORIA SELECIONADA
     // ============================================================
 
     const [categoriaSelecionada, setCategoriaSelecionada] =
         useState<number | null>(null);
+
 
     // ============================================================
     // ITENS SELECIONADOS
@@ -50,12 +52,14 @@ export function useCardapio() {
     const [itensSelecionados, setItensSelecionados] =
         useState<number[]>([]);
 
+
     // ============================================================
     // MODAL NOVO ITEM
     // ============================================================
 
     const [mostrarNovoItem, setMostrarNovoItem] =
         useState(false);
+
 
     // ============================================================
     // MODAL NOVA CATEGORIA
@@ -64,12 +68,14 @@ export function useCardapio() {
     const [mostrarNovaCategoria, setMostrarNovaCategoria] =
         useState(false);
 
-    // ============================================================
-// CATEGORIA EM ALTERAÇÃO
-// ============================================================
 
-const [categoriaEmEdicao, setCategoriaEmEdicao] =
-    useState<Categoria | null>(null);
+    // ============================================================
+    // CATEGORIA EM ALTERAÇÃO
+    // ============================================================
+
+    const [categoriaEmEdicao, setCategoriaEmEdicao] =
+        useState<Categoria | null>(null);
+
 
     // ============================================================
     // ITEM EM ALTERAÇÃO
@@ -78,12 +84,14 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
     const [itemEmAlteracao, setItemEmAlteracao] =
         useState<Item | null>(null);
 
+
     // ============================================================
     // ITEM SENDO VISUALIZADO
     // ============================================================
 
     const [itemEmVisualizacao, setItemEmVisualizacao] =
         useState<Item | null>(null);
+
 
     // ============================================================
     // BUSCA
@@ -92,6 +100,7 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
     const [busca, setBusca] =
         useState('');
 
+
     // ============================================================
     // FILTRO DE STATUS
     // ============================================================
@@ -99,12 +108,14 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
     const [filtroStatus, setFiltroStatus] =
         useState('todos');
 
+
     // ============================================================
     // NOME DO COMÉRCIO
     // ============================================================
 
     const [nomeComercio, setNomeComercio] =
         useState('Carregando...');
+
 
     // ============================================================
     // ESTADOS DE CARREGAMENTO
@@ -116,12 +127,14 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
     const [carregandoItens, setCarregandoItens] =
         useState(false);
 
+
     // ============================================================
     // ESTADO AO SALVAR CATEGORIA
     // ============================================================
 
     const [salvandoCategoria, setSalvandoCategoria] =
         useState(false);
+
 
     // ============================================================
     // ESTADO AO EXCLUIR UM ITEM
@@ -130,12 +143,14 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
     const [excluindoItemId, setExcluindoItemId] =
         useState<number | null>(null);
 
+
     // ============================================================
     // ESTADO AO EXCLUIR ITENS SELECIONADOS
     // ============================================================
 
     const [excluindoSelecionados, setExcluindoSelecionados] =
         useState(false);
+
 
     // ============================================================
     // ERRO
@@ -251,7 +266,6 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
         } finally {
 
             setCarregandoCategorias(false);
-
         }
     }
 
@@ -284,7 +298,9 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
                         return {
 
                             id:
-                                item.id,
+                                Number(
+                                    item.id
+                                ),
 
                             nome:
                                 item.nome,
@@ -342,7 +358,6 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
         } finally {
 
             setCarregandoItens(false);
-
         }
     }
 
@@ -387,205 +402,170 @@ const [categoriaEmEdicao, setCategoriaEmEdicao] =
 
 
     // ================================================================
-    // CRIAR CATEGORIA
+    // SALVAR CATEGORIA
     // ================================================================
 
-   // ================================================================
-// SALVAR CATEGORIA
-// ================================================================
+    async function handleSalvarCategoria(
+        nomeCategoria: string
+    ) {
 
-// ================================================================
-// SALVAR CATEGORIA
-// ================================================================
+        try {
 
-async function handleSalvarCategoria(
-    nomeCategoria: string
-) {
-
-    try {
-
-        setSalvandoCategoria(true);
-        setErro('');
+            setSalvandoCategoria(true);
+            setErro('');
 
 
-        // ============================================================
-        // EDITAR CATEGORIA
-        // ============================================================
+            // ========================================================
+            // EDITAR CATEGORIA
+            // ========================================================
 
-        if (categoriaEmEdicao) {
+            if (categoriaEmEdicao) {
 
-            const categoriaAnterior =
-                categoriaEmEdicao;
+                const categoriaAnterior =
+                    categoriaEmEdicao;
 
+                const categoriaAtualizada =
+                    await alterarCategoria(
+                        categoriaAnterior.id,
+                        nomeCategoria
+                    );
 
-            const categoriaAtualizada =
-                await alterarCategoria(
-                    categoriaAnterior.id,
-                    nomeCategoria
+                const quantidadeConvertida =
+                    converterQuantidade(
+                        categoriaAtualizada.quantidade
+                    );
+
+                const categoriaConvertida:
+                    Categoria = {
+
+                        ...categoriaAtualizada,
+
+                        quantidade:
+                            quantidadeConvertida ||
+                            categoriaAnterior.quantidade
+                    };
+
+                setCategorias(
+                    (categoriasAtuais) =>
+                        categoriasAtuais.map(
+                            (categoria) =>
+                                categoria.id ===
+                                categoriaConvertida.id
+                                    ? categoriaConvertida
+                                    : categoria
+                        )
                 );
 
+                setCategoriaEmEdicao(null);
+
+                setMostrarNovaCategoria(false);
+
+                return true;
+            }
+
 
             // ========================================================
-            // MANTER A QUANTIDADE ATUAL DA CATEGORIA
+            // CRIAR NOVA CATEGORIA
             // ========================================================
+
+            const novaCategoria:
+                Categoria =
+                await criarCategoria(
+                    nomeCategoria
+                );
 
             const categoriaConvertida:
                 Categoria = {
 
-                    ...categoriaAtualizada,
+                    ...novaCategoria,
 
                     quantidade:
                         converterQuantidade(
-                            categoriaAtualizada.quantidade
-                        ) ||
-                        categoriaAnterior.quantidade
+                            novaCategoria.quantidade
+                        )
                 };
 
-
-            // ========================================================
-            // ATUALIZAR A CATEGORIA NA LISTA
-            // ========================================================
-
             setCategorias(
-                (categoriasAtuais) =>
-                    categoriasAtuais.map(
-                        (categoria) =>
-                            categoria.id ===
-                            categoriaConvertida.id
-                                ? categoriaConvertida
-                                : categoria
-                    )
+                (categoriasAtuais) => [
+
+                    ...categoriasAtuais,
+
+                    categoriaConvertida
+
+                ]
             );
-
-
-            // ========================================================
-            // LIMPAR MODO DE EDIÇÃO
-            // ========================================================
-
-            setCategoriaEmEdicao(null);
 
             setMostrarNovaCategoria(false);
 
-
             return true;
-        }
 
+        } catch (error) {
 
-        // ============================================================
-        // CRIAR NOVA CATEGORIA
-        // ============================================================
-
-        const novaCategoria:
-            Categoria =
-            await criarCategoria(
-                nomeCategoria
-            );
-
-
-        const categoriaConvertida:
-            Categoria = {
-
-                ...novaCategoria,
-
-                quantidade:
-                    converterQuantidade(
-                        novaCategoria.quantidade
-                    )
-            };
-
-
-        // ============================================================
-        // ADICIONAR A NOVA CATEGORIA NA LISTA
-        // ============================================================
-
-        setCategorias(
-            (categoriasAtuais) => [
-
-                ...categoriasAtuais,
-
-                categoriaConvertida
-
-            ]
-        );
-
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            categoriaEmEdicao
-                ? 'Erro ao alterar categoria:'
-                : 'Erro ao criar categoria:',
-            error
-        );
-
-
-        if (
-            error instanceof Error
-        ) {
-
-            setErro(
-                error.message
-            );
-
-        } else {
-
-            setErro(
+            console.error(
                 categoriaEmEdicao
-                    ? 'Erro ao alterar categoria.'
-                    : 'Erro ao criar categoria.'
+                    ? 'Erro ao alterar categoria:'
+                    : 'Erro ao criar categoria:',
+                error
             );
 
+            if (
+                error instanceof Error
+            ) {
+
+                setErro(
+                    error.message
+                );
+
+            } else {
+
+                setErro(
+                    categoriaEmEdicao
+                        ? 'Erro ao alterar categoria.'
+                        : 'Erro ao criar categoria.'
+                );
+            }
+
+            return false;
+
+        } finally {
+
+            setSalvandoCategoria(false);
         }
-
-
-        return false;
-
-
-    } finally {
-
-        setSalvandoCategoria(false);
-
     }
-}
 
 
-// ================================================================
-// FECHAR MODAL DA CATEGORIA
-// ================================================================
+    // ================================================================
+    // FECHAR MODAL DA CATEGORIA
+    // ================================================================
 
-function handleFecharNovaCategoria() {
+    function handleFecharNovaCategoria() {
 
-    setMostrarNovaCategoria(
-        false
-    );
+        setMostrarNovaCategoria(
+            false
+        );
 
-    setCategoriaEmEdicao(
-        null
-    );
+        setCategoriaEmEdicao(
+            null
+        );
+    }
 
-}
 
+    // ================================================================
+    // ABRIR ALTERAÇÃO DE CATEGORIA
+    // ================================================================
 
-// ================================================================
-// ABRIR ALTERAÇÃO DE CATEGORIA
-// ================================================================
+    function handleAlterarCategoria(
+        categoria: Categoria
+    ) {
 
-function handleAlterarCategoria(
-    categoria: Categoria
-) {
+        setCategoriaEmEdicao(
+            categoria
+        );
 
-    setCategoriaEmEdicao(
-        categoria
-    );
-
-    setMostrarNovaCategoria(
-        true
-    );
-
-}
+        setMostrarNovaCategoria(
+            true
+        );
+    }
 
 
     // ================================================================
@@ -601,7 +581,8 @@ function handleAlterarCategoria(
                 itemRecebido.disponivel
             );
 
-        const novoItem: Item = {
+        const novoItem:
+            Item = {
 
             id:
                 Number(
@@ -635,24 +616,15 @@ function handleAlterarCategoria(
                     : 'pausado'
         };
 
-        // ============================================================
-        // ATUALIZA O ITEM IMEDIATAMENTE NA TELA
-        // ============================================================
-
         setItens(
             (itensAtuais) => [
+
                 ...itensAtuais,
+
                 novoItem
+
             ]
         );
-
-        // ============================================================
-        // ATUALIZA AS CATEGORIAS DIRETAMENTE DO BANCO
-        // ============================================================
-        // O banco passa a ser a fonte oficial da quantidade.
-        // Isso evita divergências e elimina a necessidade de
-        // calcular quantidade + 1 manualmente.
-        // ============================================================
 
         await carregarCategorias();
 
@@ -733,7 +705,8 @@ function handleAlterarCategoria(
                 itemRecebido.disponivel
             );
 
-        const itemAtualizado: Item = {
+        const itemAtualizado:
+            Item = {
 
             id:
                 Number(
@@ -767,10 +740,6 @@ function handleAlterarCategoria(
                     : 'pausado'
         };
 
-        // ============================================================
-        // ATUALIZA O ITEM NA TELA
-        // ============================================================
-
         setItens(
             (itensAtuais) =>
                 itensAtuais.map(
@@ -781,12 +750,6 @@ function handleAlterarCategoria(
                             : item
                 )
         );
-
-        // ============================================================
-        // RECARREGA CATEGORIAS
-        // ============================================================
-        // Importante caso o item tenha mudado de categoria.
-        // ============================================================
 
         await carregarCategorias();
 
@@ -820,10 +783,6 @@ function handleAlterarCategoria(
                 item.id
             );
 
-            // ========================================================
-            // REMOVE DA LISTA IMEDIATAMENTE
-            // ========================================================
-
             setItens(
                 (itensAtuais) =>
                     itensAtuais.filter(
@@ -833,10 +792,6 @@ function handleAlterarCategoria(
                     )
             );
 
-            // ========================================================
-            // REMOVE DA SELEÇÃO
-            // ========================================================
-
             setItensSelecionados(
                 (selecionados) =>
                     selecionados.filter(
@@ -844,10 +799,6 @@ function handleAlterarCategoria(
                             id !== item.id
                     )
             );
-
-            // ========================================================
-            // RECARREGA A QUANTIDADE REAL DO BANCO
-            // ========================================================
 
             await carregarCategorias();
 
@@ -908,8 +859,11 @@ function handleAlterarCategoria(
                 }
 
                 return [
+
                     ...selecionados,
+
                     id
+
                 ];
             }
         );
@@ -924,13 +878,11 @@ function handleAlterarCategoria(
         itens.filter(
             (item) => {
 
-                // Filtro por categoria.
                 const pertenceCategoria =
                     categoriaSelecionada === null ||
                     item.categoriaId ===
                         categoriaSelecionada;
 
-                // Filtro por busca.
                 const correspondeBusca =
                     item.nome
                         .toLowerCase()
@@ -940,7 +892,6 @@ function handleAlterarCategoria(
                                 .trim()
                         );
 
-                // Filtro por status.
                 const correspondeStatus =
                     filtroStatus === 'todos' ||
                     (
@@ -988,8 +939,6 @@ function handleAlterarCategoria(
             return;
         }
 
-        // Se todos já estão selecionados,
-        // remove somente os itens atualmente filtrados.
         if (
             todosSelecionados
         ) {
@@ -1008,8 +957,6 @@ function handleAlterarCategoria(
             return;
         }
 
-        // Caso contrário, adiciona os itens filtrados
-        // sem duplicar IDs.
         setItensSelecionados(
             (selecionados) => {
 
@@ -1057,11 +1004,9 @@ function handleAlterarCategoria(
             setErro('');
 
             const idsParaExcluir =
-                [...itensSelecionados];
-
-            // ========================================================
-            // EXCLUIR CADA ITEM DO BANCO
-            // ========================================================
+                [
+                    ...itensSelecionados
+                ];
 
             for (
                 const id
@@ -1073,10 +1018,6 @@ function handleAlterarCategoria(
                 );
             }
 
-            // ========================================================
-            // REMOVE OS ITENS DA TELA
-            // ========================================================
-
             setItens(
                 (itensAtuais) =>
                     itensAtuais.filter(
@@ -1087,15 +1028,7 @@ function handleAlterarCategoria(
                     )
             );
 
-            // ========================================================
-            // RECARREGA AS CATEGORIAS DO BANCO
-            // ========================================================
-
             await carregarCategorias();
-
-            // ========================================================
-            // LIMPA A SELEÇÃO
-            // ========================================================
 
             setItensSelecionados([]);
 
@@ -1143,6 +1076,505 @@ function handleAlterarCategoria(
 
 
     // ================================================================
+    // ALTERAR DISPONIBILIDADE
+    // ================================================================
+    //
+    // Existem dois modos:
+    //
+    // 1. itemId informado:
+    //    altera somente aquele item.
+    //
+    // 2. itemId não informado:
+    //    altera todos os itens selecionados.
+    //
+    // ================================================================
+
+    async function handleAlterarDisponibilidade(
+        disponibilidadeSolicitada: boolean,
+        itemId?: number
+    ) {
+
+        try {
+
+            setErro('');
+
+
+            // ========================================================
+            // MODO 1 — ALTERAÇÃO DE UM ÚNICO ITEM
+            // ========================================================
+
+            if (
+                itemId !== undefined
+            ) {
+
+                const item =
+                    itens.find(
+                        (itemAtual) =>
+                            Number(itemAtual.id) ===
+                            Number(itemId)
+                    );
+
+
+                // ====================================================
+                // ITEM NÃO ENCONTRADO
+                // ====================================================
+
+                if (!item) {
+
+                    throw new Error(
+                        'Item não encontrado.'
+                    );
+                }
+
+
+                // ====================================================
+                // SE JÁ ESTIVER NO ESTADO SOLICITADO,
+                // NÃO ENVIA PATCH DESNECESSÁRIO.
+                // ====================================================
+
+                if (
+                    item.disponivel ===
+                    disponibilidadeSolicitada
+                ) {
+
+                    return;
+                }
+
+
+                // ====================================================
+                // ALTERAR NO BANCO
+                // ====================================================
+
+                const resposta =
+                    await alterarDisponibilidadeItem(
+                        Number(item.id),
+                        disponibilidadeSolicitada
+                    );
+
+
+                // ====================================================
+                // BACKEND PRECISA RETORNAR O ITEM ATUALIZADO
+                // ====================================================
+
+                const itemConfirmado =
+                    resposta?.item;
+
+
+                if (!itemConfirmado) {
+
+                    throw new Error(
+                        'O servidor não retornou os dados atualizados do item.'
+                    );
+                }
+
+
+                // ====================================================
+                // CONVERTER O ITEM RETORNADO
+                // ====================================================
+
+                const disponivel =
+                    converterBooleano(
+                        itemConfirmado.disponivel
+                    );
+
+
+                const itemConvertido:
+                    Item = {
+
+                    id:
+                        Number(
+                            itemConfirmado.id
+                        ),
+
+                    nome:
+                        itemConfirmado.nome,
+
+                    preco:
+                        Number(
+                            itemConfirmado.preco
+                        ),
+
+                    imagem:
+                        itemConfirmado.foto || '',
+
+                    descricao:
+                        itemConfirmado.descricao || '',
+
+                    disponivel,
+
+                    categoriaId:
+                        Number(
+                            itemConfirmado.categoria_id
+                        ),
+
+                    statusVenda:
+                        disponivel
+                            ? 'ativo'
+                            : 'pausado'
+                };
+
+
+                // ====================================================
+                // ATUALIZAR SOMENTE O ITEM ALTERADO
+                // ====================================================
+
+                setItens(
+                    (itensAtuais) =>
+                        itensAtuais.map(
+                            (itemAtual) =>
+                                Number(itemAtual.id) ===
+                                Number(itemConvertido.id)
+                                    ? itemConvertido
+                                    : itemAtual
+                        )
+                );
+
+
+                return;
+            }
+
+
+            // ========================================================
+            // MODO 2 — ALTERAÇÃO DOS ITENS SELECIONADOS
+            // ========================================================
+
+            if (
+                itensSelecionados.length === 0
+            ) {
+
+                return;
+            }
+
+
+            // ========================================================
+            // CONSULTAR NOVAMENTE O BANCO
+            // ========================================================
+
+            const itensRecebidos:
+                ItemRecebidoAPI[] =
+                await buscarItens();
+
+
+            // ========================================================
+            // PEGAR SOMENTE OS ITENS SELECIONADOS
+            // ========================================================
+
+            const itensSelecionadosBanco =
+                itensRecebidos.filter(
+                    (itemBanco) =>
+                        itensSelecionados.includes(
+                            Number(itemBanco.id)
+                        )
+                );
+
+
+            // ========================================================
+            // VERIFICAR SE TODOS FORAM ENCONTRADOS
+            // ========================================================
+
+            if (
+                itensSelecionadosBanco.length !==
+                itensSelecionados.length
+            ) {
+
+                throw new Error(
+                    'Um ou mais itens selecionados não foram encontrados no banco de dados.'
+                );
+            }
+
+
+            // ========================================================
+            // COPIAR OS ITENS RECEBIDOS
+            // ========================================================
+
+            const itensAtualizados =
+                [
+                    ...itensRecebidos
+                ];
+
+
+            // ========================================================
+            // ALTERAR SOMENTE QUEM PRECISA
+            // ========================================================
+
+            for (
+                const itemBanco
+                of itensSelecionadosBanco
+            ) {
+
+                const disponibilidadeAtual =
+                    converterBooleano(
+                        itemBanco.disponivel
+                    );
+
+
+                // ----------------------------------------------------
+                // JÁ ESTÁ CORRETO
+                // ----------------------------------------------------
+
+                if (
+                    disponibilidadeAtual ===
+                    disponibilidadeSolicitada
+                ) {
+
+                    continue;
+                }
+
+
+                // ----------------------------------------------------
+                // ALTERAR NO BANCO
+                // ----------------------------------------------------
+
+                const resposta =
+                    await alterarDisponibilidadeItem(
+                        Number(itemBanco.id),
+                        disponibilidadeSolicitada
+                    );
+
+
+                // ----------------------------------------------------
+                // PEGAR ITEM CONFIRMADO
+                // ----------------------------------------------------
+
+                const itemConfirmado =
+                    resposta?.item;
+
+
+                if (!itemConfirmado) {
+
+                    throw new Error(
+                        `O servidor não retornou os dados atualizados do item ${itemBanco.nome}.`
+                    );
+                }
+
+
+                // ----------------------------------------------------
+                // LOCALIZAR ITEM NA LISTA
+                // ----------------------------------------------------
+
+                const indice =
+                    itensAtualizados.findIndex(
+                        (item) =>
+                            Number(item.id) ===
+                            Number(itemConfirmado.id)
+                    );
+
+
+                // ----------------------------------------------------
+                // SUBSTITUIR PELO ITEM CONFIRMADO
+                // ----------------------------------------------------
+
+                if (
+                    indice !== -1
+                ) {
+
+                    itensAtualizados[
+                        indice
+                    ] = itemConfirmado;
+                }
+            }
+
+
+            // ========================================================
+            // CONVERTER TODOS OS ITENS PARA Item
+            // ========================================================
+
+            const itensConvertidos:
+                Item[] =
+                itensAtualizados.map(
+                    (item) => {
+
+                        const disponivel =
+                            converterBooleano(
+                                item.disponivel
+                            );
+
+                        return {
+
+                            id:
+                                Number(
+                                    item.id
+                                ),
+
+                            nome:
+                                item.nome,
+
+                            preco:
+                                Number(
+                                    item.preco
+                                ),
+
+                            imagem:
+                                item.foto || '',
+
+                            descricao:
+                                item.descricao || '',
+
+                            disponivel,
+
+                            categoriaId:
+                                Number(
+                                    item.categoria_id
+                                ),
+
+                            statusVenda:
+                                disponivel
+                                    ? 'ativo'
+                                    : 'pausado'
+                        };
+                    }
+                );
+
+
+            // ========================================================
+            // ATUALIZAR A TELA
+            // ========================================================
+
+            setItens(
+                itensConvertidos
+            );
+
+
+            // ========================================================
+            // LIMPAR SELEÇÃO
+            // ========================================================
+
+            setItensSelecionados([]);
+
+
+        } catch (error) {
+
+            console.error(
+                'Erro ao alterar disponibilidade:',
+                error
+            );
+
+
+            if (
+                error instanceof Error
+            ) {
+
+                setErro(
+                    error.message
+                );
+
+            } else {
+
+                setErro(
+                    'Não foi possível alterar a disponibilidade.'
+                );
+            }
+        }
+    }
+
+
+    // ================================================================
+    // EXCLUIR CATEGORIA
+    // ================================================================
+
+    async function handleExcluirCategoria(
+        categoriaId: number
+    ) {
+
+        try {
+
+            await excluirCategoria(
+                categoriaId
+            );
+
+
+            const itensExcluidos =
+                itens
+                    .filter(
+                        (item) =>
+                            item.categoriaId ===
+                            categoriaId
+                    )
+                    .map(
+                        (item) =>
+                            item.id
+                    );
+
+
+            // ========================================================
+            // REMOVER CATEGORIA
+            // ========================================================
+
+            setCategorias(
+                (categoriasAtuais) =>
+                    categoriasAtuais.filter(
+                        (categoria) =>
+                            categoria.id !==
+                            categoriaId
+                    )
+            );
+
+
+            // ========================================================
+            // REMOVER ITENS DA CATEGORIA
+            // ========================================================
+
+            setItens(
+                (itensAtuais) =>
+                    itensAtuais.filter(
+                        (item) =>
+                            item.categoriaId !==
+                            categoriaId
+                    )
+            );
+
+
+            // ========================================================
+            // REMOVER ITENS DA SELEÇÃO
+            // ========================================================
+
+            setItensSelecionados(
+                (selecionadosAtuais) =>
+                    selecionadosAtuais.filter(
+                        (id) =>
+                            !itensExcluidos.includes(
+                                id
+                            )
+                    )
+            );
+
+
+            // ========================================================
+            // LIMPAR CATEGORIA SELECIONADA
+            // ========================================================
+
+            if (
+                categoriaSelecionada ===
+                categoriaId
+            ) {
+
+                setCategoriaSelecionada(
+                    null
+                );
+            }
+
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                'Erro ao excluir categoria:',
+                error
+            );
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : 'Erro ao excluir categoria.'
+            );
+
+            return false;
+        }
+    }
+
+
+    // ================================================================
     // CARREGAMENTO INICIAL
     // ================================================================
 
@@ -1155,337 +1587,6 @@ function handleAlterarCategoria(
         carregarDadosComercio();
 
     }, []);
-
-// ============================================================
-// ALTERAR DISPONIBILIDADE
-// ============================================================
-
-// ================================================================
-// ALTERAR DISPONIBILIDADE DOS ITENS SELECIONADOS
-// ================================================================
-
-async function handleAlterarDisponibilidade(
-    disponibilidadeSolicitada: boolean
-) {
-
-    // ============================================================
-    // VERIFICAR SE EXISTEM ITENS SELECIONADOS
-    // ============================================================
-
-    if (
-        itensSelecionados.length === 0
-    ) {
-
-        return;
-    }
-
-
-    try {
-
-        setErro('');
-
-
-        // ========================================================
-        // 1. CONSULTAR O BANCO
-        // ========================================================
-        // Buscamos novamente os itens diretamente do banco.
-        //
-        // Dessa forma não confiamos apenas no estado que está
-        // atualmente na tela.
-        // ========================================================
-
-        const itensRecebidos:
-            ItemRecebidoAPI[] =
-            await buscarItens();
-
-
-        // ========================================================
-        // 2. PEGAR SOMENTE OS ITENS SELECIONADOS
-        // ========================================================
-
-        const itensSelecionadosBanco =
-            itensRecebidos.filter(
-                (itemBanco) =>
-                    itensSelecionados.includes(
-                        Number(itemBanco.id)
-                    )
-            );
-
-
-        // ========================================================
-        // 3. VERIFICAR SE TODOS OS ITENS FORAM ENCONTRADOS
-        // ========================================================
-
-        if (
-            itensSelecionadosBanco.length !==
-            itensSelecionados.length
-        ) {
-
-            throw new Error(
-                'Um ou mais itens selecionados não foram encontrados no banco de dados.'
-            );
-        }
-
-
-        // ========================================================
-        // 4. ALTERAR CADA ITEM NECESSÁRIO
-        // ========================================================
-        //
-        // Exemplo:
-        //
-        // Usuário selecionou 3 itens e clicou em D.
-        //
-        // Item 1 → banco = true
-        // Item 2 → banco = false
-        // Item 3 → banco = true
-        //
-        // Somente o Item 2 receberá PATCH.
-        //
-        // ========================================================
-
-        const itensAtualizados =
-            [...itensRecebidos];
-
-
-        for (
-            const itemBanco
-            of itensSelecionadosBanco
-        ) {
-
-            const disponibilidadeAtual =
-                converterBooleano(
-                    itemBanco.disponivel
-                );
-
-
-            // ====================================================
-            // SE JÁ ESTIVER NA DISPONIBILIDADE SOLICITADA,
-            // NÃO PRECISA ALTERAR O BANCO.
-            // ====================================================
-
-            if (
-                disponibilidadeAtual ===
-                disponibilidadeSolicitada
-            ) {
-
-                continue;
-            }
-
-
-            // ====================================================
-            // ALTERAR NO BANCO
-            // ====================================================
-
-            const resposta =
-                await alterarDisponibilidadeItem(
-                    Number(itemBanco.id),
-                    disponibilidadeSolicitada
-                );
-
-
-            // ====================================================
-            // PEGAR O ITEM CONFIRMADO PELO BACKEND
-            // ====================================================
-
-            const itemConfirmado =
-                resposta?.item;
-
-
-            if (!itemConfirmado) {
-
-                throw new Error(
-                    `O servidor não retornou os dados atualizados do item ${itemBanco.nome}.`
-                );
-            }
-
-
-            // ====================================================
-            // SUBSTITUIR A VERSÃO ANTIGA PELA CONFIRMADA
-            // ====================================================
-
-            const indice =
-                itensAtualizados.findIndex(
-                    (item) =>
-                        Number(item.id) ===
-                        Number(itemConfirmado.id)
-                );
-
-
-            if (
-                indice !== -1
-            ) {
-
-                itensAtualizados[
-                    indice
-                ] = itemConfirmado;
-
-            }
-
-        }
-
-
-        // ========================================================
-        // 5. CONVERTER NOVAMENTE OS ITENS PARA O TIPO Item
-        // ========================================================
-
-        const itensConvertidos:
-            Item[] =
-            itensAtualizados.map(
-                (item) => {
-
-                    const disponivel =
-                        converterBooleano(
-                            item.disponivel
-                        );
-
-
-                    return {
-
-                        id:
-                            Number(
-                                item.id
-                            ),
-
-                        nome:
-                            item.nome,
-
-                        preco:
-                            Number(
-                                item.preco
-                            ),
-
-                        imagem:
-                            item.foto || '',
-
-                        descricao:
-                            item.descricao || '',
-
-                        disponivel,
-
-                        categoriaId:
-                            Number(
-                                item.categoria_id
-                            ),
-
-                        statusVenda:
-                            disponivel
-                                ? 'ativo'
-                                : 'pausado'
-
-                    };
-
-                }
-            );
-
-
-        // ========================================================
-        // 6. ATUALIZAR A TELA
-        // ========================================================
-        //
-        // Só atualizamos a interface depois das alterações
-        // confirmadas pelo banco.
-        // ========================================================
-
-        setItens(
-            itensConvertidos
-        );
-
-
-        // ========================================================
-        // 7. LIMPAR A SELEÇÃO
-        // ========================================================
-        //
-        // Depois de alterar a disponibilidade, os checkboxes
-        // deixam de ficar selecionados.
-        // ========================================================
-
-        setItensSelecionados([]);
-
-
-    } catch (error) {
-
-        console.error(
-            'Erro ao alterar disponibilidade:',
-            error
-        );
-
-
-        // ========================================================
-        // IMPORTANTE:
-        //
-        // Se ocorrer erro, não limpamos a seleção.
-        //
-        // Assim o usuário pode tentar novamente.
-        // ========================================================
-
-        if (
-            error instanceof Error
-        ) {
-
-            setErro(
-                error.message
-            );
-
-        } else {
-
-            setErro(
-                'Não foi possível alterar a disponibilidade dos itens selecionados.'
-            );
-
-        }
-
-    }
-
-}
-
-// ================================================================
-// EXCLUIR CATEGORIA
-// ================================================================
-
-async function handleExcluirCategoria(categoriaId: number) {
-    try {
-        await excluirCategoria(categoriaId);
-
-        const itensExcluidos = itens
-            .filter((item) => item.categoriaId === categoriaId)
-            .map((item) => item.id);
-
-        setCategorias((categoriasAtuais) =>
-            categoriasAtuais.filter(
-                (categoria) => categoria.id !== categoriaId
-            )
-        );
-
-        setItens((itensAtuais) =>
-            itensAtuais.filter(
-                (item) => item.categoriaId !== categoriaId
-            )
-        );
-
-        setItensSelecionados((selecionadosAtuais) =>
-            selecionadosAtuais.filter(
-                (id) => !itensExcluidos.includes(id)
-            )
-        );
-
-        if (categoriaSelecionada === categoriaId) {
-            setCategoriaSelecionada(null);
-        }
-
-        return true;
-
-    } catch (error) {
-        console.error('Erro ao excluir categoria:', error);
-
-        alert(
-            error instanceof Error
-                ? error.message
-                : 'Erro ao excluir categoria.'
-        );
-
-        return false;
-    }
-}
 
 
     // ================================================================
@@ -1507,6 +1608,7 @@ async function handleExcluirCategoria(categoriaId: number) {
         nomeComercio,
         setNomeComercio,
 
+
         // ------------------------------------------------------------
         // CATEGORIA
         // ------------------------------------------------------------
@@ -1515,6 +1617,7 @@ async function handleExcluirCategoria(categoriaId: number) {
         setCategoriaSelecionada,
 
         categoriaAtual,
+
 
         // ------------------------------------------------------------
         // SELEÇÃO
@@ -1528,6 +1631,7 @@ async function handleExcluirCategoria(categoriaId: number) {
         alternarItem,
         alternarTodos,
 
+
         // ------------------------------------------------------------
         // FILTROS
         // ------------------------------------------------------------
@@ -1539,6 +1643,7 @@ async function handleExcluirCategoria(categoriaId: number) {
         setFiltroStatus,
 
         itensFiltrados,
+
 
         // ------------------------------------------------------------
         // NOVO ITEM
@@ -1556,7 +1661,6 @@ async function handleExcluirCategoria(categoriaId: number) {
         handleItemCriado,
         handleItemAlterado,
 
-        handleExcluirCategoria,
 
         // ------------------------------------------------------------
         // VER ITEM
@@ -1567,50 +1671,64 @@ async function handleExcluirCategoria(categoriaId: number) {
         handleVerItem,
         handleFecharVerItem,
 
+
         // ------------------------------------------------------------
         // NOVA CATEGORIA
         // ------------------------------------------------------------
-// ------------------------------------------------------------
-// NOVA CATEGORIA
-// ------------------------------------------------------------
 
-    mostrarNovaCategoria,
+        mostrarNovaCategoria,
 
-    setMostrarNovaCategoria,
+        setMostrarNovaCategoria,
 
-    categoriaEmEdicao,
+        categoriaEmEdicao,
 
-    setCategoriaEmEdicao,
+        setCategoriaEmEdicao,
 
-    handleSalvarCategoria,
+        handleSalvarCategoria,
+
+        handleAlterarCategoria,
+
+        handleFecharNovaCategoria,
+
 
         // ------------------------------------------------------------
         // EXCLUSÃO
         // ------------------------------------------------------------
 
         handleExcluirItem,
+
         handleExcluirSelecionados,
 
+        handleExcluirCategoria,
+
         excluindoItemId,
+
         excluindoSelecionados,
 
         setExcluindoSelecionados,
+
 
         // ------------------------------------------------------------
         // CARREGAMENTO
         // ------------------------------------------------------------
 
         carregandoCategorias,
+
         carregandoItens,
 
         carregarCategorias,
+
         carregarItens,
+
         carregarDadosComercio,
+
+
+        // ------------------------------------------------------------
+        // DISPONIBILIDADE
+        // ------------------------------------------------------------
 
         handleAlterarDisponibilidade,
 
-        handleAlterarCategoria,
-        handleFecharNovaCategoria,
 
         // ------------------------------------------------------------
         // CATEGORIA
@@ -1618,12 +1736,13 @@ async function handleExcluirCategoria(categoriaId: number) {
 
         salvandoCategoria,
 
+
         // ------------------------------------------------------------
         // ERROS
         // ------------------------------------------------------------
 
         erro,
+
         setErro
     };
 }
-

@@ -40,3 +40,32 @@ Para Motoboy Tambem exigindo Foto
 │     Eviar Notificações por
   email, fazer um disparador   │
 └──────────────────────────────┘
+
+
+
+
+┌─────────────────────────────────────────────┐
+│ Dados do Entregador                    X    │
+├─────────────────────────────────────────────┤
+│                                             │
+│ DADOS CADASTRAIS                            │
+│                                             │
+│ Nome: Roberto Novo                          │
+│ CPF: 123.456.789-00                         │
+│ CNH: 55555555555                            │
+│ Nascimento: 01/01/1990                      │
+│ Placa: GHI9012                              │
+│ E-mail: roberto.novo@email.com               │
+│                                             │
+├─────────────────────────────────────────────┤
+│ VERIFICAÇÃO DE IDENTIDADE                   │
+│                                             │
+│  Foto do rosto       Documento              │
+│  ┌───────────┐       ┌───────────┐          │
+│  │           │       │           │          │
+│  │   FOTO    │       │ DOCUMENTO │          │
+│  │           │       │           │          │
+│  └───────────┘       └───────────┘          │
+│                                             │
+│ Verificação: Pendente                       │
+└─────────────────────────────────────────────┘

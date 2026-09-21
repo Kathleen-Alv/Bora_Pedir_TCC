@@ -45,6 +45,13 @@ import cardapioRoutes
      from './src/api/routes/cardapio.routes.js';
 
 
+import cadastroClienteRoutes
+    from './src/api/routes/cadastroCliente.routes.js';
+
+import loginClienteRoutes
+    from './src/api/routes/loginCliente.routes.js';
+
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -134,6 +141,18 @@ app.use(
 app.use(
     '/api/cardapio',
     cardapioRoutes
+);
+
+
+
+app.use(
+    '/api/clientes',
+    cadastroClienteRoutes
+);
+
+app.use(
+    '/api/login-cliente',
+    loginClienteRoutes
 );
 
 

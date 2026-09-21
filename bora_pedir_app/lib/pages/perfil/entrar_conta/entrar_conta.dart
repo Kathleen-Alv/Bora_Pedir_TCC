@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../services/auth_storage.dart';
+
+import '../../inicio/inicio.dart';
+
+import '../recuperar_senha/recuperar_senha.dart';
+import '../../../services/auth_service.dart';
 import '../criar_conta/criar_conta.dart';
 
 class EntrarContaPage extends StatefulWidget {
@@ -18,10 +24,11 @@ class _EntrarContaPageState extends State<EntrarContaPage> {
   final senhaController = TextEditingController();
 
   // =============================================================
-  // ESTADO DA SENHA
+  // ESTADO
   // =============================================================
 
   bool mostrarSenha = false;
+  bool carregando = false;
 
   // =============================================================
   // LIMPEZA
@@ -35,6 +42,75 @@ class _EntrarContaPageState extends State<EntrarContaPage> {
     super.dispose();
   }
 
+  // =============================================================
+  // LOGIN
+  // =============================================================
+
+Future<void> entrar() async {
+  final email = emailController.text.trim();
+  final senha = senhaController.text;
+
+  if (email.isEmpty || senha.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Preencha o e-mail e a senha.'),
+      ),
+    );
+    return;
+  }
+
+  setState(() {
+    carregando = true;
+  });
+
+  try {
+    final resposta = await AuthService.loginCliente(
+      email: email,
+      senha: senha,
+    );
+
+    await AuthStorage.salvarLogin(
+      token: resposta['token'],
+      tipo: resposta['tipo'],
+      clienteId: resposta['cliente_id'],
+      usuarioId: resposta['usuario_id'],
+      nome: resposta['nome'],
+      email: resposta['email'],
+      telefone: resposta['telefone'],
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      carregando = false;
+    });
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InicioPage(
+          mostrarBoasVindas: true,
+        ),
+      ),
+      (route) => false,
+    );
+  } catch (error) {
+    if (!mounted) return;
+
+    setState(() {
+      carregando = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          error.toString().replaceFirst('Exception: ', ''),
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
   // =============================================================
   // TELA
   // =============================================================
@@ -261,8 +337,15 @@ class _EntrarContaPageState extends State<EntrarContaPage> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RecuperarSenhaPage(),
+                        ),
+                      );
+                    },
                     // Recuperação de senha será implementada depois.
-                  },
+                  
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 4,
@@ -290,24 +373,33 @@ class _EntrarContaPageState extends State<EntrarContaPage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Login será conectado à API depois.
-                  },
+                  onPressed: carregando ? null : entrar,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC8102E),
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor:
+                        const Color(0xFFC8102E).withOpacity(0.6),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Entrar',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: carregando
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Entrar',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
 

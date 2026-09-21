@@ -403,24 +403,10 @@ async function confirmarExclusaoCategoria() {
                     }
                 >
 
-                    <button
-                        type="button"
-                        className={
-                            styles.botaoTopo
-                        }
-                    >
-                        Pré-visualizar
-                    </button>
+                    
 
 
-                    <button
-                        type="button"
-                        className={
-                            styles.botaoTopo
-                        }
-                    >
-                        Ver como cliente
-                    </button>
+                    
 
                 </div>
 
@@ -439,7 +425,7 @@ async function confirmarExclusaoCategoria() {
 
                 <input
                     type="text"
-                    placeholder="Buscar item"
+                    placeholder="Buscar item                  🔍"
                     value={busca}
                     onChange={(evento) =>
                         setBusca(
@@ -1145,30 +1131,29 @@ async function confirmarExclusaoCategoria() {
                                             }
                                         >
 
-                                            <div
-                                                className={`
-                                                    ${styles.status}
-                                                    ${
-                                                        item.disponivel
-                                                            ? styles.disponivel
-                                                            : styles.indisponivel
-                                                    }
-                                                `}
-                                            >
+                                            <button
+    type="button"
+    className={`
+        ${styles.status}
+        ${
+            item.disponivel
+                ? styles.disponivel
+                : styles.indisponivel
+        }
+    `}
+    onClick={() =>
+        handleAlterarDisponibilidade(
+            !item.disponivel,
+            item.id
+        )
+    }
+>
+    <span className={styles.ponto} />
 
-                                                <span
-                                                    className={
-                                                        styles.ponto
-                                                    }
-                                                />
-
-                                                {
-                                                    item.disponivel
-                                                        ? 'Disponível'
-                                                        : 'Indisponível'
-                                                }
-
-                                            </div>
+    {item.disponivel
+        ? 'Disponível'
+        : 'Indisponível'}
+</button>
 
 
                                             <MenuItem

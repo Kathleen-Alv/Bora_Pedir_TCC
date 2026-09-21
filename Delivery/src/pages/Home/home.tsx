@@ -6,6 +6,8 @@ import styles from './home.module.css';
 import imagemEntregador from '../../assets/1.svg';
 import imagemRestaurante from '../../assets/2.svg';
 
+import bannerPrincipal from '../../assets/Home/bannerPrincipal.svg';
+
 import { useNavigate } from 'react-router-dom';
 
 export function Home() {
@@ -19,7 +21,13 @@ export function Home() {
           BANNER PRINCIPAL
       ========================= */}
       <div className={styles.bannerPrincipal}>
-        {/* conteúdo do banner principal */}
+        <img
+          src={bannerPrincipal}
+          alt="Bora Pedir"
+          className={styles.imagemBanner}
+          draggable="false"
+          onContextMenu={(e) => e.preventDefault()}
+        />
       </div>
 
       {/* =========================
@@ -29,15 +37,17 @@ export function Home() {
         <div className={styles.headerParceiros}>
           <h2>Seja um Parceiro</h2>
           <h3>Bora começar?</h3>
-          
         </div>
 
         <div className={styles.cardsGrid}>
+
           {/* CARD 1: ENTREGADOR */}
           <div className={styles.cardParceiro}>
             <div className={styles.cardInfo}>
               <span className={styles.tagParceiro}>Entregadores</span>
+
               <h3>Entregador Parceiro</h3>
+
               <p>
                 Faça entregas, escolha seus horários e aumente sua renda.
               </p>
@@ -64,10 +74,15 @@ export function Home() {
           {/* CARD 2: RESTAURANTE / COMERCIAL */}
           <div className={styles.cardParceiro}>
             <div className={styles.cardInfo}>
-              <span className={styles.tagParceiro}>Restaurantes & Lojas</span>
+              <span className={styles.tagParceiro}>
+                Restaurantes & Lojas
+              </span>
+
               <h3>Seu Comércio</h3>
+
               <p>
-                Cadastre seu Comércio, alcance novos clientes e aumente suas vendas.
+                Cadastre seu Comércio, alcance novos clientes e aumente suas
+                vendas.
               </p>
             </div>
 
@@ -88,6 +103,7 @@ export function Home() {
               Cadastrar Comércio
             </button>
           </div>
+
         </div>
       </section>
 
