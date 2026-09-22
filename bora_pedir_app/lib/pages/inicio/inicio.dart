@@ -1,6 +1,10 @@
- import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../cardapio/cardapio_page.dart';
 import '../../services/auth_storage.dart';
+import '../../services/comercio_service.dart';
 import '../../widgets/bottom_navigation.dart';
 import '../../widgets/modal_conta.dart';
 
@@ -20,37 +24,79 @@ class _InicioPageState extends State<InicioPage> {
   bool mostrarMensagemBoasVindas = false;
   String nomeUsuario = '';
 
+  // =============================================================
+  // COMÉRCIOS
+  // =============================================================
+
+  List<Map<String, dynamic>> comercios = [];
+
+  bool carregandoComercios = true;
+
   int paginaAtual = 0;
 
   bool mostrandoMaisCategorias = false;
 
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  if (widget.mostrarBoasVindas) {
-    _mostrarBoasVindas();
+    if (widget.mostrarBoasVindas) {
+      _mostrarBoasVindas();
+    }
+
+    _verificarModalConta();
+
+    _buscarComercios();
   }
 
-  _verificarModalConta();
-}
+  // =============================================================
+  // BUSCAR TODOS OS COMÉRCIOS
+  // =============================================================
 
-Future<void> _verificarModalConta() async {
-  final logado = await AuthStorage.estaLogado();
+  Future<void> _buscarComercios() async {
+    try {
+      final dados = await ComercioService.buscarComercios();
 
-  if (!mounted) return;
+      if (!mounted) return;
 
-  if (!logado && !widget.mostrarBoasVindas) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ModalConta.mostrar(context);
-      }
-    });
+      setState(() {
+        comercios = dados;
+        carregandoComercios = false;
+      });
+    } catch (e) {
+      debugPrint(
+        'Erro ao carregar comércios: $e',
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        carregandoComercios = false;
+      });
+    }
   }
-}
 
+  // =============================================================
+  // VERIFICAR LOGIN
+  // =============================================================
 
+  Future<void> _verificarModalConta() async {
+    final logado = await AuthStorage.estaLogado();
 
+    if (!mounted) return;
+
+    if (!logado && !widget.mostrarBoasVindas) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ModalConta.mostrar(context);
+        }
+      });
+    }
+  }
+
+  // =============================================================
+  // BOAS-VINDAS
+  // =============================================================
 
   Future<void> _mostrarBoasVindas() async {
     final nome = await AuthStorage.getNome();
@@ -72,6 +118,10 @@ Future<void> _verificarModalConta() async {
       mostrarMensagemBoasVindas = false;
     });
   }
+
+  // =============================================================
+  // CATEGORIAS
+  // =============================================================
 
   final List<Map<String, String>> categorias = [
     {
@@ -108,62 +158,22 @@ Future<void> _verificarModalConta() async {
     },
   ];
 
-  // =============================================================
-  // COMÉRCIOS
-  // =============================================================
-
-  final List<Map<String, String>> comercios = [
-    {
-      'nome': 'Quatro Salad Bow',
-      'categoria': 'Saladas',
-      'logo': 'assets/comercios/loja1.png',
-      'avaliacao': '4.8',
-      'avaliacoes': '(442)',
-      'endereco': '2177, Russell Square, Downtown, LA 76',
-      'tempo': '40 Mins, Free',
-    },
-    {
-      'nome': 'Rotini Delight',
-      'categoria': 'Massas',
-      'logo': 'assets/comercios/loja2.png',
-      'avaliacao': '4.9',
-      'avaliacoes': '(562)',
-      'endereco': '2177, Russell Square, Downtown, LA 76',
-      'tempo': '40 Mins, Free',
-    },
-    {
-      'nome': 'Stick Kebab',
-      'categoria': 'Churrasco',
-      'logo': 'assets/comercios/loja3.png',
-      'avaliacao': '4.9',
-      'avaliacoes': '(480)',
-      'endereco': '2177, Russell Square, Downtown, LA 76',
-      'tempo': '40 Mins, Free',
-    },
-    {
-      'nome': 'Bora Burger',
-      'categoria': 'Lanches',
-      'logo': 'assets/comercios/loja4.png',
-      'avaliacao': '4.7',
-      'avaliacoes': '(321)',
-      'endereco': '2177, Russell Square, Downtown, LA 76',
-      'tempo': '35 Mins, Free',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final categoriasVisiveis = mostrandoMaisCategorias
-        ? categorias
-        : categorias.take(5).toList();
+    final categoriasVisiveis =
+        mostrandoMaisCategorias
+            ? categorias
+            : categorias.take(5).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
+
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
+
                 // =============================================================
                 // TOPO
                 // =============================================================
@@ -172,15 +182,19 @@ Future<void> _verificarModalConta() async {
                   width: double.infinity,
                   height: 82,
                   color: const Color(0xFFC8102E),
+
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18,
                     ),
+
                     child: Row(
                       children: [
+
                         Expanded(
                           child: FutureBuilder<String?>(
                             future: AuthStorage.getNome(),
+
                             builder: (
                               context,
                               snapshot,
@@ -190,16 +204,23 @@ Future<void> _verificarModalConta() async {
                               return Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.center,
+
                                 crossAxisAlignment:
                                     CrossAxisAlignment.start,
+
                                 children: [
+
                                   Text(
-                                    nome != null && nome.isNotEmpty
+                                    nome != null &&
+                                            nome.isNotEmpty
                                         ? 'Olá $nome,'
                                         : 'Olá!',
+
                                     maxLines: 1,
+
                                     overflow:
                                         TextOverflow.ellipsis,
+
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -208,10 +229,13 @@ Future<void> _verificarModalConta() async {
                                     ),
                                   ),
 
-                                  const SizedBox(height: 2),
+                                  const SizedBox(
+                                    height: 2,
+                                  ),
 
                                   const Text(
                                     'Bora Pedir',
+
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -229,9 +253,12 @@ Future<void> _verificarModalConta() async {
                           child: Center(
                             child: Image.asset(
                               'assets/logoInicio.png',
+
                               width: 58,
                               height: 58,
+
                               fit: BoxFit.contain,
+
                               errorBuilder: (
                                 context,
                                 error,
@@ -249,10 +276,11 @@ Future<void> _verificarModalConta() async {
 
                         Expanded(
                           child: Align(
-                            alignment:
-                                Alignment.centerRight,
+                            alignment: Alignment.centerRight,
+
                             child: GestureDetector(
                               onTap: () {},
+
                               child: const Icon(
                                 Icons.shopping_bag_outlined,
                                 color: Colors.white,
@@ -278,40 +306,57 @@ Future<void> _verificarModalConta() async {
                       16,
                       20,
                     ),
+
                     child: Column(
                       crossAxisAlignment:
                           CrossAxisAlignment.start,
+
                       children: [
+
                         // =====================================================
                         // PESQUISA
                         // =====================================================
 
                         Container(
                           height: 44,
+
                           decoration: BoxDecoration(
                             color: Colors.white,
+
                             borderRadius:
                                 BorderRadius.circular(24),
+
                             border: Border.all(
-                              color: const Color(0xFFD9D9D9),
+                              color:
+                                  const Color(0xFFD9D9D9),
                             ),
                           ),
+
                           child: const TextField(
                             textInputAction:
                                 TextInputAction.search,
-                            decoration: InputDecoration(
+
+                            decoration:
+                                InputDecoration(
                               hintText:
                                   'Pesquisar no menu...',
+
                               hintStyle: TextStyle(
-                                color: Color(0xFF999999),
+                                color:
+                                    Color(0xFF999999),
                                 fontSize: 12,
                               ),
+
                               prefixIcon: Icon(
                                 Icons.search,
                                 size: 19,
-                                color: Color(0xFF444444),
+                                color:
+                                    Color(0xFF444444),
                               ),
-                              border: InputBorder.none,
+
+                              border:
+                                  InputBorder.none,
+
                               contentPadding:
                                   EdgeInsets.symmetric(
                                 vertical: 11,
@@ -320,7 +365,9 @@ Future<void> _verificarModalConta() async {
                           ),
                         ),
 
-                        const SizedBox(height: 14),
+                        const SizedBox(
+                          height: 14,
+                        ),
 
                         // =====================================================
                         // BANNER
@@ -328,29 +375,42 @@ Future<void> _verificarModalConta() async {
 
                         Container(
                           width: double.infinity,
+
                           height: 155,
+
                           decoration: BoxDecoration(
                             borderRadius:
                                 BorderRadius.circular(20),
-                            color: const Color(0xFF202020),
+
+                            color:
+                                const Color(0xFF202020),
+
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black
                                     .withOpacity(0.10),
+
                                 blurRadius: 10,
+
                                 offset:
                                     const Offset(0, 4),
                               ),
                             ],
                           ),
+
                           clipBehavior:
                               Clip.antiAlias,
+
                           child: Stack(
                             fit: StackFit.expand,
+
                             children: [
+
                               Image.asset(
                                 'assets/banner.png',
+
                                 fit: BoxFit.cover,
+
                                 errorBuilder: (
                                   context,
                                   error,
@@ -365,10 +425,10 @@ Future<void> _verificarModalConta() async {
                                           Color(0xFF171717),
                                           Color(0xFF4A4A4A),
                                         ],
-                                        begin: Alignment
-                                            .centerLeft,
-                                        end: Alignment
-                                            .centerRight,
+                                        begin:
+                                            Alignment.centerLeft,
+                                        end:
+                                            Alignment.centerRight,
                                       ),
                                     ),
                                   );
@@ -386,42 +446,42 @@ Future<void> _verificarModalConta() async {
                                       Colors.black
                                           .withOpacity(0.05),
                                     ],
-                                    begin: Alignment
-                                        .centerLeft,
-                                    end: Alignment
-                                        .centerRight,
+
+                                    begin:
+                                        Alignment.centerLeft,
+
+                                    end:
+                                        Alignment.centerRight,
                                   ),
                                 ),
                               ),
 
                               Padding(
                                 padding:
-                                    const EdgeInsets
-                                        .fromLTRB(
+                                    const EdgeInsets.fromLTRB(
                                   18,
                                   16,
                                   18,
                                   14,
                                 ),
+
                                 child: Column(
                                   crossAxisAlignment:
-                                      CrossAxisAlignment
-                                          .start,
+                                      CrossAxisAlignment.start,
+
                                   children: [
+
                                     const Text(
                                       'Premium',
-                                      style:
-                                          TextStyle(
-                                        color: Color(
-                                          0xFFD8B36A,
-                                        ),
+
+                                      style: TextStyle(
+                                        color:
+                                            Color(0xFFD8B36A),
                                         fontSize: 12,
                                         fontStyle:
-                                            FontStyle
-                                                .italic,
+                                            FontStyle.italic,
                                         fontWeight:
-                                            FontWeight
-                                                .w500,
+                                            FontWeight.w500,
                                       ),
                                     ),
 
@@ -431,15 +491,14 @@ Future<void> _verificarModalConta() async {
 
                                     const Text(
                                       'SEU SABOR\nPERFEITO.',
-                                      style:
-                                          TextStyle(
+
+                                      style: TextStyle(
                                         color:
                                             Colors.white,
                                         fontSize: 21,
                                         height: 1.0,
                                         fontWeight:
-                                            FontWeight
-                                                .w500,
+                                            FontWeight.w500,
                                       ),
                                     ),
 
@@ -449,8 +508,8 @@ Future<void> _verificarModalConta() async {
 
                                     const Text(
                                       'Escolha seu prato favorito\ne bora pedir.',
-                                      style:
-                                          TextStyle(
+
+                                      style: TextStyle(
                                         color:
                                             Colors.white,
                                         fontSize: 9,
@@ -467,29 +526,28 @@ Future<void> _verificarModalConta() async {
                                         horizontal: 13,
                                         vertical: 7,
                                       ),
+
                                       decoration:
                                           BoxDecoration(
                                         color:
                                             const Color(
                                           0xFFD89A16,
                                         ),
+
                                         borderRadius:
                                             BorderRadius
-                                                .circular(
-                                          20,
-                                        ),
+                                                .circular(20),
                                       ),
-                                      child:
-                                          const Text(
+
+                                      child: const Text(
                                         'BORA PEDIR  ›',
-                                        style:
-                                            TextStyle(
+
+                                        style: TextStyle(
                                           color:
                                               Colors.white,
                                           fontSize: 8,
                                           fontWeight:
-                                              FontWeight
-                                                  .bold,
+                                              FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -500,15 +558,18 @@ Future<void> _verificarModalConta() async {
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(
+                          height: 8,
+                        ),
 
                         // =====================================================
-                        // INDICADORES DO BANNER
+                        // INDICADORES
                         // =====================================================
 
                         Row(
                           mainAxisAlignment:
                               MainAxisAlignment.center,
+
                           children: [
                             _indicadorBanner(true),
                             _indicadorBanner(false),
@@ -518,7 +579,9 @@ Future<void> _verificarModalConta() async {
                           ],
                         ),
 
-                        const SizedBox(height: 13),
+                        const SizedBox(
+                          height: 13,
+                        ),
 
                         // =====================================================
                         // CATEGORIAS
@@ -526,11 +589,13 @@ Future<void> _verificarModalConta() async {
 
                         Row(
                           mainAxisAlignment:
-                              MainAxisAlignment
-                                  .spaceBetween,
+                              MainAxisAlignment.spaceBetween,
+
                           children: [
+
                             const Text(
                               'Categorias',
+
                               style: TextStyle(
                                 fontSize: 19,
                                 fontWeight:
@@ -547,12 +612,13 @@ Future<void> _verificarModalConta() async {
                                       !mostrandoMaisCategorias;
                                 });
                               },
+
                               child: Text(
                                 mostrandoMaisCategorias
                                     ? 'Mostrar menos'
                                     : 'Ver todas',
-                                style:
-                                    const TextStyle(
+
+                                style: const TextStyle(
                                   color:
                                       Color(0xFFC8102E),
                                   fontSize: 12,
@@ -564,16 +630,20 @@ Future<void> _verificarModalConta() async {
                           ],
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(
+                          height: 12,
+                        ),
 
                         SizedBox(
                           height: 91,
+
                           child: ListView.separated(
                             scrollDirection:
                                 Axis.horizontal,
+
                             itemCount:
-                                categoriasVisiveis
-                                    .length,
+                                categoriasVisiveis.length,
+
                             separatorBuilder: (
                               context,
                               index,
@@ -582,16 +652,18 @@ Future<void> _verificarModalConta() async {
                                 width: 14,
                               );
                             },
+
                             itemBuilder: (
                               context,
                               index,
                             ) {
                               final categoria =
-                                  categoriasVisiveis[
-                                      index];
+                                  categoriasVisiveis[index];
 
                               return _CategoriaCircular(
-                                nome: categoria['nome']!,
+                                nome:
+                                    categoria['nome']!,
+
                                 imagem:
                                     categoria['imagem']!,
                               );
@@ -599,7 +671,9 @@ Future<void> _verificarModalConta() async {
                           ),
                         ),
 
-                        const SizedBox(height: 22),
+                        const SizedBox(
+                          height: 22,
+                        ),
 
                         // =====================================================
                         // COMÉRCIOS ABERTOS
@@ -607,11 +681,13 @@ Future<void> _verificarModalConta() async {
 
                         Row(
                           mainAxisAlignment:
-                              MainAxisAlignment
-                                  .spaceBetween,
+                              MainAxisAlignment.spaceBetween,
+
                           children: [
+
                             const Text(
                               'Comércios abertos',
+
                               style: TextStyle(
                                 fontSize: 19,
                                 fontWeight:
@@ -623,10 +699,11 @@ Future<void> _verificarModalConta() async {
 
                             GestureDetector(
                               onTap: () {},
+
                               child: const Text(
                                 'Ver todos',
-                                style:
-                                    TextStyle(
+
+                                style: TextStyle(
                                   color:
                                       Color(0xFFC8102E),
                                   fontSize: 12,
@@ -638,54 +715,103 @@ Future<void> _verificarModalConta() async {
                           ],
                         ),
 
-                        const SizedBox(height: 12),
-
-                        // =====================================================
-                        // LISTA
-                        // =====================================================
-
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics:
-                              const NeverScrollableScrollPhysics(),
-                          itemCount:
-                              comercios.length,
-                          itemBuilder: (
-                            context,
-                            index,
-                          ) {
-                            final comercio =
-                                comercios[index];
-
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(
-                                bottom: 10,
-                              ),
-                              child:
-                                  _ComercioAberto(
-                                nome:
-                                    comercio['nome']!,
-                                categoria:
-                                    comercio[
-                                        'categoria']!,
-                                logo:
-                                    comercio['logo']!,
-                                avaliacao:
-                                    comercio[
-                                        'avaliacao']!,
-                                avaliacoes:
-                                    comercio[
-                                        'avaliacoes']!,
-                                endereco:
-                                    comercio[
-                                        'endereco']!,
-                                tempo:
-                                    comercio['tempo']!,
-                              ),
-                            );
-                          },
+                        const SizedBox(
+                          height: 12,
                         ),
+
+                        // =====================================================
+                        // COMÉRCIOS REAIS
+                        // =====================================================
+
+                        if (carregandoComercios)
+
+                          const Center(
+                            child: Padding(
+                              padding:
+                                  EdgeInsets.all(20),
+
+                              child:
+                                  CircularProgressIndicator(),
+                            ),
+                          )
+
+                        else if (comercios.isEmpty)
+
+                          const Padding(
+                            padding:
+                                EdgeInsets.all(20),
+
+                            child: Center(
+                              child: Text(
+                                'Nenhum comércio encontrado.',
+
+                                style: TextStyle(
+                                  color:
+                                      Color(0xFF777777),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          )
+
+                        else
+
+                          ...comercios.map(
+                            (comercio) {
+
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.only(
+                                  bottom: 10,
+                                ),
+
+                                child:
+                                    _ComercioAberto(
+                                  nome:
+                                      comercio[
+                                              'nome_comercio'] ??
+                                          '',
+
+                                  categoria:
+                                      comercio[
+                                              'categoria'] ??
+                                          '',
+
+                                  logo:
+                                      comercio['logo'] ??
+                                          '',
+
+                                  // =================================================
+                                  // ABRIR CARDÁPIO
+                                  // =================================================
+
+                                  onTap: () {
+
+                                    Navigator.push(
+                                      context,
+
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                               CardapioPage(
+                                                comercioId: comercio['id'],
+                                                nomeComercio:
+                                                    comercio['nome_comercio'] ?? '',
+                                                categoriaComercio:
+                                                    comercio['categoria'] ?? '',
+                                                logoComercio:
+                                                    comercio['logo'] ?? '',
+                                                  bannerComercio:
+                                                    comercio['banner'] ?? '' ,
+
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                       ],
                     ),
                   ),
@@ -696,8 +822,11 @@ Future<void> _verificarModalConta() async {
                 // =============================================================
 
                 BottomNavigation(
-                  paginaAtual: paginaAtual,
-                  onItemSelecionado: (indice) {
+                  paginaAtual:
+                      paginaAtual,
+
+                  onItemSelecionado:
+                      (indice) {
                     setState(() {
                       paginaAtual = indice;
                     });
@@ -711,31 +840,43 @@ Future<void> _verificarModalConta() async {
             // =============================================================
 
             if (mostrarMensagemBoasVindas)
+
               Positioned(
                 top: 95,
                 left: 16,
                 right: 16,
+
                 child: Material(
                   elevation: 8,
+
                   borderRadius:
                       BorderRadius.circular(16),
+
                   color: Colors.white,
+
                   child: Padding(
                     padding:
                         const EdgeInsets.symmetric(
                       horizontal: 18,
                       vertical: 16,
                     ),
+
                     child: Row(
                       children: [
+
                         Container(
                           width: 42,
                           height: 42,
+
                           decoration:
                               const BoxDecoration(
-                            color: Color(0xFFFDE8EC),
-                            shape: BoxShape.circle,
+                            color:
+                                Color(0xFFFDE8EC),
+
+                            shape:
+                                BoxShape.circle,
                           ),
+
                           child: const Icon(
                             Icons.check,
                             color:
@@ -743,13 +884,16 @@ Future<void> _verificarModalConta() async {
                           ),
                         ),
 
-                        const SizedBox(width: 12),
+                        const SizedBox(
+                          width: 12,
+                        ),
 
                         Expanded(
                           child: Text(
                             nomeUsuario.isEmpty
                                 ? 'Seja bem-vindo!'
                                 : 'Seja bem-vindo, $nomeUsuario!',
+
                             style:
                                 const TextStyle(
                               fontSize: 15,
@@ -771,19 +915,30 @@ Future<void> _verificarModalConta() async {
     );
   }
 
+  // =============================================================
+  // INDICADOR DO BANNER
+  // =============================================================
+
   Widget _indicadorBanner(bool ativo) {
     return AnimatedContainer(
       duration:
           const Duration(milliseconds: 250),
-      margin: const EdgeInsets.symmetric(
+
+      margin:
+          const EdgeInsets.symmetric(
         horizontal: 3,
       ),
+
       width: ativo ? 17 : 5,
+
       height: 5,
-      decoration: BoxDecoration(
+
+      decoration:
+          BoxDecoration(
         color: ativo
             ? const Color(0xFFC8102E)
             : const Color(0xFFD0D0D0),
+
         borderRadius:
             BorderRadius.circular(10),
       ),
@@ -795,7 +950,9 @@ Future<void> _verificarModalConta() async {
 // CATEGORIA CIRCULAR
 // =====================================================================
 
-class _CategoriaCircular extends StatelessWidget {
+class _CategoriaCircular
+    extends StatelessWidget {
+
   final String nome;
   final String imagem;
 
@@ -808,34 +965,49 @@ class _CategoriaCircular extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 64,
+
       child: Column(
         children: [
+
           Container(
             width: 58,
             height: 58,
+
             padding:
                 const EdgeInsets.all(9),
-            decoration: BoxDecoration(
+
+            decoration:
+                BoxDecoration(
               color: Colors.white,
+
               shape: BoxShape.circle,
+
               border: Border.all(
                 color:
                     const Color(0xFFE5E5E5),
               ),
+
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black
-                      .withOpacity(0.06),
+                  color:
+                      Colors.black.withOpacity(
+                    0.06,
+                  ),
+
                   blurRadius: 7,
+
                   offset:
                       const Offset(0, 3),
                 ),
               ],
             ),
+
             child: ClipOval(
               child: Image.asset(
                 imagem,
+
                 fit: BoxFit.cover,
+
                 errorBuilder: (
                   context,
                   error,
@@ -843,8 +1015,10 @@ class _CategoriaCircular extends StatelessWidget {
                 ) {
                   return const Icon(
                     Icons.restaurant,
+
                     color:
                         Color(0xFFC8102E),
+
                     size: 24,
                   );
                 },
@@ -852,15 +1026,23 @@ class _CategoriaCircular extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 5),
+          const SizedBox(
+            height: 5,
+          ),
 
           Text(
             nome,
+
             maxLines: 1,
+
             overflow:
                 TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
+
+            textAlign:
+                TextAlign.center,
+
+            style:
+                const TextStyle(
               fontSize: 9,
               fontWeight:
                   FontWeight.w500,
@@ -880,198 +1062,233 @@ class _CategoriaCircular extends StatelessWidget {
 
 class _ComercioAberto
     extends StatelessWidget {
+
   final String nome;
   final String categoria;
   final String logo;
-  final String avaliacao;
-  final String avaliacoes;
-  final String endereco;
-  final String tempo;
+
+  // NOVO
+  final VoidCallback onTap;
 
   const _ComercioAberto({
     required this.nome,
     required this.categoria,
     required this.logo,
-    required this.avaliacao,
-    required this.avaliacoes,
-    required this.endereco,
-    required this.tempo,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 104,
-      padding:
-          const EdgeInsets.all(9),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black
-                .withOpacity(0.045),
-            blurRadius: 8,
-            offset:
-                const Offset(0, 2),
-          ),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+
+      child: Container(
+        width: double.infinity,
+
+        height: 104,
+
+        padding:
+            const EdgeInsets.all(9),
+
+        decoration:
+            BoxDecoration(
+          color: Colors.white,
+
+          borderRadius:
+              BorderRadius.circular(15),
+
+          boxShadow: [
+            BoxShadow(
+              color:
+                  Colors.black.withOpacity(
+                0.045,
+              ),
+
+              blurRadius: 8,
+
+              offset:
+                  const Offset(0, 2),
+            ),
+          ],
+        ),
+
+        child: Row(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+          children: [
+
+            // ===========================================================
+            // LOGO REAL
+            // ===========================================================
+
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(11),
+
+              child: _construirLogo(),
+            ),
+
+            const SizedBox(
+              width: 11,
+            ),
+
+            // ===========================================================
+            // DADOS REAIS
+            // ===========================================================
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                mainAxisAlignment:
+                    MainAxisAlignment.center,
+
+                children: [
+
+                  Text(
+                    nome,
+
+                    maxLines: 1,
+
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style:
+                        const TextStyle(
+                      fontSize: 14,
+                      fontWeight:
+                          FontWeight.bold,
+                      color:
+                          Color(0xFF202020),
+                    ),
+                  ),
+
+                  const SizedBox(
+                    height: 7,
+                  ),
+
+                  Text(
+                    categoria,
+
+                    maxLines: 1,
+
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style:
+                        const TextStyle(
+                      fontSize: 11,
+                      color:
+                          Color(0xFF777777),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ===========================================================
+            // SETA
+            // ===========================================================
+
+            const Center(
+              child: Icon(
+                Icons.chevron_right,
+                color:
+                    Color(0xFF999999),
+                size: 22,
+              ),
+            ),
+          ],
+        ),
       ),
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          // ===========================================================
-          // IMAGEM
-          // ===========================================================
+    );
+  }
 
-          ClipRRect(
-            borderRadius:
-                BorderRadius.circular(11),
-            child: Image.asset(
-              logo,
-              width: 86,
-              height: 86,
-              fit: BoxFit.cover,
-              errorBuilder: (
-                context,
-                error,
-                stackTrace,
-              ) {
-                return Container(
-                  width: 86,
-                  height: 86,
-                  color:
-                      const Color(0xFFEFEFEF),
-                  child: const Icon(
-                    Icons.restaurant,
-                    color:
-                        Color(0xFFC8102E),
-                    size: 30,
-                  ),
-                );
-              },
-            ),
+  // =============================================================
+  // LOGO
+  // =============================================================
+
+  Widget _construirLogo() {
+    if (logo.isEmpty) {
+      return _logoErro();
+    }
+
+    final url =
+        '${ComercioService.baseUrl}$logo';
+
+    if (logo.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.network(
+        url,
+
+        width: 86,
+        height: 86,
+
+        fit: BoxFit.cover,
+
+        placeholderBuilder:
+            (context) {
+          return _logoCarregando();
+        },
+      );
+    }
+
+    return Image.network(
+      url,
+
+      width: 86,
+      height: 86,
+
+      fit: BoxFit.cover,
+
+      errorBuilder: (
+        context,
+        error,
+        stackTrace,
+      ) {
+        return _logoErro();
+      },
+    );
+  }
+
+  Widget _logoCarregando() {
+    return Container(
+      width: 86,
+      height: 86,
+
+      color:
+          const Color(0xFFEFEFEF),
+
+      child: const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+
+          child:
+              CircularProgressIndicator(
+            strokeWidth: 2,
           ),
+        ),
+      ),
+    );
+  }
 
-          const SizedBox(width: 11),
+  Widget _logoErro() {
+    return Container(
+      width: 86,
+      height: 86,
 
-          // ===========================================================
-          // INFORMAÇÕES
-          // ===========================================================
+      color:
+          const Color(0xFFEFEFEF),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                // -------------------------------------------------------
-                // NOME + AVALIAÇÃO
-                // -------------------------------------------------------
+      child: const Icon(
+        Icons.restaurant,
 
-                Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        nome,
-                        maxLines: 1,
-                        overflow:
-                            TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(
-                          fontSize: 14,
-                          fontWeight:
-                              FontWeight.bold,
-                          color:
-                              Color(0xFF202020),
-                        ),
-                      ),
-                    ),
+        color:
+            Color(0xFFC8102E),
 
-                    const SizedBox(width: 5),
-
-                    const Icon(
-                      Icons.star,
-                      color:
-                          Color(0xFFE8A900),
-                      size: 13,
-                    ),
-
-                    const SizedBox(width: 2),
-
-                    Text(
-                      '$avaliacao$avaliacoes',
-                      style:
-                          const TextStyle(
-                        fontSize: 9,
-                        color:
-                            Color(0xFF555555),
-                        fontWeight:
-                            FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 7),
-
-                // -------------------------------------------------------
-                // ENDEREÇO
-                // -------------------------------------------------------
-
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 15,
-                      color:
-                          Color(0xFFB5B5B5),
-                    ),
-
-                    const SizedBox(width: 3),
-
-                    Expanded(
-                      child: Text(
-                        endereco,
-                        maxLines: 1,
-                        overflow:
-                            TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(
-                          fontSize: 9,
-                          color:
-                              Color(0xFF999999),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const Spacer(),
-
-                // -------------------------------------------------------
-                // TEMPO / ENTREGA
-                // -------------------------------------------------------
-
-                Text(
-                  tempo,
-                  style:
-                      const TextStyle(
-                    fontSize: 13,
-                    fontWeight:
-                        FontWeight.bold,
-                    color:
-                        Color(0xFF252525),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        size: 30,
       ),
     );
   }
