@@ -1,509 +1,918 @@
-/* =========================
+/* ============================================================
    CONTAINER PRINCIPAL
-========================= */
+============================================================ */
 
-.pageWrapper {
+.paginaWrapper {
     width: 100%;
     min-height: 100vh;
+
     display: flex;
-    flex-direction: column; /* Força tudo a ficar em fila VERTICAL (um embaixo do outro) */
+    flex-direction: column;
     align-items: center;
+
+    background: #ffffff;
 }
 
 
+/* ============================================================
+   CONTAINER DO CADASTRO
+============================================================ */
 
 .loginContainer {
     width: 100%;
-    height: 650px;
+    height: calc(100vh - 20px);
+    min-height: 700px;
+
+    position: relative;
+
     display: flex;
-    background-color: aqua;
+    justify-content: flex-end;
+    align-items: center;
+
     overflow: hidden;
 }
 
 
-/* =========================
+/* ============================================================
    PARTE ESQUERDA
-========================= */
+============================================================ */
 
 .loginContainerEsquerda {
-    width: 50%;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
+    position: absolute;
 
-    /* Centralização usando flexbox */
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    z-index: 0;
+
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 
-/* =========================
+/* ============================================================
+   TEXTO PROMOCIONAL
+============================================================ */
+
+.textoPromocional {
+    position: absolute;
+
+    left: 45px;
+    top: 205px;
+
+    width: 480px;
+
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    color: #ffffff;
+
+    text-align: left;
+}
+
+
+/* ============================================================
+   ÁREA DAS MENSAGENS
+============================================================ */
+
+.mensagensPromocionais {
+    position: relative;
+
+    width: 100%;
+    height: 155px;
+
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   MENSAGEM PROMOCIONAL
+============================================================ */
+
+.mensagemPromocional {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 150px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+
+    opacity: 0;
+    visibility: hidden;
+
+    animation:
+        alternarMensagem 8s infinite;
+
+    text-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.65);
+}
+
+
+/* ============================================================
+   SEGUNDA MENSAGEM
+============================================================ */
+
+.mensagemPromocional:nth-child(2) {
+    animation-delay: 4s;
+}
+
+
+/* ============================================================
+   TÍTULO DA MENSAGEM
+============================================================ */
+
+.mensagemPromocional h2 {
+    margin: 0;
+
+    font-family:
+        Georgia,
+        'Times New Roman',
+        serif;
+
+    font-size: 42px;
+
+    font-weight: 700;
+
+    line-height: 1.1;
+
+    letter-spacing: -0.5px;
+
+    color: #ffffff;
+}
+
+
+/* ============================================================
+   TEXTO DA MENSAGEM
+============================================================ */
+
+.mensagemPromocional p {
+    width: 430px;
+
+    margin: 15px 0 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 18px;
+
+    font-weight: 400;
+
+    line-height: 1.5;
+
+    color: #ffffff;
+}
+
+
+/* ============================================================
+   SAIBA MAIS
+============================================================ */
+
+.saibaMais {
+    margin-top: 12px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 2px;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.6);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.saibaMais:hover {
+    transform: translateY(3px);
+
+    opacity: 0.85;
+}
+
+
+/* ============================================================
+   SETA DO SAIBA MAIS
+============================================================ */
+
+.setaSaibaMais {
+    font-size: 28px;
+
+    line-height: 20px;
+
+    font-weight: 300;
+
+    animation:
+        movimentoSeta 1.5s ease-in-out infinite;
+}
+
+
+/* ============================================================
+   ANIMAÇÃO DAS MENSAGENS
+============================================================ */
+
+@keyframes alternarMensagem {
+
+    /* COMEÇA INVISÍVEL */
+    0% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(18px);
+    }
+
+    /* APARECE */
+    8% {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    /* FICA VISÍVEL */
+    38% {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    /* COMEÇA A SUMIR */
+    48% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-18px);
+    }
+
+    /* PERMANECE INVISÍVEL */
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-18px);
+    }
+}
+
+
+/* ============================================================
+   ANIMAÇÃO DA SETA
+============================================================ */
+
+@keyframes movimentoSeta {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(5px);
+    }
+}
+
+
+/* ============================================================
    IMAGEM DA COZINHEIRA
-========================= */
+============================================================ */
 
 .cozinheira {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
-    object-position: center;
+    object-position: center center;
+
     position: absolute;
+
     top: 0;
     left: 0;
-    z-index: 1; /* Fica no fundo */
+
+    z-index: 0;
+
     display: block;
+
     user-select: none;
     -webkit-user-drag: none;
 }
 
 
-/* =========================
-   SAIBA MAIS SOBRE OS PLANOS
-========================= */
-
-.saibaMaisContainer {
-    width: 450px;
-    height: 250px;
-    margin-top: 280px;
-
-    /* Fundo preto ultra discreto (apenas 15% de escurecimento) */
-    background-color: rgba(0, 0, 0, 0.15);
-
-    /* Desfoque mínimo para manter a imagem limpa e visível ao fundo */
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
-
-    /* Garante que a imagem respeite as bordas arredondadas */
-    overflow: hidden; 
-
-    /* Borda sutil com brilho branco suave nas pontas */
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-
-    /* Posição relativa para os itens de dentro se alinharem */
-    position: relative;
-    z-index: 2;
-
-    /* Layout Interno */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    text-align: center;
-    padding: 20px;
-
-    /* Estilização de Texto */
-    color: #ffffff;
-    /* Sombra forte no texto para ele não "sumir" sobre a imagem clara */
-    text-shadow: 0px 2px 6px rgba(0, 0, 0, 0.9);
-    text-decoration: none;
-    cursor: pointer;
-
-    transition: all 0.3s ease;
-}
-
-.saibaMaisImg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1; /* Fica atrás do conteúdo */
-    
-    /* Imagem 100% visível sem nenhum filtro escurecedor */
-    opacity: 1; 
-
-    display: block;
-    user-select: none;
-    -webkit-user-drag: none;
-    transition: transform 0.3s ease;
-}
-
-/* Efeito sutil ao passar o mouse */
-.saibaMaisContainer:hover {
-    background-color: rgba(10, 9, 9, 0.25);
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
-.saibaMaisContainer:hover .saibaMaisImg {
-    transform: scale(1.03); /* Leve aproximação da imagem ao passar o mouse */
-}
-
-
-
-
-
-@keyframes quicar {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(10px);
-    }
-}
-
-
-/* =========================
-   PARTE DIREITA
-========================= */
+/* ============================================================
+   ÁREA DO LOGIN / CADASTRO
+============================================================ */
 
 .loginContainerDireita {
     width: 50%;
     height: 100%;
-    background-color: rgb(247, 247, 248);
+
+    position: relative;
+
+    z-index: 2;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0;
+
+    padding: 40px;
+
+    box-sizing: border-box;
+
+    background: transparent;
 }
 
 
-/* =========================
-   CAIXA DE LOGIN/CADASTRO
-========================= */
+/* ============================================================
+   CARD DE CADASTRO
+============================================================ */
 
 .login {
-    width: 600px;
-    height: 550px;
-    background-color: bisque;
-    border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 630px;
+
+    min-height: 500px;
+
     display: flex;
     flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+    background: rgba(255, 255, 255, 0.18);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.25);
+
     overflow: hidden;
 }
 
 
-/* =========================
-   TOPO DO LOGIN
-========================= */
+/* ============================================================
+   TOPO DO CADASTRO
+============================================================ */
 
 .loginTopo {
     width: 100%;
-    height: 80px;
+    min-height: 90px;
+
     position: relative;
-    background-color: white;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0 20px;
+
+    padding: 0 80px;
+
     box-sizing: border-box;
+
+    background: rgba(255, 255, 255, 0.10);
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.20);
+
     flex-shrink: 0;
 }
 
 
-/* =========================
+/* ============================================================
    IMAGEM DA LOJA
-========================= */
+============================================================ */
 
 .lojaIMG {
-    width: 60px;
-    height: 60px;
+    width: 58px;
+    height: 58px;
+
     object-fit: cover;
+
     position: absolute;
-    left: 20px;
+
+    left: 25px;
+
+    border-radius: 12px;
+
     user-select: none;
     -webkit-user-drag: none;
 }
 
 
-/* =========================
+/* ============================================================
    TÍTULO
-========================= */
+============================================================ */
 
 .loginTopo h1 {
     margin: 0;
-    font-size: 24px;
+
+    font-size: 27px;
     font-weight: 700;
-    color: #141102;
+
+    color: #f2f7f3;
+
     text-align: center;
+
+    text-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.45);
 }
 
 
-/* =========================
+/* ============================================================
    CONTEÚDO
-========================= */
+============================================================ */
 
 .loginConteudo {
     flex: 1;
+
+    width: 100%;
+
     display: flex;
+
     justify-content: center;
     align-items: center;
-    padding: 30px;
-    background-color: rgb(240, 239, 238);
+
+    padding: 35px 45px;
+
     box-sizing: border-box;
+
     overflow-y: auto;
+
+    background: transparent;
 }
 
 
-/* =========================
+/* ============================================================
    FORMULÁRIO
-========================= */
+============================================================ */
 
 .formCadastro {
     width: 100%;
     max-width: 500px;
+
     display: flex;
     flex-direction: column;
-    gap: 12px;
+
+    gap: 18px;
 }
 
 
-/* =========================
+/* ============================================================
    CAMPOS
-========================= */
+============================================================ */
 
 .campo {
+    width: 100%;
+
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    width: 100%;
+
+    gap: 7px;
 }
 
 
-/* =========================
+/* ============================================================
    LABEL
-========================= */
+============================================================ */
 
 .campo label {
-    font-size: 15px;
+    color: #ffffff;
+
+    font-size: 14px;
     font-weight: 600;
-    color: #0c0000;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 
-/* =========================
+/* ============================================================
    INPUT
-========================= */
+============================================================ */
 
 .campo input {
     width: 100%;
-    height: 42px;
-    border: none;
-    border-bottom: 1px solid #999;
-    outline: none;
-    padding: 0 12px;
-    border-radius: 8px;
-    font-size: 15px;
+    height: 48px;
+
+    padding: 0 16px;
+
     box-sizing: border-box;
-    background-color: white;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+
+    border-radius: 12px;
+
+    outline: none;
+
+    background: rgba(255, 255, 255, 0.85);
+
+    color: #202020;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
 
 
-/* =========================
+/* ============================================================
+   PLACEHOLDER
+============================================================ */
+
+.campo input::placeholder {
+    color: #777;
+}
+
+
+/* ============================================================
    INPUT FOCUS
-========================= */
+============================================================ */
 
 .campo input:focus {
-    border-color: #ff8c00;
-    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.15);
+    background: rgba(255, 255, 255, 0.96);
+
+    border-color: rgba(255, 255, 255, 0.9);
+
+    box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.18);
 }
 
 
-/* =========================
+/* ============================================================
+   ERRO DA API
+============================================================ */
+
+.erroApi {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    color: #ffffff;
+
+    background: rgba(220, 38, 38, 0.85);
+
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    padding: 9px 12px;
+
+    border-radius: 8px;
+
+    backdrop-filter: blur(5px);
+
+    font-size: 13px;
+
+    text-align: center;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ============================================================
    BOTÃO CADASTRAR / PRÓXIMO
-========================= */
+============================================================ */
 
 .botaoCadastrar {
-    width: 50%;
-    height: 45px;
-    margin-top: 10px;
+    width: 180px;
+    height: 48px;
+
+    margin-top: 8px;
+
     align-self: center;
+
     border: none;
-    border-radius: 8px;
-    background-color: #141102;
-    color: rgb(250, 250, 248);
-    font-size: 16px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 0, 0, 0.82);
+
+    color: #ffffff;
+
+    font-size: 15px;
     font-weight: 600;
+
     cursor: pointer;
-    transition: background-color 0.2s ease;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 
-/* =========================
+/* ============================================================
    HOVER BOTÃO
-========================= */
+============================================================ */
 
 .botaoCadastrar:hover {
-    background-color: #e67e00;
+    background: rgba(0, 0, 0, 0.95);
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
 
-/* =========================
+/* ============================================================
+   BOTÃO DESABILITADO
+============================================================ */
+
+.botaoCadastrar:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* ============================================================
    AÇÕES
-========================= */
+============================================================ */
 
 .acoes {
     width: 100%;
+
     display: flex;
-    gap: 12px;
-    justify-content: flex-start;
+
+    justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+
+    gap: 15px;
+
+    margin-top: 5px;
 }
 
 
-/* =========================
+/* ============================================================
    BOTÃO VOLTAR
-========================= */
+============================================================ */
 
 .botaoVoltar {
-    width: 20%;
-    height: 35px;
-    border: 1px solid #141102;
-    border-radius: 8px;
-    background-color: transparent;
-    color: #141102;
+    width: 130px;
+    height: 45px;
+
+    border: 1px solid rgba(255, 255, 255, 0.55);
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.18);
+
+    color: #ffffff;
+
     font-size: 14px;
     font-weight: 600;
+
     cursor: pointer;
-    transition: background-color 0.2s ease;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 
-/* =========================
+/* ============================================================
    HOVER VOLTAR
-========================= */
+============================================================ */
 
 .botaoVoltar:hover {
-    background-color: #ccc;
+    background: rgba(255, 255, 255, 0.30);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 
-/* =========================
+/* ============================================================
+   BOTÃO VOLTAR DESABILITADO
+============================================================ */
+
+.botaoVoltar:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* ============================================================
    MENSAGEM DE SUCESSO
-========================= */
+============================================================ */
 
 .sucessoContainer {
     width: 100%;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
+
     text-align: center;
-    padding: 20px;
+
+    padding: 30px;
+
     box-sizing: border-box;
+
+    color: #ffffff;
+
     animation: fadeIn 0.4s ease-in-out;
 }
 
 
-/* =========================
+/* ============================================================
    TÍTULO DE SUCESSO
-========================= */
+============================================================ */
 
 .sucessoTitulo {
     font-size: 32px;
     font-weight: 700;
-    color: #141102;
+
+    color: #ffffff;
+
     margin-top: 0;
     margin-bottom: 15px;
+
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 
-/* =========================
+/* ============================================================
    TEXTO DE SUCESSO
-========================= */
+============================================================ */
 
 .sucessoTexto {
     font-size: 18px;
-    color: #333;
+
+    color: #ffffff;
+
     line-height: 1.5;
+
     margin-top: 0;
     margin-bottom: 10px;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 
-/* =========================
+/* ============================================================
    SUBTEXTO
-========================= */
+============================================================ */
 
 .sucessoSubtexto {
     font-size: 14px;
-    color: #666;
+
+    color: #f1f1f1;
+
     line-height: 1.4;
+
     margin-top: 0;
     margin-bottom: 0;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 
-/* =========================
+/* ============================================================
    IMAGEM DO E-MAIL
-========================= */
+============================================================ */
 
 .emailImg {
     width: 68px;
     height: auto;
-    margin-top: 15px;
+
+    margin-top: 20px;
+
     display: block;
+
     user-select: none;
     -webkit-user-drag: none;
+
+    filter:
+        drop-shadow(0 5px 10px rgba(0, 0, 0, 0.25));
 }
 
 
-/* =========================
+/* ============================================================
    ANIMAÇÃO
-========================= */
+============================================================ */
 
 @keyframes fadeIn {
+
     from {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* =========================
-   CONTAINER DOS PLANOS
-========================= */
+
+/* ============================================================
+   PLANOS
+============================================================ */
 
 .informacaoConteiner {
     width: 100%;
-    height: 800px;
+    min-height: 800px;
 
     margin-top: 30px;
 
     background-color: #f3e300;
 
     display: flex;
+
     justify-content: center;
     align-items: center;
 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 60px 30px;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 
-/* =========================
-   ÁREA DOS DOIS CARDS
-========================= */
+/* ============================================================
+   ÁREA DOS PLANOS
+============================================================ */
 
 .planosDeEntrega {
-    width: 900px;
+    width: 100%;
+    max-width: 900px;
+
     min-height: 600px;
 
     display: flex;
+
     justify-content: center;
     align-items: center;
 
     gap: 30px;
 
-    background-color: transparent;
+    background: transparent;
 }
 
 
-/* =========================
+/* ============================================================
    CARD
-========================= */
+============================================================ */
 
 .cardPlano {
     width: 400px;
-    height: 560px;
+    min-height: 560px;
 
     background-color: #ffffff;
 
@@ -514,37 +923,47 @@
     box-sizing: border-box;
 
     display: flex;
+
     flex-direction: column;
 
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.2);
 
-    transition: transform 0.3s ease,
-                box-shadow 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 
-/* Efeito ao passar o mouse */
+/* ============================================================
+   HOVER CARD
+============================================================ */
 
 .cardPlano:hover {
     transform: translateY(-8px);
 
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+    box-shadow:
+        0 14px 30px rgba(0, 0, 0, 0.25);
 }
 
 
-/* =========================
-   TOPO DO CARD
-========================= */
+/* ============================================================
+   TOPO CARD
+============================================================ */
 
 .cardTopo {
     text-align: center;
 }
 
+
 .iconePlano {
     font-size: 45px;
+
     display: block;
+
     margin-bottom: 10px;
 }
+
 
 .cardTopo h2 {
     margin: 0;
@@ -553,6 +972,7 @@
 
     color: #141102;
 }
+
 
 .cardTopo p {
     margin-top: 8px;
@@ -563,9 +983,9 @@
 }
 
 
-/* =========================
+/* ============================================================
    TAXA
-========================= */
+============================================================ */
 
 .taxa {
     margin-top: 25px;
@@ -577,16 +997,19 @@
     border-radius: 12px;
 
     display: flex;
+
     flex-direction: column;
 
     align-items: center;
 }
+
 
 .taxa strong {
     font-size: 45px;
 
     color: #141102;
 }
+
 
 .taxa span {
     font-size: 14px;
@@ -595,18 +1018,20 @@
 }
 
 
-/* =========================
+/* ============================================================
    INFORMAÇÕES
-========================= */
+============================================================ */
 
 .informacoes {
     margin-top: 20px;
 
     display: flex;
+
     flex-direction: column;
 
     gap: 10px;
 }
+
 
 .informacoes p {
     margin: 0;
@@ -619,9 +1044,9 @@
 }
 
 
-/* =========================
-   BOTÃO
-========================= */
+/* ============================================================
+   BOTÃO PLANO
+============================================================ */
 
 .botaoPlano {
     width: 100%;
@@ -630,63 +1055,42 @@
     margin-top: auto;
 
     border: none;
-    border-radius: 8px;
 
-    background-color: #141102;
+    border-radius: 12px;
 
-    color: white;
+    background: rgba(0, 0, 0, 0.88);
 
-    font-size: 16px;
+    color: #ffffff;
+
+    font-size: 15px;
     font-weight: 600;
 
     cursor: pointer;
 
-    transition: background-color 0.2s ease;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
 
 .botaoPlano:hover {
-    background-color: #e67e00;
-}
+    background: rgba(0, 0, 0, 0.98);
 
-.dashBoardInformaçoes {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-}
+    transform: translateY(-2px);
 
-
-.opcoes {
-    width: 300px;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 15px;
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.20);
 }
 
 
-.opcoes button {
-    height: 50px;
-
-    border: none;
-    border-radius: 8px;
-
-    background-color: #141102;
-    color: white;
-
-    cursor: pointer;
-}
-
-
-.opcoes button:hover {
-    background-color: #e67e00;
-}
-
+/* ============================================================
+   DASHBOARD INFORMAÇÕES
+============================================================ */
 
 .dashBoardInformaçoes {
     width: 550px;
-    height: 560px;
+    min-height: 560px;
 
     padding: 30px;
 
@@ -696,6 +1100,337 @@
 
     border-radius: 15px;
 
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.15);
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
 }
 
+
+/* ============================================================
+   CONTEÚDO DASHBOARD
+============================================================ */
+
+.dashBoardInformaçoes h2 {
+    margin-top: 0;
+
+    color: #141102;
+
+    font-size: 26px;
+}
+
+
+.dashBoardInformaçoes h3 {
+    color: #141102;
+
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+
+.dashBoardInformaçoes p {
+    color: #333;
+
+    line-height: 1.5;
+}
+
+
+.dashBoardInformaçoes ul {
+    padding-left: 20px;
+
+    color: #333;
+
+    line-height: 1.8;
+}
+
+
+/* ============================================================
+   BOTÃO FECHAR INFORMAÇÕES
+============================================================ */
+
+.botaoFecharInformacoes {
+    width: 120px;
+    height: 42px;
+
+    margin-top: 20px;
+
+    align-self: flex-end;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #141102;
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.botaoFecharInformacoes:hover {
+    background: #000000;
+
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   RESPONSIVIDADE
+============================================================ */
+
+@media (max-width: 1100px) {
+
+    .loginContainerDireita {
+        width: 55%;
+    }
+
+    .loginContainerEsquerda {
+        width: 100%;
+    }
+
+    .login {
+        max-width: 560px;
+    }
+
+    .textoPromocional {
+        left: 35px;
+
+        width: 400px;
+    }
+
+    .mensagemPromocional h2 {
+        font-size: 36px;
+    }
+
+    .mensagemPromocional p {
+        width: 370px;
+
+        font-size: 16px;
+    }
+}
+
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 900px) {
+
+    .loginContainer {
+        height: auto;
+
+        min-height: 850px;
+
+        justify-content: center;
+    }
+
+    .loginContainerDireita {
+        width: 100%;
+
+        padding: 30px;
+    }
+
+    .login {
+        max-width: 500px;
+    }
+
+    .textoPromocional {
+        left: 30px;
+        top: 150px;
+
+        width: 360px;
+    }
+
+    .mensagemPromocional h2 {
+        font-size: 32px;
+    }
+
+    .mensagemPromocional p {
+        width: 340px;
+
+        font-size: 15px;
+    }
+
+    .planosDeEntrega {
+        flex-direction: column;
+    }
+
+    .cardPlano {
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .dashBoardInformaçoes {
+        width: 100%;
+        max-width: 500px;
+    }
+}
+
+
+/* ============================================================
+   CELULAR
+============================================================ */
+
+@media (max-width: 600px) {
+
+    .loginContainer {
+        min-height: 750px;
+    }
+
+    .loginContainerDireita {
+        padding: 20px;
+    }
+
+    .login {
+        min-height: 620px;
+
+        border-radius: 20px;
+    }
+
+    .loginTopo {
+        min-height: 80px;
+
+        padding: 0 60px;
+    }
+
+    .loginTopo h1 {
+        font-size: 22px;
+    }
+
+    .lojaIMG {
+        width: 48px;
+        height: 48px;
+
+        left: 15px;
+    }
+
+    .loginConteudo {
+        padding: 25px 20px;
+    }
+
+    .formCadastro {
+        gap: 15px;
+    }
+
+    .acoes {
+        flex-direction: column;
+    }
+
+    .botaoVoltar,
+    .botaoCadastrar {
+        width: 100%;
+    }
+
+    .textoPromocional {
+        left: 20px;
+        top: 120px;
+
+        width: calc(100% - 40px);
+
+        align-items: flex-start;
+    }
+
+    .mensagensPromocionais {
+        height: 135px;
+    }
+
+    .mensagemPromocional {
+        height: 130px;
+    }
+
+    .mensagemPromocional h2 {
+        font-size: 28px;
+    }
+
+    .mensagemPromocional p {
+        width: 100%;
+
+        font-size: 14px;
+    }
+
+    .saibaMais {
+        font-size: 14px;
+    }
+
+    .setaSaibaMais {
+        font-size: 24px;
+    }
+
+    .informacaoConteiner {
+        padding: 40px 20px;
+    }
+
+    .cardPlano {
+        min-height: 520px;
+
+        padding: 25px;
+    }
+
+    .dashBoardInformaçoes {
+        min-height: auto;
+
+        padding: 25px;
+    }
+}
+
+
+/* ============================================================
+   CELULAR PEQUENO
+============================================================ */
+
+@media (max-width: 400px) {
+
+    .loginContainerDireita {
+        padding: 15px;
+    }
+
+    .login {
+        border-radius: 18px;
+    }
+
+    .loginTopo h1 {
+        font-size: 19px;
+    }
+
+    .loginConteudo {
+        padding: 20px 15px;
+    }
+
+    .campo input {
+        height: 46px;
+    }
+
+    .textoPromocional {
+        left: 15px;
+
+        width: calc(100% - 30px);
+    }
+
+    .mensagemPromocional h2 {
+        font-size: 25px;
+    }
+
+    .mensagemPromocional p {
+        font-size: 13px;
+    }
+
+    .cardPlano {
+        padding: 20px;
+    }
+
+    .taxa strong {
+        font-size: 38px;
+    }
+}

@@ -63,16 +63,55 @@ export function Login({ children }: LoginProps) {
 
             console.log('Login realizado:', dados);
 
+            // =====================================================
+            // SALVA O TOKEN
+            // =====================================================
+
             localStorage.setItem('token', dados.token);
 
-            if (dados.primeiro_acesso === true) {
+            // =====================================================
+            // ADMIN
+            // =====================================================
+
+            if (dados.papel === 'ADMIN') {
+
+                navigate('/adminBoraPedir');
+
+                return;
+            }
+
+            // =====================================================
+            // COMÉRCIO - PRIMEIRO ACESSO
+            // =====================================================
+
+            if (
+                dados.papel === 'COMERCIO' &&
+                dados.primeiro_acesso === true
+            ) {
 
                 navigate('/primeiro_acesso');
 
                 return;
             }
 
-            navigate('/gestao');
+            // =====================================================
+            // COMÉRCIO - ACESSO NORMAL
+            // =====================================================
+
+            if (dados.papel === 'COMERCIO') {
+
+                navigate('/gestao');
+
+                return;
+            }
+
+            // =====================================================
+            // PAPEL NÃO RECONHECIDO
+            // =====================================================
+
+            setErro(
+                'Tipo de usuário não reconhecido.'
+            );
 
         } catch (error) {
 
