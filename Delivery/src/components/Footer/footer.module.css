@@ -1,14 +1,11 @@
-
 /* =========================
    FOOTER
 ========================= */
 
 .footercontainer {
-  width: 100%;
-  height: 250px;
-
-  display: flex;
-  flex-direction: column;
+    width: 100%;
+    background-color: #080808;
+    color: white;
 }
 
 
@@ -17,89 +14,742 @@
 ========================= */
 
 .footerCima {
-  width: 100%;
-  height: 80%;
+    width: 100%;
 
-  background-color: #635b5b;
+    background-color: #080808;
 
-  display: flex;
-  align-items: center;
+    border-top: 3px solid #f8e267;
 
-  padding-left: 40px;
+    padding: 45px 50px;
 
-  flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 
 /* =========================
-   PARTE DE BAIXO
+   CONTEÚDO
 ========================= */
 
-.footerBaixo {
-  width: 100%;
-  height: 20%;
+.footerConteudo {
+    width: 100%;
 
-  background-color: #080808;
+    display: grid;
 
-  display: flex;
-  align-items: center;
+    grid-template-columns:
+        180px
+        1.2fr
+        1.5fr
+        1.3fr
+        1.2fr;
 
-  flex-shrink: 0;
+    gap: 40px;
+
+    align-items: start;
+
+    box-sizing: border-box;
 }
 
 
 /* =========================
-   LOGO / LOJA
-========================= */
-
-.logoStore {
-  width: 450px;
-  height: 100px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-left: auto;
-  margin-right: 30px;
-  
-  gap: 10px;
-
-  flex-shrink: 0;
-}
-
-.logoStoreIMG {
-  max-width: 80px;
-  max-height: 100px;
-
-  object-fit: contain;
-}
-
-.logoStore h1{
-  color: rgb(243, 241, 238);
-  font-size: 20px;
-  
-}
-
-
-/* =========================
-   LOGO BORA PEDIR
+   LOGO
 ========================= */
 
 .footerQuadrado {
-  width: 180px;
-  height: 120px;
+    width: 180px;
+    height: 140px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-
-  background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .borapedirIMG {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+}
+
+
+/* =========================
+   INFORMAÇÕES
+========================= */
+
+.footerInfo {
+    display: flex;
+    flex-direction: column;
+
+    max-width: 300px;
+}
+
+.footerInfo h2 {
+    margin: 0 0 8px 0;
+
+    color: #f8e267;
+
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.footerInfo p {
+    margin: 4px 0;
+
+    color: #cfcfcf;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+.footerInfo .destaque {
+    color: #ffffff;
+
+    font-size: 16px;
+
+    font-weight: 600;
+}
+
+
+/* =========================
+   COLUNAS
+========================= */
+
+.footerColuna {
+    display: flex;
+    flex-direction: column;
+
+    max-width: 300px;
+}
+
+.footerColuna h3,
+.logoStore h3 {
+    margin: 0 0 12px 0;
+
+    color: #f8e267;
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+.footerColuna p,
+.logoStore p {
+    margin: 0;
+
+    color: #bdbdbd;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================
+   TAG DO PROJETO
+========================= */
+
+.projetoTag {
+    width: fit-content;
+
+    margin-top: 15px;
+
+    padding: 6px 10px;
+
+    border: 1px solid #f8e267;
+
+    border-radius: 20px;
+
+    color: #f8e267;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+/* =========================
+   TECNOLOGIAS
+========================= */
+
+.tecnologias {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 15px;
+}
+
+
+/* =========================
+   TAG INDIVIDUAL
+========================= */
+
+.tecnologias span {
+    position: relative;
+
+    overflow: hidden;
+
+    isolation: isolate;
+
+    padding: 8px 13px;
+
+    /*
+       PLÁSTICO ESCURO
+    */
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.10),
+            rgba(255, 255, 255, 0.025) 40%,
+            rgba(255, 255, 255, 0.015) 70%,
+            rgba(255, 255, 255, 0.07)
+        ),
+        #111315;
+
+    /*
+       BORDA
+    */
+
+    border: 1px solid rgba(255, 255, 255, 0.14);
+
+    border-radius: 6px;
+
+    color: #dddddd;
+
+    font-size: 11px;
+
+    font-weight: 500;
+
+    box-sizing: border-box;
+
+    /*
+       PROFUNDIDADE DO PLÁSTICO
+    */
+
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.14),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.75),
+        0 3px 8px rgba(0, 0, 0, 0.45);
+
+    backdrop-filter: blur(6px);
+
+    -webkit-backdrop-filter: blur(6px);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* =========================
+   CAMADA SUPERIOR DO PLÁSTICO
+========================= */
+
+.tecnologias span::before {
+    content: '';
+
+    position: absolute;
+
+    inset: 0;
+
+    border-radius: inherit;
+
+    /*
+       BRILHO DA SUPERFÍCIE
+    */
+
+    background:
+        linear-gradient(
+            115deg,
+
+            rgba(255, 255, 255, 0.13) 0%,
+
+            rgba(255, 255, 255, 0.04) 15%,
+
+            transparent 30%,
+
+            transparent 55%,
+
+            rgba(255, 255, 255, 0.025) 75%,
+
+            rgba(255, 255, 255, 0.08) 100%
+        );
+
+    border: 1px solid transparent;
+
+    pointer-events: none;
+
+    z-index: 3;
+
+    opacity: 0.75;
+
+    animation:
+        plasticoBrilho 3.2s ease-in-out infinite;
+}
+
+
+/* =========================
+   REFLEXO COLORIDO
+========================= */
+
+.tecnologias span::after {
+    content: '';
+
+    position: absolute;
+
+    top: -80%;
+
+    left: -130%;
+
+    width: 65%;
+
+    height: 260%;
+
+    /*
+       MISTURA DE CORES
+
+       AMARELO
+       BRANCO
+       AZUL
+       VERMELHO
+       AMARELO
+    */
+
+    background:
+        linear-gradient(
+            90deg,
+
+            transparent 0%,
+
+            rgba(248, 226, 103, 0.00) 6%,
+
+            rgba(248, 226, 103, 0.20) 16%,
+
+            rgba(255, 215, 60, 0.45) 25%,
+
+            rgba(255, 255, 255, 0.90) 34%,
+
+            rgba(70, 150, 255, 0.55) 44%,
+
+            rgba(0, 110, 255, 0.48) 51%,
+
+            rgba(255, 70, 70, 0.48) 61%,
+
+            rgba(235, 30, 30, 0.40) 69%,
+
+            rgba(255, 190, 50, 0.35) 78%,
+
+            rgba(248, 226, 103, 0.20) 87%,
+
+            transparent 100%
+        );
+
+    /*
+       SUAVIZA A LUZ
+    */
+
+    filter: blur(3px);
+
+    opacity: 0.95;
+
+    transform: skewX(-22deg);
+
+    pointer-events: none;
+
+    z-index: 2;
+
+    animation:
+        reflexoTecnologia 3.2s ease-in-out infinite;
+}
+
+
+/* =========================
+   MOVIMENTO DO REFLEXO
+========================= */
+
+@keyframes reflexoTecnologia {
+
+    /*
+       COMEÇA FORA
+    */
+
+    0% {
+        left: -130%;
+
+        opacity: 0;
+    }
+
+    /*
+       ENTRA
+    */
+
+    7% {
+        opacity: 0.60;
+    }
+
+    /*
+       BRILHO MAIS FORTE
+    */
+
+    16% {
+        opacity: 1;
+    }
+
+    /*
+       ATRAVESSA A TAG
+    */
+
+    30% {
+        left: 145%;
+
+        opacity: 0.85;
+    }
+
+    /*
+       DESAPARECE
+    */
+
+    37% {
+        left: 145%;
+
+        opacity: 0;
+    }
+
+    /*
+       ESPERA O PRÓXIMO CICLO
+    */
+
+    100% {
+        left: 145%;
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================
+   BRILHO DO PLÁSTICO
+========================= */
+
+@keyframes plasticoBrilho {
+
+    0% {
+        opacity: 0.30;
+
+        transform: translateX(-18%);
+    }
+
+    18% {
+        opacity: 0.70;
+
+        transform: translateX(0%);
+    }
+
+    32% {
+        opacity: 0.35;
+
+        transform: translateX(18%);
+    }
+
+    100% {
+        opacity: 0.35;
+
+        transform: translateX(18%);
+    }
+}
+
+
+/* =========================
+   DELAY DAS CORES
+========================= */
+
+.tecnologias span:nth-child(1)::after {
+    animation-delay: 0s;
+}
+
+.tecnologias span:nth-child(2)::after {
+    animation-delay: 0.30s;
+}
+
+.tecnologias span:nth-child(3)::after {
+    animation-delay: 0.60s;
+}
+
+.tecnologias span:nth-child(4)::after {
+    animation-delay: 0.90s;
+}
+
+.tecnologias span:nth-child(5)::after {
+    animation-delay: 1.20s;
+}
+
+
+/* =========================
+   DELAY DO PLÁSTICO
+========================= */
+
+.tecnologias span:nth-child(1)::before {
+    animation-delay: 0s;
+}
+
+.tecnologias span:nth-child(2)::before {
+    animation-delay: 0.30s;
+}
+
+.tecnologias span:nth-child(3)::before {
+    animation-delay: 0.60s;
+}
+
+.tecnologias span:nth-child(4)::before {
+    animation-delay: 0.90s;
+}
+
+.tecnologias span:nth-child(5)::before {
+    animation-delay: 1.20s;
+}
+
+
+/* =========================
+   HOVER
+========================= */
+
+.tecnologias span:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(248, 226, 103, 0.40);
+
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.18),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.80),
+        0 5px 14px rgba(0, 0, 0, 0.50),
+        0 0 12px rgba(248, 226, 103, 0.08);
+}
+
+
+/* =========================
+   APLICATIVO
+========================= */
+
+.logoStore {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+}
+
+.logoStore h3 {
+    margin-bottom: 8px;
+}
+
+.logoStore p {
+    margin-bottom: 15px;
+}
+
+
+/* =========================
+   LOJAS
+========================= */
+
+.stores {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.logoStoreIMG {
+    width: 115px;
+    height: 38px;
+
+    object-fit: contain;
+}
+
+
+/* =========================
+   PARTE INFERIOR
+========================= */
+
+.footerBaixo {
+    width: 100%;
+
+    min-height: 65px;
+
+    background-color: #000000;
+
+    border-top: 1px solid #292929;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0 50px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   DIREITOS
+========================= */
+
+.footerDireitos {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    color: #858585;
+
+    font-size: 11px;
+}
+
+
+/* =========================
+   COPYRIGHT
+========================= */
+
+.copyright {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+/* =========================
+   TCC
+========================= */
+
+.footerTcc {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.separador {
+    color: #f8e267;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 1300px) {
+
+    .footerConteudo {
+        grid-template-columns:
+            150px
+            1fr
+            1.3fr
+            1.2fr;
+
+        gap: 30px;
+    }
+
+    .logoStore {
+        grid-column: 2 / 5;
+
+        margin-top: 10px;
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    .footerCima {
+        padding: 40px 30px;
+    }
+
+    .footerConteudo {
+        grid-template-columns: 1fr 1fr;
+
+        gap: 35px;
+    }
+
+    .footerQuadrado {
+        width: 150px;
+        height: 110px;
+    }
+
+    .logoStore {
+        grid-column: auto;
+    }
+
+    .footerInfo,
+    .footerColuna,
+    .logoStore {
+        max-width: 100%;
+    }
+
+    .footerBaixo {
+        padding: 20px 30px;
+    }
+
+    .footerDireitos {
+        flex-direction: column;
+
+        justify-content: center;
+
+        text-align: center;
+
+        gap: 10px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .footerConteudo {
+        grid-template-columns: 1fr;
+
+        text-align: center;
+    }
+
+    .footerQuadrado {
+        margin: 0 auto;
+    }
+
+    .footerInfo,
+    .footerColuna,
+    .logoStore {
+        align-items: center;
+
+        margin: 0 auto;
+    }
+
+    .tecnologias {
+        justify-content: center;
+    }
+
+    .stores {
+        justify-content: center;
+    }
+
+    .copyright,
+    .footerTcc {
+        flex-direction: column;
+
+        gap: 5px;
+    }
+
+    .separador {
+        display: none;
+    }
 }

@@ -1,13 +1,40 @@
+
+/* =========================
+   PALETA
+========================= */
+
+:root {
+  --vermelho: #bd1221;
+  --vermelho-escuro: #a50f1c;
+  --vermelho-hover: #c91b2b;
+
+  --creme-sidebar: #f3efe9;
+  --creme-hover: #ffefd2;
+  --creme-ativo: #f7dfe1;
+
+  --borda-sidebar: #ead9bd;
+
+  --texto-sidebar: #2f2927;
+  --texto-grupo: #6d2a30;
+
+  --fundo-conteudo: #fffefd;
+}
+
+
 /* =========================
    PORTAL
 ========================= */
 
 .portal {
   display: flex;
+
   width: 100%;
+
   min-height: 100vh;
-  background-color: #000000;
+
+  background-color: var(--fundo-conteudo);
 }
+
 
 /* =========================
    SIDEBAR
@@ -15,13 +42,54 @@
 
 .sidebar {
   width: 250px;
+
   min-height: 100vh;
+
   flex-shrink: 0;
-  background-color: #f3f8f5;
-  border-right: 1px solid #dde8e1;
+
+  background-color: var(--creme-sidebar);
+
+  border-right: 1px solid var(--borda-sidebar);
+
   padding: 10px;
+
   box-sizing: border-box;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+
+  scrollbar-width: thin;
+
+  scrollbar-color: #dfc9a7 transparent;
 }
+
+
+/* =========================
+   SCROLLBAR SIDEBAR
+========================= */
+
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #dfc9a7;
+
+  border-radius: 10px;
+}
+
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: #cdb38c;
+}
+
 
 /* =========================
    CATEGORIAS
@@ -29,8 +97,10 @@
 
 .category {
   width: 100%;
+
   margin-top: 28px;
 }
+
 
 /* =========================
    TÍTULO DA CATEGORIA
@@ -38,16 +108,28 @@
 
 .categoryTitle {
   display: flex;
+
   align-items: center;
+
   width: 100%;
+
   padding: 0 12px;
+
   margin-bottom: 8px;
-  color: #000000;
+
+  color: var(--texto-grupo);
+
   font-size: 13px;
-  font-weight: 600;
+
+  font-weight: 700;
+
   text-transform: uppercase;
+
+  letter-spacing: 0.02em;
+
   box-sizing: border-box;
 }
+
 
 /* =========================
    BOTÃO DO MENU
@@ -55,23 +137,43 @@
 
 .menuItem {
   display: flex;
+
   align-items: center;
+
   width: 100%;
+
   min-height: 48px;
+
   padding: 0 12px;
+
   margin-bottom: 4px;
+
   gap: 12px;
+
   border: none;
+
   border-radius: 10px;
+
   background: transparent;
-  color: #101011;
+
+  color: var(--texto-sidebar);
+
   font-size: 13px;
+
   font-weight: 500;
+
   text-align: left;
+
   cursor: pointer;
+
   box-sizing: border-box;
-  transition: background-color 0.2s ease, color 0.2s ease;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
+
 
 /* =========================
    ÍCONE DO MENU
@@ -79,11 +181,20 @@
 
 .menuIcon {
   width: 22px;
+
   height: 22px;
+
   flex-shrink: 0;
+
   object-fit: contain;
+
   display: block;
+
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
 }
+
 
 /* =========================
    TEXTO DO MENU
@@ -91,29 +202,72 @@
 
 .menuItem span {
   flex: 1;
+
   white-space: nowrap;
+
   overflow: hidden;
+
   text-overflow: ellipsis;
 }
+
 
 /* =========================
    HOVER
 ========================= */
 
 .menuItem:hover {
-  background-color: #e5f0ea;
-  color: #1f5135;
+  background-color: var(--creme-hover);
+
+  color: var(--vermelho);
+
+  transform: translateX(2px);
 }
+
+
+.menuItem:hover .menuIcon {
+  transform: scale(1.04);
+}
+
 
 /* =========================
    ITEM ATIVO
 ========================= */
 
 .menuItem.active {
-  background-color: #ddece3;
-  color: #1f5135;
-  font-weight: 600;
+  position: relative;
+
+  background-color: var(--creme-ativo);
+
+  color: var(--vermelho);
+
+  font-weight: 700;
+
+  transform: none;
 }
+
+
+/* =========================
+   BARRA DO ITEM ATIVO
+========================= */
+
+.menuItem.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  top: 8px;
+
+  bottom: 8px;
+
+  width: 4px;
+
+  background-color: var(--vermelho);
+
+  border-radius: 0 5px 5px 0;
+}
+
 
 /* =========================
    ÍCONE DO ITEM ATIVO
@@ -123,15 +277,89 @@
   transform: scale(1.05);
 }
 
+
+/* =========================
+   FOCO
+========================= */
+
+.menuItem:focus-visible {
+  outline: 2px solid rgba(189, 18, 33, 0.28);
+
+  outline-offset: 2px;
+}
+
+
 /* =========================
    CONTEÚDO
 ========================= */
 
 .content {
   flex: 1;
+
   min-width: 0;
+
   min-height: 100vh;
+
   padding: 20px;
-  background-color: #f5f7fa;
+
+  background-color: var(--fundo-conteudo);
+
   box-sizing: border-box;
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 900px) {
+
+  .sidebar {
+    width: 220px;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .sidebar {
+    width: 72px;
+
+    padding: 10px 8px;
+  }
+
+
+  .categoryTitle {
+    justify-content: center;
+
+    padding: 0;
+
+    font-size: 0;
+  }
+
+
+  .menuItem {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+
+  .menuItem span {
+    display: none;
+  }
+
+
+  .menuItem.active::before {
+    top: 8px;
+
+    bottom: 8px;
+  }
+
+
+  .content {
+    padding: 14px;
+  }
+
 }

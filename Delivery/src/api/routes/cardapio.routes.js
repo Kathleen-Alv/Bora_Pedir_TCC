@@ -10,6 +10,9 @@ import {
     excluirItem,
     alterarCategoria,
     excluirCategoria,
+    buscarTodosComercios,
+    listarCategoriasPublicas,
+    listarItensPublicos,
     listarItens
 } from '../controllers/cardapio/cardapio.controller.js';
 
@@ -70,6 +73,12 @@ router.get(
 );
 
 
+
+router.get(
+    '/comercios',
+    buscarTodosComercios
+);
+
 // ============================================================
 // CRIAR ITEM
 // ============================================================
@@ -113,6 +122,16 @@ router.delete(
     '/itens/:id',
     autenticar,
     excluirItem
+);
+
+router.get(
+    '/comercios/:comercioId/categorias',
+    listarCategoriasPublicas
+);
+
+router.get(
+    '/comercios/:comercioId/itens',
+    listarItensPublicos
 );
 
 

@@ -237,6 +237,10 @@ Mode de desenvolvedor windols:
 start ms-settings:developers
 
 
+Para img SVG:
+flutter pub add flutter_svg
+
+
 
 
 

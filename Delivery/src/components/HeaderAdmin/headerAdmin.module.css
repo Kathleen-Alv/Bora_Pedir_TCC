@@ -1,61 +1,606 @@
+
+/* =========================================================
+   HEADER ADMIN - BORA PEDIR
+========================================================= */
+
 .header {
+    --vermelho: #bd1221;
+    --vermelhoEscuro: #9f0f1c;
+    --vermelhoClaro: #d91c2d;
+
+    --creme: #ffedc9;
+    --cremeClaro: #fff6e5;
+    --cremeEscuro: #f2d9ad;
+
+    --texto: #30251f;
+
     width: 100%;
-    height: 60px;
-    min-height: 60px;
-    max-height: 60px;
+    height: 72px;
+    min-height: 82px;
+    max-height: 72px;
 
     display: flex;
     align-items: center;
 
-    border: 1px solid #0d1013;
+    background-color: var(--vermelho);
 
-    background-color: #fff7f7;
+    box-sizing: border-box;
+
+    position: relative;
+
+    z-index: 100;
+
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.10);
 }
 
 
-/* =========================
-   PRIMEIRA PARTE - LOGO
-========================= */
+/* =========================================================
+   ÁREA DO LOGO
+========================================================= */
 
 .headerLogo {
     width: 250px;
     height: 100%;
 
-    background-color: #f1eaea;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--creme);
+
+    box-sizing: border-box;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/*
+   Detalhe visual entre logo e header
+*/
+
+.headerLogo::after {
+    content: "";
+
+    position: absolute;
+
+    right: 0;
+    top: 0;
+
+    width: 5px;
+    height: 100%;
+
+    background-color: var(--vermelho);
+
+    opacity: 0.12;
+}
+
+
+/*
+   Pequeno detalhe decorativo
+*/
+
+.headerLogo::before {
+    content: "";
+
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    right: -45px;
+    bottom: -55px;
+
+    border-radius: 50%;
+
+    background-color: var(--cremeEscuro);
+
+    opacity: 0.45;
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.logoAdmin {
+    /*
+       A imagem agora fica limitada ao header.
+       Não ultrapassa os 72px.
+    */
+
+    width: auto;
+
+    height: 80px;
+
+    max-width: 310px;
+    max-height: 68px;
+
+    object-fit: contain;
+
+    display: block;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+/* =========================================================
+   CONTEÚDO DO HEADER
+========================================================= */
+
+.headerConteudo {
+    flex: 1;
+
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 20px 0 26px;
+
+    background-color: var(--vermelho);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CENTRO
+========================================================= */
+
+.headerCentro {
+    display: flex;
+    align-items: center;
+
+    min-width: 0;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   ÁREA DO PERFIL
+========================================================= */
+
+.areaPerfil {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+}
+
+
+/* =========================================================
+   BOTÃO DO PERFIL
+========================================================= */
+
+.botaoPerfil {
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 4px 12px 4px 5px;
+
+    border: 1px solid rgba(255, 237, 201, 0.25);
+
+    border-radius: 13px;
+
+    background-color: rgba(255, 237, 201, 0.10);
+
+    color: var(--creme);
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.botaoPerfil:hover {
+    background-color: rgba(255, 237, 201, 0.18);
+
+    border-color: rgba(255, 237, 201, 0.40);
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.12);
+
+    transform: translateY(-1px);
+}
+
+
+.perfilAtivo {
+    background-color: var(--creme);
+
+    border-color: var(--creme);
+
+    color: var(--vermelho);
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.16);
+}
+
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+.avatar {
+    width: 40px;
+    height: 40px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background-color: var(--creme);
+
+    color: var(--vermelho);
+
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 
-/* =========================
-   LOGO
-========================= */
-
-.logoAdmin {
-    width: 205px;
-    height: 190px;
-
-    object-fit: contain;
+.avatar svg {
+    width: 19px;
+    height: 19px;
 }
 
 
-/* =========================
-   SEGUNDA PARTE
-========================= */
+/* =========================================================
+   DADOS DO PERFIL
+========================================================= */
 
-.headerConteudo {
-    flex: 1;
-    height: 100%;
+.dadosPerfil {
+    display: flex;
+    flex-direction: column;
 
-    background-color: #faf3f3;
+    align-items: flex-start;
+
+    gap: 1px;
+
+    padding-right: 4px;
+}
+
+
+.nomeAdmin {
+    font-size: 13px;
+
+    line-height: 16px;
+
+    font-weight: 700;
+
+    color: inherit;
+}
+
+
+.tipoAdmin {
+    font-size: 10px;
+
+    line-height: 13px;
+
+    color: rgba(255, 237, 201, 0.75);
+}
+
+
+.perfilAtivo .tipoAdmin {
+    color: #8d7662;
+}
+
+
+/* =========================================================
+   SETA
+========================================================= */
+
+.seta {
+    width: 16px;
+    height: 16px;
+
+    color: var(--creme);
+
+    transition:
+        transform 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.setaAberta {
+    transform: rotate(180deg);
+
+    color: var(--vermelho);
+}
+
+
+/* =========================================================
+   MENU DROPDOWN
+========================================================= */
+
+.menuPerfil {
+    position: absolute;
+
+    top: calc(100% + 10px);
+
+    right: 0;
+
+    width: 240px;
+
+    padding: 9px;
+
+    background-color: var(--cremeClaro);
+
+    border: 1px solid var(--cremeEscuro);
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 20px 45px rgba(60, 15, 20, 0.20),
+        0 5px 15px rgba(60, 15, 20, 0.10);
+
+    box-sizing: border-box;
+
+    animation: abrirMenu 0.18s ease-out;
+}
+
+
+/* =========================================================
+   ANIMAÇÃO
+========================================================= */
+
+@keyframes abrirMenu {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(-8px)
+            scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+/* =========================================================
+   TOPO DO MENU
+========================================================= */
+
+.menuTopo {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 9px 8px 12px;
+}
+
+
+/* =========================================================
+   AVATAR DO MENU
+========================================================= */
+
+.avatarMenu {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    background-color: var(--vermelho);
+
+    color: var(--creme);
+
+    box-shadow:
+        0 4px 10px rgba(189, 18, 33, 0.18);
+}
+
+
+.avatarMenu svg {
+    width: 20px;
+    height: 20px;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES
+========================================================= */
+
+.infoMenu {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.infoMenu strong {
+    font-size: 14px;
+
+    line-height: 17px;
+
+    font-weight: 700;
+
+    color: var(--texto);
+}
+
+
+.infoMenu span {
+    font-size: 11px;
+
+    line-height: 14px;
+
+    color: #806f60;
+}
+
+
+/* =========================================================
+   LINHA
+========================================================= */
+
+.linha {
+    width: 100%;
+    height: 1px;
+
+    background-color: var(--cremeEscuro);
+
+    margin: 1px 0 7px;
+}
+
+
+/* =========================================================
+   ITEM DO MENU
+========================================================= */
+
+.itemMenu {
+    width: 100%;
+    height: 44px;
 
     display: flex;
     align-items: center;
 
-    padding: 0 20px;
-    box-sizing: border-box;
+    gap: 10px;
+
+    padding: 0 9px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background-color: transparent;
+
+    color: #594c42;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.itemMenu:hover {
+    background-color: #ffe0e3;
+
+    color: var(--vermelho);
+}
+
+
+/* =========================================================
+   ÍCONE DO MENU
+========================================================= */
+
+.iconeMenu {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background-color: var(--vermelho);
+
+    color: var(--creme);
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.itemMenu:hover .iconeMenu {
+    background-color: var(--vermelhoEscuro);
+
+    transform: translateX(2px);
+}
+
+
+.iconeMenu svg {
+    width: 17px;
+    height: 17px;
+}
+
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .headerLogo {
+        width: 190px;
+    }
+
+    .headerConteudo {
+        padding: 0 14px;
+    }
+
+    .logoAdmin {
+        height: 52px;
+        max-height: 52px;
+        max-width: 170px;
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .headerLogo {
+        width: 150px;
+    }
+
+    .logoAdmin {
+        height: 48px;
+        max-height: 48px;
+        max-width: 135px;
+    }
+
+    .dadosPerfil {
+        display: none;
+    }
+
+    .botaoPerfil {
+        padding-right: 7px;
+    }
+
 }

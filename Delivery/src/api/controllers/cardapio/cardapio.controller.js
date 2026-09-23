@@ -400,19 +400,21 @@ export async function buscarDadosComercio(req, res) {
         // --------------------------------------------------------
 
         const dados =
-            await conexao.query(
-                `
-                SELECT
-                    comercio_id,
-                    nome_comercio
-                FROM dados_comercio
-                WHERE comercio_id = ?
-                LIMIT 1
-                `,
-                [
-                    comercioId
-                ]
-            );
+    await conexao.query(
+        `
+        SELECT
+            comercio_id,
+            nome_comercio,
+            categoria,
+            logo
+        FROM dados_comercio
+        WHERE comercio_id = ?
+        LIMIT 1
+        `,
+        [
+            comercioId
+        ]
+    );
 
 
         // --------------------------------------------------------
@@ -440,19 +442,25 @@ export async function buscarDadosComercio(req, res) {
 
         return res.status(200).json({
 
-            comercio: {
+    comercio: {
 
-                id:
-                    Number(
-                        dados[0].comercio_id
-                    ),
+        id:
+            Number(
+                dados[0].comercio_id
+            ),
 
-                nome_comercio:
-                    dados[0].nome_comercio
+        nome_comercio:
+            dados[0].nome_comercio,
 
-            }
+        categoria:
+            dados[0].categoria,
 
-        });
+        logo:
+            dados[0].logo
+
+    }
+
+});
 
 
     } catch (error) {
@@ -481,6 +489,141 @@ export async function buscarDadosComercio(req, res) {
 
 }
 
+export const buscarTodosComercios = async (req, res) => {
+    try {
+
+        const comercios = await db.query(`
+            SELECT
+                comercio_id,
+                nome_comercio,
+                categoria,
+                logo,
+                banner
+            FROM dados_comercio
+            ORDER BY nome_comercio ASC
+        `);
+
+        console.log(
+            'COMÉRCIOS ENCONTRADOS:',
+            comercios
+        );
+
+        return res.status(200).json({
+            comercios: comercios.map((comercio) => ({
+                id: Number(comercio.comercio_id),
+                nome_comercio: comercio.nome_comercio,
+                categoria: comercio.categoria,
+                logo: comercio.logo,
+                banner: comercio.banner
+            }))
+        });
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao buscar todos os comércios:',
+            erro
+        );
+
+        return res.status(500).json({
+            message: 'Erro ao buscar os comércios.'
+        });
+    }
+};
+
+export const listarCategoriasPublicas = async (req, res) => {
+    try {
+        const comercioId = Number(req.params.comercioId);
+
+        if (!comercioId) {
+            return res.status(400).json({
+                message: 'Comércio inválido.'
+            });
+        }
+
+        const categorias = await db.query(`
+            SELECT
+                c.id,
+                c.nome
+            FROM cardapios ca
+            INNER JOIN categorias_cardapio c
+                ON c.cardapio_id = ca.id
+            WHERE ca.comercio_id = ?
+            ORDER BY c.id ASC
+        `, [comercioId]);
+
+        return res.status(200).json({
+            categorias: categorias.map((categoria) => ({
+                id: Number(categoria.id),
+                nome: categoria.nome
+            }))
+        });
+
+    } catch (erro) {
+        console.error(
+            'Erro ao buscar categorias públicas:',
+            erro
+        );
+
+        return res.status(500).json({
+            message: 'Erro ao buscar categorias.'
+        });
+    }
+};
+
+
+export const listarItensPublicos = async (req, res) => {
+    try {
+        const comercioId = Number(req.params.comercioId);
+
+        if (!comercioId) {
+            return res.status(400).json({
+                message: 'Comércio inválido.'
+            });
+        }
+
+        const itens = await db.query(`
+            SELECT
+                i.id,
+                i.categoria_id,
+                i.nome,
+                i.foto,
+                i.preco,
+                i.descricao,
+                i.disponivel
+            FROM itens_cardapio i
+            INNER JOIN categorias_cardapio c
+                ON c.id = i.categoria_id
+            INNER JOIN cardapios ca
+                ON ca.id = c.cardapio_id
+            WHERE ca.comercio_id = ?
+              AND i.disponivel = 1
+            ORDER BY i.id ASC
+        `, [comercioId]);
+
+        return res.status(200).json({
+            itens: itens.map((item) => ({
+                id: Number(item.id),
+                categoria_id: Number(item.categoria_id),
+                nome: item.nome,
+                foto: item.foto,
+                preco: Number(item.preco),
+                descricao: item.descricao,
+                disponivel: Boolean(item.disponivel)
+            }))
+        });
+
+    } catch (erro) {
+        console.error(
+            'Erro ao buscar itens públicos:',
+            erro
+        );
+
+        return res.status(500).json({
+            message: 'Erro ao buscar itens.'
+        });
+    }
+};
 
 
 // ================================================================

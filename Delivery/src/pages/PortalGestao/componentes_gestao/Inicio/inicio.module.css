@@ -168,7 +168,7 @@
 
   min-width: 5px;
 
-  background-color: #68aef1;
+  background-color: #eeea08;
 
   border-radius: 3px 3px 0 0;
 }
@@ -194,7 +194,7 @@
 .barrasPagamento span {
   width: 12px;
 
-  background-color: #2689e8;
+  background-color: #e3f300;
 
   border-radius: 1px 1px 0 0;
 }
@@ -238,7 +238,7 @@
   border-radius: 50%;
 
   background: conic-gradient(
-    #2689e8 0deg 316deg,
+    #eeea06 0deg 316deg,
     #e9eeee 316deg 360deg
   );
 
@@ -340,7 +340,7 @@
 
 
 .abas .abaAtiva {
-  color: #2689e8;
+  color: #e4e709;
 
   border-bottom: 2px solid #2689e8;
 }

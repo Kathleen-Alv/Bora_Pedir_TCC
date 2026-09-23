@@ -1,14 +1,46 @@
-/* =========================
+/* =========================================================
+   PALETA PRINCIPAL
+========================================================= */
+
+:root {
+    --vermelho: #bd1221;
+    --vermelho-escuro: #a50f1c;
+    --vermelho-hover: #c91b2b;
+
+    --creme: #ffedc9;
+    --creme-claro: #fff7e9;
+    --creme-sidebar: #fff8ec;
+    --creme-hover: #fff0d8;
+    --creme-ativo: #f7dfe1;
+
+    --fundo-sidebar: #fff8ec;
+    --fundo-hover: #fff0d8;
+    --fundo-ativo: #f7dfe1;
+
+    --fundo-principal: #fffdfd;
+
+    --borda: #eadbc8;
+    --borda-clara: #eeeeee;
+
+    --texto: #252525;
+    --texto-sidebar: #302522;
+    --texto-secundario: #68716b;
+
+    --texto-grupo: #6e2a2f;
+}
+
+
+/* =========================================================
    CONTAINER
-========================= */
+========================================================= */
 
 .container {
     width: 100%;
     min-height: 100vh;
 
-    background-color: #fffdfd;
+    background-color: var(--fundo-principal);
 
-    color: #171717;
+    color: var(--texto);
 
     font-family: Arial, Helvetica, sans-serif;
 
@@ -16,9 +48,9 @@
 }
 
 
-/* =========================
+/* =========================================================
    HEADER
-========================= */
+========================================================= */
 
 .header {
     width: 100%;
@@ -32,7 +64,7 @@
 
     box-sizing: border-box;
 
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid var(--borda-clara);
 }
 
 
@@ -75,7 +107,9 @@
 }
 
 
-
+/* =========================================================
+   AÇÕES DO TOPO
+========================================================= */
 
 .acoesTopo {
     display: flex;
@@ -110,9 +144,9 @@
 }
 
 
-/* =========================
+/* =========================================================
    FILTROS
-========================= */
+========================================================= */
 
 .filtros {
     width: 100%;
@@ -164,23 +198,25 @@
 
 .filtros input:focus,
 .filtros select:focus {
-    border-color: #999999;
+    border-color: var(--vermelho);
 }
 
 
+/* =========================================================
+   BOTÕES DE AÇÃO
+========================================================= */
 
 .botoesAcao {
     margin-left: auto;
+
     display: flex;
-    gap: 15px; /* Controla o espaço exato entre eles */
+
+    gap: 15px;
 }
 
 
-
-.ExcluirSelecao{
-     height: 33px;
-
-  
+.ExcluirSelecao {
+    height: 33px;
 
     padding: 0 18px;
 
@@ -188,24 +224,30 @@
 
     border-radius: 10px;
 
-    background-color: #df1616;
+    background-color: var(--vermelho);
 
-    color: #111111;
+    color: #ffffff;
 
     font-size: 14px;
     font-weight: 700;
 
     cursor: pointer;
 
+    transition:
+        background-color 0.18s ease,
+        transform 0.18s ease;
 }
 
 
+.ExcluirSelecao:hover {
+    background-color: var(--vermelho-escuro);
+
+    transform: translateY(-1px);
+}
 
 
-
-
-.novaCategoria{
-     height: 33px;
+.novaCategoria {
+    height: 33px;
 
     margin-left: auto;
 
@@ -215,15 +257,25 @@
 
     border-radius: 10px;
 
-    background-color: #df1616;
+    background-color: var(--vermelho);
 
-    color: #111111;
+    color: #ffffff;
 
     font-size: 14px;
     font-weight: 700;
 
     cursor: pointer;
 
+    transition:
+        background-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.novaCategoria:hover {
+    background-color: var(--vermelho-escuro);
+
+    transform: translateY(-1px);
 }
 
 
@@ -238,23 +290,391 @@
 
     border-radius: 10px;
 
-    background-color: #0ff10f;
+    background-color: #16d34a;
 
-    color: #000000;
+    color: #ffffff;
 
     font-size: 14px;
     font-weight: 700;
 
     cursor: pointer;
+
+    transition:
+        background-color 0.18s ease,
+        transform 0.18s ease;
 }
 
 
+.novoItem:hover {
+    background-color: #12b83f;
+
+    transform: translateY(-1px);
+}
 
 
+/* =========================================================
+   SIDEBAR
+   PALETA CREME + VERMELHO
+========================================================= */
 
-/* =========================
+.sidebar {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+
+    height: calc(100vh - 72px);
+
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    /*
+       CREME MUITO CLARO PARA CONVERSAR
+       COM A PARTE CREME DO HEADER
+    */
+    background-color: var(--creme-sidebar);
+
+    /*
+       BORDA QUENTE EM VEZ DE VERDE
+    */
+    border-right: 1px solid var(--borda);
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    z-index: 50;
+
+    scrollbar-width: thin;
+    scrollbar-color: #dfcdb8 transparent;
+}
+
+
+/* =========================================================
+   SCROLLBAR SIDEBAR
+========================================================= */
+
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #dfcdb8;
+
+    border-radius: 10px;
+}
+
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: #cdb69d;
+}
+
+
+/* =========================================================
+   CONTEÚDO SIDEBAR
+========================================================= */
+
+.sidebarConteudo {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 14px 10px 24px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
+
+.sidebarNav {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+/* =========================================================
+   GRUPO
+========================================================= */
+
+.sidebarGrupo {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+
+    margin-top: 18px;
+}
+
+
+/* =========================================================
+   TÍTULO DO GRUPO
+========================================================= */
+
+.sidebarTitulo {
+    height: 27px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 12px;
+
+    margin-bottom: 3px;
+
+    /*
+       VERMELHO ESCURO SUAVE
+       PARA CONECTAR COM O HEADER
+    */
+    color: var(--texto-grupo);
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.04em;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   ITEM SIDEBAR
+========================================================= */
+
+.sidebarItem {
+    width: 100%;
+    min-height: 47px;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 0 13px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background-color: transparent;
+
+    color: var(--texto-sidebar);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    text-align: left;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+/* =========================================================
+   HOVER SIDEBAR
+========================================================= */
+
+.sidebarItem:hover {
+    /*
+       CREME MAIS FORTE
+    */
+    background-color: var(--creme-hover);
+
+    /*
+       VERMELHO DO HEADER
+    */
+    color: var(--vermelho);
+
+    transform: translateX(2px);
+}
+
+
+/* =========================================================
+   ITEM ATIVO
+========================================================= */
+
+.sidebarItemAtivo {
+    /*
+       ROSA/VERMELHO MUITO SUAVE
+       PARA NÃO FICAR PESADO
+    */
+    background-color: var(--creme-ativo);
+
+    color: var(--vermelho);
+
+    font-weight: 700;
+
+    transform: none !important;
+}
+
+
+/* =========================================================
+   BARRA VERMELHA DO ITEM ATIVO
+========================================================= */
+
+.sidebarItemAtivo::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 8px;
+    bottom: 8px;
+
+    width: 4px;
+
+    background-color: var(--vermelho);
+
+    border-radius: 0 5px 5px 0;
+}
+
+
+/* =========================================================
+   ÍCONE SIDEBAR
+========================================================= */
+
+.sidebarIcone {
+    width: 23px;
+    height: 23px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /*
+       ÍCONE NORMAL
+    */
+    color: #665b56;
+
+    transition:
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.sidebarIcone svg {
+    width: 21px;
+    height: 21px;
+
+    display: block;
+}
+
+
+/* =========================================================
+   ÍCONE NO HOVER
+========================================================= */
+
+.sidebarItem:hover .sidebarIcone {
+    color: var(--vermelho);
+
+    transform: scale(1.04);
+}
+
+
+/* =========================================================
+   ÍCONE ATIVO
+========================================================= */
+
+.sidebarItemAtivo .sidebarIcone {
+    color: var(--vermelho);
+}
+
+
+/* =========================================================
+   TEXTO SIDEBAR
+========================================================= */
+
+.sidebarTexto {
+    flex: 1;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+    line-height: 18px;
+}
+
+
+/* =========================================================
+   INDICADOR SIDEBAR
+========================================================= */
+
+.sidebarIndicador {
+    width: 6px;
+    height: 6px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background-color: var(--vermelho);
+
+    opacity: 0;
+
+    transform: scale(0);
+
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.sidebarItemAtivo .sidebarIndicador {
+    opacity: 1;
+
+    transform: scale(1);
+}
+
+
+/* =========================================================
+   FOCO SIDEBAR
+========================================================= */
+
+.sidebarItem:focus-visible {
+    outline: 2px solid rgba(189, 18, 33, 0.30);
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
    CONTEÚDO
-========================= */
+========================================================= */
 
 .conteudo {
     width: 100%;
@@ -265,9 +685,9 @@
 }
 
 
-/* =========================
+/* =========================================================
    CATEGORIAS
-========================= */
+========================================================= */
 
 .categorias {
     width: 305px;
@@ -315,6 +735,20 @@
     font-size: 22px;
 
     cursor: pointer;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease;
+}
+
+
+.adicionarCategoria:hover {
+    background-color: var(--creme-claro);
+
+    border-color: var(--vermelho);
+
+    color: var(--vermelho);
 }
 
 
@@ -331,6 +765,7 @@
     box-sizing: border-box;
 }
 
+
 .categoria {
     width: 100%;
 
@@ -345,7 +780,7 @@
 
     border: none;
 
-    border-radius: 4px;
+    border-radius: 8px;
 
     background-color: transparent;
 
@@ -356,17 +791,18 @@
     color: #161616;
 
     font-size: 13px;
+
     font-weight: 600;
 }
 
 
 .categoria:hover {
-    background-color: #f7f7f7;
+    background-color: var(--fundo-hover);
 }
 
 
 .categoriaSelecionada {
-    background-color: #f0f0f2;
+    background-color: var(--fundo-ativo);
 }
 
 
@@ -384,9 +820,9 @@
 }
 
 
-/* =========================
+/* =========================================================
    ÁREA DOS ITENS
-========================= */
+========================================================= */
 
 .areaItens {
     flex: 1;
@@ -401,23 +837,26 @@
 }
 
 
-/* =========================
-   BARRA DE AÇÕES
-========================= */
+/* =========================================================
+   BARRA DE AÇÕES DOS ITENS
+========================================================= */
 
 .barraItens {
     height: 48px;
 
     display: flex;
+
     align-items: center;
 
     gap: 14px;
 
     padding: 0 15px;
-    color: ghostwhite;
-    background-color: #66666a;
 
-    border-bottom: 1px solid #e3e3e3;
+    color: #ffffff;
+
+    background-color: var(--vermelho);
+
+    border-bottom: 1px solid var(--vermelho-escuro);
 
     box-sizing: border-box;
 }
@@ -432,6 +871,7 @@
 
 .selecionarTudo {
     display: flex;
+
     align-items: center;
 
     gap: 8px;
@@ -445,7 +885,7 @@
     width: 16px;
     height: 16px;
 
-    accent-color: #000000;
+    accent-color: var(--vermelho);
 
     cursor: pointer;
 }
@@ -459,6 +899,7 @@
     color: #777d85;
 
     font-size: 13px;
+
     font-weight: 600;
 
     cursor: pointer;
@@ -468,13 +909,13 @@
 
 
 .acaoItem:hover {
-    color: #222222;
+    color: var(--vermelho);
 }
 
 
-/* =========================
+/* =========================================================
    CABEÇALHO DA TABELA
-========================= */
+========================================================= */
 
 .cabecalhoTabela {
     height: 38px;
@@ -505,14 +946,38 @@
 }
 
 
-/* =========================
+/* =========================================================
    LISTA DE ITENS
-========================= */
+========================================================= */
 
 .listaItens {
     width: 100%;
+
+    max-height: 370px;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    position: relative;
 }
 
+
+.listaItens::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+.listaItens::-webkit-scrollbar-thumb {
+    background-color: #d0d0d0;
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   ITEM
+========================================================= */
 
 .item {
     min-height: 72px;
@@ -538,14 +1003,15 @@
 }
 
 
-/* =========================
+/* =========================================================
    NOME DO ITEM
-========================= */
+========================================================= */
 
 .itemNome {
     min-width: 0;
 
     display: flex;
+
     align-items: center;
 
     gap: 10px;
@@ -570,6 +1036,7 @@
     min-width: 0;
 
     display: flex;
+
     flex-direction: column;
 
     gap: 5px;
@@ -580,6 +1047,7 @@
     overflow: hidden;
 
     text-overflow: ellipsis;
+
     white-space: nowrap;
 
     font-size: 13px;
@@ -592,6 +1060,7 @@
     width: fit-content;
 
     display: flex;
+
     align-items: center;
 
     gap: 7px;
@@ -605,6 +1074,7 @@
     background-color: #f5f5f5;
 
     font-size: 11px;
+
     font-weight: 600;
 
     color: #222222;
@@ -618,9 +1088,9 @@
 }
 
 
-/* =========================
+/* =========================================================
    PREÇO
-========================= */
+========================================================= */
 
 .preco {
     font-size: 13px;
@@ -631,12 +1101,13 @@
 }
 
 
-/* =========================
+/* =========================================================
    STATUS
-========================= */
+========================================================= */
 
 .statusArea {
     display: flex;
+
     align-items: center;
 
     gap: 27px;
@@ -649,6 +1120,7 @@
     height: 28px;
 
     display: flex;
+
     align-items: center;
 
     gap: 8px;
@@ -658,8 +1130,11 @@
     border-radius: 9px;
 
     font-size: 12px;
+
     font-weight: 700;
+
     cursor: pointer;
+
     box-sizing: border-box;
 }
 
@@ -698,6 +1173,10 @@
 }
 
 
+/* =========================================================
+   MENU DO ITEM
+========================================================= */
+
 .menuItem {
     border: none;
 
@@ -714,13 +1193,13 @@
 
 
 .menuItem:hover {
-    color: #111111;
+    color: var(--vermelho);
 }
 
 
-/* =========================
-   SCROLLBAR
-========================= */
+/* =========================================================
+   SCROLLBAR CATEGORIAS
+========================================================= */
 
 .listaCategorias::-webkit-scrollbar {
     width: 5px;
@@ -734,140 +1213,62 @@
 }
 
 
-.listaItens {
-    width: 100%;
-    max-height: 370px;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    position: relative;
-}
-
-
-.listaItens::-webkit-scrollbar {
-    width: 6px;
-}
-
-
-.listaItens::-webkit-scrollbar-thumb {
-    background-color: #d0d0d0;
-
-    border-radius: 10px;
-}
-
-
-/* =========================
-   RESPONSIVO
-========================= */
-
-@media (max-width: 900px) {
-
-    .categorias {
-        width: 230px;
-        min-width: 230px;
-    }
-
-    .filtros select {
-        width: 150px;
-    }
-
-    .filtros input {
-        width: 150px;
-    }
-
-    .cabecalhoTabela,
-    .item {
-        grid-template-columns: 1fr 80px 170px;
-    }
-
-    .statusArea {
-        gap: 10px;
-    }
-
-}
-
-
-@media (max-width: 700px) {
-
-    .header {
-        flex-direction: column;
-        align-items: flex-start;
-
-        gap: 8px;
-
-        padding: 10px;
-    }
-
-    .acoesTopo {
-        width: 100%;
-    }
-
-    .filtros {
-        flex-wrap: wrap;
-    }
-
-    .novoItem {
-        margin-left: 0;
-    }
-
-    .categorias {
-        width: 190px;
-        min-width: 190px;
-    }
-
-    .cabecalhoTabela,
-    .item {
-        grid-template-columns: 1fr 80px 150px;
-    }
-
-}
-
-
-
 /* =========================================================
    AÇÕES DA BARRA DE ITENS
 ========================================================= */
 
 .acoesDisponibilidade {
     display: flex;
+
     align-items: center;
+
     gap: 18px;
 }
 
 
-
 .alterarDisponibilidade {
     display: flex;
+
     align-items: center;
+
     gap: 6px;
 }
 
+
 .textoDisponibilidade {
     font-size: 12px;
+
     font-weight: 600;
+
     color: #555555;
+
     white-space: nowrap;
 }
+
 
 .botaoDisponibilidade {
     width: 26px;
     height: 26px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     gap: 5px;
 
     padding: 0;
 
     border: 1px solid #d8d8d8;
+
     border-radius: 6px;
 
     background-color: #ffffff;
 
     font-family: inherit;
+
     font-size: 11px;
+
     font-weight: 700;
 
     color: #555555;
@@ -880,14 +1281,13 @@
         transform 0.15s ease;
 }
 
+
 .botaoDisponibilidade:hover {
     transform: translateY(-1px);
+
+    border-color: #bfc8c2;
 }
 
-
-/* ============================================================
-   PONTO VERDE DO BOTÃO D
-============================================================ */
 
 .botaoDisponibilidade:nth-of-type(1)::before {
     content: '';
@@ -903,10 +1303,6 @@
 }
 
 
-/* ============================================================
-   PONTO VERMELHO DO BOTÃO I
-============================================================ */
-
 .botaoDisponibilidade:nth-of-type(2)::before {
     content: '';
 
@@ -921,19 +1317,20 @@
 }
 
 
-
-/* ============================================================
+/* =========================================================
    CATEGORIA
-============================================================ */
+========================================================= */
 
 .categoria {
     width: 100%;
 
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
     border: none;
+
     border-radius: 8px;
 
     background-color: transparent;
@@ -942,9 +1339,9 @@
 }
 
 
-/* ============================================================
+/* =========================================================
    BOTÃO PRINCIPAL DA CATEGORIA
-============================================================ */
+========================================================= */
 
 .botaoCategoria {
     flex: 1;
@@ -952,12 +1349,14 @@
     min-width: 0;
 
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
     padding: 11px 8px 11px 12px;
 
     border: none;
+
     border-radius: 8px;
 
     background-color: transparent;
@@ -970,9 +1369,10 @@
 }
 
 
-/* ============================================================
-   NOME DA CATEGORIA
-============================================================ */
+.botaoCategoria:hover {
+    background-color: var(--fundo-hover);
+}
+
 
 .botaoCategoria span {
     overflow: hidden;
@@ -985,10 +1385,6 @@
 }
 
 
-/* ============================================================
-   QUANTIDADE DE ITENS
-============================================================ */
-
 .botaoCategoria small {
     flex-shrink: 0;
 
@@ -1000,75 +1396,30 @@
 }
 
 
-/* ============================================================
+/* =========================================================
    CATEGORIA SELECIONADA
-============================================================ */
+========================================================= */
 
 .categoriaSelecionada {
-    background-color: #f1f5f2;
+    background-color: var(--fundo-ativo);
 }
 
 
-/* ============================================================
-   BOTÃO DOS TRÊS PONTINHOS
-============================================================ */
-
-.menuCategoria {
-    width: 32px;
-    height: 32px;
-
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    margin-right: 4px;
-
-    padding: 0;
-
-    border: none;
-    border-radius: 6px;
-
-    background-color: transparent;
-
-    color: #555555;
-
-    cursor: pointer;
+.categoriaSelecionada .botaoCategoria {
+    color: #7d1823;
 }
 
 
-/* ============================================================
-   TRÊS PONTINHOS
-============================================================ */
-
-.menuCategoria span {
-    font-size: 15px;
+.categoriaSelecionada .botaoCategoria small {
+    color: var(--vermelho);
 
     font-weight: 700;
-
-    letter-spacing: 1px;
-
-    line-height: 1;
-
-    transform: rotate(90deg);
 }
 
 
-/* ============================================================
-   HOVER DOS TRÊS PONTINHOS
-============================================================ */
-
-.menuCategoria:hover {
-    background-color: #e8eee9;
-
-    color: #222222;
-}
-
-
-/* ============================================================
-   CONTAINER DO MENU DA CATEGORIA
-============================================================ */
+/* =========================================================
+   CONTAINER MENU DA CATEGORIA
+========================================================= */
 
 .containerMenuCategoria {
     position: relative;
@@ -1076,19 +1427,21 @@
     flex-shrink: 0;
 
     display: flex;
+
     align-items: center;
 }
 
 
-/* ============================================================
+/* =========================================================
    BOTÃO DOS TRÊS PONTOS
-============================================================ */
+========================================================= */
 
 .menuCategoria {
     width: 32px;
     height: 32px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -1097,6 +1450,7 @@
     padding: 0;
 
     border: none;
+
     border-radius: 6px;
 
     background-color: transparent;
@@ -1107,9 +1461,12 @@
 }
 
 
-/* ============================================================
-   ÍCONE DOS TRÊS PONTOS
-============================================================ */
+.menuCategoria:hover {
+    background-color: #f4dfd8;
+
+    color: var(--vermelho);
+}
+
 
 .menuCategoria span {
     font-size: 20px;
@@ -1120,23 +1477,13 @@
 }
 
 
-/* ============================================================
-   HOVER DOS TRÊS PONTOS
-============================================================ */
-
-.menuCategoria:hover {
-    background-color: #e8eee9;
-
-    color: #222222;
-}
-
-
-/* ============================================================
+/* =========================================================
    MENU DE OPÇÕES
-============================================================ */
+========================================================= */
 
 .opcoesCategoria {
     position: fixed;
+
     z-index: 9999;
 
     width: 170px;
@@ -1146,9 +1493,12 @@
     background-color: #ffffff;
 
     border: 1px solid #dddddd;
+
     border-radius: 8px;
 
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.12),
+        0 2px 6px rgba(0, 0, 0, 0.05);
 
     box-sizing: border-box;
 }
@@ -1160,14 +1510,16 @@
     z-index: 1000;
 }
 
-/* ============================================================
+
+/* =========================================================
    OPÇÃO DO MENU
-============================================================ */
+========================================================= */
 
 .opcaoCategoria {
     width: 100%;
 
     display: flex;
+
     align-items: center;
 
     gap: 9px;
@@ -1175,6 +1527,7 @@
     padding: 9px 10px;
 
     border: none;
+
     border-radius: 6px;
 
     background-color: transparent;
@@ -1191,14 +1544,11 @@
 }
 
 
-/* ============================================================
-   ÍCONE DA OPÇÃO
-============================================================ */
-
 .opcaoCategoria span {
     width: 16px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -1206,18 +1556,10 @@
 }
 
 
-/* ============================================================
-   HOVER DA OPÇÃO
-============================================================ */
-
 .opcaoCategoria:hover {
-    background-color: #f2f5f3;
+    background-color: var(--fundo-hover);
 }
 
-
-/* ============================================================
-   OPÇÃO EXCLUIR
-============================================================ */
 
 .opcaoExcluirCategoria {
     color: #c62828;
@@ -1229,64 +1571,81 @@
 }
 
 
-
-
+/* =========================================================
+   MODAL DE EXCLUSÃO
+========================================================= */
 
 .modalExcluirOverlay {
     position: fixed;
+
     inset: 0;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
     background-color: rgba(0, 0, 0, 0.55);
+
     backdrop-filter: blur(4px);
 
     z-index: 2000;
 }
 
+
 .modalExcluir {
     width: 90%;
+
     max-width: 430px;
 
     padding: 28px;
 
     background-color: #ffffff;
+
     border-radius: 12px;
 
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.25);
 
     text-align: center;
 
     font-family: Arial, Helvetica, sans-serif;
+
     box-sizing: border-box;
 }
 
+
 .modalExcluirIcone {
     font-size: 34px;
+
     margin-bottom: 10px;
 }
+
 
 .modalExcluir h2 {
     margin: 0 0 16px;
 
     font-size: 20px;
+
     color: #222222;
 }
+
 
 .modalExcluir p {
     margin: 8px 0;
 
     font-size: 14px;
+
     line-height: 1.5;
 
     color: #555555;
 }
 
+
 .modalExcluir p strong {
     color: #222222;
 }
+
 
 .avisoExclusao {
     margin-top: 14px !important;
@@ -1294,6 +1653,7 @@
     padding: 10px;
 
     background-color: #fff4f4;
+
     border-radius: 8px;
 
     color: #c62828 !important;
@@ -1301,8 +1661,10 @@
     font-size: 13px !important;
 }
 
+
 .modalExcluirAcoes {
     display: flex;
+
     justify-content: flex-end;
 
     gap: 10px;
@@ -1310,16 +1672,20 @@
     margin-top: 24px;
 }
 
+
 .btnCancelarExclusao {
     height: 36px;
+
     padding: 0 16px;
 
     background-color: #ffffff;
 
     border: 1px solid #c5c9cf;
+
     border-radius: 8px;
 
     font-size: 13px;
+
     font-weight: 600;
 
     color: #444444;
@@ -1327,20 +1693,25 @@
     cursor: pointer;
 }
 
+
 .btnCancelarExclusao:hover {
     background-color: #f5f5f5;
 }
 
+
 .btnConfirmarExclusao {
     height: 36px;
+
     padding: 0 16px;
 
-    background-color: #d32f2f;
+    background-color: var(--vermelho);
 
     border: none;
+
     border-radius: 8px;
 
     font-size: 13px;
+
     font-weight: 700;
 
     color: #ffffff;
@@ -1348,12 +1719,146 @@
     cursor: pointer;
 }
 
+
 .btnConfirmarExclusao:hover {
-    background-color: #b71c1c;
+    background-color: var(--vermelho-escuro);
 }
+
 
 .btnConfirmarExclusao:disabled,
 .btnCancelarExclusao:disabled {
     opacity: 0.6;
+
     cursor: not-allowed;
+}
+
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .sidebar {
+        width: 220px;
+
+        min-width: 220px;
+
+        max-width: 220px;
+    }
+
+
+    .categorias {
+        width: 230px;
+
+        min-width: 230px;
+    }
+
+
+    .filtros select {
+        width: 150px;
+    }
+
+
+    .filtros input {
+        width: 150px;
+    }
+
+
+    .cabecalhoTabela,
+    .item {
+        grid-template-columns: 1fr 80px 170px;
+    }
+
+
+    .statusArea {
+        gap: 10px;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .header {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 8px;
+
+        padding: 10px;
+    }
+
+
+    .acoesTopo {
+        width: 100%;
+    }
+
+
+    .filtros {
+        flex-wrap: wrap;
+    }
+
+
+    .novoItem {
+        margin-left: 0;
+    }
+
+
+    .categorias {
+        width: 190px;
+
+        min-width: 190px;
+    }
+
+
+    .cabecalhoTabela,
+    .item {
+        grid-template-columns: 1fr 80px 150px;
+    }
+
+
+    .sidebar {
+        width: 72px;
+
+        min-width: 72px;
+
+        max-width: 72px;
+    }
+
+
+    .sidebarConteudo {
+        padding: 14px 8px;
+    }
+
+
+    .sidebarTitulo {
+        font-size: 0;
+
+        justify-content: center;
+
+        padding: 0;
+    }
+
+
+    .sidebarItem {
+        justify-content: center;
+
+        padding: 0;
+    }
+
+
+    .sidebarTexto,
+    .sidebarIndicador {
+        display: none;
+    }
+
+
+    .sidebarItemAtivo::before {
+        top: 8px;
+
+        bottom: 8px;
+    }
+
 }
