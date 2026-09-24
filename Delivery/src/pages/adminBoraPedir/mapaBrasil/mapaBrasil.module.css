@@ -1,0 +1,657 @@
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.container {
+    width: 100%;
+    max-width: none;
+
+    margin-top: 28px;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e8e5;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.04);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+
+.header {
+    width: 100%;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    padding: 24px 26px 10px;
+
+    box-sizing: border-box;
+}
+
+
+.eyebrow {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.4px;
+
+    color: #bd1221;
+}
+
+
+.titulo {
+    margin: 0;
+
+    font-size: 21px;
+
+    font-weight: 650;
+
+    color: #202522;
+}
+
+
+.descricao {
+    margin: 7px 0 0;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    color: #737b76;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 7px 11px;
+
+    border-radius: 20px;
+
+    background: #f1f8f3;
+
+    color: #477356;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    flex-shrink: 0;
+}
+
+
+.statusPonto {
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #3f9b59;
+}
+
+
+/* =========================================================
+   ÁREA PRINCIPAL
+========================================================= */
+
+.mapaArea {
+    width: 100%;
+
+    min-height: 500px;
+
+    display: grid;
+
+    grid-template-columns: 260px minmax(0, 1fr);
+
+    align-items: center;
+
+    box-sizing: border-box;
+
+    padding: 10px 25px 10px 35px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   ÁREA DA FRASE
+========================================================= */
+
+.fraseArea {
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: flex-start;
+
+    padding-left: 10px;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+.frasePequena {
+    margin-bottom: 12px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    color: #bd1221;
+}
+
+
+.fraseDominacao {
+    margin: 0;
+
+    font-size: 25px;
+
+    line-height: 1.15;
+
+    font-weight: 750;
+
+    color: #202522;
+}
+
+
+.fraseDetalhe {
+    margin-top: 14px;
+
+    font-size: 12px;
+
+    color: #737b76;
+}
+
+
+/* =========================================================
+   ÁREA DA IMAGEM
+========================================================= */
+
+.imagemArea {
+    width: 100%;
+
+    height: 190px;
+
+    margin-top: 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    overflow: visible;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   ASTRONAUTA
+========================================================= */
+
+.imagemAstronauta {
+    display: block;
+
+    width: 380px;
+
+    height: 380px;
+
+    object-fit: contain;
+
+    object-position: center;
+
+    max-width: none;
+
+    max-height: none;
+
+    transform: scale(1);
+
+    transform-origin: left center;
+}
+
+
+/* =========================================================
+   WRAPPER DO MAPA
+========================================================= */
+
+.mapaWrapper {
+    width: 100%;
+
+    height: 560px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   MAPA
+========================================================= */
+
+.mapa {
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    max-width: 900px;
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.estado {
+    fill: #c7d0cb;
+
+    stroke: #ffffff;
+
+    stroke-width: 0.9;
+
+    outline: none;
+
+    transition:
+        fill 0.2s ease;
+}
+
+
+.estado:hover {
+    fill: #aebbb4;
+
+    outline: none;
+}
+
+
+/* =========================================================
+   SÃO PAULO
+========================================================= */
+
+.estadoSaoPaulo {
+    fill: #bd1221;
+
+    stroke: #ffffff;
+
+    stroke-width: 1;
+
+    outline: none;
+
+    transition:
+        fill 0.2s ease;
+}
+
+
+.estadoSaoPaulo:hover {
+    fill: #a50f1c;
+
+    outline: none;
+}
+
+
+/* =========================================================
+   MARCADOR OSASCO
+========================================================= */
+
+.marker {
+    fill: #bd1221;
+
+    stroke: #ffffff;
+
+    stroke-width: 2;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.marker:hover {
+    transform: scale(1.35);
+
+    transform-origin: center;
+}
+
+
+/* =========================================================
+   HALO OSASCO
+========================================================= */
+
+.markerHalo {
+    fill: #bd1221;
+
+    opacity: 0.18;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   NOME OSASCO
+========================================================= */
+
+.nomeCidade {
+    fill: #252a27;
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   RESUMO
+========================================================= */
+
+.resumo {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-top: 1px solid #edf0ee;
+
+    padding: 18px 25px;
+
+    box-sizing: border-box;
+}
+
+
+.resumoItem {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    min-width: 130px;
+}
+
+
+.resumoNumero {
+    font-size: 19px;
+
+    font-weight: 700;
+
+    color: #bd1221;
+}
+
+
+.resumoTexto {
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    color: #7b827e;
+}
+
+
+.linha {
+    width: 1px;
+
+    height: 32px;
+
+    background: #e3e8e5;
+}
+
+
+/* =========================================================
+   RESPONSIVO — 1100px
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .mapaArea {
+        grid-template-columns: 220px minmax(0, 1fr);
+
+        min-height: 440px;
+
+        padding-left: 25px;
+
+        padding-right: 20px;
+    }
+
+
+    .mapaWrapper {
+        height: 510px;
+    }
+
+
+    .fraseDominacao {
+        font-size: 22px;
+    }
+
+
+    .imagemArea {
+        height: 170px;
+    }
+
+
+    .imagemAstronauta {
+        width: 280px;
+
+        height: 280px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVO — 900px
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .header {
+        padding: 20px;
+    }
+
+
+    .mapaArea {
+        grid-template-columns: 190px minmax(0, 1fr);
+
+        min-height: 380px;
+
+        padding: 10px 15px;
+    }
+
+
+    .mapaWrapper {
+        height: 450px;
+    }
+
+
+    .fraseDominacao {
+        font-size: 19px;
+    }
+
+
+    .fraseDetalhe {
+        font-size: 11px;
+    }
+
+
+    .imagemArea {
+        height: 150px;
+    }
+
+
+    .imagemAstronauta {
+        width: 240px;
+
+        height: 240px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVO — 700px
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .mapaArea {
+        grid-template-columns: 1fr;
+
+        min-height: auto;
+
+        padding: 25px 10px 10px;
+    }
+
+
+    .fraseArea {
+        align-items: center;
+
+        text-align: center;
+
+        padding: 0;
+
+        margin-bottom: 5px;
+    }
+
+
+    .fraseDominacao {
+        font-size: 22px;
+    }
+
+
+    .imagemArea {
+        height: 180px;
+
+        justify-content: center;
+
+        margin-top: 12px;
+    }
+
+
+    .imagemAstronauta {
+        width: 260px;
+
+        height: 260px;
+
+        transform-origin: center;
+    }
+
+
+    .mapaWrapper {
+        height: 420px;
+
+        width: 100%;
+    }
+
+
+    .mapa {
+        width: 100%;
+
+        max-width: 650px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVO — 600px
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .header {
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+
+    .titulo {
+        font-size: 18px;
+    }
+
+
+    .imagemArea {
+        height: 160px;
+    }
+
+
+    .imagemAstronauta {
+        width: 230px;
+
+        height: 230px;
+    }
+
+
+    .mapaWrapper {
+        height: 360px;
+    }
+
+
+    .resumo {
+        gap: 10px;
+
+        padding: 15px 10px;
+    }
+
+
+    .resumoItem {
+        min-width: 80px;
+    }
+
+
+    .resumoNumero {
+        font-size: 16px;
+    }
+
+
+    .resumoTexto {
+        font-size: 10px;
+    }
+
+}

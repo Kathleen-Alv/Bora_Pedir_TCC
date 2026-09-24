@@ -4,7 +4,7 @@
 
     padding: 25px;
 
-    background-color: rgb(245, 244, 242);
+    background-color: #f5f4f2;
 
     box-sizing: border-box;
 }
@@ -19,7 +19,7 @@
 
     grid-template-columns: repeat(3, 1fr);
 
-    gap: 20px;
+    gap: 18px;
 
     width: 100%;
 }
@@ -34,9 +34,7 @@
 
     padding: 22px;
 
-    background-color: #ffffff;
-
-    border: 1px solid #e2e2e2;
+    border: 1px solid rgba(189, 18, 33, 0.08);
 
     border-radius: 12px;
 
@@ -46,6 +44,75 @@
     flex-direction: column;
 
     justify-content: center;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 12px rgba(48, 37, 31, 0.06);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* =========================
+   CARD 1
+   CREME / BEGE
+========================= */
+
+.card:nth-child(1) {
+    background:
+        linear-gradient(
+            135deg,
+            #f3eee5 0%,
+            #eee6d9 55%,
+            #e8dfd0 100%
+        );
+}
+
+
+/* =========================
+   CARD 2
+   CINZA ESVERDEADO
+========================= */
+
+.card:nth-child(2) {
+    background:
+        linear-gradient(
+            135deg,
+            #eef1ef 0%,
+            #e4e9e6 55%,
+            #dce4e0 100%
+        );
+}
+
+
+/* =========================
+   CARD 3
+   CINZA ROSADO
+========================= */
+
+.card:nth-child(3) {
+    background:
+        linear-gradient(
+            135deg,
+            #f1eeee 0%,
+            #ebe5e5 55%,
+            #e5dddd 100%
+        );
+}
+
+
+/* =========================
+   EFEITO AO PASSAR O MOUSE
+========================= */
+
+.card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(48, 37, 31, 0.09);
 }
 
 
@@ -54,10 +121,13 @@
 ========================= */
 
 .cardTitulo {
-    color: #555555;
+    color: #5f5751;
 
     font-size: 14px;
+
     font-weight: 600;
+
+    line-height: 1.3;
 }
 
 
@@ -68,9 +138,10 @@
 .cardNumero {
     margin-top: 8px;
 
-    color: #151515;
+    color: #30251f;
 
     font-size: 36px;
+
     font-weight: 700;
 
     line-height: 1;
@@ -84,7 +155,76 @@
 .cardDescricao {
     margin-top: 8px;
 
-    color: #888888;
+    color: #817870;
 
     font-size: 12px;
+
+    line-height: 1.3;
+}
+
+
+/* =========================
+   DETALHE DO PRIMEIRO CARD
+========================= */
+
+.card:nth-child(1) .cardNumero {
+    color: #bd1221;
+}
+
+
+/* =========================
+   DETALHE DO SEGUNDO CARD
+========================= */
+
+.card:nth-child(2) .cardNumero {
+    color: #4f625a;
+}
+
+
+/* =========================
+   DETALHE DO TERCEIRO CARD
+========================= */
+
+.card:nth-child(3) .cardNumero {
+    color: #685b5d;
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 900px) {
+
+    .cardsContainer {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+    .inicioContainer {
+        padding: 15px;
+    }
+
+    .cardsContainer {
+        grid-template-columns: 1fr;
+
+        gap: 15px;
+    }
+
+    .card {
+        min-height: 140px;
+    }
+
+    .cardNumero {
+        font-size: 32px;
+    }
+
 }
