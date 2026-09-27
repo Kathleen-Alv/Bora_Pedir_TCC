@@ -200,6 +200,9 @@ PARA AUTENTIFICAçãO
 npm install jsonwebtoken
 
 
+Criar Mapas
+npm install react-simple-maps
+
 
 
 

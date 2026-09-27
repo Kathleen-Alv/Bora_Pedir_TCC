@@ -31,6 +31,9 @@ flutter:
     - assets/splash.png
     - assets/logo_foreground.png
     - assets/categorias/
+    - assets/takeaway.png
+    - assets/cartao_bora_pedir.png
+    - assets/money.png
 
 flutter_launcher_icons:
   android: true

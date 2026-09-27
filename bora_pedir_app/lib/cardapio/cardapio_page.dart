@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../services/comercio_service.dart';
+import '../../services/carrinho_service.dart';
+import '../carrinho_compras/carrinho_compras_modal.dart';
+import 'item_cardapio.dart';
 
 class CardapioPage extends StatefulWidget {
   final int comercioId;
@@ -24,10 +27,6 @@ class CardapioPage extends StatefulWidget {
 }
 
 class _CardapioPageState extends State<CardapioPage> {
-  // =====================================================
-  // DADOS DO CARDÁPIO
-  // =====================================================
-
   List<Map<String, dynamic>> categorias = [];
   List<Map<String, dynamic>> itens = [];
 
@@ -36,20 +35,15 @@ class _CardapioPageState extends State<CardapioPage> {
 
   int? categoriaSelecionada;
 
-  // =====================================================
-  // INICIALIZAÇÃO
-  // =====================================================
+  bool carrinhoVisivel = false;
+  double totalCarrinho = 0;
 
   @override
   void initState() {
     super.initState();
-
     _buscarCardapio();
+    _atualizarCarrinho();
   }
-
-  // =====================================================
-  // BUSCAR CATEGORIAS E ITENS
-  // =====================================================
 
   Future<void> _buscarCardapio() async {
     try {
@@ -58,22 +52,15 @@ class _CardapioPageState extends State<CardapioPage> {
         erro = null;
       });
 
-      final categoriasApi =
-          await ComercioService.buscarCategorias(
+      final categoriasApi = await ComercioService.buscarCategorias(
         widget.comercioId,
       );
 
-      final itensApi =
-          await ComercioService.buscarItens(
+      final itensApi = await ComercioService.buscarItens(
         widget.comercioId,
       );
 
-      // ===================================================
-      // SOMENTE CATEGORIAS QUE POSSUEM ITEM DISPONÍVEL
-      // ===================================================
-
-      final categoriasFiltradas =
-          categoriasApi.where((categoria) {
+      final categoriasFiltradas = categoriasApi.where((categoria) {
         final categoriaId = int.tryParse(
           categoria['id'].toString(),
         );
@@ -116,15 +103,19 @@ class _CardapioPageState extends State<CardapioPage> {
 
       setState(() {
         carregando = false;
-        erro =
-            'Não foi possível carregar o cardápio.';
+        erro = 'Não foi possível carregar o cardápio.';
       });
     }
   }
 
-  // =====================================================
-  // BUSCAR ITENS DA CATEGORIA SELECIONADA
-  // =====================================================
+  void _atualizarCarrinho() {
+    if (!mounted) return;
+
+    setState(() {
+      totalCarrinho = CarrinhoService.total;
+      carrinhoVisivel = CarrinhoService.possuiItens;
+    });
+  }
 
   List<Map<String, dynamic>> _itensDaCategoria(
     int categoriaId,
@@ -138,33 +129,20 @@ class _CardapioPageState extends State<CardapioPage> {
     }).toList();
   }
 
-  // =====================================================
-  // FORMATAR PREÇO
-  // =====================================================
-
   String _formatarPreco(dynamic preco) {
-    final valor = double.tryParse(
-          preco.toString(),
-        ) ??
-        0;
+    final valor = double.tryParse(preco.toString()) ?? 0;
 
     return 'R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 
-  // =====================================================
-  // FOTO DO ITEM
-  // =====================================================
-
   Widget _imagemItem(dynamic foto) {
-    if (foto == null ||
-        foto.toString().isEmpty) {
+    if (foto == null || foto.toString().isEmpty) {
       return Container(
         width: 95,
         height: 95,
         decoration: BoxDecoration(
           color: const Color(0xFFF1F1F1),
-          borderRadius:
-              BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(
           Icons.fastfood_outlined,
@@ -178,8 +156,7 @@ class _CardapioPageState extends State<CardapioPage> {
         '${ComercioService.baseUrl}${foto.toString()}';
 
     return ClipRRect(
-      borderRadius:
-          BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(8),
       child: Image.network(
         fotoUrl,
         width: 95,
@@ -194,10 +171,8 @@ class _CardapioPageState extends State<CardapioPage> {
             width: 95,
             height: 95,
             decoration: BoxDecoration(
-              color:
-                  const Color(0xFFF1F1F1),
-              borderRadius:
-                  BorderRadius.circular(8),
+              color: const Color(0xFFF1F1F1),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
               Icons.fastfood_outlined,
@@ -210,9 +185,47 @@ class _CardapioPageState extends State<CardapioPage> {
     );
   }
 
-  // =====================================================
-  // BUILD
-  // =====================================================
+  Future<void> _abrirDetalhesItem(
+    Map<String, dynamic> item,
+  ) async {
+    final String nome =
+        item['nome']?.toString() ?? '';
+
+    final String descricao =
+        item['descricao']?.toString() ?? '';
+
+    final String foto =
+        item['foto']?.toString() ?? '';
+
+    final String imagemUrl =
+        foto.isNotEmpty
+            ? '${ComercioService.baseUrl}$foto'
+            : '';
+
+    final double preco =
+        double.tryParse(
+          item['preco']?.toString() ?? '',
+        ) ??
+        0;
+
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return ItemCardapioPage(
+            nome: nome,
+            descricao: descricao,
+            imagem: imagemUrl,
+            preco: preco,
+          );
+        },
+      ),
+    );
+
+    if (resultado == true && mounted) {
+      _atualizarCarrinho();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -223,24 +236,14 @@ class _CardapioPageState extends State<CardapioPage> {
         '${ComercioService.baseUrl}${widget.bannerComercio}';
 
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFF7F7F7),
-
+      backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // =================================================
-            // BANNER + INFORMAÇÕES + LOGO
-            // =================================================
-
             SliverToBoxAdapter(
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // =================================================
-                  // BANNER
-                  // =================================================
-
                   Column(
                     children: [
                       Stack(
@@ -248,18 +251,13 @@ class _CardapioPageState extends State<CardapioPage> {
                           Container(
                             height: 160,
                             width: double.infinity,
-                            clipBehavior:
-                                Clip.hardEdge,
-                            decoration:
-                                const BoxDecoration(
-                              color:
-                                  Color(0xFFEFEFEF),
+                            clipBehavior: Clip.hardEdge,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEFEFEF),
                             ),
-                            child:
-                                Image.network(
+                            child: Image.network(
                               bannerUrl,
-                              width:
-                                  double.infinity,
+                              width: double.infinity,
                               height: 160,
                               fit: BoxFit.cover,
                               errorBuilder: (
@@ -267,195 +265,121 @@ class _CardapioPageState extends State<CardapioPage> {
                                 error,
                                 stackTrace,
                               ) {
-                                return Image
-                                    .asset(
+                                return Image.asset(
                                   'assets/banner.png',
-                                  width:
-                                      double.infinity,
+                                  width: double.infinity,
                                   height: 160,
-                                  fit: BoxFit
-                                      .cover,
+                                  fit: BoxFit.cover,
                                 );
                               },
                             ),
                           ),
-
-                          // BOTÃO VOLTAR
                           Positioned(
                             top: 15,
                             left: 15,
-                            child:
-                                CircleAvatar(
+                            child: CircleAvatar(
                               radius: 20,
                               backgroundColor:
-                                  Colors.black
-                                      .withOpacity(
-                                0.55,
-                              ),
-                              child:
-                                  IconButton(
-                                padding:
-                                    EdgeInsets
-                                        .zero,
-                                icon:
-                                    const Icon(
-                                  Icons
-                                      .arrow_back,
-                                  color:
-                                      Colors.white,
+                                  Colors.black.withOpacity(0.55),
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
                                   size: 21,
                                 ),
                                 onPressed: () {
-                                  Navigator.pop(
-                                    context,
-                                  );
+                                  Navigator.pop(context);
                                 },
                               ),
                             ),
                           ),
-
-                          // BOTÃO COMPARTILHAR
                           Positioned(
                             top: 15,
                             right: 15,
-                            child:
-                                CircleAvatar(
+                            child: CircleAvatar(
                               radius: 20,
                               backgroundColor:
-                                  Colors.black
-                                      .withOpacity(
-                                0.55,
-                              ),
-                              child:
-                                  const Icon(
+                                  Colors.black.withOpacity(0.55),
+                              child: const Icon(
                                 Icons.share,
-                                color:
-                                    Colors.white,
+                                color: Colors.white,
                                 size: 20,
                               ),
                             ),
                           ),
                         ],
                       ),
-
-                      // =================================================
-                      // ÁREA DE INFORMAÇÕES
-                      // =================================================
-
                       Container(
                         width: double.infinity,
-                        padding:
-                            const EdgeInsets
-                                .fromLTRB(
+                        padding: const EdgeInsets.fromLTRB(
                           20,
                           65,
                           20,
                           20,
                         ),
-                        decoration:
-                            const BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
-                          borderRadius:
-                              BorderRadius
-                                  .vertical(
-                            top:
-                                Radius.circular(
-                              25,
-                            ),
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(25),
                           ),
                         ),
                         child: Column(
                           crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
+                              CrossAxisAlignment.start,
                           children: [
                             Text(
                               widget.nomeComercio,
-                              style:
-                                  const TextStyle(
+                              style: const TextStyle(
                                 fontSize: 25,
-                                fontWeight:
-                                    FontWeight
-                                        .bold,
-                                color:
-                                    Color(
-                                  0xFF202622,
-                                ),
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF202622),
                               ),
                             ),
-
-                            const SizedBox(
-                              height: 8,
-                            ),
-
+                            const SizedBox(height: 8),
                             Text(
-                              widget
-                                  .categoriaComercio,
-                              style:
-                                  const TextStyle(
+                              widget.categoriaComercio,
+                              style: const TextStyle(
                                 fontSize: 14,
-                                color:
-                                    Color(
-                                  0xFF777777,
-                                ),
+                                color: Color(0xFF777777),
                               ),
                             ),
-
-                            const SizedBox(
-                              height: 18,
-                            ),
-
+                            const SizedBox(height: 18),
                             Row(
                               children: [
                                 const Expanded(
-                                  child:
-                                      _InformacaoComercio(
-                                    icone: Icons
-                                        .delivery_dining,
+                                  child: _InformacaoComercio(
+                                    icone:
+                                        Icons.delivery_dining,
                                     titulo:
                                         'Taxa de entrega',
-                                    valor:
-                                        'Consultar',
+                                    valor: 'Consultar',
                                   ),
                                 ),
-
                                 Container(
                                   width: 1,
                                   height: 45,
-                                  color:
-                                      const Color(
-                                    0xFFE5E5E5,
-                                  ),
+                                  color: const Color(0xFFE5E5E5),
                                 ),
-
                                 const Expanded(
-                                  child:
-                                      _InformacaoComercio(
-                                    icone: Icons
-                                        .access_time,
+                                  child: _InformacaoComercio(
+                                    icone:
+                                        Icons.access_time,
                                     titulo:
                                         'Tempo de espera',
                                     valor:
                                         '30 - 50 min',
                                   ),
                                 ),
-
                                 Container(
                                   width: 1,
                                   height: 45,
-                                  color:
-                                      const Color(
-                                    0xFFE5E5E5,
-                                  ),
+                                  color: const Color(0xFFE5E5E5),
                                 ),
-
                                 const Expanded(
-                                  child:
-                                      _InformacaoComercio(
-                                    icone:
-                                        Icons.phone,
-                                    titulo:
-                                        'Telefone',
+                                  child: _InformacaoComercio(
+                                    icone: Icons.phone,
+                                    titulo: 'Telefone',
                                     valor:
                                         '(11) 98765-4321',
                                   ),
@@ -467,104 +391,63 @@ class _CardapioPageState extends State<CardapioPage> {
                       ),
                     ],
                   ),
-
-                  // =================================================
-                  // LOGO
-                  //
-                  // FICA POR ÚLTIMO NO STACK
-                  // PARA SEMPRE FICAR NA FRENTE
-                  // DO BANNER.
-                  // =================================================
-
                   Positioned(
                     left: 20,
                     top: 110,
                     child: Container(
                       width: 95,
                       height: 95,
-                      padding:
-                          const EdgeInsets.all(
-                        4,
-                      ),
-                      decoration:
-                          BoxDecoration(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius:
-                            BorderRadius.circular(
-                          18,
-                        ),
+                            BorderRadius.circular(18),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black
-                                .withOpacity(
-                              0.15,
-                            ),
+                            color:
+                                Colors.black.withOpacity(0.15),
                             blurRadius: 8,
-                            offset:
-                                const Offset(
-                              0,
-                              3,
-                            ),
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
                       child: ClipRRect(
                         borderRadius:
-                            BorderRadius.circular(
-                          14,
-                        ),
-                        child:
-                            _LogoComercio(
+                            BorderRadius.circular(14),
+                        child: _LogoComercio(
                           url: logoUrl,
                         ),
                       ),
                     ),
                   ),
-
-                  // =================================================
-                  // STATUS ABERTO
-                  // =================================================
-
                   Positioned(
                     top: 185,
                     right: 20,
                     child: Container(
                       padding:
-                          const EdgeInsets
-                              .symmetric(
+                          const EdgeInsets.symmetric(
                         horizontal: 13,
                         vertical: 8,
                       ),
-                      decoration:
-                          BoxDecoration(
-                        color:
-                            const Color(
-                          0xFF0AA879,
-                        ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0AA879),
                         borderRadius:
-                            BorderRadius.circular(
-                          20,
-                        ),
+                            BorderRadius.circular(20),
                       ),
                       child: const Row(
                         children: [
                           Icon(
-                            Icons
-                                .check_circle,
-                            color:
-                                Colors.white,
+                            Icons.check_circle,
+                            color: Colors.white,
                             size: 16,
                           ),
                           SizedBox(width: 5),
                           Text(
                             'Aberto',
-                            style:
-                                TextStyle(
-                              color:
-                                  Colors.white,
+                            style: TextStyle(
+                              color: Colors.white,
                               fontWeight:
-                                  FontWeight
-                                      .bold,
+                                  FontWeight.bold,
                               fontSize: 13,
                             ),
                           ),
@@ -575,16 +458,10 @@ class _CardapioPageState extends State<CardapioPage> {
                 ],
               ),
             ),
-
-            // =================================================
-            // CATEGORIAS REAIS
-            // =================================================
-
             SliverToBoxAdapter(
               child: Container(
                 color: Colors.white,
-                padding:
-                    const EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   15,
                   15,
                   15,
@@ -592,21 +469,14 @@ class _CardapioPageState extends State<CardapioPage> {
                 ),
                 child: SizedBox(
                   height: 48,
-                  child:
-                      _buildCategorias(),
+                  child: _buildCategorias(),
                 ),
               ),
             ),
-
-            // =================================================
-            // BUSCA
-            // =================================================
-
             SliverToBoxAdapter(
               child: Container(
                 color: Colors.white,
-                padding:
-                    const EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   15,
                   5,
                   15,
@@ -614,31 +484,23 @@ class _CardapioPageState extends State<CardapioPage> {
                 ),
                 child: Container(
                   height: 48,
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        const Color(
-                      0xFFF3F4F4,
-                    ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F4),
                     borderRadius:
-                        BorderRadius.circular(
-                      25,
-                    ),
+                        BorderRadius.circular(25),
                   ),
                   child: const Row(
                     children: [
                       SizedBox(width: 16),
                       Icon(
                         Icons.search,
-                        color:
-                            Color(0xFF777777),
+                        color: Color(0xFF777777),
                       ),
                       SizedBox(width: 10),
                       Text(
                         'Buscar no cardápio',
                         style: TextStyle(
-                          color:
-                              Color(0xFF888888),
+                          color: Color(0xFF888888),
                           fontSize: 14,
                         ),
                       ),
@@ -647,57 +509,38 @@ class _CardapioPageState extends State<CardapioPage> {
                 ),
               ),
             ),
-
-            // =================================================
-            // CONTEÚDO
-            // =================================================
-
             if (carregando)
               const SliverToBoxAdapter(
                 child: Padding(
-                  padding:
-                      EdgeInsets.all(40),
+                  padding: EdgeInsets.all(40),
                   child: Center(
-                    child:
-                        CircularProgressIndicator(),
+                    child: CircularProgressIndicator(),
                   ),
                 ),
               )
             else if (erro != null)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.all(
-                    30,
-                  ),
+                  padding: const EdgeInsets.all(30),
                   child: Column(
                     children: [
                       const Icon(
-                        Icons
-                            .error_outline,
+                        Icons.error_outline,
                         size: 40,
                         color: Colors.grey,
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 10),
                       Text(
                         erro!,
-                        textAlign:
-                            TextAlign.center,
-                        style:
-                            const TextStyle(
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       ElevatedButton(
-                        onPressed:
-                            _buscarCardapio,
-                        child:
-                            const Text(
+                        onPressed: _buscarCardapio,
+                        child: const Text(
                           'Tentar novamente',
                         ),
                       ),
@@ -708,8 +551,7 @@ class _CardapioPageState extends State<CardapioPage> {
             else if (categorias.isEmpty)
               const SliverToBoxAdapter(
                 child: Padding(
-                  padding:
-                      EdgeInsets.fromLTRB(
+                  padding: EdgeInsets.fromLTRB(
                     25,
                     35,
                     25,
@@ -718,20 +560,17 @@ class _CardapioPageState extends State<CardapioPage> {
                   child: Column(
                     children: [
                       Icon(
-                        Icons
-                            .restaurant_menu_outlined,
+                        Icons.restaurant_menu_outlined,
                         size: 45,
                         color: Colors.grey,
                       ),
                       SizedBox(height: 12),
                       Text(
                         'Este comércio ainda não possui itens disponíveis.',
-                        textAlign:
-                            TextAlign.center,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
-                          color:
-                              Color(0xFF777777),
+                          color: Color(0xFF777777),
                         ),
                       ),
                     ],
@@ -743,55 +582,49 @@ class _CardapioPageState extends State<CardapioPage> {
           ],
         ),
       ),
-
-      // =====================================================
-      // BARRA INFERIOR
-      // =====================================================
-
-      bottomNavigationBar:
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (carrinhoVisivel)
+            CarrinhoComprasModal(
+              total: totalCarrinho,
+            ),
           Container(
-        height: 65,
-        color: Colors.white,
-        child: const Row(
-          mainAxisAlignment:
-              MainAxisAlignment.spaceAround,
-          children: [
-            _BottomItem(
-              icone: Icons.home,
-              texto: 'Início',
-              selecionado: true,
+            height: 65,
+            color: Colors.white,
+            child: const Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceAround,
+              children: [
+                _BottomItem(
+                  icone: Icons.home,
+                  texto: 'Início',
+                  selecionado: true,
+                ),
+                _BottomItem(
+                  icone: Icons.receipt_long,
+                  texto: 'Pedidos',
+                ),
+                _BottomItem(
+                  icone: Icons.person,
+                  texto: 'Perfil',
+                ),
+              ],
             ),
-            _BottomItem(
-              icone:
-                  Icons.receipt_long,
-              texto: 'Pedidos',
-            ),
-            _BottomItem(
-              icone: Icons.person,
-              texto: 'Perfil',
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  // =========================================================
-  // CONSTRUIR CATEGORIAS
-  // =========================================================
-
   Widget _buildCategorias() {
     return ListView.builder(
-      scrollDirection:
-          Axis.horizontal,
+      scrollDirection: Axis.horizontal,
       itemCount: categorias.length,
-      itemBuilder:
-          (context, index) {
-        final categoria =
-            categorias[index];
+      itemBuilder: (context, index) {
+        final categoria = categorias[index];
 
-        final int? categoriaId =
-            int.tryParse(
+        final int? categoriaId = int.tryParse(
           categoria['id'].toString(),
         );
 
@@ -800,43 +633,30 @@ class _CardapioPageState extends State<CardapioPage> {
         }
 
         final bool selecionada =
-            categoriaSelecionada ==
-                categoriaId;
+            categoriaSelecionada == categoriaId;
 
         return GestureDetector(
           onTap: () {
             setState(() {
-              categoriaSelecionada =
-                  categoriaId;
+              categoriaSelecionada = categoriaId;
             });
           },
-          child:
-              _CategoriaCardapio(
-            nome:
-                categoria['nome'] ??
-                    '',
-            selecionada:
-                selecionada,
+          child: _CategoriaCardapio(
+            nome: categoria['nome'] ?? '',
+            selecionada: selecionada,
           ),
         );
       },
     );
   }
 
-  // =========================================================
-  // CONSTRUIR ITENS
-  // =========================================================
-
   List<Widget> _buildItens() {
-    if (categoriaSelecionada ==
-        null) {
+    if (categoriaSelecionada == null) {
       return [];
     }
 
     final itensCategoria =
-        _itensDaCategoria(
-      categoriaSelecionada!,
-    );
+        _itensDaCategoria(categoriaSelecionada!);
 
     final categoriaAtual =
         categorias.firstWhere(
@@ -849,18 +669,12 @@ class _CardapioPageState extends State<CardapioPage> {
     );
 
     final String nomeCategoria =
-        categoriaAtual['nome'] ??
-            '';
+        categoriaAtual['nome'] ?? '';
 
     return [
-      // =====================================================
-      // TÍTULO DA CATEGORIA
-      // =====================================================
-
       SliverToBoxAdapter(
         child: Padding(
-          padding:
-              const EdgeInsets.fromLTRB(
+          padding: const EdgeInsets.fromLTRB(
             18,
             20,
             18,
@@ -868,37 +682,26 @@ class _CardapioPageState extends State<CardapioPage> {
           ),
           child: Row(
             mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceBetween,
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 nomeCategoria,
-                style:
-                    const TextStyle(
+                style: const TextStyle(
                   fontSize: 21,
-                  fontWeight:
-                      FontWeight.bold,
-                  color:
-                      Color(0xFF202622),
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF202622),
                 ),
               ),
               const Icon(
                 Icons.chevron_right,
-                color:
-                    Color(0xFF555555),
+                color: Color(0xFF555555),
               ),
             ],
           ),
         ),
       ),
-
-      // =====================================================
-      // ITENS REAIS
-      // =====================================================
-
       SliverPadding(
-        padding:
-            const EdgeInsets.fromLTRB(
+        padding: const EdgeInsets.fromLTRB(
           15,
           0,
           15,
@@ -912,20 +715,18 @@ class _CardapioPageState extends State<CardapioPage> {
                   itensCategoria[index];
 
               return _ItemCardapio(
-                nome:
-                    item['nome'] ??
-                        '',
+                nome: item['nome'] ?? '',
                 descricao:
-                    item['descricao'] ??
-                        '',
-                preco:
-                    _formatarPreco(
+                    item['descricao'] ?? '',
+                preco: _formatarPreco(
                   item['preco'],
                 ),
-                imagem:
-                    item['foto'],
+                imagem: item['foto'],
                 imagemBuilder:
                     _imagemItem,
+                onTap: () {
+                  _abrirDetalhesItem(item);
+                },
               );
             },
             childCount:
@@ -937,12 +738,7 @@ class _CardapioPageState extends State<CardapioPage> {
   }
 }
 
-// =====================================================
-// LOGO
-// =====================================================
-
-class _LogoComercio
-    extends StatelessWidget {
+class _LogoComercio extends StatelessWidget {
   final String url;
 
   const _LogoComercio({
@@ -950,23 +746,17 @@ class _LogoComercio
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     final bool isSvg =
-        url.toLowerCase().endsWith(
-              '.svg',
-            );
+        url.toLowerCase().endsWith('.svg');
 
     if (isSvg) {
       return SvgPicture.network(
         url,
         fit: BoxFit.cover,
-        placeholderBuilder:
-            (context) {
+        placeholderBuilder: (context) {
           return const Center(
-            child:
-                CircularProgressIndicator(
+            child: CircularProgressIndicator(
               strokeWidth: 2,
             ),
           );
@@ -977,8 +767,11 @@ class _LogoComercio
     return Image.network(
       url,
       fit: BoxFit.cover,
-      errorBuilder:
-          (context, error, stackTrace) {
+      errorBuilder: (
+        context,
+        error,
+        stackTrace,
+      ) {
         return const Icon(
           Icons.store,
           size: 45,
@@ -988,10 +781,6 @@ class _LogoComercio
     );
   }
 }
-
-// =====================================================
-// INFORMAÇÃO DO COMÉRCIO
-// =====================================================
 
 class _InformacaoComercio
     extends StatelessWidget {
@@ -1006,12 +795,9 @@ class _InformacaoComercio
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 7,
       ),
       child: Column(
@@ -1019,37 +805,25 @@ class _InformacaoComercio
           Icon(
             icone,
             size: 19,
-            color:
-                const Color(0xFF555555),
+            color: const Color(0xFF555555),
           ),
-
           const SizedBox(height: 5),
-
           Text(
             titulo,
-            textAlign:
-                TextAlign.center,
-            style:
-                const TextStyle(
+            textAlign: TextAlign.center,
+            style: const TextStyle(
               fontSize: 10,
-              color:
-                  Color(0xFF777777),
+              color: Color(0xFF777777),
             ),
           ),
-
           const SizedBox(height: 2),
-
           Text(
             valor,
-            textAlign:
-                TextAlign.center,
-            style:
-                const TextStyle(
+            textAlign: TextAlign.center,
+            style: const TextStyle(
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
-              color:
-                  Color(0xFF333333),
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF333333),
             ),
           ),
         ],
@@ -1057,10 +831,6 @@ class _InformacaoComercio
     );
   }
 }
-
-// =====================================================
-// CATEGORIA
-// =====================================================
 
 class _CategoriaCardapio
     extends StatelessWidget {
@@ -1073,24 +843,17 @@ class _CategoriaCardapio
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         right: 25,
       ),
-      alignment:
-          Alignment.center,
-      decoration:
-          BoxDecoration(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
         border: selecionada
             ? const Border(
-                bottom:
-                    BorderSide(
-                  color:
-                      Color(0xFF009E7A),
+                bottom: BorderSide(
+                  color: Color(0xFF009E7A),
                   width: 2,
                 ),
               )
@@ -1104,21 +867,13 @@ class _CategoriaCardapio
               ? FontWeight.bold
               : FontWeight.w500,
           color: selecionada
-              ? const Color(
-                  0xFF008F70,
-                )
-              : const Color(
-                  0xFF777777,
-                ),
+              ? const Color(0xFF008F70)
+              : const Color(0xFF777777),
         ),
       ),
     );
   }
 }
-
-// =====================================================
-// ITEM DO CARDÁPIO
-// =====================================================
 
 class _ItemCardapio
     extends StatelessWidget {
@@ -1128,6 +883,7 @@ class _ItemCardapio
   final dynamic imagem;
   final Widget Function(dynamic)
       imagemBuilder;
+  final VoidCallback onTap;
 
   const _ItemCardapio({
     required this.nome,
@@ -1135,107 +891,109 @@ class _ItemCardapio
     required this.preco,
     required this.imagem,
     required this.imagemBuilder,
+    required this.onTap,
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 12,
       ),
-      padding:
-          const EdgeInsets.all(10),
-      decoration:
-          BoxDecoration(
+      child: Material(
         color: Colors.white,
         borderRadius:
             BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black
-                .withOpacity(0.05),
-            blurRadius: 5,
-            offset:
-                const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
-              children: [
-                Text(
-                  nome,
-                  style:
-                      const TextStyle(
-                    fontSize: 16,
-                    fontWeight:
-                        FontWeight.bold,
-                    color:
-                        Color(0xFF202622),
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 5,
-                ),
-
-                if (descricao.isNotEmpty)
-                  Text(
-                    descricao,
-                    maxLines: 3,
-                    overflow:
-                        TextOverflow
-                            .ellipsis,
-                    style:
-                        const TextStyle(
-                      fontSize: 11,
-                      height: 1.4,
-                      color:
-                          Color(0xFF777777),
-                    ),
-                  ),
-
-                const SizedBox(
-                  height: 9,
-                ),
-
-                Text(
-                  preco,
-                  style:
-                      const TextStyle(
-                    fontSize: 14,
-                    fontWeight:
-                        FontWeight.bold,
-                    color:
-                        Color(0xFF009E7A),
-                  ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius:
+              BorderRadius.circular(12),
+          child: Container(
+            padding:
+                const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius:
+                  BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black
+                      .withOpacity(0.05),
+                  blurRadius: 5,
+                  offset:
+                      const Offset(0, 2),
                 ),
               ],
             ),
+            child: Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
+                    children: [
+                      Text(
+                        nome,
+                        style:
+                            const TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              Color(0xFF202622),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      if (descricao
+                          .isNotEmpty)
+                        Text(
+                          descricao,
+                          maxLines: 3,
+                          overflow:
+                              TextOverflow
+                                  .ellipsis,
+                          style:
+                              const TextStyle(
+                            fontSize: 11,
+                            height: 1.4,
+                            color:
+                                Color(0xFF777777),
+                          ),
+                        ),
+                      const SizedBox(
+                        height: 9,
+                      ),
+                      Text(
+                        preco,
+                        style:
+                            const TextStyle(
+                          fontSize: 14,
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              Color(0xFF009E7A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                imagemBuilder(imagem),
+              ],
+            ),
           ),
-
-          const SizedBox(width: 10),
-
-          imagemBuilder(imagem),
-        ],
+        ),
       ),
     );
   }
 }
-
-// =====================================================
-// NAVEGAÇÃO INFERIOR
-// =====================================================
 
 class _BottomItem
     extends StatelessWidget {
@@ -1250,9 +1008,7 @@ class _BottomItem
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment:
           MainAxisAlignment.center,
@@ -1261,27 +1017,17 @@ class _BottomItem
           icone,
           size: 22,
           color: selecionado
-              ? const Color(
-                  0xFF009E7A,
-                )
-              : const Color(
-                  0xFF777777,
-                ),
+              ? const Color(0xFF009E7A)
+              : const Color(0xFF777777),
         ),
-
         const SizedBox(height: 3),
-
         Text(
           texto,
           style: TextStyle(
             fontSize: 10,
             color: selecionado
-                ? const Color(
-                    0xFF009E7A,
-                  )
-                : const Color(
-                    0xFF777777,
-                  ),
+                ? const Color(0xFF009E7A)
+                : const Color(0xFF777777),
           ),
         ),
       ],

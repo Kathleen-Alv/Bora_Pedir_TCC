@@ -49,7 +49,7 @@ class _SplashPageState extends State<SplashPage> {
 
     // Depois de 10 segundos vai para a tela inicial
     timerNavegacao = Timer(
-      const Duration(seconds: 10),
+      const Duration(seconds: 3),
       () {
         if (!mounted) return;
 
