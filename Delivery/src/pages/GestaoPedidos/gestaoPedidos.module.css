@@ -1,417 +1,265 @@
-/* =========================
-   CONTAINER
-========================= */
+/* =========================================================
+   CONTAINER PRINCIPAL
+========================================================= */
 
 .container {
     width: 100%;
+    height: 100vh;
     min-height: 100vh;
 
-    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
 
-    color: #171717;
+    background: #f1f5f3;
 
-    font-family: Arial, Helvetica, sans-serif;
+    color: #18252c;
+
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
 
     box-sizing: border-box;
 
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
 }
 
 
-/* =========================
-   HEADER
-========================= */
-
-.header {
-    width: 100%;
-    height: 64px;
-    min-height: 64px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 24px;
-
-    background-color: #ffffff;
-
-    border-bottom: 1px solid #e6e6e6;
-
-    box-sizing: border-box;
-}
-
-
-/* =========================
-   HEADER ESQUERDA
-========================= */
-
-.headerEsquerda {
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-
-    min-width: 0;
-}
-
-
-/* =========================
-   LOGO COMÉRCIO
-========================= */
-
-.logoComercio {
-    width: 38px;
-    height: 38px;
-
-    max-width: 38px;
-    max-height: 38px;
-
-    min-width: 38px;
-    min-height: 38px;
-
-    object-fit: cover;
-
-    display: block;
-
-    border-radius: 9px;
-
-    background-color: #f2f2f2;
-
-    box-sizing: border-box;
-}
-
-
-/* =========================
-   NOME COMÉRCIO
-========================= */
-
-.nomeComercio {
-    display: flex;
-    flex-direction: column;
-
-    gap: 2px;
-
-    min-width: 0;
-}
-
-
-.nomeComercio strong {
-    font-size: 14px;
-
-    font-weight: 700;
-
-    color: #222222;
-
-    white-space: nowrap;
-}
-
-
-.nomeComercio span {
-    font-size: 11px;
-
-    color: #888888;
-}
-
-
-/* =========================
-   STATUS DA LOJA
-========================= */
-
-.statusLoja {
-    height: 32px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
-
-    padding: 0 10px;
-
-    border: none;
-
-    border-radius: 20px;
-
-    cursor: pointer;
-
-    font-family: inherit;
-
-    transition: 0.2s;
-
-    white-space: nowrap;
-}
-
-
-/* =========================
-   CHAVE
-========================= */
-
-.chave {
-    position: relative;
-
-    width: 34px;
-    height: 19px;
-
-    display: block;
-
-    border-radius: 20px;
-
-    box-sizing: border-box;
-
-    transition: background-color 0.2s;
-}
-
-
-.bolinha {
-    position: absolute;
-
-    top: 2px;
-
-    width: 15px;
-    height: 15px;
-
-    border-radius: 50%;
-
-    background-color: #ffffff;
-
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-
-    transition: left 0.2s;
-}
-
-
-/* =========================
-   LOJA ABERTA
-========================= */
-
-.lojaAberta {
-    background-color: #e6f7ed;
-
-    color: #24814b;
-}
-
-
-.lojaAberta .chave {
-    background-color: #28b86b;
-}
-
-
-.lojaAberta .bolinha {
-    left: 17px;
-}
-
-
-/* =========================
-   LOJA FECHADA
-========================= */
-
-.lojaFechada {
-    background-color: #eeeeee;
-
-    color: #777777;
-}
-
-
-.lojaFechada .chave {
-    background-color: #999999;
-}
-
-
-.lojaFechada .bolinha {
-    left: 2px;
-}
-
-
-/* =========================
-   TEXTO STATUS
-========================= */
-
-.textoStatus {
-    font-size: 12px;
-
-    font-weight: 600;
-
-    white-space: nowrap;
-}
-
-
-/* =========================
-   HEADER DIREITA
-========================= */
-
-.headerDireita {
-    display: flex;
-    align-items: center;
-
-    gap: 18px;
-}
-
-
-/* =========================
-   NOTIFICAÇÃO
-========================= */
-
-.botaoNotificacao {
-    width: 38px;
-    height: 38px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0;
-
-    border: none;
-
-    border-radius: 9px;
-
-    background-color: transparent;
-
-    font-size: 17px;
-
-    cursor: pointer;
-}
-
-
-.botaoNotificacao:hover {
-    background-color: #f4f4f4;
-}
-
-
-/* =========================
-   USUÁRIO
-========================= */
-
-.usuario {
-    display: flex;
-    align-items: center;
-
-    gap: 9px;
-
-    cursor: pointer;
-}
-
-
-.avatar {
-    width: 35px;
-    height: 35px;
-
-    min-width: 35px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background-color: #f0f0f0;
-
-    color: #444444;
-
-    font-size: 11px;
-    font-weight: 700;
-}
-
-
-.dadosUsuario {
-    display: flex;
-    flex-direction: column;
-
-    gap: 2px;
-}
-
-
-.dadosUsuario strong {
-    font-size: 12px;
-
-    color: #252525;
-
-    white-space: nowrap;
-}
-
-
-.dadosUsuario span {
-    font-size: 10px;
-
-    color: #888888;
-}
-
-
-.seta {
-    margin-left: 3px;
-
-    color: #777777;
-
-    font-size: 16px;
-}
-
-
-/* =========================
-   CORPO
-========================= */
-
-.corpo {
-    width: 100%;
-
-    flex: 1;
-
-    display: flex;
-
-    min-height: 0;
-
-    box-sizing: border-box;
-}
-
-
-/* =========================
+/* =========================================================
    SIDEBAR
-========================= */
+========================================================= */
 
 .sidebar {
-    width: 72px;
-    min-width: 72px;
-
-    min-height: calc(100vh - 64px);
+    height: 100vh;
+    min-height: 100vh;
 
     display: flex;
     flex-direction: column;
-    align-items: center;
 
-    padding: 18px 0;
+    background: #aa0606;
 
-    background-color: #ffffff;
-
-    border-right: 1px solid #e6e6e6;
+    border-right: 1px solid #524b4b;
+    border-top: 1px solid #6d7572;
+    border-left: 1px solid #524b4b;
 
     box-sizing: border-box;
+
+    position: relative;
+
+    z-index: 20;
+
+    flex-shrink: 0;
+
+    padding: 10px 8px 0;
+
+    transition:
+        width 0.25s ease,
+        min-width 0.25s ease;
 }
 
 
-/* =========================
-   MENU
-========================= */
+/* =========================================================
+   SIDEBAR ABERTO
+========================================================= */
 
-.menu {
+.sidebarAberto {
+    width: 225px;
+    min-width: 225px;
+}
+
+
+/* =========================================================
+   SIDEBAR FECHADO
+========================================================= */
+
+.sidebarFechado {
+    width: 78px;
+    min-width: 78px;
+
+    align-items: center;
+}
+
+
+/* =========================================================
+   ÁREA PRINCIPAL
+========================================================= */
+
+.areaPrincipal {
+    flex: 1;
+
     width: 100%;
+    min-width: 0;
+
+    height: 100vh;
 
     display: flex;
     flex-direction: column;
-    align-items: center;
 
-    gap: 8px;
+    box-sizing: border-box;
+
+    overflow: hidden;
 }
 
 
-/* =========================
-   BOTÃO MENU
-========================= */
+/* =========================================================
+   TOPO DO SIDEBAR
+========================================================= */
 
-.menuItem {
+.sidebarTopo {
+    width: 100%;
+    min-height: 62px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 0 6px;
+
+    box-sizing: border-box;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   LOGO DO SIDEBAR
+========================================================= */
+
+.logoSidebar {
     width: 46px;
     height: 46px;
 
     min-width: 46px;
-    min-height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.20);
+
+    flex-shrink: 0;
+
+    align-self: center;
+}
+
+
+/* =========================================================
+   IMAGEM DO LOGO
+========================================================= */
+
+.logoSidebarImagem {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DO SIDEBAR
+========================================================= */
+
+.infoSidebar {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    line-height: 1.2;
+
+    flex: 1;
+}
+
+
+.infoSidebar strong {
+    max-width: 145px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+.infoSidebar span {
+    margin-top: 4px;
+
+    color: rgba(255, 255, 255, 0.65);
+
+    font-size: 10px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   TOPO — SIDEBAR FECHADA
+========================================================= */
+
+.sidebarFechado .sidebarTopo {
+    width: 100%;
+
+    min-height: 62px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    gap: 0;
+}
+
+
+.sidebarFechado .logoSidebar {
+    width: 46px;
+    height: 46px;
+
+    min-width: 46px;
+
+    margin: 0;
+
+    align-self: center;
+}
+
+
+.sidebarFechado .infoSidebar {
+    display: none;
+}
+
+
+/* =========================================================
+   BOTÃO RECOLHER / EXPANDIR
+========================================================= */
+
+.botaoToggleSidebar {
+    position: absolute;
+
+    top: 48px;
+
+    right: -12px;
+
+    width: 24px;
+    height: 24px;
 
     display: flex;
     align-items: center;
@@ -419,108 +267,985 @@
 
     padding: 0;
 
-    border: none;
+    border: 1px solid #d6d6d6;
 
-    border-radius: 10px;
+    border-radius: 50%;
 
-    background-color: transparent;
+    background: #ffffff;
+
+    color: #3d464a;
+
+    cursor: pointer;
+
+    z-index: 50;
+
+    box-shadow:
+        0 2px 7px rgba(0, 0, 0, 0.20);
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.botaoToggleSidebar span {
+    display: block;
+
+    margin-top: -2px;
+
+    font-size: 19px;
+    font-weight: 500;
+
+    line-height: 1;
+}
+
+
+.botaoToggleSidebar:hover {
+    background: #f8e267;
+
+    color: #1d2528;
+
+    transform: scale(1.06);
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+.menu {
+    width: 100%;
+
+    margin-top: 25px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   ITEM DO MENU
+========================================================= */
+
+.menuItem {
+    width: 100%;
+    height: 48px;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 10px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    background: #ffffff;
 
     cursor: pointer;
 
     box-sizing: border-box;
 
     transition:
-        background-color 0.2s,
-        transform 0.2s;
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 
-.menuItem:hover {
-    background-color: #f1f1f1;
+/* =========================================================
+   MENU FECHADO
+========================================================= */
+
+.sidebarFechado .menuItem {
+    width: 46px;
+
+    justify-content: center;
+
+    padding: 0;
 }
 
 
-.menuItem:active {
-    transform: scale(0.94);
+/* =========================================================
+   ÍCONE
+========================================================= */
+
+.menuIcone {
+    width: 46px;
+    height: 46px;
+
+    min-width: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
 }
 
 
-/* =========================
-   ÍCONES DA SIDEBAR
-========================= */
+/* =========================================================
+   IMAGEM DOS ÍCONES
+========================================================= */
 
 .menuItem img {
-    width: 22px;
-    height: 22px;
+    width: 29px;
+    height: 29px;
 
-    max-width: 22px;
-    max-height: 22px;
+    object-fit: contain;
 
-    min-width: 22px;
-    min-height: 22px;
+    opacity: 0.72;
 
     display: block;
 
-    object-fit: contain;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
 }
 
 
-/* =========================
+/* =========================================================
+   TEXTO DO MENU
+========================================================= */
+
+.menuTexto {
+    margin-left: 7px;
+
+    color: #29363b;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    white-space: nowrap;
+
+    text-align: left;
+
+    transition:
+        color 0.2s ease;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.menuItem:hover {
+    background: #e8eb38;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+
+.menuItem:hover img {
+    opacity: 1;
+
+    transform: scale(1.05);
+}
+
+
+/* =========================================================
+   ITEM ATIVO
+========================================================= */
+
+.menuItemAtivo {
+    background: #f8e267;
+
+    box-shadow:
+        0 4px 12px rgba(248, 226, 103, 0.25);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   TEXTO ATIVO
+========================================================= */
+
+.menuItemAtivo .menuTexto {
+    color: #000000;
+
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   ÍCONE ATIVO
+========================================================= */
+
+.menuItemAtivo img {
+    opacity: 1;
+
+    transform: scale(1.06);
+}
+
+
+/* =========================================================
+   INDICADOR DA PÁGINA ATIVA
+========================================================= */
+
+.menuItemAtivo::after {
+    content: "";
+
+    position: absolute;
+
+    right: -9px;
+
+    top: 50%;
+
+    width: 4px;
+    height: 28px;
+
+    border-radius: 5px 0 0 5px;
+
+    background: #000000;
+
+    transform: translateY(-50%);
+}
+
+
+/* =========================================================
    MENU INFERIOR
-========================= */
+========================================================= */
 
 .menuInferior {
     width: 100%;
 
-    display: flex;
-    justify-content: center;
-
     margin-top: auto;
-}
 
+    padding-bottom: 20px;
 
-/* =========================
-   CONFIGURAÇÃO
-========================= */
-
-.iconeConfiguracao {
-    font-size: 19px;
-
-    color: #555555;
-
-    line-height: 1;
-}
-
-
-/* =========================
-   CONTEÚDO
-========================= */
-
-.conteudo {
-    flex: 1;
-
-    min-width: 0;
-    min-height: calc(100vh - 64px);
-
-    background-color: #ffffff;
+    display: flex;
 
     box-sizing: border-box;
 }
 
 
-/* =========================
-   RESPONSIVO
-========================= */
+/* =========================================================
+   CONFIGURAÇÃO — SIDEBAR FECHADO
+========================================================= */
 
-@media (max-width: 700px) {
+.sidebarFechado .menuInferior {
+    justify-content: center;
+}
 
-    .header {
-        padding: 0 12px;
+
+/* =========================================================
+   CONFIGURAÇÃO
+========================================================= */
+
+.menuInferior .menuItem {
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   CONFIGURAÇÃO ATIVA
+========================================================= */
+
+.menuInferior .menuItemAtivo {
+    background: #f8e267;
+}
+
+
+/* =========================================================
+   ÍCONE CONFIGURAÇÃO
+========================================================= */
+
+.iconeConfiguracao {
+    font-size: 21px;
+
+    color: #3c464a;
+
+    line-height: 1;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* =========================================================
+   HOVER CONFIGURAÇÃO
+========================================================= */
+
+.menuInferior .menuItem:hover .iconeConfiguracao {
+    color: #1d2528;
+
+    transform: rotate(12deg);
+}
+
+
+/* =========================================================
+   CONFIGURAÇÃO ATIVA
+========================================================= */
+
+.menuInferior .menuItemAtivo .iconeConfiguracao {
+    color: #222222;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+    width: 100%;
+
+    height: 76px;
+    min-height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 25px 0 28px;
+
+    background: #fffcfc;
+
+    border-top: 1px solid #6d7572;
+    border-right: 1px solid #6d7572;
+    border-bottom: 1px solid #6d7572;
+
+    box-sizing: border-box;
+
+    position: relative;
+
+    z-index: 10;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   HEADER ESQUERDA
+========================================================= */
+
+.headerEsquerda {
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   LOGO COMÉRCIO
+========================================================= */
+
+.logoComercio {
+    width: 42px;
+    height: 42px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    border: 1px solid #e2e8e6;
+
+    background: #f4f7f6;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   STATUS DA LOJA
+========================================================= */
+
+.statusLoja {
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 12px;
+
+    border: 1px solid transparent;
+
+    border-radius: 18px;
+
+    background: transparent;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.statusLoja:hover {
+    background: #f5f8f7;
+}
+
+
+/* =========================================================
+   LOJA ABERTA
+========================================================= */
+
+.lojaAberta {
+    border-color: #d9eee2;
+
+    background: #f1faf5;
+}
+
+
+.lojaAberta .textoStatus {
+    color: #32975c;
+}
+
+
+/* =========================================================
+   LOJA FECHADA
+========================================================= */
+
+.lojaFechada {
+    border-color: #f0dddd;
+
+    background: #fff6f6;
+}
+
+
+.lojaFechada .textoStatus {
+    color: #c44d4d;
+}
+
+
+/* =========================================================
+   CHAVE
+========================================================= */
+
+.chave {
+    width: 28px;
+    height: 16px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 2px;
+
+    border-radius: 20px;
+
+    background: #38a563;
+
+    box-sizing: border-box;
+
+    transition:
+        background 0.2s ease;
+}
+
+
+.lojaFechada .chave {
+    background: #c5cbce;
+}
+
+
+/* =========================================================
+   BOLINHA
+========================================================= */
+
+.bolinha {
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.15);
+
+    transform: translateX(12px);
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.lojaFechada .bolinha {
+    transform: translateX(0);
+}
+
+
+/* =========================================================
+   TEXTO STATUS
+========================================================= */
+
+.textoStatus {
+    font-size: 11px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   HEADER DIREITA
+========================================================= */
+
+.headerDireita {
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 20px;
+
+    flex-shrink: 0;
+
+    background: #ffffff;
+
+    margin-right: -25px;
+
+    padding: 0 25px 0 20px;
+
+    box-sizing: border-box;
+
+    border-left: 1px solid #d9dfdc;
+}
+
+
+/* =========================================================
+   NOTIFICAÇÃO
+========================================================= */
+
+.botaoNotificacao {
+    width: 38px;
+    height: 38px;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease;
+}
+
+
+.botaoNotificacao:hover {
+    background: #f2f6f4;
+}
+
+
+/* =========================================================
+   SINO
+========================================================= */
+
+.iconeSino {
+    font-size: 21px;
+
+    color: #647278;
+
+    transform: rotate(180deg);
+
+    display: block;
+}
+
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+.badgeNotificacao {
+    position: absolute;
+
+    top: 3px;
+    right: 2px;
+
+    min-width: 16px;
+    height: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 4px;
+
+    border-radius: 10px;
+
+    background: #d83d38;
+
+    color: #ffffff;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   USUÁRIO
+========================================================= */
+
+.usuario {
+    min-width: 205px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding-left: 18px;
+
+    border-left: 1px solid #e5ebe9;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+.avatar {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #cfe5da,
+            #8eb9a2
+        );
+
+    color: #ffffff;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   DADOS USUÁRIO
+========================================================= */
+
+.dadosUsuario {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+
+.dadosUsuario strong {
+    max-width: 145px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 12px;
+    font-weight: 650;
+
+    color: #26343a;
+}
+
+
+.dadosUsuario span {
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    color: #899397;
+}
+
+
+/* =========================================================
+   SETA
+========================================================= */
+
+.seta {
+    margin-left: auto;
+
+    color: #788489;
+
+    font-size: 17px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   CONTEÚDO
+========================================================= */
+
+.conteudo {
+    flex: 1;
+
+    width: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    padding: 28px 30px;
+
+    background: #edf4f1;
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+
+.tituloPagina {
+    width: 100%;
+
+    margin-bottom: 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.tituloPagina span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #8a9799;
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+
+.tituloPagina h1 {
+    margin: 0;
+
+    color: #1d2b31;
+
+    font-size: 24px;
+    font-weight: 650;
+}
+
+
+/* =========================================================
+   PÁGINA INTERNA
+========================================================= */
+
+.paginaInterna {
+    width: 100%;
+
+    min-height: 360px;
+
+    padding: 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2ebe7;
+
+    border-radius: 14px;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        0 3px 12px rgba(30, 65, 50, 0.035);
+}
+
+
+.paginaInterna h1 {
+    margin: 0 0 8px;
+
+    font-size: 20px;
+
+    color: #24343a;
+}
+
+
+.paginaInterna p {
+    margin: 0;
+
+    color: #8a9699;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .sidebarAberto {
+        width: 205px;
+        min-width: 205px;
     }
 
 
-    .nomeComercio span {
+    .nomeComercio {
+        min-width: auto;
+    }
+
+
+    .statusLoja {
+        padding: 0 8px;
+    }
+
+
+    .usuario {
+        min-width: auto;
+
+        padding-left: 12px;
+    }
+
+
+    .dadosUsuario {
         display: none;
+    }
+
+
+    .conteudo {
+        padding: 22px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .sidebarAberto {
+        width: 190px;
+        min-width: 190px;
+    }
+
+
+    .sidebarFechado {
+        width: 62px;
+        min-width: 62px;
+    }
+
+
+    .sidebar {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+
+    /* -----------------------------------------------------
+       TOPO MOBILE
+    ----------------------------------------------------- */
+
+    .sidebarTopo {
+        min-height: 58px;
+
+        padding: 0 4px;
+
+        gap: 8px;
+    }
+
+
+    .logoSidebar {
+        width: 42px;
+        height: 42px;
+
+        min-width: 42px;
+    }
+
+
+    .sidebarFechado .sidebarTopo {
+        min-height: 58px;
+
+        justify-content: center;
+
+        padding: 0;
+    }
+
+
+    .sidebarFechado .logoSidebar {
+        width: 42px;
+        height: 42px;
+
+        min-width: 42px;
+    }
+
+
+    /* -----------------------------------------------------
+       MENU
+    ----------------------------------------------------- */
+
+    .menuItem {
+        height: 44px;
+    }
+
+
+    .menuIcone {
+        width: 42px;
+        height: 42px;
+
+        min-width: 42px;
+    }
+
+
+    .menuItem img {
+        width: 28px;
+        height: 28px;
+    }
+
+
+    .menuTexto {
+        font-size: 12px;
+    }
+
+
+    /* -----------------------------------------------------
+       HEADER
+    ----------------------------------------------------- */
+
+    .header {
+        padding: 0 14px;
+    }
+
+
+    .headerEsquerda {
+        gap: 8px;
     }
 
 
@@ -530,45 +1255,44 @@
 
 
     .statusLoja {
+        width: 40px;
+
         padding: 0;
-        background-color: transparent;
+
+        justify-content: center;
     }
 
 
     .headerDireita {
-        gap: 8px;
+        gap: 5px;
     }
 
 
-    .dadosUsuario {
-        display: none;
+    .usuario {
+        border-left: 0;
     }
 
 
-    .sidebar {
-        width: 60px;
-        min-width: 60px;
+    /* -----------------------------------------------------
+       CONTEÚDO
+    ----------------------------------------------------- */
+
+    .conteudo {
+        padding: 18px 14px;
     }
 
 
-    .menuItem {
-        width: 40px;
-        height: 40px;
-
-        min-width: 40px;
-        min-height: 40px;
+    .tituloPagina h1 {
+        font-size: 21px;
     }
 
 
-    .menuItem img {
-        width: 20px;
-        height: 20px;
+    /* -----------------------------------------------------
+       BOTÃO TOGGLE
+    ----------------------------------------------------- */
 
-        max-width: 20px;
-        max-height: 20px;
-
-        min-width: 20px;
-        min-height: 20px;
+    .botaoToggleSidebar {
+        right: -11px;
     }
 
 }
