@@ -1,198 +1,1194 @@
-/* --- Suas regras existentes mantidas --- */
-.loginContainer {
+
+/* ============================================================
+   CONTAINER PRINCIPAL
+============================================================ */
+
+.paginaWrapper {
     width: 100%;
-    height: 650px;
-    background-color: aqua;
-    display: flex;
-}
+    min-height: 100vh;
 
-.loginContainerEsquerda {
-    width: 40%;
-    background-color: rgb(3, 58, 104);
-}
-
-.loginContainerDireita {
-    width: 60%;
-    height: 100%;
-    background-color: rgb(3, 58, 104);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.login {
-    width: 600px;
-    height: 550px;
-    background-color: bisque;
-    border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+    align-items: center;
+
+    background: #ffffff;
+
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ============================================================
+   CONTAINER DO CADASTRO
+============================================================ */
+
+.loginContainer {
+    width: 100%;
+
+    height: calc(100vh - 80px);
+
+    min-height: 700px;
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: flex-end;
+    align-items: center;
+
+    overflow: hidden;
+
+    box-sizing: border-box;
+
+    margin: 0;
+    padding: 0;
+
+    background: #000000;
+}
+
+
+/* ============================================================
+   ÁREA DA IMAGEM
+============================================================ */
+
+.loginContainerEsquerda {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    z-index: 0;
+
+    display: block;
+
+    background: #000000;
+}
+
+
+/* ============================================================
+   IMAGEM PRINCIPAL
+============================================================ */
+
+.entregadorImg {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    /*
+       Aumentamos a largura da imagem para poder
+       deslocar o conteúdo para a esquerda.
+
+       Isso faz a moto sair de trás do cadastro.
+    */
+
+    width: 112%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 100%;
+
+    max-width: none;
+    max-height: none;
+
+    display: block;
+
+    object-fit: cover;
+
+    object-position: center center;
+
+    /*
+       PRINCIPAL AJUSTE
+
+       Move toda a imagem para a esquerda.
+
+       A moto e principalmente a placa
+       ficam mais visíveis.
+    */
+
+    transform: translateX(-9%);
+
+    transform-origin: center center;
+
+    margin: 0;
+    padding: 0;
+
+    z-index: 0;
+
+    user-select: none;
+
+    pointer-events: none;
+
+    -webkit-user-drag: none;
+}
+
+
+/* ============================================================
+   TEXTO PROMOCIONAL
+============================================================ */
+
+.textoPromocional {
+    position: absolute;
+
+    left: 45px;
+    top: 205px;
+
+    width: 480px;
+
+    z-index: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    color: #ffffff;
+
+    text-align: left;
+}
+
+
+/* ============================================================
+   ÁREA DAS MENSAGENS
+============================================================ */
+
+.mensagensPromocionais {
+    position: relative;
+
+    width: 100%;
+    height: 155px;
+
     overflow: hidden;
 }
 
-.loginTopo {
-    height: 80px;
-    position: relative;
-    background-color: white;
+
+/* ============================================================
+   MENSAGEM PROMOCIONAL
+============================================================ */
+
+.mensagemPromocional {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 150px;
+
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 20px;
+
+    flex-direction: column;
+
+    justify-content: flex-start;
+
+    opacity: 0;
+    visibility: hidden;
+
+    animation:
+        alternarMensagem 8s infinite;
+
+    text-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.65);
 }
 
-.capacete {
-    width: clamp(45px, 8vw, 80px);
-    height: clamp(25px, 5vw, 60px);
+
+/* ============================================================
+   SEGUNDA MENSAGEM
+============================================================ */
+
+.mensagemPromocional:nth-child(2) {
+    animation-delay: 4s;
+}
+
+
+/* ============================================================
+   TÍTULO DA MENSAGEM
+============================================================ */
+
+.mensagemPromocional h2 {
+    margin: 0;
+
+    font-family:
+        Georgia,
+        'Times New Roman',
+        serif;
+
+    font-size: 42px;
+
+    font-weight: 700;
+
+    line-height: 1.1;
+
+    letter-spacing: -0.5px;
+
+    color: #ffffff;
+}
+
+
+/* ============================================================
+   TEXTO DA MENSAGEM
+============================================================ */
+
+.mensagemPromocional p {
+    width: 430px;
+
+    margin: 15px 0 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 18px;
+
+    font-weight: 400;
+
+    line-height: 1.5;
+
+    color: #ffffff;
+}
+
+
+/* ============================================================
+   SAIBA MAIS
+============================================================ */
+
+.saibaMais {
+    margin-top: 12px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 2px;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.6);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.saibaMais:hover {
+    transform: translateY(3px);
+
+    opacity: 0.85;
+}
+
+
+/* ============================================================
+   SETA
+============================================================ */
+
+.setaSaibaMais {
+    font-size: 28px;
+
+    line-height: 20px;
+
+    font-weight: 300;
+
+    animation:
+        movimentoSeta 1.5s ease-in-out infinite;
+}
+
+
+/* ============================================================
+   ANIMAÇÃO DAS MENSAGENS
+============================================================ */
+
+@keyframes alternarMensagem {
+
+    0% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(18px);
+    }
+
+    8% {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    38% {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    48% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-18px);
+    }
+
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-18px);
+    }
+}
+
+
+/* ============================================================
+   ANIMAÇÃO DA SETA
+============================================================ */
+
+@keyframes movimentoSeta {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(5px);
+    }
+}
+
+
+/* ============================================================
+   ÁREA DO CADASTRO
+============================================================ */
+
+.loginContainerDireita {
+    width: 43%;
+    height: 100%;
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    justify-content: flex-end;
+    align-items: center;
+
+    padding: 30px 35px 30px 20px;
+
+    box-sizing: border-box;
+
+    background: transparent;
+}
+
+
+/* ============================================================
+   CARD DE CADASTRO
+============================================================ */
+
+.login {
+    width: 100%;
+
+    max-width: 490px;
+
+    min-height: 500px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+    background:
+        rgba(255, 255, 255, 0.18);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.35);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.25);
+
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   TOPO DO CADASTRO
+============================================================ */
+
+.loginTopo {
+    width: 100%;
+
+    min-height: 60px;
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 0 80px;
+
+    box-sizing: border-box;
+
+    background:
+        rgba(255, 255, 255, 0.10);
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.20);
+
+    flex-shrink: 0;
+}
+
+
+/* ============================================================
+   IMAGEM DA LOJA
+============================================================ */
+
+.lojaIMG {
+    width: 58px;
+    height: 58px;
+
     object-fit: cover;
 
     position: absolute;
-    left: clamp(10px, 3vw, 30px);
+
+    left: 25px;
+
+    border-radius: 12px;
+
+    user-select: none;
+
+    -webkit-user-drag: none;
 }
+
+
+/* ============================================================
+   CAPACETE
+============================================================ */
+
+.capacete {
+    width: 58px;
+    height: 58px;
+
+    object-fit: contain;
+
+    position: absolute;
+
+    left: 25px;
+
+    user-select: none;
+
+    -webkit-user-drag: none;
+}
+
+
+/* ============================================================
+   TÍTULO
+============================================================ */
+
+.loginTopo h1 {
+    margin: 0;
+
+    font-size: 25px;
+
+    font-weight: 700;
+
+    color: #f2f7f3;
+
+    text-align: center;
+
+    text-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+
+/* ============================================================
+   CONTEÚDO
+============================================================ */
 
 .loginConteudo {
     flex: 1;
+
+    width: 100%;
+
     display: flex;
+
     justify-content: center;
     align-items: center;
-    padding: 30px;
-    background-color: rgb(240, 239, 238);
+
+    padding: 35px 45px;
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+
+    background: transparent;
 }
+
+
+/* ============================================================
+   FORMULÁRIO
+============================================================ */
 
 .formCadastro {
     width: 100%;
+
     max-width: 500px;
+
     display: flex;
+
     flex-direction: column;
-    gap: 10px;
+
+    gap: 18px;
 }
+
+
+/* ============================================================
+   CAMPOS
+============================================================ */
 
 .campo {
+    width: 100%;
+
     display: flex;
+
     flex-direction: column;
-    gap: 6px;
+
+    gap: 7px;
 }
 
+
+/* ============================================================
+   LABEL
+============================================================ */
+
 .campo label {
-    font-size: 15px;
+    color: #ffffff;
+
+    font-size: 14px;
+
     font-weight: 600;
-    color: #0c0000;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4);
 }
+
+
+/* ============================================================
+   INPUT
+============================================================ */
 
 .campo input {
     width: 100%;
-    height: 42px;
-    border: none;
-    border-bottom: 1px solid #999;
-    outline: none;
-    padding: 0 12px;
-    border-radius: 8px;
-    font-size: 15px;
+
+    height: 48px;
+
+    padding: 0 16px;
+
     box-sizing: border-box;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.45);
+
+    border-radius: 12px;
+
+    outline: none;
+
+    background:
+        rgba(255, 255, 255, 0.85);
+
+    color: #202020;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
+
+
+/* ============================================================
+   PLACEHOLDER
+============================================================ */
+
+.campo input::placeholder {
+    color: #777;
+}
+
+
+/* ============================================================
+   INPUT FOCUS
+============================================================ */
 
 .campo input:focus {
-    border-color: #ff8c00;
-    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.15);
+    background:
+        rgba(255, 255, 255, 0.96);
+
+    border-color:
+        rgba(255, 255, 255, 0.9);
+
+    box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.18);
 }
+
+
+/* ============================================================
+   ERRO DA API
+============================================================ */
+
+.erroApi {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    color: #ffffff;
+
+    background:
+        rgba(220, 38, 38, 0.85);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.3);
+
+    padding: 9px 12px;
+
+    border-radius: 8px;
+
+    backdrop-filter:
+        blur(5px);
+
+    font-size: 13px;
+
+    text-align: center;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ============================================================
+   BOTÃO CADASTRAR / PRÓXIMO
+============================================================ */
 
 .botaoCadastrar {
-    width: 50%;
-    height: 45px;
-    margin-top: 10px;
+    width: 180px;
+
+    height: 48px;
+
+    margin-top: 8px;
+
     align-self: center;
+
     border: none;
-    border-radius: 8px;
-    background-color: #141102;
-    color: rgb(250, 250, 248);
-    font-size: 16px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(0, 0, 0, 0.82);
+
+    color: #ffffff;
+
+    font-size: 15px;
+
     font-weight: 600;
+
     cursor: pointer;
-    transition: 0.2s;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
 
 .botaoCadastrar:hover {
-    background-color: #e67e00;
+    background:
+        rgba(0, 0, 0, 0.95);
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* --- Novas Regras Adicionadas para a Etapa 2 --- */
-.acoes {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-start; /* Empurra os dois botões para a direita */
-    width: 100%;
-    margin-top: 10px;
+
+.botaoCadastrar:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
 }
+
+
+/* ============================================================
+   AÇÕES
+============================================================ */
+
+.acoes {
+    width: 100%;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-top: 5px;
+}
+
+
+/* ============================================================
+   BOTÃO VOLTAR
+============================================================ */
 
 .botaoVoltar {
-    width: 20%;
-    height: 25px;
-    border: 1px solid #141102;
-    border-radius: 8px;
-    background-color: transparent;
-    color: #141102;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
+    width: 130px;
 
-    align-self: flex-start; /* Força o botão a ir para a esquerda */
+    height: 45px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.55);
+
+    border-radius: 12px;
+
+    background:
+        rgba(255, 255, 255, 0.18);
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
 
 .botaoVoltar:hover {
-    background-color: #ccc;
+    background:
+        rgba(255, 255, 255, 0.30);
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 
+.botaoVoltar:disabled {
+    opacity: 0.6;
 
-/* --- TELA DE AGRADECIMENTO (ETAPA 3) --- */
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   MENSAGEM DE SUCESSO
+============================================================ */
 
 .sucessoContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 20px;
     width: 100%;
-    animation: fadeIn 0.4s ease-in-out;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    color: #ffffff;
+
+    animation:
+        fadeIn 0.4s ease-in-out;
 }
 
-.emailImg {
-  width: 68px;       /* Altere este valor para o tamanho desejado */
-  height: auto;      /* Mantém a proporção da imagem sem esticar */
-  margin-top: 15px;  /* Cria um espaçamento entre o texto e o ícone */
-  display: block;    /* Ajuda no alinhamento vertical */
-}
 
 .sucessoTitulo {
-    font-size: 40px;
+    font-size: 32px;
+
     font-weight: 700;
-    color: #141102;
+
+    color: #ffffff;
+
+    margin-top: 0;
+
     margin-bottom: 15px;
+
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
+
 .sucessoTexto {
-    font-size: 24px;
-    color: #333;
+    font-size: 18px;
+
+    color: #ffffff;
+
     line-height: 1.5;
+
+    margin-top: 0;
+
     margin-bottom: 10px;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4);
 }
+
 
 .sucessoSubtexto {
     font-size: 14px;
-    color: #666;
+
+    color: #f1f1f1;
+
     line-height: 1.4;
+
+    margin-top: 0;
+
+    margin-bottom: 0;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-/* Animação suave de entrada para a tela de agradecimento */
+
+/* ============================================================
+   IMAGEM DO E-MAIL
+============================================================ */
+
+.emailImg {
+    width: 68px;
+
+    height: auto;
+
+    margin-top: 20px;
+
+    display: block;
+
+    user-select: none;
+
+    -webkit-user-drag: none;
+
+    filter:
+        drop-shadow(
+            0 5px 10px rgba(0, 0, 0, 0.25)
+        );
+}
+
+
+/* ============================================================
+   ANIMAÇÃO
+============================================================ */
+
 @keyframes fadeIn {
+
     from {
         opacity: 0;
-        transform: translateY(10px);
+
+        transform:
+            translateY(10px);
     }
+
     to {
         opacity: 1;
-        transform: translateY(0);
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* ============================================================
+   TELAS GRANDES
+============================================================ */
+
+@media (min-width: 1500px) {
+
+    .loginContainerDireita {
+        width: 40%;
+
+        padding-right: 45px;
+        padding-left: 20px;
+    }
+
+
+    .login {
+        max-width: 490px;
+    }
+
+
+    /*
+       AQUI ESTÁ O AJUSTE MAIS IMPORTANTE.
+
+       Não deixamos 100%.
+
+       A imagem fica um pouco maior e
+       é deslocada para a esquerda para
+       mostrar a moto.
+    */
+
+    .entregadorImg {
+        width: 112%;
+        height: 100%;
+
+        object-fit: cover;
+
+        object-position: center center;
+
+        transform: translateX(-9%);
+    }
+}
+
+
+/* ============================================================
+   TELAS MÉDIAS
+============================================================ */
+
+@media (max-width: 1300px) {
+
+    .loginContainerDireita {
+        width: 45%;
+
+        padding-right: 25px;
+        padding-left: 15px;
+    }
+
+
+    .login {
+        max-width: 470px;
+    }
+
+
+    /*
+       Mantém a moto mais para a esquerda.
+    */
+
+    .entregadorImg {
+        width: 112%;
+        height: 100%;
+
+        object-fit: cover;
+
+        object-position: center center;
+
+        transform: translateX(-8%);
+    }
+}
+
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 1000px) {
+
+    .loginContainer {
+        height: auto;
+
+        min-height:
+            calc(100vh - 80px);
+
+        justify-content: center;
+
+        align-items: center;
+    }
+
+
+    .loginContainerEsquerda {
+        width: 100%;
+        height: 100%;
+    }
+
+
+    .entregadorImg {
+        width: 115%;
+        height: 100%;
+
+        object-fit: cover;
+
+        object-position: center center;
+
+        transform: translateX(-7%);
+    }
+
+
+    .loginContainerDireita {
+        width: 100%;
+
+        min-height:
+            calc(100vh - 80px);
+
+        padding: 30px;
+    }
+
+
+    .login {
+        max-width: 500px;
+    }
+
+
+    .textoPromocional {
+        display: none;
+    }
+}
+
+
+/* ============================================================
+   CELULAR
+============================================================ */
+
+@media (max-width: 600px) {
+
+    .loginContainer {
+        min-height:
+            calc(100vh - 70px);
+
+        height: auto;
+    }
+
+
+    .loginContainerEsquerda {
+        width: 100%;
+        height: 100%;
+    }
+
+
+    .entregadorImg {
+        width: 125%;
+        height: 100%;
+
+        object-fit: cover;
+
+        object-position: center center;
+
+        transform: translateX(-12%);
+    }
+
+
+    .loginContainerDireita {
+        width: 100%;
+
+        min-height:
+            calc(100vh - 70px);
+
+        padding: 20px;
+    }
+
+
+    .login {
+        min-height: auto;
+
+        border-radius: 18px;
+    }
+
+
+    .loginTopo {
+        min-height: 80px;
+
+        padding: 0 65px;
+    }
+
+
+    .loginTopo h1 {
+        font-size: 22px;
+    }
+
+
+    .capacete {
+        width: 48px;
+
+        height: 48px;
+
+        left: 15px;
+    }
+
+
+    .lojaIMG {
+        width: 48px;
+
+        height: 48px;
+
+        left: 15px;
+    }
+
+
+    .loginConteudo {
+        padding: 25px 20px;
+    }
+
+
+    .formCadastro {
+        gap: 15px;
+    }
+
+
+    .campo input {
+        height: 46px;
+    }
+
+
+    .acoes {
+        flex-direction: column;
+
+        align-items: center;
+    }
+
+
+    .botaoVoltar,
+    .botaoCadastrar {
+        width: 100%;
     }
 }
