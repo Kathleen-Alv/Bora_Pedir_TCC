@@ -16,12 +16,81 @@ class EnderecoPagamentoPage extends StatefulWidget {
 
 class _EnderecoPagamentoPageState
     extends State<EnderecoPagamentoPage> {
+  // =========================================================
+  // FORMA DE PAGAMENTO SELECIONADA
+  // =========================================================
+
   String? formaPagamento;
+
+  // =========================================================
+  // CONTINUAR
+  // =========================================================
+
+  void continuar() {
+    // Se nenhuma forma foi selecionada,
+    // não faz nada.
+    if (formaPagamento == null) {
+      return;
+    }
+
+    // =======================================================
+    // PIX
+    // =======================================================
+
+    if (formaPagamento == 'pix') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PixPagamentoPage(
+            valor: 63.00,
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    // =======================================================
+    // CARTÃO
+    // =======================================================
+
+    if (formaPagamento == 'cartao') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              const CartaoPagamentoPage(),
+        ),
+      );
+
+      return;
+    }
+
+    // =======================================================
+    // DINHEIRO
+    // =======================================================
+
+    if (formaPagamento == 'dinheiro') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              const DinheiroPagamentoPage(),
+        ),
+      );
+
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      // =====================================================
+      // APP BAR
+      // =====================================================
 
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -33,7 +102,6 @@ class _EnderecoPagamentoPageState
             Icons.arrow_back,
             color: Colors.black,
           ),
-
           onPressed: () {
             Navigator.pop(context);
           },
@@ -49,6 +117,10 @@ class _EnderecoPagamentoPageState
         ),
       ),
 
+      // =====================================================
+      // BODY
+      // =====================================================
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
           20,
@@ -58,14 +130,13 @@ class _EnderecoPagamentoPageState
         ),
 
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
 
-            // =========================
+            // =================================================
             // ENDEREÇO
-            // =========================
+            // =================================================
 
             const Text(
               'Endereço de entrega',
@@ -79,6 +150,7 @@ class _EnderecoPagamentoPageState
 
             Container(
               width: double.infinity,
+
               padding: const EdgeInsets.all(18),
 
               decoration: BoxDecoration(
@@ -99,6 +171,7 @@ class _EnderecoPagamentoPageState
 
                 children: [
 
+                  // ÍCONE
                   const Icon(
                     Icons.location_on,
                     color: Color(0xFFC8102E),
@@ -107,6 +180,7 @@ class _EnderecoPagamentoPageState
 
                   const SizedBox(width: 12),
 
+                  // INFORMAÇÕES
                   Expanded(
                     child: Column(
                       crossAxisAlignment:
@@ -154,9 +228,11 @@ class _EnderecoPagamentoPageState
                     ),
                   ),
 
+                  // EDITAR
                   IconButton(
                     onPressed: () {
-                      // Futuramente abrir alteração de endereço.
+                      // Futuramente abrir alteração
+                      // de endereço.
                     },
 
                     icon: const Icon(
@@ -170,9 +246,9 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(height: 32),
 
-            // =========================
+            // =================================================
             // PAGAMENTO
-            // =========================
+            // =================================================
 
             const Text(
               'Meio de pagamento',
@@ -194,9 +270,9 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(height: 18),
 
-            // =========================
+            // =================================================
             // PIX
-            // =========================
+            // =================================================
 
             _opcaoPagamento(
               valor: 'pix',
@@ -208,9 +284,9 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(height: 12),
 
-            // =========================
+            // =================================================
             // CARTÃO
-            // =========================
+            // =================================================
 
             _opcaoPagamento(
               valor: 'cartao',
@@ -222,9 +298,9 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(height: 12),
 
-            // =========================
+            // =================================================
             // DINHEIRO
-            // =========================
+            // =================================================
 
             _opcaoPagamento(
               valor: 'dinheiro',
@@ -236,21 +312,21 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(height: 35),
 
-            // =========================
-            // BOTÃO
-            // =========================
+            // =================================================
+            // CONTINUAR
+            // =================================================
 
             SizedBox(
               width: double.infinity,
               height: 58,
 
               child: ElevatedButton(
+                // Só permite continuar quando
+                // alguma forma estiver selecionada.
                 onPressed:
                     formaPagamento == null
                         ? null
-                        : () {
-                            // Futuramente finalizar pedido.
-                          },
+                        : continuar,
 
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
@@ -264,7 +340,8 @@ class _EnderecoPagamentoPageState
                   disabledForegroundColor:
                       Colors.grey.shade600,
 
-                  shape: RoundedRectangleBorder(
+                  shape:
+                      RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(30),
                   ),
@@ -285,9 +362,9 @@ class _EnderecoPagamentoPageState
     );
   }
 
-  // =========================
+  // =========================================================
   // OPÇÃO DE PAGAMENTO
-  // =========================
+  // =========================================================
 
   Widget _opcaoPagamento({
     required String valor,
@@ -295,77 +372,19 @@ class _EnderecoPagamentoPageState
     required String descricao,
     required IconData icone,
   }) {
-    final selecionado =
+    final bool selecionado =
         formaPagamento == valor;
 
     return GestureDetector(
       onTap: () {
 
-        // =========================
-        // PIX
-        // =========================
-
-        if (valor == 'pix') {
-          setState(() {
-            formaPagamento = valor;
-          });
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const PixPagamentoPage(
-                valor: 63.00,
-              ),
-            ),
-          );
-
-          return;
-        }
-
-        // =========================
-        // CARTÃO
-        // =========================
-
-        if (valor == 'cartao') {
-          setState(() {
-            formaPagamento = valor;
-          });
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const CartaoPagamentoPage(),
-            ),
-          );
-
-          return;
-        }
-
-        // =========================
-        // DINHEIRO
-        // =========================
-
-        if (valor == 'dinheiro') {
-          setState(() {
-            formaPagamento = valor;
-          });
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const DinheiroPagamentoPage(),
-            ),
-          );
-
-          return;
-        }
-
-        // =========================
-        // OUTROS PAGAMENTOS
-        // =========================
+        // ===================================================
+        // IMPORTANTE:
+        //
+        // Aqui NÃO abrimos nenhuma tela.
+        //
+        // Apenas salvamos qual opção foi selecionada.
+        // ===================================================
 
         setState(() {
           formaPagamento = valor;
@@ -401,6 +420,10 @@ class _EnderecoPagamentoPageState
         child: Row(
           children: [
 
+            // =================================================
+            // ÍCONE
+            // =================================================
+
             Container(
               width: 48,
               height: 48,
@@ -425,6 +448,10 @@ class _EnderecoPagamentoPageState
             ),
 
             const SizedBox(width: 14),
+
+            // =================================================
+            // TEXTO
+            // =================================================
 
             Expanded(
               child: Column(
@@ -458,6 +485,10 @@ class _EnderecoPagamentoPageState
             ),
 
             const SizedBox(width: 10),
+
+            // =================================================
+            // RADIO
+            // =================================================
 
             Container(
               width: 23,

@@ -15,6 +15,9 @@ import { AdminBoraPedir } from './pages/adminBoraPedir/adminBoraPedir';
 import { GestaoPedidos } from './pages/GestaoPedidos/gestaoPedidos.tsx';
 import { PrimeiroAcessoComercio } from './pages/PortalGestao/componentes_gestao/PrimeiroAcesso/primeiroAcessoComercio.tsx';
 
+import { Chat } from './pages/GestaoPedidos/componentes/chat/chat.tsx';
+
+
 
 export function App() {
   return (
@@ -67,6 +70,14 @@ export function App() {
         path="/gestao_pedidos"
         element={<GestaoPedidos/>}
         />
+
+
+
+        <Route
+        path="/chat"
+        element={<Chat/>}
+        />
+
 
 
 
