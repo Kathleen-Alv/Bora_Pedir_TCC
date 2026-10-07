@@ -16,7 +16,7 @@ import { GestaoPedidos } from './pages/GestaoPedidos/gestaoPedidos.tsx';
 import { PrimeiroAcessoComercio } from './pages/PortalGestao/componentes_gestao/PrimeiroAcesso/primeiroAcessoComercio.tsx';
 
 import { Chat } from './pages/GestaoPedidos/componentes/chat/chat.tsx';
-
+import {Perfil} from './pages/PortalGestao/componentes_gestao/perfil/perfil.tsx';
 
 
 export function App() {
@@ -72,10 +72,16 @@ export function App() {
         />
 
 
-
+       {/* TESTE DE ROTAS DO FRONT */}
         <Route
         path="/chat"
         element={<Chat/>}
+        />
+
+
+        <Route
+        path="/perfil"
+        element={<Perfil/>}
         />
 
 
