@@ -3,6 +3,7 @@
   min-height: 100%;
 
   padding: 32px;
+  margin: 0;
 
   background: #f3f3f3;
 
@@ -20,9 +21,9 @@
 
 .profileContainer {
   width: 100%;
-  max-width: 1250px;
+  
 
-  margin: 0 auto;
+  margin: 0 ;
 
   background: #ffffff;
 
@@ -487,6 +488,111 @@
 
   font-size: 13px;
 }
+
+
+
+.imgDeIcone {
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  margin: 5px;
+
+  object-fit: contain;
+
+  display: block;
+}
+
+
+
+/*DADOS BANCARIOS*/
+.bannerContainer {
+  position: relative;
+  width: 1500px;
+  height: 500px;
+  margin: 0 auto;
+}
+
+.bannerDadosBancarios {
+  display: block;
+  margin: 0 auto;
+  width: 1500px;
+  height: 500px;
+  object-fit: contain;
+
+  user-select: none;
+  -webkit-user-drag: none;
+
+}
+
+.informacoesSobreConta {
+  position: absolute;
+
+  top: 180px;
+  left: 100px;
+
+  width: 500px;
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+}
+
+.informacoesSobreConta h2 {
+  margin: 0 0 20px;
+
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+}
+
+.dadosConta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.dadosConta div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dadosConta span {
+  font-size: 12px;
+  color: #777;
+}
+
+.dadosConta strong {
+  font-size: 15px;
+  color: #111;
+}
+
+
+.botaoAlterarInformacoes {
+  display: block;
+  width: 100%;
+  margin-top: 22px;
+  padding: 11px 18px;
+
+  background-color: #080808;
+  color: #ffffff;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.botaoAlterarInformacoes:hover {
+  background-color: #bd1221;
+}
+
 
 
 /* =====================================================

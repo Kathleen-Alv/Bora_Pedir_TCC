@@ -16,7 +16,12 @@ import { GestaoPedidos } from './pages/GestaoPedidos/gestaoPedidos.tsx';
 import { PrimeiroAcessoComercio } from './pages/PortalGestao/componentes_gestao/PrimeiroAcesso/primeiroAcessoComercio.tsx';
 
 import { Chat } from './pages/GestaoPedidos/componentes/chat/chat.tsx';
-import {Perfil} from './pages/PortalGestao/componentes_gestao/perfil/perfil.tsx';
+
+
+
+
+
+import { HeaderGestao } from './components/HeaderGestao/HeaderGestao.tsx';
 
 
 export function App() {
@@ -79,9 +84,11 @@ export function App() {
         />
 
 
+      
+
         <Route
-        path="/perfil"
-        element={<Perfil/>}
+        path="/admm"
+        element={<HeaderGestao/>}
         />
 
 

@@ -1,69 +1,193 @@
+
 import styles from "./perfil.module.css";
 
-function EditIcon() {
+import categoria from "../../../../assets/perfil/categoria.png";
+import editar from "../../../../assets/perfil/editar.png";
+import editar_foto from "../../../../assets/perfil/editar_foto.png";
+import endereco from "../../../../assets/perfil/endereco.png";
+import estrelas from "../../../../assets/perfil/estrelas.png";
+import horario from "../../../../assets/perfil/horario.png";
+import informacao from "../../../../assets/perfil/informacao.png";
+import bannerDadosBancarios from "../../../../assets/perfil/bannerDadosBancarios.png";
+
+
+// ========================================================
+// ÍCONE EDITAR
+// ========================================================
+
+function EditarImg() {
   return (
-    <span className={styles.editIcon} title="Editar">
-      ✎
-    </span>
+    <img
+      src={editar}
+      className={styles.imgDeIcone}
+      alt="Editar"
+      title="Editar"
+    />
   );
 }
 
-function LocationIcon() {
+
+// ========================================================
+// ÍCONE ENDEREÇO
+// ========================================================
+
+function EnderecoIcon() {
   return (
-    <div className={styles.locationIcon}>
-      <div className={styles.locationPin} />
-    </div>
+    <img
+      src={endereco}
+      className={styles.imgDeIcone}
+      alt="Endereço"
+      title="Endereço"
+    />
   );
 }
 
-function ClockIcon() {
+
+// ========================================================
+// ÍCONE HORÁRIO
+// ========================================================
+
+function HorarioIcon() {
   return (
-    <div className={styles.clockIcon}>
-      <div className={styles.clockHour} />
-      <div className={styles.clockMinute} />
-      <div className={styles.clockCenter} />
-    </div>
+    <img
+      src={horario}
+      className={styles.imgDeIcone}
+      alt="Horário"
+      title="Horário"
+    />
   );
 }
 
-function TagIcon() {
+
+// ========================================================
+// ÍCONE CATEGORIA
+// ========================================================
+
+function CategoriaIcon() {
   return (
-    <div className={styles.tagIcon}>
-      <span />
-    </div>
+    <img
+      src={categoria}
+      className={styles.imgDeIcone}
+      alt="Categoria"
+      title="Categoria"
+    />
   );
 }
+
+
+// ========================================================
+// ÍCONE ESTRELAS
+// ========================================================
+
+function EstrelasIcon() {
+  return (
+    <img
+      src={estrelas}
+      className={styles.imgDeIcone}
+      alt="Avaliação"
+      title="Avaliação"
+    />
+  );
+}
+
+
+// ========================================================
+// ÍCONE INFORMAÇÃO
+// ========================================================
+
+function InfoIcon() {
+  return (
+    <img
+      src={informacao}
+      className={styles.imgDeIcone}
+      alt="Informação"
+      title="Informação"
+    />
+  );
+}
+
+
+// ========================================================
+// ÍCONE EDITAR FOTO
+// ========================================================
+
+function EditarFotoIcon() {
+  return (
+    <img
+      src={editar_foto}
+      className={styles.imgDeIcone}
+      alt="Editar foto"
+      title="Editar foto"
+    />
+  );
+}
+
+
+// ========================================================
+// BANNER DADOS BANCÁRIOS
+// ========================================================
+
+function BannerDadosBancarios() {
+  return (
+    <img
+      src={bannerDadosBancarios}
+      className={styles.bannerDadosBancarios}
+      alt="Dados Bancários"
+      title="Dados Bancários"
+    />
+  );
+}
+
+
+// ========================================================
+// PERFIL
+// ========================================================
 
 export function Perfil() {
   return (
     <main className={styles.page}>
 
+      {/* =====================================================
+          CONTAINER DO PERFIL
+      ===================================================== */}
+
       <div className={styles.profileContainer}>
 
-        {/* CABEÇALHO */}
+        {/* =====================================================
+            CABEÇALHO
+        ===================================================== */}
+
         <section className={styles.header}>
 
           <div className={styles.profileCircle}>
+
             <div className={styles.circleEdit}>
-              <EditIcon />
+              <EditarFotoIcon />
             </div>
+
           </div>
 
           <div className={styles.headerEdit}>
-            <EditIcon />
+            <EditarFotoIcon />
           </div>
 
         </section>
 
 
-        {/* INFORMAÇÕES */}
+        {/* =====================================================
+            INFORMAÇÕES
+        ===================================================== */}
+
         <section className={styles.infoBar}>
+
+          {/* ================= ENDEREÇO ================= */}
 
           <div className={styles.infoItem}>
 
-            <LocationIcon />
+            <EnderecoIcon />
 
             <div className={styles.infoContent}>
+
               <span className={styles.label}>
                 Endereço
               </span>
@@ -71,9 +195,10 @@ export function Perfil() {
               <strong>
                 Av. Brasil 655, Osasco - SP
               </strong>
+
             </div>
 
-            <EditIcon />
+            <EditarImg />
 
           </div>
 
@@ -81,11 +206,14 @@ export function Perfil() {
           <div className={styles.divider} />
 
 
+          {/* ================= HORÁRIO ================= */}
+
           <div className={styles.infoItem}>
 
-            <ClockIcon />
+            <HorarioIcon />
 
             <div className={styles.infoContent}>
+
               <span className={styles.label}>
                 Horário
               </span>
@@ -93,13 +221,10 @@ export function Perfil() {
               <strong>
                 Segunda-feira 11h até 22h
               </strong>
+
             </div>
 
-            <span className={styles.arrow}>
-              ⌄
-            </span>
-
-            <EditIcon />
+            <EditarImg />
 
           </div>
 
@@ -107,11 +232,14 @@ export function Perfil() {
           <div className={styles.divider} />
 
 
+          {/* ================= CATEGORIA ================= */}
+
           <div className={styles.infoItem}>
 
-            <TagIcon />
+            <CategoriaIcon />
 
             <div className={styles.infoContent}>
+
               <span className={styles.label}>
                 Categoria
               </span>
@@ -119,20 +247,22 @@ export function Perfil() {
               <strong>
                 Comida Brasileira
               </strong>
+
             </div>
 
-            <EditIcon />
+            <EditarImg />
 
           </div>
 
 
+          {/* ================= AVALIAÇÃO ================= */}
+
           <div className={styles.rating}>
 
-            <span className={styles.star}>
-              ★
-            </span>
+            <EstrelasIcon />
 
             <div>
+
               <span className={styles.label}>
                 Avaliação
               </span>
@@ -140,6 +270,7 @@ export function Perfil() {
               <strong>
                 4,9
               </strong>
+
             </div>
 
           </div>
@@ -147,7 +278,10 @@ export function Perfil() {
         </section>
 
 
-        {/* CARD INFERIOR */}
+        {/* =====================================================
+            CARD INFERIOR
+        ===================================================== */}
+
         <section className={styles.content}>
 
           <div className={styles.descriptionCard}>
@@ -158,14 +292,19 @@ export function Perfil() {
                 Sobre o estabelecimento
               </h2>
 
-              <EditIcon />
+              <div>
+                <EditarImg />
+              </div>
 
             </div>
 
+
             <div className={styles.cardBody}>
+
               <span>
                 Adicione uma descrição sobre o estabelecimento.
               </span>
+
             </div>
 
           </div>
@@ -174,8 +313,56 @@ export function Perfil() {
 
       </div>
 
+
+      {/* =====================================================
+          BANNER DADOS BANCÁRIOS
+      ===================================================== */}
+
+
+<div className={styles.bannerContainer}>
+
+  <BannerDadosBancarios />
+
+  <div className={styles.informacoesSobreConta}>
+    <h2>Informações sobre a Conta</h2>
+
+
+    <div className={styles.dadosConta}>
+  <div>
+    <span>Banco</span>
+    <strong>Banco do Brasil</strong>
+  </div>
+
+  <div>
+    <span>Agência</span>
+    <strong>1234</strong>
+  </div>
+
+  <div>
+    <span>Conta</span>
+    <strong>12345-6</strong>
+  </div>
+
+  <div>
+    <span>Chave PIX</span>
+    <strong>exemplo@email.com</strong>
+  </div>
+</div>
+
+<button className={styles.botaoAlterarInformacoes}>
+  Alterar informações
+</button>
+
+</div>
+
+    
+  
+
+</div>
+    
     </main>
   );
 }
+
 
 export default Perfil;

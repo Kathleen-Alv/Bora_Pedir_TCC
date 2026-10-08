@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './PortalGestao.module.css';
-import { HeaderAdmin } from '../../components/HeaderAdmin/headerAdmin';
+import { Header } from '../../components/Header/header';
 
 /* IMAGENS */
 import inicio from '../../assets/portalGestao/inicio.png';
@@ -14,12 +14,15 @@ import perfil from '../../assets/portalGestao/loja.png';
 import horarios from '../../assets/portalGestao/horario.png';
 import suporte from '../../assets/portalGestao/suporte.png';
 import precificacao from '../../assets/portalGestao/precificacao.png';
+import Perfil from './componentes_gestao/perfil/perfil';
+
 import { Inicio } from './componentes_gestao/Inicio/inicio';
 
 /* SUB PÁGINAS */
 import { Cardapio } from '../PortalGestao/componentes_gestao/Cardapio/cardapio';
 
 import { Precificacao } from './componentes_gestao/Cardapio/calculadoraDePrecificação/calculadoraDePrecificação';
+
 
 type Tela =
   | 'inicio'
@@ -40,7 +43,7 @@ export function PortalGestao() {
   return (
     <>
       {/* HEADER */}
-      <HeaderAdmin />
+      <Header />
 
       <div className={styles.portal}>
 
@@ -225,6 +228,18 @@ export function PortalGestao() {
               <span>Perfil</span>
             </button>
 
+            
+
+
+
+
+
+
+
+
+
+
+
 
             {/* HORÁRIOS */}
             <button
@@ -274,6 +289,12 @@ export function PortalGestao() {
           {/* CARDÁPIO */}
           {telaAtual === 'cardapio' && (
             <Cardapio />
+          )}
+
+
+          {/* Perfil do comercio */}
+          {telaAtual === 'perfil' && (
+            <Perfil />
           )}
 
 
@@ -342,10 +363,7 @@ export function PortalGestao() {
           {/* PERFIL */}
           {telaAtual === 'perfil' && (
             <div>
-              <h1>Perfil</h1>
-              <p>
-                Dados do comércio.
-              </p>
+              
             </div>
           )}
 
