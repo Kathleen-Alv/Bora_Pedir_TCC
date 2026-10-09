@@ -21,7 +21,6 @@ import { Chat } from './pages/GestaoPedidos/componentes/chat/chat.tsx';
 
 
 
-import { HeaderGestao } from './components/HeaderGestao/HeaderGestao.tsx';
 
 
 export function App() {
@@ -86,10 +85,6 @@ export function App() {
 
       
 
-        <Route
-        path="/admm"
-        element={<HeaderGestao/>}
-        />
 
 
 

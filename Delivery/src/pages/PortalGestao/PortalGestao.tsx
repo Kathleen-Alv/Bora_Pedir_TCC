@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './PortalGestao.module.css';
-import { Header } from '../../components/Header/header';
+
+import {Header}  from '../../components/Header/header.tsx';
 
 /* IMAGENS */
 import inicio from '../../assets/portalGestao/inicio.png';
