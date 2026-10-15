@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styles from './PortalGestao.module.css';
 
-import {Header}  from '../../components/Header/header.tsx';
+import { HeaderGestao } from '../../components/headerGestao/headerGestao';
 
 /* IMAGENS */
 import inicio from '../../assets/portalGestao/inicio.png';
@@ -17,13 +17,14 @@ import suporte from '../../assets/portalGestao/suporte.png';
 import precificacao from '../../assets/portalGestao/precificacao.png';
 import Perfil from './componentes_gestao/perfil/perfil';
 
+import { Avaliacoes } from './componentes_gestao/avaliacoes/avaliacoes';
+
 import { Inicio } from './componentes_gestao/Inicio/inicio';
 
 /* SUB PÁGINAS */
 import { Cardapio } from '../PortalGestao/componentes_gestao/Cardapio/cardapio';
 
 import { Precificacao } from './componentes_gestao/Cardapio/calculadoraDePrecificação/calculadoraDePrecificação';
-
 
 type Tela =
   | 'inicio'
@@ -44,7 +45,7 @@ export function PortalGestao() {
   return (
     <>
       {/* HEADER */}
-      <Header />
+      <HeaderGestao />
 
       <div className={styles.portal}>
 
@@ -138,6 +139,7 @@ export function PortalGestao() {
             </button>
 
           </div>
+
 
 
           {/* PRECIFICAÇÃO */}
@@ -312,12 +314,8 @@ export function PortalGestao() {
 
           {/* AVALIAÇÕES */}
           {telaAtual === 'avaliacoes' && (
-            <div>
-              <h1>Avaliações</h1>
-              <p>
-                Aqui ficarão as avaliações dos clientes.
-              </p>
-            </div>
+            <Avaliacoes/>
+            
           )}
 
 

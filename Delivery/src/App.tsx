@@ -17,6 +17,8 @@ import { PrimeiroAcessoComercio } from './pages/PortalGestao/componentes_gestao/
 
 import { Chat } from './pages/GestaoPedidos/componentes/chat/chat.tsx';
 
+import {  Avaliacoes } from './pages/PortalGestao/componentes_gestao/avaliacoes/avaliacoes.tsx';
+
 
 
 
@@ -80,6 +82,13 @@ export function App() {
         <Route
         path="/chat"
         element={<Chat/>}
+        />
+
+
+
+         <Route
+        path="/1"
+        element={<Avaliacoes/>}
         />
 
 

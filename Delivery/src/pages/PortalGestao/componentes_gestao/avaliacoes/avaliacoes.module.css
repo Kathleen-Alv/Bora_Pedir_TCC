@@ -1,0 +1,39 @@
+/* CONTAINER DO BANNER */
+.bannerContainer {
+  width: 100%;
+  height: auto;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  box-sizing: border-box;
+}
+
+/* IMAGEM DO BANNER */
+.banner {
+  display: block;
+
+  /* ALTERE O TAMANHO DA IMAGEM AQUI */
+  width: 100%;
+  background-color: #f7efd5;
+  height: 150px;
+
+  object-fit: contain;
+  object-position: center;
+
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 600px) {
+  .banner {
+    width: 100%;
+    height: 120px;
+  }
+}
