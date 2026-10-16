@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 
 import styles from './CadastroEntregador.module.css';
 
@@ -6,6 +7,7 @@ import { Header } from '../../components/Header/header';
 
 import capaceteIcon from '../../assets/capacete.svg';
 import emailIcon from '../../assets/email.png';
+import entregadorCadastro from '../../assets/cadastroEntregador/entregador.png';
 
 type CadastroEntregadorProps = {
   children?: React.ReactNode;
@@ -65,13 +67,15 @@ export function CadastroEntregador({
       return numeros.replace(/^(\d{2})(\d+)/, '($1) $2');
     }
 
-    return numeros.replace(
-      /^(\d{2})(\d{5})(\d{1,4})$/,
-      '($1) $2-$3'
-    ).replace(
-      /^(\d{2})(\d{4})(\d+)$/,
-      '($1) $2-$3'
-    );
+    return numeros
+      .replace(
+        /^(\d{2})(\d{5})(\d{1,4})$/,
+        '($1) $2-$3'
+      )
+      .replace(
+        /^(\d{2})(\d{4})(\d+)$/,
+        '($1) $2-$3'
+      );
   };
 
   // ================================================================
@@ -97,8 +101,13 @@ export function CadastroEntregador({
   // VALIDAÇÃO DE IDADE
   // ================================================================
 
-  const validarMaioridade = (dataNascimentoStr: string): boolean => {
-    const dataNasc = new Date(`${dataNascimentoStr}T00:00:00`);
+  const validarMaioridade = (
+    dataNascimentoStr: string
+  ): boolean => {
+    const dataNasc = new Date(
+      `${dataNascimentoStr}T00:00:00`
+    );
+
     const hoje = new Date();
 
     if (
@@ -111,11 +120,13 @@ export function CadastroEntregador({
     let idade =
       hoje.getFullYear() - dataNasc.getFullYear();
 
-    const mes = hoje.getMonth() - dataNasc.getMonth();
+    const mes =
+      hoje.getMonth() - dataNasc.getMonth();
 
     if (
       mes < 0 ||
-      (mes === 0 && hoje.getDate() < dataNasc.getDate())
+      (mes === 0 &&
+        hoje.getDate() < dataNasc.getDate())
     ) {
       idade--;
     }
@@ -165,13 +176,19 @@ export function CadastroEntregador({
       return;
     }
 
-    if (formData.celular.replace(/\D/g, '').length < 10) {
-      alert('Por favor, digite um número de Celular/WhatsApp válido.');
+    if (
+      formData.celular.replace(/\D/g, '').length < 10
+    ) {
+      alert(
+        'Por favor, digite um número de Celular/WhatsApp válido.'
+      );
       return;
     }
 
     if (!formData.dataNascimento) {
-      alert('Por favor, informe sua Data de Nascimento.');
+      alert(
+        'Por favor, informe sua Data de Nascimento.'
+      );
       return;
     }
 
@@ -213,7 +230,9 @@ export function CadastroEntregador({
     }
 
     if (formData.placa.length !== 7) {
-      alert('A placa deve conter exatamente 7 caracteres.');
+      alert(
+        'A placa deve conter exatamente 7 caracteres.'
+      );
       return;
     }
 
@@ -227,7 +246,9 @@ export function CadastroEntregador({
       return;
     }
 
-    if (formData.senha !== formData.senhaConfirmar) {
+    if (
+      formData.senha !== formData.senhaConfirmar
+    ) {
       alert('As senhas não coincidem!');
       return;
     }
@@ -258,7 +279,10 @@ export function CadastroEntregador({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || 'Erro ao realizar o cadastro.');
+        alert(
+          data.message ||
+            'Erro ao realizar o cadastro.'
+        );
         return;
       }
 
@@ -281,7 +305,8 @@ export function CadastroEntregador({
   // PRIMEIRO NOME
   // ================================================================
 
-  const primeiroNome = formData.nome.trim().split(' ')[0];
+  const primeiroNome =
+    formData.nome.trim().split(' ')[0];
 
   // ================================================================
   // JSX
@@ -294,44 +319,58 @@ export function CadastroEntregador({
       {/* CONTAINER PRINCIPAL */}
 
       <div className={styles.loginContainer}>
-        {/* LADO ESQUERDO — SEM IMAGEM DE FUNDO */}
+        {/* ========================================================
+            FUNDO COM A IMAGEM DO ENTREGADOR
+        ======================================================== */}
 
-        <div className={styles.loginContainerEsquerda}>
-          <div className={styles.textoPromocional}>
-            <div className={styles.mensagensPromocionais}>
-              <div className={styles.mensagemPromocional}>
-                <h2>Faça parte da Bora Pedir</h2>
+        <div
+          className={styles.loginContainerEsquerda}
+          style={{
+            backgroundImage: `url("${entregadorCadastro}")`,
+          }}
+          aria-hidden="true"
+        />
 
-                <p>
-                  Entregue pedidos, conquiste clientes e tenha
-                  uma nova oportunidade de renda.
-                </p>
-              </div>
+        {/* ========================================================
+            TEXTO PROMOCIONAL
+        ======================================================== */}
 
-              <div className={styles.mensagemPromocional}>
-                <h2>Sua moto. Seus horários.</h2>
+        <div className={styles.textoPromocional}>
+          <div className={styles.mensagensPromocionais}>
+            <div className={styles.mensagemPromocional}>
+              <h2>Faça parte da Bora Pedir</h2>
 
-                <p>
-                  Cadastre-se como entregador e faça parte da
-                  nossa rede de parceiros.
-                </p>
-              </div>
+              <p>
+                Entregue pedidos, conquiste clientes e tenha
+                uma nova oportunidade de renda.
+              </p>
             </div>
 
-            <a
-              href="#cadastroEntregador"
-              className={styles.saibaMais}
-            >
-              <span>Saiba mais</span>
+            <div className={styles.mensagemPromocional}>
+              <h2>Sua moto. Seus horários.</h2>
 
-              <span className={styles.setaSaibaMais}>
-                ↓
-              </span>
-            </a>
+              <p>
+                Cadastre-se como entregador e faça parte da
+                nossa rede de parceiros.
+              </p>
+            </div>
           </div>
+
+          <a
+            href="#cadastroEntregador"
+            className={styles.saibaMais}
+          >
+            <span>Saiba mais</span>
+
+            <span className={styles.setaSaibaMais}>
+              ↓
+            </span>
+          </a>
         </div>
 
-        {/* LADO DIREITO */}
+        {/* ========================================================
+            LADO DIREITO — CADASTRO
+        ======================================================== */}
 
         <div
           id="cadastroEntregador"
@@ -345,6 +384,7 @@ export function CadastroEntregador({
                 src={capaceteIcon}
                 alt="Capacete"
                 className={styles.lojaIMG}
+                draggable={false}
               />
 
               <h1>Cadastro de Entregador</h1>
@@ -353,7 +393,9 @@ export function CadastroEntregador({
             {/* CONTEÚDO */}
 
             <div className={styles.loginConteudo}>
-              {/* ETAPA 1 */}
+              {/* ==================================================
+                  ETAPA 1
+              ================================================== */}
 
               {etapa === 1 && (
                 <form
@@ -453,7 +495,9 @@ export function CadastroEntregador({
                 </form>
               )}
 
-              {/* ETAPA 2 */}
+              {/* ==================================================
+                  ETAPA 2
+              ================================================== */}
 
               {etapa === 2 && (
                 <form
@@ -548,7 +592,9 @@ export function CadastroEntregador({
                 </form>
               )}
 
-              {/* ETAPA 3 — SUCESSO */}
+              {/* ==================================================
+                  ETAPA 3 — SUCESSO
+              ================================================== */}
 
               {etapa === 3 && (
                 <div className={styles.sucessoContainer}>
@@ -571,6 +617,7 @@ export function CadastroEntregador({
                     src={emailIcon}
                     alt="E-mail"
                     className={styles.emailImg}
+                    draggable={false}
                   />
                 </div>
               )}

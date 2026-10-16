@@ -435,3 +435,68 @@ export async function salvarPrimeiroAcesso(req, res) {
     }
 
 }
+
+
+
+ // ================================================================
+// MOSTRAR E-MAIL DO COMÉRCIO LOGADO
+// ================================================================
+
+export async function verEmail(req, res) {
+    let conexao;
+
+    try {
+        // 1. Identificar o usuário autenticado pelo token
+        const usuarioId = req.usuario?.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({
+                sucesso: false,
+                mensagem: 'Usuário não autenticado.'
+            });
+        }
+
+        // 2. Abrir conexão com o banco
+        conexao = await db.getConnection();
+
+        // 3. Buscar o e-mail do usuário associado ao comércio
+        const resultado = await conexao.query(
+            `
+            SELECT u.email
+            FROM comercios AS c
+            INNER JOIN usuarios AS u
+                ON u.id = c.usuario_id
+            WHERE c.usuario_id = ?
+            LIMIT 1
+            `,
+            [usuarioId]
+        );
+
+        // 4. Verificar se encontrou o e-mail
+        if (resultado.length === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                mensagem: 'Comércio ou e-mail não encontrado.'
+            });
+        }
+
+        // 5. Retornar o e-mail ao frontend
+        return res.status(200).json({
+            sucesso: true,
+            email: resultado[0].email
+        });
+
+    } catch (erro) {
+        console.error('Erro ao buscar e-mail:', erro);
+
+        return res.status(500).json({
+            sucesso: false,
+            mensagem: 'Erro ao consultar o e-mail do comércio.'
+        });
+
+    } finally {
+        if (conexao) {
+            conexao.release();
+        }
+    }
+}

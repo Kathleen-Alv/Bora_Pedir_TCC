@@ -6,17 +6,14 @@
 .paginaWrapper {
     width: 100%;
     min-height: 100vh;
-
     display: flex;
     flex-direction: column;
     align-items: center;
-
     background: #ffffff;
-
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
-
 
 /* ============================================================
    CONTAINER DO CADASTRO
@@ -24,54 +21,38 @@
 
 .loginContainer {
     width: 100%;
-
     height: calc(100vh - 80px);
-
-    min-height: 700px;
-
+    min-height: 650px;
     position: relative;
-
     display: flex;
-
     justify-content: flex-end;
     align-items: center;
-
     overflow: hidden;
-
     box-sizing: border-box;
-
     margin: 0;
     padding: 0;
-
     background: #000000;
 }
 
-
 /* ============================================================
-   ÁREA DA IMAGEM
+   FUNDO COM A IMAGEM DO ENTREGADOR
 ============================================================ */
 
 .loginContainerEsquerda {
     position: absolute;
-
-    top: 0;
-    left: 0;
-
+    inset: 0;
     width: 100%;
     height: 100%;
-
     margin: 0;
     padding: 0;
-
     overflow: hidden;
-
     z-index: 0;
-
     display: block;
-
-    background: #000000;
+    background-color: #000000;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
-
 
 /* ============================================================
    IMAGEM PRINCIPAL
@@ -79,57 +60,26 @@
 
 .entregadorImg {
     position: absolute;
-
     top: 0;
     left: 0;
-
-    /*
-       Aumentamos a largura da imagem para poder
-       deslocar o conteúdo para a esquerda.
-
-       Isso faz a moto sair de trás do cadastro.
-    */
-
     width: 112%;
     height: 100%;
-
     min-width: 0;
     min-height: 100%;
-
     max-width: none;
     max-height: none;
-
     display: block;
-
     object-fit: cover;
-
     object-position: center center;
-
-    /*
-       PRINCIPAL AJUSTE
-
-       Move toda a imagem para a esquerda.
-
-       A moto e principalmente a placa
-       ficam mais visíveis.
-    */
-
     transform: translateX(-9%);
-
     transform-origin: center center;
-
     margin: 0;
     padding: 0;
-
     z-index: 0;
-
     user-select: none;
-
     pointer-events: none;
-
     -webkit-user-drag: none;
 }
-
 
 /* ============================================================
    TEXTO PROMOCIONAL
@@ -137,25 +87,16 @@
 
 .textoPromocional {
     position: absolute;
-
     left: 45px;
     top: 205px;
-
-    width: 480px;
-
+    width: 430px;
     z-index: 1;
-
     display: flex;
-
     flex-direction: column;
-
     align-items: flex-start;
-
     color: #ffffff;
-
     text-align: left;
 }
-
 
 /* ============================================================
    ÁREA DAS MENSAGENS
@@ -163,13 +104,10 @@
 
 .mensagensPromocionais {
     position: relative;
-
     width: 100%;
     height: 155px;
-
     overflow: hidden;
 }
-
 
 /* ============================================================
    MENSAGEM PROMOCIONAL
@@ -177,38 +115,22 @@
 
 .mensagemPromocional {
     position: absolute;
-
     top: 0;
     left: 0;
-
     width: 100%;
     height: 150px;
-
     display: flex;
-
     flex-direction: column;
-
     justify-content: flex-start;
-
     opacity: 0;
     visibility: hidden;
-
-    animation:
-        alternarMensagem 8s infinite;
-
-    text-shadow:
-        0 3px 8px rgba(0, 0, 0, 0.65);
+    animation: alternarMensagem 8s infinite;
+    text-shadow: 0 3px 8px rgba(0, 0, 0, 0.65);
 }
-
-
-/* ============================================================
-   SEGUNDA MENSAGEM
-============================================================ */
 
 .mensagemPromocional:nth-child(2) {
     animation-delay: 4s;
 }
-
 
 /* ============================================================
    TÍTULO DA MENSAGEM
@@ -216,47 +138,27 @@
 
 .mensagemPromocional h2 {
     margin: 0;
-
-    font-family:
-        Georgia,
-        'Times New Roman',
-        serif;
-
-    font-size: 42px;
-
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 38px;
     font-weight: 700;
-
     line-height: 1.1;
-
     letter-spacing: -0.5px;
-
     color: #ffffff;
 }
-
 
 /* ============================================================
    TEXTO DA MENSAGEM
 ============================================================ */
 
 .mensagemPromocional p {
-    width: 430px;
-
+    width: 400px;
     margin: 15px 0 0;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    font-size: 18px;
-
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
     font-weight: 400;
-
     line-height: 1.5;
-
     color: #ffffff;
 }
-
 
 /* ============================================================
    SAIBA MAIS
@@ -264,45 +166,24 @@
 
 .saibaMais {
     margin-top: 12px;
-
     display: flex;
-
     flex-direction: column;
-
     align-items: flex-start;
-
     gap: 2px;
-
     color: #ffffff;
-
     text-decoration: none;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
-
     font-weight: 600;
-
-    text-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.6);
-
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
     cursor: pointer;
-
-    transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
-
 
 .saibaMais:hover {
     transform: translateY(3px);
-
     opacity: 0.85;
 }
-
 
 /* ============================================================
    SETA
@@ -310,22 +191,16 @@
 
 .setaSaibaMais {
     font-size: 28px;
-
     line-height: 20px;
-
     font-weight: 300;
-
-    animation:
-        movimentoSeta 1.5s ease-in-out infinite;
+    animation: movimentoSeta 1.5s ease-in-out infinite;
 }
-
 
 /* ============================================================
    ANIMAÇÃO DAS MENSAGENS
 ============================================================ */
 
 @keyframes alternarMensagem {
-
     0% {
         opacity: 0;
         visibility: hidden;
@@ -357,15 +232,8 @@
     }
 }
 
-
-/* ============================================================
-   ANIMAÇÃO DA SETA
-============================================================ */
-
 @keyframes movimentoSeta {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: translateY(0);
     }
 
@@ -373,7 +241,6 @@
         transform: translateY(5px);
     }
 }
-
 
 /* ============================================================
    ÁREA DO CADASTRO
@@ -384,66 +251,42 @@
     height: 100%;
 
     position: relative;
-
     z-index: 2;
 
     display: flex;
-
     justify-content: flex-end;
     align-items: center;
 
-    padding: 30px 35px 30px 20px;
+    /* Aumente o padding direito para mover o card à esquerda */
+    padding: 30px 65px 30px 20px;
 
     box-sizing: border-box;
-
     background: transparent;
 }
 
-
 /* ============================================================
-   CARD DE CADASTRO
+   CARD DE CADASTRO — TAMANHO REDUZIDO
 ============================================================ */
 
 .login {
     width: 100%;
-
-    max-width: 490px;
-
-    min-height: 500px;
-
+    max-width: 400px;
+    min-height: 430px;
     display: flex;
-
     flex-direction: column;
-
     justify-content: center;
     align-items: center;
-
-    gap: 18px;
-
+    gap: 12px;
     padding: 0;
-
     box-sizing: border-box;
-
-    background:
-        rgba(255, 255, 255, 0.18);
-
-    backdrop-filter:
-        blur(18px);
-
-    -webkit-backdrop-filter:
-        blur(18px);
-
-    border:
-        1px solid rgba(255, 255, 255, 0.35);
-
-    border-radius: 24px;
-
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.25);
-
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
     overflow: hidden;
 }
-
 
 /* ============================================================
    TOPO DO CADASTRO
@@ -451,71 +294,46 @@
 
 .loginTopo {
     width: 100%;
-
-    min-height: 60px;
-
+    min-height: 54px;
     position: relative;
-
     display: flex;
-
     justify-content: center;
     align-items: center;
-
-    padding: 0 80px;
-
+    padding: 0 65px;
     box-sizing: border-box;
-
-    background:
-        rgba(255, 255, 255, 0.10);
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.20);
-
+    background: rgba(255, 255, 255, 0.10);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.20);
     flex-shrink: 0;
 }
-
 
 /* ============================================================
    IMAGEM DA LOJA
 ============================================================ */
 
 .lojaIMG {
-    width: 58px;
-    height: 58px;
-
+    width: 44px;
+    height: 44px;
     object-fit: cover;
-
     position: absolute;
-
-    left: 25px;
-
-    border-radius: 12px;
-
+    left: 16px;
+    border-radius: 10px;
     user-select: none;
-
     -webkit-user-drag: none;
 }
-
 
 /* ============================================================
    CAPACETE
 ============================================================ */
 
 .capacete {
-    width: 58px;
-    height: 58px;
-
+    width: 44px;
+    height: 44px;
     object-fit: contain;
-
     position: absolute;
-
-    left: 25px;
-
+    left: 16px;
     user-select: none;
-
     -webkit-user-drag: none;
 }
-
 
 /* ============================================================
    TÍTULO
@@ -523,19 +341,13 @@
 
 .loginTopo h1 {
     margin: 0;
-
-    font-size: 25px;
-
+    font-size: 20px;
     font-weight: 700;
-
     color: #f2f7f3;
-
     text-align: center;
-
-    text-shadow:
-        0 1px 4px rgba(0, 0, 0, 0.45);
+    line-height: 1.2;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
-
 
 /* ============================================================
    CONTEÚDO
@@ -543,23 +355,15 @@
 
 .loginConteudo {
     flex: 1;
-
     width: 100%;
-
     display: flex;
-
     justify-content: center;
     align-items: center;
-
-    padding: 35px 45px;
-
+    padding: 22px 28px;
     box-sizing: border-box;
-
     overflow-y: auto;
-
     background: transparent;
 }
-
 
 /* ============================================================
    FORMULÁRIO
@@ -567,16 +371,11 @@
 
 .formCadastro {
     width: 100%;
-
-    max-width: 500px;
-
+    max-width: 350px;
     display: flex;
-
     flex-direction: column;
-
-    gap: 18px;
+    gap: 12px;
 }
-
 
 /* ============================================================
    CAMPOS
@@ -584,14 +383,10 @@
 
 .campo {
     width: 100%;
-
     display: flex;
-
     flex-direction: column;
-
-    gap: 7px;
+    gap: 5px;
 }
-
 
 /* ============================================================
    LABEL
@@ -599,15 +394,10 @@
 
 .campo label {
     color: #ffffff;
-
-    font-size: 14px;
-
+    font-size: 13px;
     font-weight: 600;
-
-    text-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-
 
 /* ============================================================
    INPUT
@@ -615,58 +405,27 @@
 
 .campo input {
     width: 100%;
-
-    height: 48px;
-
-    padding: 0 16px;
-
+    height: 40px;
+    padding: 0 12px;
     box-sizing: border-box;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.45);
-
-    border-radius: 12px;
-
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 9px;
     outline: none;
-
-    background:
-        rgba(255, 255, 255, 0.85);
-
+    background: rgba(255, 255, 255, 0.88);
     color: #202020;
-
-    font-size: 14px;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
+    font-size: 13px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
-
-
-/* ============================================================
-   PLACEHOLDER
-============================================================ */
 
 .campo input::placeholder {
     color: #777;
 }
 
-
-/* ============================================================
-   INPUT FOCUS
-============================================================ */
-
 .campo input:focus {
-    background:
-        rgba(255, 255, 255, 0.96);
-
-    border-color:
-        rgba(255, 255, 255, 0.9);
-
-    box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.97);
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
 }
-
 
 /* ============================================================
    ERRO DA API
@@ -674,88 +433,48 @@
 
 .erroApi {
     width: 100%;
-
     box-sizing: border-box;
-
     color: #ffffff;
-
-    background:
-        rgba(220, 38, 38, 0.85);
-
-    border:
-        1px solid rgba(255, 255, 255, 0.3);
-
+    background: rgba(220, 38, 38, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 9px 12px;
-
     border-radius: 8px;
-
-    backdrop-filter:
-        blur(5px);
-
+    backdrop-filter: blur(5px);
     font-size: 13px;
-
     text-align: center;
-
-    text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
-
 
 /* ============================================================
    BOTÃO CADASTRAR / PRÓXIMO
 ============================================================ */
 
 .botaoCadastrar {
-    width: 180px;
-
-    height: 48px;
-
-    margin-top: 8px;
-
+    width: 160px;
+    min-height: 42px;
+    margin-top: 5px;
     align-self: center;
-
     border: none;
-
-    border-radius: 12px;
-
-    background:
-        rgba(0, 0, 0, 0.82);
-
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.82);
     color: #ffffff;
-
-    font-size: 15px;
-
+    font-size: 14px;
     font-weight: 600;
-
     cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 
 .botaoCadastrar:hover {
-    background:
-        rgba(0, 0, 0, 0.95);
-
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
-
 
 .botaoCadastrar:disabled {
     opacity: 0.6;
-
     cursor: not-allowed;
-
     transform: none;
 }
-
 
 /* ============================================================
    AÇÕES
@@ -763,71 +482,41 @@
 
 .acoes {
     width: 100%;
-
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
-    gap: 15px;
-
+    gap: 12px;
     margin-top: 5px;
 }
-
 
 /* ============================================================
    BOTÃO VOLTAR
 ============================================================ */
 
 .botaoVoltar {
-    width: 130px;
-
-    height: 45px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.55);
-
-    border-radius: 12px;
-
-    background:
-        rgba(255, 255, 255, 0.18);
-
+    width: 115px;
+    min-height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.18);
     color: #ffffff;
-
-    font-size: 14px;
-
+    font-size: 13px;
     font-weight: 600;
-
     cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 
 .botaoVoltar:hover {
-    background:
-        rgba(255, 255, 255, 0.30);
-
-    transform:
-        translateY(-1px);
-
-    box-shadow:
-        0 5px 15px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.30);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
-
 
 .botaoVoltar:disabled {
     opacity: 0.6;
-
     cursor: not-allowed;
-
     transform: none;
 }
-
 
 /* ============================================================
    MENSAGEM DE SUCESSO
@@ -835,357 +524,231 @@
 
 .sucessoContainer {
     width: 100%;
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
-
     text-align: center;
-
-    padding: 30px;
-
+    padding: 24px;
     box-sizing: border-box;
-
     color: #ffffff;
-
-    animation:
-        fadeIn 0.4s ease-in-out;
+    animation: fadeIn 0.4s ease-in-out;
 }
-
 
 .sucessoTitulo {
-    font-size: 32px;
-
+    font-size: 27px;
     font-weight: 700;
-
     color: #ffffff;
-
-    margin-top: 0;
-
-    margin-bottom: 15px;
-
-    text-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.5);
+    margin: 0 0 12px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-
 
 .sucessoTexto {
-    font-size: 18px;
-
+    font-size: 16px;
     color: #ffffff;
-
     line-height: 1.5;
-
-    margin-top: 0;
-
-    margin-bottom: 10px;
-
-    text-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.4);
+    margin: 0 0 10px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-
 
 .sucessoSubtexto {
-    font-size: 14px;
-
+    font-size: 13px;
     color: #f1f1f1;
-
     line-height: 1.4;
-
-    margin-top: 0;
-
-    margin-bottom: 0;
-
-    text-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.4);
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-
 
 /* ============================================================
    IMAGEM DO E-MAIL
 ============================================================ */
 
 .emailImg {
-    width: 68px;
-
+    width: 58px;
     height: auto;
-
-    margin-top: 20px;
-
+    margin-top: 16px;
     display: block;
-
     user-select: none;
-
     -webkit-user-drag: none;
-
-    filter:
-        drop-shadow(
-            0 5px 10px rgba(0, 0, 0, 0.25)
-        );
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.25));
 }
-
 
 /* ============================================================
    ANIMAÇÃO
 ============================================================ */
 
 @keyframes fadeIn {
-
     from {
         opacity: 0;
-
-        transform:
-            translateY(10px);
+        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
-
-        transform:
-            translateY(0);
+        transform: translateY(0);
     }
 }
-
 
 /* ============================================================
    TELAS GRANDES
 ============================================================ */
 
 @media (min-width: 1500px) {
-
     .loginContainerDireita {
         width: 40%;
-
         padding-right: 45px;
         padding-left: 20px;
     }
 
-
     .login {
-        max-width: 490px;
+        max-width: 400px;
     }
-
-
-    /*
-       AQUI ESTÁ O AJUSTE MAIS IMPORTANTE.
-
-       Não deixamos 100%.
-
-       A imagem fica um pouco maior e
-       é deslocada para a esquerda para
-       mostrar a moto.
-    */
 
     .entregadorImg {
         width: 112%;
         height: 100%;
-
         object-fit: cover;
-
         object-position: center center;
-
         transform: translateX(-9%);
     }
 }
-
 
 /* ============================================================
    TELAS MÉDIAS
 ============================================================ */
 
 @media (max-width: 1300px) {
-
     .loginContainerDireita {
         width: 45%;
-
         padding-right: 25px;
         padding-left: 15px;
     }
 
-
     .login {
-        max-width: 470px;
+        max-width: 390px;
     }
-
-
-    /*
-       Mantém a moto mais para a esquerda.
-    */
 
     .entregadorImg {
         width: 112%;
         height: 100%;
-
         object-fit: cover;
-
         object-position: center center;
-
         transform: translateX(-8%);
     }
 }
-
 
 /* ============================================================
    TABLET
 ============================================================ */
 
 @media (max-width: 1000px) {
-
     .loginContainer {
         height: auto;
-
-        min-height:
-            calc(100vh - 80px);
-
+        min-height: calc(100vh - 80px);
         justify-content: center;
-
         align-items: center;
     }
-
 
     .loginContainerEsquerda {
         width: 100%;
         height: 100%;
     }
 
-
     .entregadorImg {
         width: 115%;
         height: 100%;
-
         object-fit: cover;
-
         object-position: center center;
-
         transform: translateX(-7%);
     }
 
-
     .loginContainerDireita {
         width: 100%;
-
-        min-height:
-            calc(100vh - 80px);
-
-        padding: 30px;
+        min-height: calc(100vh - 80px);
+        padding: 25px;
+        justify-content: center;
     }
-
 
     .login {
-        max-width: 500px;
+        width: 100%;
+        max-width: 400px;
+        min-height: 430px;
     }
-
 
     .textoPromocional {
         display: none;
     }
 }
 
-
 /* ============================================================
    CELULAR
 ============================================================ */
 
 @media (max-width: 600px) {
-
     .loginContainer {
-        min-height:
-            calc(100vh - 70px);
-
+        min-height: calc(100vh - 70px);
         height: auto;
     }
-
 
     .loginContainerEsquerda {
         width: 100%;
         height: 100%;
     }
 
-
     .entregadorImg {
         width: 125%;
         height: 100%;
-
         object-fit: cover;
-
         object-position: center center;
-
         transform: translateX(-12%);
     }
 
-
     .loginContainerDireita {
         width: 100%;
-
-        min-height:
-            calc(100vh - 70px);
-
-        padding: 20px;
+        min-height: calc(100vh - 70px);
+        padding: 16px;
+        justify-content: center;
     }
-
 
     .login {
+        width: 100%;
+        max-width: 360px;
         min-height: auto;
-
-        border-radius: 18px;
+        border-radius: 16px;
     }
-
 
     .loginTopo {
-        min-height: 80px;
-
-        padding: 0 65px;
+        min-height: 65px;
+        padding: 0 55px;
     }
-
 
     .loginTopo h1 {
-        font-size: 22px;
+        font-size: 18px;
     }
 
-
-    .capacete {
-        width: 48px;
-
-        height: 48px;
-
-        left: 15px;
-    }
-
-
+    .capacete,
     .lojaIMG {
-        width: 48px;
-
-        height: 48px;
-
-        left: 15px;
+        width: 40px;
+        height: 40px;
+        left: 12px;
     }
-
 
     .loginConteudo {
-        padding: 25px 20px;
+        padding: 20px 16px;
     }
-
 
     .formCadastro {
-        gap: 15px;
+        gap: 12px;
     }
-
 
     .campo input {
-        height: 46px;
+        height: 42px;
     }
-
 
     .acoes {
         flex-direction: column;
-
-        align-items: center;
+        align-items: stretch;
     }
-
 
     .botaoVoltar,
     .botaoCadastrar {

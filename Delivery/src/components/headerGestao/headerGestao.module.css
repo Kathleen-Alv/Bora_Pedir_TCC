@@ -1,8 +1,17 @@
+
+/* ================================================================
+   CABEÇALHO
+================================================================ */
+
 .header {
   width: 100%;
   height: 11vh;
   min-height: 60px;
   max-height: 75px;
+
+  padding: 0;
+  box-sizing: border-box;
+
   background-color: #bb1121;
 
   display: flex;
@@ -10,38 +19,57 @@
   justify-content: space-between;
 }
 
-/* elementos diretos do header */
-.header > div {
+/* ================================================================
+   CONTAINERS PRINCIPAIS
+================================================================ */
+
+.logoContainer {
   display: flex;
   align-items: center;
-}
-
-/* esquerda: logo */
-.header > div:first-child {
   justify-content: flex-start;
+
+  height: 100%;
   padding-left: 80px;
 }
 
-.header > div:first-child img {
-  width: 70px;
-  height: 70px;
-  max-height: 100%;
-  object-fit: contain;
-  cursor: pointer;
-}
-
-/* direita: conta */
-.header > div:last-child {
+.accountContainer {
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
+
   margin-left: auto;
   padding-right: 30px;
 }
 
+/* ================================================================
+   LOGO BORA PEDIR
+================================================================ */
+
+.logoContainer img {
+  display: block;
+
+  width: 70px;
+  height: 70px;
+  max-height: 100%;
+
+  object-fit: contain;
+  cursor: pointer;
+}
+
+/* ================================================================
+   CONTA DO USUÁRIO
+================================================================ */
+
 .account {
   position: relative;
+
   display: flex;
   align-items: center;
 }
+
+/* ================================================================
+   BOTÃO COM E-MAIL
+================================================================ */
 
 .accountButton {
   display: flex;
@@ -53,98 +81,323 @@
   min-height: 38px;
   padding: 0 12px;
 
-  background-color: rgb(252, 239, 239);
-  border: 3px solid rgb(238, 216, 17);
-  border-radius: 5px;
+  background-color: #fceeee;
+  border: 2px solid #eed811;
+  border-radius: 6px;
 
   color: #6e0808;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+
   cursor: pointer;
 
-  transition: background-color 0.2s ease,
-              border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .accountButton:hover {
-  background-color: rgb(240, 235, 235);
-  border-color: rgb(236, 3, 3);
+  background-color: #ffffff;
+  border-color: #f3c900;
 }
 
+.accountButton:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* ================================================================
+   TEXTO DO E-MAIL
+================================================================ */
+
 .accountEmail {
+  display: block;
+
+  max-width: 220px;
+
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* ================================================================
+   SETA DO MENU
+================================================================ */
+
 .arrow {
-  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   flex-shrink: 0;
+
+  font-size: 10px;
+  color: #6e0808;
 }
 
-/* menu suspenso */
+/* ================================================================
+   MENU SUSPENSO
+   LARGURA IGUAL À DO BOTÃO DO E-MAIL
+================================================================ */
+
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   z-index: 1000;
 
-  width: 220px;
+  width: 100%;
   padding: 8px;
 
-  background-color: #fff;
+  box-sizing: border-box;
+
+  background-color: #ffffff;
   border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.18);
+  border-radius: 9px;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+
+  animation: aparecerMenu 0.16s ease-out;
 }
 
-.emailInfo {
+/* ================================================================
+   INFORMAÇÕES DO ADMINISTRADOR
+================================================================ */
+
+.adminInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-height: 54px;
   padding: 10px;
-  color: #555;
-  font-size: 13px;
-  overflow-wrap: anywhere;
-  border-bottom: 1px solid #eee;
+
+  box-sizing: border-box;
 }
+
+/* Espaço reservado para a imagem do administrador */
+
+.adminIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+
+  overflow: hidden;
+
+  background-color: #fff0f0;
+  border: 1px solid #f1d5d5;
+  border-radius: 50%;
+
+  color: #bb1121;
+}
+
+/* Quando você adicionar uma imagem dentro de adminIcon */
+
+.adminIcon img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* ================================================================
+   NOME DO ADMINISTRADOR
+================================================================ */
+
+.adminText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+
+  min-width: 0;
+}
+
+.adminName {
+  color: #292929;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+/* ================================================================
+   DIVISÓRIA DO MENU
+================================================================ */
+
+.dropdownDivider {
+  width: 100%;
+  height: 1px;
+
+  margin: 4px 0;
+
+  background-color: #eeeeee;
+}
+
+/* ================================================================
+   BOTÃO SAIR
+================================================================ */
 
 .logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
   width: 100%;
-  margin-top: 6px;
+  min-height: 40px;
+  margin-top: 4px;
   padding: 10px;
+
+  box-sizing: border-box;
 
   background-color: transparent;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
 
   color: #bb1121;
-  text-align: left;
+
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+
   cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .logoutButton:hover {
   background-color: #fff0f0;
+  color: #8e0c18;
 }
 
-/* telas menores */
+.logoutButton:focus-visible {
+  outline: 2px solid #bb1121;
+  outline-offset: -2px;
+}
+
+/* Ícones SVG que forem adicionados ao botão */
+
+.logoutButton svg {
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   ANIMAÇÃO DO MENU
+================================================================ */
+
+@keyframes aparecerMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================================================
+   TELAS MENORES
+================================================================ */
+
 @media (max-width: 600px) {
-  .header > div:first-child {
+  .header {
+    min-height: 60px;
+    height: 70px;
+  }
+
+  .logoContainer {
     padding-left: 12px;
   }
 
-  .header > div:first-child img {
-    width: 75px;
+  .logoContainer img {
+    width: 58px;
+    height: 58px;
   }
 
-  .header > div:last-child {
+  .accountContainer {
     padding-right: 12px;
   }
 
   .accountButton {
-    max-width: 160px;
+    max-width: 190px;
+    min-height: 36px;
     padding: 0 8px;
-    gap: 5px;
+    gap: 6px;
+
     font-size: 12px;
   }
 
+  .accountEmail {
+    max-width: 150px;
+  }
+
   .dropdown {
-    width: 200px;
+    width: 100%;
+  }
+}
+
+/* ================================================================
+   CELULARES ESTREITOS
+================================================================ */
+
+@media (max-width: 380px) {
+  .logoContainer {
+    padding-left: 8px;
+  }
+
+  .logoContainer img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .accountContainer {
+    padding-right: 8px;
+  }
+
+  .accountButton {
+    max-width: 165px;
+    gap: 5px;
+    padding: 0 6px;
+
+    font-size: 11px;
+  }
+
+  .accountEmail {
+    max-width: 125px;
+  }
+
+  .dropdown {
+    width: 100%;
+  }
+}
+
+/* ================================================================
+   ACESSIBILIDADE: REDUZIR ANIMAÇÕES
+================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown {
+    animation: none;
+  }
+
+  .accountButton,
+  .logoutButton {
+    transition: none;
   }
 }
