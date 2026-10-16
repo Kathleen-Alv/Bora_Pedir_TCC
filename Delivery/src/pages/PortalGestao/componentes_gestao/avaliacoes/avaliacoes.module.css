@@ -1,39 +1,259 @@
-/* CONTAINER DO BANNER */
-.bannerContainer {
+/* =====================================================
+   PÁGINA DE AVALIAÇÕES
+===================================================== */
+
+.container {
   width: 100%;
-  height: auto;
+  min-height: 100%;
+  margin: 0;
+  padding: 16px 20px;
+
+  box-sizing: border-box;
+  background: #ffffff;
+
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =====================================================
+   CONTAINER DO BANNER
+===================================================== */
+
+.bannerContainer {
+  position: relative;
+
+  width: 100%;
+  height: 150px;
 
   margin: 0;
   padding: 0;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
+  overflow: hidden;
   box-sizing: border-box;
+
+  background-color: #f7efd5;
+  border: none;
+  border-radius: 2px;
+
+  line-height: 0;
 }
 
-/* IMAGEM DO BANNER */
+/* =====================================================
+   IMAGEM DO BANNER
+===================================================== */
+
 .banner {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
   display: block;
 
-  /* ALTERE O TAMANHO DA IMAGEM AQUI */
   width: 100%;
-  background-color: #f7efd5;
-  height: 150px;
-
-  object-fit: contain;
-  object-position: center;
+  height: 100%;
 
   margin: 0;
   padding: 0;
   border: none;
+
+  object-fit: cover;
+  object-position: center;
+
+  user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
 
-/* RESPONSIVIDADE */
-@media (max-width: 600px) {
-  .banner {
-    width: 100%;
-    height: 120px;
+/* =====================================================
+   QUADRADO BRANCO DA PONTUAÇÃO
+   MENOR E CENTRALIZADO
+===================================================== */
+
+.quadroAvaliacao {
+  position: absolute;
+  top: 50%;
+  left: 66%;
+  z-index: 2;
+
+  transform: translate(-50%, -50%);
+
+  width: 125px;
+  min-height: 94px;
+  padding: 8px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 2px solid #f1e5c5;
+  border-radius: 10px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+  line-height: normal;
+  text-align: center;
+}
+
+/* =====================================================
+   TÍTULO DA PONTUAÇÃO
+===================================================== */
+
+.tituloPontuacao {
+  color: #555555;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* =====================================================
+   NOTA
+===================================================== */
+
+.nota {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+
+  color: #202020;
+
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.notaMaxima {
+  color: #777777;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* =====================================================
+   ESTRELAS
+===================================================== */
+
+.estrelas {
+  color: #f4b740;
+
+  font-size: 16px;
+  letter-spacing: 1.5px;
+  line-height: 1;
+}
+
+/* =====================================================
+   LEGENDA
+===================================================== */
+
+.textoAvaliacao {
+  color: #888888;
+  font-size: 9px;
+}
+
+/* =====================================================
+   RESPONSIVIDADE — TABLETS E CELULARES
+===================================================== */
+
+@media (max-width: 700px) {
+  .container {
+    padding: 12px;
+  }
+
+  .bannerContainer {
+    height: 140px;
+  }
+
+  .quadroAvaliacao {
+    top: 50%;
+    left: 50%;
+
+    width: 120px;
+    min-height: 86px;
+    padding: 7px;
+
+    gap: 3px;
+    border-radius: 9px;
+
+    transform: translate(-50%, -50%);
+  }
+
+  .tituloPontuacao {
+    font-size: 9px;
+    letter-spacing: 0.3px;
+  }
+
+  .nota {
+    font-size: 23px;
+  }
+
+  .notaMaxima {
+    font-size: 11px;
+  }
+
+  .estrelas {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .textoAvaliacao {
+    font-size: 8px;
+  }
+}
+
+/* =====================================================
+   RESPONSIVIDADE — CELULARES PEQUENOS
+===================================================== */
+
+@media (max-width: 400px) {
+  .container {
+    padding: 8px;
+  }
+
+  .bannerContainer {
+    height: 125px;
+  }
+
+  .quadroAvaliacao {
+    top: 50%;
+    left: 50%;
+
+    width: 108px;
+    min-height: 78px;
+    padding: 5px;
+
+    gap: 3px;
+    border-radius: 8px;
+
+    transform: translate(-50%, -50%);
+  }
+
+  .tituloPontuacao {
+    font-size: 8px;
+    letter-spacing: 0.2px;
+  }
+
+  .nota {
+    font-size: 21px;
+    gap: 2px;
+  }
+
+  .notaMaxima {
+    font-size: 10px;
+  }
+
+  .estrelas {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .textoAvaliacao {
+    font-size: 7px;
   }
 }

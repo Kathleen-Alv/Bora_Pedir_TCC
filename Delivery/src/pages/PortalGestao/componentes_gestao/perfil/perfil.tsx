@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import styles from "./perfil.module.css";
 
 import categoria from "../../../../assets/perfil/categoria.png";
@@ -10,330 +11,638 @@ import bannerDadosBancarios from "../../../../assets/perfil/bannerDadosBancarios
 import imagemInformacaoConta from "../../../../assets/perfil/informaçãoDaConta.png";
 
 // ========================================================
-// ÍCONE EDITAR
+// CONFIGURAÇÃO DA API
+// ========================================================
+
+const API_URL = "http://localhost:3000";
+
+// ========================================================
+// TIPAGENS
+// ========================================================
+
+interface PerfilComercio {
+  comercio_id: number;
+  nome_comercio: string | null;
+  nome_responsavel: string;
+  email: string;
+  telefone: string;
+  cnpj: string;
+  situacao_cadastral: string;
+  criado_em: string;
+  categoria: string | null;
+  logo: string | null;
+  banner: string | null;
+  cep: string | null;
+  endereco: string | null;
+  numero: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  estado: string | null;
+  banco: string | null;
+  agencia: string | null;
+  conta: string | null;
+  tipo_conta: string | null;
+}
+
+interface RespostaPerfil {
+  sucesso?: boolean;
+  mensagem?: string;
+  perfil?: PerfilComercio;
+}
+
+// ========================================================
+// FUNÇÕES AUXILIARES
+// ========================================================
+
+function obterUrlImagem(caminho: string | null): string | null {
+  if (!caminho?.trim()) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(caminho)) {
+    return caminho;
+  }
+
+  return `${API_URL}/${caminho.replace(/^\/+/, "")}`;
+}
+
+function formatarData(
+  data: string | null | undefined
+): string {
+  if (!data) {
+    return "Não informada";
+  }
+
+  const dataValida = new Date(data);
+
+  if (Number.isNaN(dataValida.getTime())) {
+    return "Não informada";
+  }
+
+  return dataValida.toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
+  });
+}
+
+function obterSituacao(situacao: string): string {
+  const situacoes: Record<string, string> = {
+    APROVADO: "Aprovada",
+    PENDENTE: "Pendente",
+    SUSPENSO: "Suspensa",
+    INATIVO: "Inativa",
+  };
+
+  return situacoes[situacao] || situacao || "Não informada";
+}
+
+// ========================================================
+// COMPONENTES DE ÍCONES
 // ========================================================
 
 function EditarImg() {
-return ( <img
-   src={editar}
-   className={styles.imgDeIcone}
-   alt="Editar"
-   title="Editar"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={editar}
+      className={styles.imgDeIcone}
+      alt="Editar"
+      title="Editar"
+      draggable={false}
+    />
+  );
 }
-
-// ========================================================
-// ÍCONE ENDEREÇO
-// ========================================================
 
 function EnderecoIcon() {
-return ( <img
-   src={endereco}
-   className={styles.imgDeIcone}
-   alt="Endereço"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={endereco}
+      className={styles.imgDeIcone}
+      alt="Endereço"
+      draggable={false}
+    />
+  );
 }
-
-// ========================================================
-// ÍCONE HORÁRIO
-// ========================================================
 
 function HorarioIcon() {
-return ( <img
-   src={horario}
-   className={styles.imgDeIcone}
-   alt="Horário"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={horario}
+      className={styles.imgDeIcone}
+      alt="Horário"
+      draggable={false}
+    />
+  );
 }
-
-// ========================================================
-// ÍCONE CATEGORIA
-// ========================================================
 
 function CategoriaIcon() {
-return ( <img
-   src={categoria}
-   className={styles.imgDeIcone}
-   alt="Categoria"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={categoria}
+      className={styles.imgDeIcone}
+      alt="Categoria"
+      draggable={false}
+    />
+  );
 }
-
-// ========================================================
-// ÍCONE ESTRELAS
-// ========================================================
 
 function EstrelasIcon() {
-return ( <img
-   src={estrelas}
-   className={styles.imgDeIcone}
-   alt="Avaliação"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={estrelas}
+      className={styles.imgDeIcone}
+      alt="Avaliação"
+      draggable={false}
+    />
+  );
 }
-
-// ========================================================
-// ÍCONE EDITAR FOTO
-// ========================================================
 
 function EditarFotoIcon() {
-return ( <img
-   src={editar_foto}
-   className={styles.imgDeIcone}
-   alt="Editar foto"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={editar_foto}
+      className={styles.imgDeIcone}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+    />
+  );
 }
 
 // ========================================================
-// BANNER DADOS BANCÁRIOS
+// BANNERS ESTÁTICOS
 // ========================================================
 
 function BannerDadosBancarios() {
-return ( <img
-   src={bannerDadosBancarios}
-   className={styles.bannerDadosBancarios}
-   alt="Banner de dados bancários"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={bannerDadosBancarios}
+      className={styles.bannerDadosBancarios}
+      alt="Banner de dados bancários"
+      draggable={false}
+    />
+  );
 }
-
-// ========================================================
-// IMAGEM INFORMAÇÕES DA CONTA
-// ========================================================
 
 function ImagemInformacaoConta() {
-return ( <img
-   src={imagemInformacaoConta}
-   className={styles.imagemInformacaoConta}
-   alt="Banner de informações da conta"
-   draggable={false}
- />
-);
+  return (
+    <img
+      src={imagemInformacaoConta}
+      className={styles.imagemInformacaoConta}
+      alt="Banner de informações da conta"
+      draggable={false}
+    />
+  );
 }
 
 // ========================================================
-// PERFIL
+// PERFIL DO COMÉRCIO
 // ========================================================
 
 export function Perfil() {
-function handleAlterarInformacoes() {
-// Implementar abertura do formulário de alteração.
-}
+  const [perfil, setPerfil] = useState<PerfilComercio | null>(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
 
-function handleExcluirConta() {
-// Implementar confirmação e solicitação
-// de exclusão lógica da conta.
-}
+  // ======================================================
+  // BUSCAR DADOS DO PERFIL
+  // ======================================================
 
-return ( <main className={styles.page}>
-{/* =====================================================
-PERFIL DO ESTABELECIMENTO
-===================================================== */}
+  useEffect(() => {
+    const controller = new AbortController();
 
+    async function buscarPerfil() {
+      try {
+        setCarregando(true);
+        setErro("");
 
-  <div className={styles.profileContainer}>
-    <section className={styles.header}>
-      <div className={styles.profileCircle}>
-        <div className={styles.circleEdit}>
-          <EditarFotoIcon />
-        </div>
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          setErro("Sua sessão expirou. Faça login novamente.");
+          return;
+        }
+
+        const resposta = await fetch(`${API_URL}/api/perfil`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+          signal: controller.signal,
+        });
+
+        const dados = (await resposta.json()) as RespostaPerfil;
+
+        if (!resposta.ok) {
+          throw new Error(
+            dados.mensagem ||
+              "Não foi possível carregar o perfil."
+          );
+        }
+
+        if (!dados.perfil) {
+          throw new Error(
+            "A API não retornou os dados do perfil."
+          );
+        }
+
+        setPerfil(dados.perfil);
+      } catch (erro: unknown) {
+        if (
+          erro instanceof Error &&
+          erro.name === "AbortError"
+        ) {
+          return;
+        }
+
+        setErro(
+          erro instanceof Error
+            ? erro.message
+            : "Erro inesperado ao carregar o perfil."
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    void buscarPerfil();
+
+    return () => controller.abort();
+  }, []);
+
+  // ======================================================
+  // AÇÕES DOS BOTÕES
+  // ======================================================
+
+  function handleAlterarInformacoes() {
+    // O formulário de alteração será implementado
+    // separadamente.
+  }
+
+  function handleAlterarLogo() {
+    // A seleção e o envio da nova logo serão implementados
+    // separadamente.
+  }
+
+  function handleAlterarBanner() {
+    // A seleção e o envio do novo banner serão implementados
+    // separadamente.
+  }
+
+  function handleExcluirConta() {
+    const confirmar = window.confirm(
+      "Deseja realmente solicitar a exclusão da sua conta?"
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    window.alert(
+      "A exclusão ainda não está implementada. Nenhum dado foi excluído."
+    );
+  }
+
+  // ======================================================
+  // ESTADO DE CARREGAMENTO
+  // ======================================================
+
+  if (carregando) {
+    return (
+      <main className={styles.page} aria-live="polite">
+        Carregando perfil...
+      </main>
+    );
+  }
+
+  if (erro) {
+    return (
+      <main className={styles.page}>
+        <p role="alert">{erro}</p>
+
+        <button
+          type="button"
+          className={styles.botaoAlterarInformacoes}
+          onClick={() => window.location.reload()}
+        >
+          Tentar novamente
+        </button>
+      </main>
+    );
+  }
+
+  if (!perfil) {
+    return (
+      <main className={styles.page}>
+        Perfil não encontrado.
+      </main>
+    );
+  }
+
+  // ======================================================
+  // DADOS FORMATADOS
+  // ======================================================
+
+  const logoUrl = obterUrlImagem(perfil.logo);
+  const bannerUrl = obterUrlImagem(perfil.banner);
+
+  const enderecoCompleto = [
+    perfil.endereco,
+    perfil.numero,
+    perfil.complemento,
+    perfil.bairro,
+    perfil.cidade,
+    perfil.estado,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const nomeComercio =
+    perfil.nome_comercio || "Estabelecimento";
+
+  const situacao = obterSituacao(
+    perfil.situacao_cadastral
+  );
+
+  // ======================================================
+  // INTERFACE
+  // ======================================================
+
+  return (
+    <main className={styles.page}>
+      <div className={styles.profileContainer}>
+        {/* BANNER E LOGO DO COMÉRCIO */}
+
+        <section className={styles.header}>
+          {bannerUrl ? (
+            <img
+              src={bannerUrl}
+              className={styles.bannerPerfil}
+              alt={`Banner de ${nomeComercio}`}
+              draggable={false}
+              onError={(evento) => {
+                evento.currentTarget.style.visibility = "hidden";
+              }}
+            />
+          ) : null}
+
+          {/* LOGO DO COMÉRCIO */}
+
+          <div className={styles.profileCircle}>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                className={styles.logoPerfil}
+                alt={`Logo de ${nomeComercio}`}
+                draggable={false}
+                onError={(evento) => {
+                  evento.currentTarget.style.visibility = "hidden";
+                }}
+              />
+            ) : null}
+
+            {/* ÍCONE SOBRE A LOGO */}
+
+            <button
+              type="button"
+              className={styles.circleEdit}
+              title="Alterar logo do comércio"
+              aria-label="Alterar logo do comércio"
+              onClick={handleAlterarLogo}
+            >
+              <EditarFotoIcon />
+            </button>
+          </div>
+
+          {/* ÍCONE SOBRE O BANNER */}
+
+          <button
+            type="button"
+            className={styles.headerEdit}
+            title="Alterar banner do comércio"
+            aria-label="Alterar banner do comércio"
+            onClick={handleAlterarBanner}
+          >
+            <EditarFotoIcon />
+          </button>
+        </section>
+
+        {/* INFORMAÇÕES DO ESTABELECIMENTO */}
+
+        <section className={styles.infoBar}>
+          <div className={styles.infoItem}>
+            <EnderecoIcon />
+
+            <div className={styles.infoContent}>
+              <span className={styles.label}>
+                Endereço
+              </span>
+
+              <strong>
+                {enderecoCompleto ||
+                  "Endereço não cadastrado"}
+              </strong>
+            </div>
+
+            <EditarImg />
+          </div>
+
+          <div className={styles.divider} />
+
+          <div className={styles.infoItem}>
+            <HorarioIcon />
+
+            <div className={styles.infoContent}>
+              <span className={styles.label}>
+                Horário
+              </span>
+
+              <strong>
+                Consulte os horários cadastrados
+              </strong>
+            </div>
+
+            <EditarImg />
+          </div>
+
+          <div className={styles.divider} />
+
+          <div className={styles.infoItem}>
+            <CategoriaIcon />
+
+            <div className={styles.infoContent}>
+              <span className={styles.label}>
+                Categoria
+              </span>
+
+              <strong>
+                {perfil.categoria || "Não informada"}
+              </strong>
+            </div>
+
+            <EditarImg />
+          </div>
+
+          <div className={styles.rating}>
+            <EstrelasIcon />
+
+            <div>
+              <span className={styles.label}>
+                Avaliação
+              </span>
+
+              <strong>—</strong>
+            </div>
+          </div>
+        </section>
+
+        {/* SOBRE O ESTABELECIMENTO */}
+
+        <section className={styles.content}>
+          <div className={styles.descriptionCard}>
+            <div className={styles.cardHeader}>
+              <h2>Sobre o estabelecimento</h2>
+              <EditarImg />
+            </div>
+
+            <div className={styles.cardBody}>
+              <span>
+                Descrição não cadastrada.
+              </span>
+            </div>
+          </div>
+        </section>
       </div>
 
-      <div className={styles.headerEdit}>
-        <EditarFotoIcon />
-      </div>
-    </section>
+      {/* INFORMAÇÕES DA CONTA */}
 
-    {/* INFORMAÇÕES DO ESTABELECIMENTO */}
+      <section className={styles.informacaoContaContainer}>
+        <ImagemInformacaoConta />
 
-    <section className={styles.infoBar}>
-      <div className={styles.infoItem}>
-        <EnderecoIcon />
+        <div className={styles.cardInformacaoConta}>
+          <h2>Informações da Conta</h2>
 
-        <div className={styles.infoContent}>
-          <span className={styles.label}>Endereço</span>
-          <strong>Av. Brasil 655, Osasco - SP</strong>
+          <div className={styles.dadosConta}>
+            <div>
+              <span>Nome do responsável</span>
+              <strong>
+                {perfil.nome_responsavel || "Não informado"}
+              </strong>
+            </div>
+
+            <div>
+              <span>E-mail cadastrado</span>
+              <strong>
+                {perfil.email || "Não informado"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Telefone</span>
+              <strong>
+                {perfil.telefone || "Não informado"}
+              </strong>
+            </div>
+
+            <div>
+              <span>CNPJ</span>
+              <strong>
+                {perfil.cnpj || "Não informado"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Data de cadastro</span>
+              <strong>
+                {formatarData(perfil.criado_em)}
+              </strong>
+            </div>
+
+            <div>
+              <span>Situação da conta</span>
+              <strong className={styles.statusConta}>
+                {situacao}
+              </strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className={styles.botaoAlterarInformacoes}
+            onClick={handleAlterarInformacoes}
+          >
+            Alterar informações
+          </button>
         </div>
+      </section>
 
-        <EditarImg />
-      </div>
+      {/* DADOS BANCÁRIOS */}
 
-      <div className={styles.divider} />
+      <section className={styles.bannerContainer}>
+        <BannerDadosBancarios />
 
-      <div className={styles.infoItem}>
-        <HorarioIcon />
+        <div className={styles.informacoesSobreConta}>
+          <h2>Dados Bancários</h2>
 
-        <div className={styles.infoContent}>
-          <span className={styles.label}>Horário</span>
-          <strong>Segunda-feira 11h até 22h</strong>
+          <div className={styles.dadosConta}>
+            <div>
+              <span>Banco</span>
+              <strong>
+                {perfil.banco || "Não informado"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Agência</span>
+              <strong>
+                {perfil.agencia || "Não informada"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Conta</span>
+              <strong>
+                {perfil.conta || "Não informada"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Tipo de conta</span>
+              <strong>
+                {perfil.tipo_conta === "CORRENTE"
+                  ? "Corrente"
+                  : perfil.tipo_conta === "POUPANCA"
+                    ? "Poupança"
+                    : perfil.tipo_conta || "Não informado"}
+              </strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className={styles.botaoAlterarInformacoes}
+            onClick={handleAlterarInformacoes}
+          >
+            Alterar informações
+          </button>
         </div>
+      </section>
 
-        <EditarImg />
-      </div>
+      {/* EXCLUSÃO DA CONTA */}
 
-      <div className={styles.divider} />
-
-      <div className={styles.infoItem}>
-        <CategoriaIcon />
-
-        <div className={styles.infoContent}>
-          <span className={styles.label}>Categoria</span>
-          <strong>Comida Brasileira</strong>
-        </div>
-
-        <EditarImg />
-      </div>
-
-      <div className={styles.rating}>
-        <EstrelasIcon />
-
-        <div>
-          <span className={styles.label}>Avaliação</span>
-          <strong>4,9</strong>
-        </div>
-      </div>
-    </section>
-
-    {/* SOBRE O ESTABELECIMENTO */}
-
-    <section className={styles.content}>
-      <div className={styles.descriptionCard}>
-        <div className={styles.cardHeader}>
-          <h2>Sobre o estabelecimento</h2>
-          <EditarImg />
-        </div>
-
-        <div className={styles.cardBody}>
-          <span>
-            Adicione uma descrição sobre o estabelecimento.
-          </span>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  {/* =====================================================
-      1. INFORMAÇÕES DA CONTA
-  ===================================================== */}
-
-  <section className={styles.informacaoContaContainer}>
-    <ImagemInformacaoConta />
-
-    <div className={styles.cardInformacaoConta}>
-      <h2>Informações da Conta</h2>
-
-      <div className={styles.dadosConta}>
-        <div>
-          <span>Nome do responsável</span>
-          <strong>Maria Oliveira</strong>
-        </div>
-
-        <div>
-          <span>E-mail cadastrado</span>
-          <strong>maria@exemplo.com</strong>
-        </div>
-
-        <div>
-          <span>Telefone</span>
-          <strong>(11) 99999-0000</strong>
-        </div>
-
-        <div>
-          <span>CNPJ</span>
-          <strong>00.000.000/0001-00</strong>
-        </div>
-
-        <div>
-          <span>Data de cadastro</span>
-          <strong>10/01/2026</strong>
-        </div>
-
-        <div>
-          <span>Situação da conta</span>
-          <strong className={styles.statusConta}>Ativa</strong>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        className={styles.botaoAlterarInformacoes}
-        onClick={handleAlterarInformacoes}
-      >
-        Alterar informações
-      </button>
-    </div>
-  </section>
-
-  {/* =====================================================
-      2. DADOS BANCÁRIOS
-  ===================================================== */}
-
-  <section className={styles.bannerContainer}>
-    <BannerDadosBancarios />
-
-    <div className={styles.informacoesSobreConta}>
-      <h2>Dados Bancários</h2>
-
-      <div className={styles.dadosConta}>
-        <div>
-          <span>Banco</span>
-          <strong>Banco do Brasil</strong>
-        </div>
-
-        <div>
-          <span>Agência</span>
-          <strong>1234</strong>
-        </div>
-
-        <div>
-          <span>Conta</span>
-          <strong>12345-6</strong>
-        </div>
-
-        <div>
-          <span>Chave PIX</span>
-          <strong>exemplo@email.com</strong>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        className={styles.botaoAlterarInformacoes}
-        onClick={handleAlterarInformacoes}
-      >
-        Alterar informações
-      </button>
-    </div>
-  </section>
-
-  {/* =====================================================
-      3. EXCLUSÃO DA CONTA
-  ===================================================== */}
-
-  <section className={styles.excluirContaContainer}>
-    <button
-      type="button"
-      className={styles.botaoExcluirConta}
-      onClick={handleExcluirConta}
-    >
-      Excluir conta
-    </button>
-  </section>
-</main>
-
-
-);
+      <section className={styles.excluirContaContainer}>
+        <button
+          type="button"
+          className={styles.botaoExcluirConta}
+          onClick={handleExcluirConta}
+        >
+          Excluir conta
+        </button>
+      </section>
+    </main>
+  );
 }
 
 export default Perfil;

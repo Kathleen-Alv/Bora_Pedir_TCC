@@ -19,7 +19,7 @@
 /* esquerda: logo */
 .header > div:first-child {
   justify-content: flex-start;
-  padding-left: 60px;
+  padding-left: 80px;
 }
 
 .header > div:first-child img {

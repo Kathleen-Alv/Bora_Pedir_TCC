@@ -15,6 +15,11 @@ import cors from 'cors';
 import path from 'path';
 
 
+import perfilRoutes from './src/api/routes/perfil.routes.js';
+
+
+
+
 // ================================================================
 // ROTAS
 // ================================================================
@@ -154,6 +159,13 @@ app.use(
     '/api/login-cliente',
     loginClienteRoutes
 );
+
+
+//Mostrar dados do perfil
+app.use(
+    '/api/perfil', perfilRoutes
+);
+
 
 
 // ================================================================
