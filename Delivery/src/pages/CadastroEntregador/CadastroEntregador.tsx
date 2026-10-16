@@ -6,164 +6,122 @@ import { Header } from '../../components/Header/header';
 
 import capaceteIcon from '../../assets/capacete.svg';
 import emailIcon from '../../assets/email.png';
-import entregadorImg from '../../assets/cadastroEntregador/cadastroEntregadorIMG.png';
-
 
 type CadastroEntregadorProps = {
   children?: React.ReactNode;
 };
 
-
 export function CadastroEntregador({
-  children
+  children,
 }: CadastroEntregadorProps) {
-
   // ================================================================
   // CONTROLE DAS ETAPAS
   // ================================================================
 
   const [etapa, setEtapa] = useState(1);
-
   const [carregando, setCarregando] = useState(false);
-
 
   // ================================================================
   // DADOS DO FORMULÁRIO
   // ================================================================
 
   const [formData, setFormData] = useState({
-
     nome: '',
-
     cpf: '',
-
     celular: '',
-
     cnh: '',
-
     dataNascimento: '',
-
     placa: '',
-
     email: '',
-
     senha: '',
-
     senhaConfirmar: '',
-
   });
-
 
   // ================================================================
   // FORMATAÇÃO DO CPF
   // ================================================================
 
   const formatarCPF = (value: string) => {
-
     return value
-
       .replace(/\D/g, '')
-
+      .slice(0, 11)
       .replace(/(\d{3})(\d)/, '$1.$2')
-
       .replace(/(\d{3})(\d)/, '$1.$2')
-
-      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
-
-      .replace(/(-\d{2})\d+?$/, '$1');
-
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   };
-
 
   // ================================================================
   // FORMATAÇÃO DO CELULAR
   // ================================================================
 
   const formatarCelular = (value: string) => {
+    const numeros = value.replace(/\D/g, '').slice(0, 11);
 
-    return value
+    if (numeros.length <= 2) {
+      return numeros.length ? `(${numeros}` : '';
+    }
 
-      .replace(/\D/g, '')
+    if (numeros.length <= 7) {
+      return numeros.replace(/^(\d{2})(\d+)/, '($1) $2');
+    }
 
-      .replace(/^(\d{2})(\d)/, '($1) $2')
-
-      .replace(/(\d{5})(\d)/, '$1-$2')
-
-      .replace(/(-\d{4})\d+?$/, '$1');
-
+    return numeros.replace(
+      /^(\d{2})(\d{5})(\d{1,4})$/,
+      '($1) $2-$3'
+    ).replace(
+      /^(\d{2})(\d{4})(\d+)$/,
+      '($1) $2-$3'
+    );
   };
-
 
   // ================================================================
   // FORMATAÇÃO DA CNH
   // ================================================================
 
   const formatarCNH = (value: string) => {
-
-    return value
-
-      .replace(/\D/g, '')
-
-      .slice(0, 11);
-
+    return value.replace(/\D/g, '').slice(0, 11);
   };
-
 
   // ================================================================
   // FORMATAÇÃO DA PLACA
   // ================================================================
 
   const formatarPlaca = (value: string) => {
-
     return value
-
       .replace(/[^a-zA-Z0-9]/g, '')
-
       .toUpperCase()
-
       .slice(0, 7);
-
   };
-
 
   // ================================================================
   // VALIDAÇÃO DE IDADE
   // ================================================================
 
-  const validarMaioridade = (
-    dataNascimentoStr: string
-  ): boolean => {
+  const validarMaioridade = (dataNascimentoStr: string): boolean => {
+    const dataNasc = new Date(`${dataNascimentoStr}T00:00:00`);
+    const hoje = new Date();
 
-    const dataNasc =
-      new Date(dataNascimentoStr);
-
-    const hoje =
-      new Date();
+    if (
+      Number.isNaN(dataNasc.getTime()) ||
+      dataNasc > hoje
+    ) {
+      return false;
+    }
 
     let idade =
-      hoje.getFullYear() -
-      dataNasc.getFullYear();
+      hoje.getFullYear() - dataNasc.getFullYear();
 
-    const mes =
-      hoje.getMonth() -
-      dataNasc.getMonth();
+    const mes = hoje.getMonth() - dataNasc.getMonth();
 
     if (
       mes < 0 ||
-      (
-        mes === 0 &&
-        hoje.getDate() < dataNasc.getDate()
-      )
+      (mes === 0 && hoje.getDate() < dataNasc.getDate())
     ) {
-
       idade--;
-
     }
 
     return idade >= 18;
-
   };
-
 
   // ================================================================
   // ALTERAÇÃO DOS CAMPOS
@@ -172,598 +130,241 @@ export function CadastroEntregador({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const { name, value } = e.target;
 
-    const {
-      name,
-      value
-    } = e.target;
-
+    let valorFormatado = value;
 
     if (name === 'cpf') {
-
-      setFormData({
-
-        ...formData,
-
-        cpf: formatarCPF(value),
-
-      });
-
+      valorFormatado = formatarCPF(value);
+    } else if (name === 'celular') {
+      valorFormatado = formatarCelular(value);
+    } else if (name === 'cnh') {
+      valorFormatado = formatarCNH(value);
+    } else if (name === 'placa') {
+      valorFormatado = formatarPlaca(value);
     }
 
-    else if (name === 'celular') {
-
-      setFormData({
-
-        ...formData,
-
-        celular:
-          formatarCelular(value),
-
-      });
-
-    }
-
-    else if (name === 'cnh') {
-
-      setFormData({
-
-        ...formData,
-
-        cnh:
-          formatarCNH(value),
-
-      });
-
-    }
-
-    else if (name === 'placa') {
-
-      setFormData({
-
-        ...formData,
-
-        placa:
-          formatarPlaca(value),
-
-      });
-
-    }
-
-    else {
-
-      setFormData({
-
-        ...formData,
-
-        [name]: value,
-
-      });
-
-    }
-
+    setFormData((prev) => ({
+      ...prev,
+      [name]: valorFormatado,
+    }));
   };
-
 
   // ================================================================
   // PRÓXIMA ETAPA
   // ================================================================
 
   const proximaEtapa = () => {
-
-
     if (!formData.nome.trim()) {
-
-      alert(
-        'Por favor, preencha o seu Nome.'
-      );
-
+      alert('Por favor, preencha o seu Nome.');
       return;
-
     }
 
-
-    if (formData.cpf.length < 14) {
-
-      alert(
-        'Por favor, digite um CPF válido.'
-      );
-
+    if (formData.cpf.length !== 14) {
+      alert('Por favor, digite um CPF válido.');
       return;
-
     }
 
-
-    if (formData.celular.length < 15) {
-
-      alert(
-        'Por favor, digite um número de Celular/WhatsApp válido.'
-      );
-
+    if (formData.celular.replace(/\D/g, '').length < 10) {
+      alert('Por favor, digite um número de Celular/WhatsApp válido.');
       return;
-
     }
-
 
     if (!formData.dataNascimento) {
-
-      alert(
-        'Por favor, informe sua Data de Nascimento.'
-      );
-
+      alert('Por favor, informe sua Data de Nascimento.');
       return;
-
     }
 
-
-    if (
-      !validarMaioridade(
-        formData.dataNascimento
-      )
-    ) {
-
+    if (!validarMaioridade(formData.dataNascimento)) {
       alert(
         'É necessário ter pelo menos 18 anos para se cadastrar como entregador.'
       );
-
       return;
-
     }
 
-
-    if (formData.cnh.length < 11) {
-
-      alert(
-        'A CNH deve conter 11 dígitos.'
-      );
-
+    if (formData.cnh.length !== 11) {
+      alert('A CNH deve conter 11 dígitos.');
       return;
-
     }
 
-
-    setEtapa(
-      (prev) => prev + 1
-    );
-
+    setEtapa((prev) => prev + 1);
   };
-
 
   // ================================================================
   // ETAPA ANTERIOR
   // ================================================================
 
   const etapaAnterior = () => {
-
-    setEtapa(
-      (prev) => prev - 1
-    );
-
+    setEtapa((prev) => prev - 1);
   };
-
 
   // ================================================================
   // ENVIO DO CADASTRO
   // ================================================================
 
   const handleSubmit = async (
-    e: React.FormEvent
+    e: React.FormEvent<HTMLFormElement>
   ) => {
-
     e.preventDefault();
 
-
-    // --------------------------------------------------------------
-    // PLACA
-    // --------------------------------------------------------------
-
     if (!formData.placa.trim()) {
-
-      alert(
-        'Por favor, informe a Placa da Moto.'
-      );
-
+      alert('Por favor, informe a Placa da Moto.');
       return;
-
     }
-
 
     if (formData.placa.length !== 7) {
-
-      alert(
-        'A placa deve conter exatamente 7 caracteres.'
-      );
-
+      alert('A placa deve conter exatamente 7 caracteres.');
       return;
-
     }
-
-
-    // --------------------------------------------------------------
-    // EMAIL
-    // --------------------------------------------------------------
 
     if (!formData.email.trim()) {
-
-      alert(
-        'Por favor, informe o seu Email.'
-      );
-
+      alert('Por favor, informe o seu Email.');
       return;
-
     }
-
-
-    // --------------------------------------------------------------
-    // SENHA
-    // --------------------------------------------------------------
 
     if (!formData.senha) {
-
-      alert(
-        'Por favor, digite uma Senha.'
-      );
-
+      alert('Por favor, digite uma Senha.');
       return;
-
     }
 
-
-    // --------------------------------------------------------------
-    // CONFIRMAÇÃO DA SENHA
-    // --------------------------------------------------------------
-
-    if (
-      formData.senha !==
-      formData.senhaConfirmar
-    ) {
-
-      alert(
-        'As senhas não coincidem!'
-      );
-
+    if (formData.senha !== formData.senhaConfirmar) {
+      alert('As senhas não coincidem!');
       return;
-
     }
-
 
     setCarregando(true);
 
-
     try {
+      const response = await fetch(
+        'http://localhost:3000/api/entregadores/cadastro',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nome: formData.nome,
+            cpf: formData.cpf,
+            celular: formData.celular,
+            cnh: formData.cnh,
+            dataNascimento: formData.dataNascimento,
+            placa: formData.placa,
+            email: formData.email,
+            senha: formData.senha,
+          }),
+        }
+      );
 
-      const response =
-        await fetch(
-          'http://localhost:3000/api/entregadores/cadastro',
-          {
-            method: 'POST',
-
-            headers: {
-              'Content-Type':
-                'application/json',
-            },
-
-            body:
-              JSON.stringify({
-
-                nome:
-                  formData.nome,
-
-                cpf:
-                  formData.cpf,
-
-                celular:
-                  formData.celular,
-
-                cnh:
-                  formData.cnh,
-
-                dataNascimento:
-                  formData.dataNascimento,
-
-                placa:
-                  formData.placa,
-
-                email:
-                  formData.email,
-
-                senha:
-                  formData.senha,
-
-              }),
-
-          }
-        );
-
-
-      const data =
-        await response.json();
-
+      const data = await response.json();
 
       if (!response.ok) {
-
-        alert(
-          data.message ||
-          'Erro ao realizar o cadastro.'
-        );
-
+        alert(data.message || 'Erro ao realizar o cadastro.');
         return;
-
       }
 
-
-      // ------------------------------------------------------------
-      // CADASTRO REALIZADO
-      // ------------------------------------------------------------
-
       setEtapa(3);
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
       console.error(
         'Erro ao comunicar com o servidor:',
         error
       );
 
-
       alert(
         'Não foi possível conectar ao servidor backend.'
       );
-
-    }
-
-    finally {
-
+    } finally {
       setCarregando(false);
-
     }
-
   };
-
 
   // ================================================================
   // PRIMEIRO NOME
   // ================================================================
 
-  const primeiroNome =
-    formData.nome
-      .trim()
-      .split(' ')[0];
-
+  const primeiroNome = formData.nome.trim().split(' ')[0];
 
   // ================================================================
   // JSX
   // ================================================================
 
   return (
-
-    <div
-      className={
-        styles.paginaWrapper
-      }
-    >
-
+    <div className={styles.paginaWrapper}>
       <Header />
 
+      {/* CONTAINER PRINCIPAL */}
 
-      {/* ==========================================================
-          CONTAINER PRINCIPAL
-      ========================================================== */}
+      <div className={styles.loginContainer}>
+        {/* LADO ESQUERDO — SEM IMAGEM DE FUNDO */}
 
-      <div
-        className={
-          styles.loginContainer
-        }
-      >
-
-
-        {/* ========================================================
-            LADO ESQUERDO
-        ======================================================== */}
-
-        <div
-          className={
-            styles.loginContainerEsquerda
-          }
-        >
-
-          {/* ------------------------------------------------------
-              IMAGEM DE FUNDO
-          ------------------------------------------------------ */}
-
-          <img
-            src={entregadorImg}
-            alt="Bora Pedir"
-            className={
-              styles.cozinheira
-            }
-          />
-
-
-          {/* ------------------------------------------------------
-              TEXTO PROMOCIONAL
-          ------------------------------------------------------ */}
-
-          <div
-            className={
-              styles.textoPromocional
-            }
-          >
-
-
-            {/* ====================================================
-                MENSAGENS
-            ==================================================== */}
-
-            <div
-              className={
-                styles.mensagensPromocionais
-              }
-            >
-
-
-              {/* --------------------------------------------------
-                  MENSAGEM 1
-              -------------------------------------------------- */}
-
-              <div
-                className={
-                  styles.mensagemPromocional
-                }
-              >
-
-                <h2>
-                  Faça parte da Bora Pedir
-                </h2>
+        <div className={styles.loginContainerEsquerda}>
+          <div className={styles.textoPromocional}>
+            <div className={styles.mensagensPromocionais}>
+              <div className={styles.mensagemPromocional}>
+                <h2>Faça parte da Bora Pedir</h2>
 
                 <p>
-                  Entregue pedidos, conquiste
-                  clientes e tenha uma nova
-                  oportunidade de renda.
+                  Entregue pedidos, conquiste clientes e tenha
+                  uma nova oportunidade de renda.
                 </p>
-
               </div>
 
-
-              {/* --------------------------------------------------
-                  MENSAGEM 2
-              -------------------------------------------------- */}
-
-              <div
-                className={
-                  styles.mensagemPromocional
-                }
-              >
-
-                <h2>
-                  Sua moto. Seus horários.
-                </h2>
+              <div className={styles.mensagemPromocional}>
+                <h2>Sua moto. Seus horários.</h2>
 
                 <p>
-                  Cadastre-se como entregador
-                  e faça parte da nossa rede
-                  de parceiros.
+                  Cadastre-se como entregador e faça parte da
+                  nossa rede de parceiros.
                 </p>
-
               </div>
-
-
             </div>
-
-
-            {/* ====================================================
-                SAIBA MAIS
-            ==================================================== */}
 
             <a
               href="#cadastroEntregador"
-              className={
-                styles.saibaMais
-              }
+              className={styles.saibaMais}
             >
+              <span>Saiba mais</span>
 
-              <span>
-                Saiba mais
-              </span>
-
-              <span
-                className={
-                  styles.setaSaibaMais
-                }
-              >
+              <span className={styles.setaSaibaMais}>
                 ↓
               </span>
-
             </a>
-
-
           </div>
-
         </div>
 
-
-        {/* ========================================================
-            LADO DIREITO
-        ======================================================== */}
+        {/* LADO DIREITO */}
 
         <div
           id="cadastroEntregador"
-          className={
-            styles.loginContainerDireita
-          }
+          className={styles.loginContainerDireita}
         >
+          <div className={styles.login}>
+            {/* TOPO */}
 
-          <div
-            className={
-              styles.login
-            }
-          >
-
-
-            {/* ====================================================
-                TOPO
-            ==================================================== */}
-
-            <div
-              className={
-                styles.loginTopo
-              }
-            >
-
+            <div className={styles.loginTopo}>
               <img
                 src={capaceteIcon}
                 alt="Capacete"
-                className={
-                  styles.lojaIMG
-                }
+                className={styles.lojaIMG}
               />
 
-              <h1>
-                Cadastro de Entregador
-              </h1>
-
+              <h1>Cadastro de Entregador</h1>
             </div>
 
+            {/* CONTEÚDO */}
 
-            {/* ====================================================
-                CONTEÚDO
-            ==================================================== */}
-
-            <div
-              className={
-                styles.loginConteudo
-              }
-            >
-
-
-              {/* ==================================================
-                  ETAPA 1
-              ================================================== */}
+            <div className={styles.loginConteudo}>
+              {/* ETAPA 1 */}
 
               {etapa === 1 && (
-
                 <form
-                  className={
-                    styles.formCadastro
-                  }
+                  className={styles.formCadastro}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    proximaEtapa();
+                  }}
                 >
-
-
-                  {/* ------------------------------------------------
-                      NOME
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="nome"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="nome">
                       Digite seu Nome
                     </label>
 
@@ -771,30 +372,14 @@ export function CadastroEntregador({
                       type="text"
                       id="nome"
                       name="nome"
-                      value={
-                        formData.nome
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      autoComplete="name"
+                      value={formData.nome}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      CPF
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="cpf"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="cpf">
                       Digite seu CPF
                     </label>
 
@@ -804,63 +389,31 @@ export function CadastroEntregador({
                       name="cpf"
                       placeholder="000.000.000-00"
                       maxLength={14}
-                      value={
-                        formData.cpf
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      inputMode="numeric"
+                      value={formData.cpf}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      CELULAR
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="celular"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="celular">
                       Celular / WhatsApp
                     </label>
 
                     <input
-                      type="text"
+                      type="tel"
                       id="celular"
                       name="celular"
                       placeholder="(00) 00000-0000"
                       maxLength={15}
-                      value={
-                        formData.celular
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      autoComplete="tel"
+                      value={formData.celular}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      DATA DE NASCIMENTO
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="dataNascimento"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="dataNascimento">
                       Data de nascimento
                     </label>
 
@@ -868,30 +421,14 @@ export function CadastroEntregador({
                       type="date"
                       id="dataNascimento"
                       name="dataNascimento"
-                      value={
-                        formData.dataNascimento
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      autoComplete="bday"
+                      value={formData.dataNascimento}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      CNH
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="cnh"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="cnh">
                       Digite sua CNH
                     </label>
 
@@ -901,68 +438,30 @@ export function CadastroEntregador({
                       name="cnh"
                       placeholder="Digite os 11 números"
                       maxLength={11}
-                      value={
-                        formData.cnh
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      inputMode="numeric"
+                      value={formData.cnh}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      BOTÃO
-                  ------------------------------------------------ */}
-
                   <button
-                    type="button"
-                    onClick={
-                      proximaEtapa
-                    }
-                    className={
-                      styles.botaoCadastrar
-                    }
+                    type="submit"
+                    className={styles.botaoCadastrar}
                   >
                     Próximo
                   </button>
-
-
                 </form>
-
               )}
 
-
-              {/* ==================================================
-                  ETAPA 2
-              ================================================== */}
+              {/* ETAPA 2 */}
 
               {etapa === 2 && (
-
                 <form
-                  className={
-                    styles.formCadastro
-                  }
-                  onSubmit={
-                    handleSubmit
-                  }
+                  className={styles.formCadastro}
+                  onSubmit={handleSubmit}
                 >
-
-
-                  {/* ------------------------------------------------
-                      PLACA
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="placa"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="placa">
                       Placa da Moto
                     </label>
 
@@ -972,30 +471,14 @@ export function CadastroEntregador({
                       name="placa"
                       placeholder="Ex: ABC1D23"
                       maxLength={7}
-                      value={
-                        formData.placa
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      autoCapitalize="characters"
+                      value={formData.placa}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      EMAIL
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="email"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="email">
                       Email
                     </label>
 
@@ -1004,30 +487,14 @@ export function CadastroEntregador({
                       id="email"
                       name="email"
                       placeholder="seuemail@exemplo.com"
-                      value={
-                        formData.email
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      autoComplete="email"
+                      value={formData.email}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      SENHA
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="senha"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="senha">
                       Senha
                     </label>
 
@@ -1036,30 +503,14 @@ export function CadastroEntregador({
                       id="senha"
                       name="senha"
                       placeholder="Digite sua senha"
-                      value={
-                        formData.senha
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      autoComplete="new-password"
+                      value={formData.senha}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* ------------------------------------------------
-                      CONFIRMAR SENHA
-                  ------------------------------------------------ */}
-
-                  <div
-                    className={
-                      styles.campo
-                    }
-                  >
-
-                    <label
-                      htmlFor="senhaConfirmar"
-                    >
+                  <div className={styles.campo}>
+                    <label htmlFor="senhaConfirmar">
                       Confirme sua Senha
                     </label>
 
@@ -1068,137 +519,67 @@ export function CadastroEntregador({
                       id="senhaConfirmar"
                       name="senhaConfirmar"
                       placeholder="Confirme sua senha"
-                      value={
-                        formData.senhaConfirmar
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      autoComplete="new-password"
+                      value={formData.senhaConfirmar}
+                      onChange={handleChange}
                     />
-
                   </div>
 
-
-                  {/* =================================================
-                      AÇÕES
-                  ================================================= */}
-
-                  <div
-                    className={
-                      styles.acoes
-                    }
-                  >
-
+                  <div className={styles.acoes}>
                     <button
                       type="button"
-                      onClick={
-                        etapaAnterior
-                      }
-                      className={
-                        styles.botaoVoltar
-                      }
-                      disabled={
-                        carregando
-                      }
+                      onClick={etapaAnterior}
+                      className={styles.botaoVoltar}
+                      disabled={carregando}
                     >
                       Voltar
                     </button>
 
-
                     <button
                       type="submit"
-                      className={
-                        styles.botaoCadastrar
-                      }
-                      disabled={
-                        carregando
-                      }
+                      className={styles.botaoCadastrar}
+                      disabled={carregando}
                     >
-
                       {carregando
                         ? 'Cadastrando...'
-                        : 'Cadastrar'
-                      }
-
+                        : 'Cadastrar'}
                     </button>
-
                   </div>
-
-
                 </form>
-
               )}
 
-
-              {/* ==================================================
-                  ETAPA 3
-              ================================================== */}
+              {/* ETAPA 3 — SUCESSO */}
 
               {etapa === 3 && (
-
-                <div
-                  className={
-                    styles.sucessoContainer
-                  }
-                >
-
-                  <h2
-                    className={
-                      styles.sucessoTitulo
-                    }
-                  >
+                <div className={styles.sucessoContainer}>
+                  <h2 className={styles.sucessoTitulo}>
                     Obrigado, {primeiroNome}!
                   </h2>
 
-
-                  <p
-                    className={
-                      styles.sucessoTexto
-                    }
-                  >
-                    Por mostrar interesse em
-                    operar por nossa plataforma.
+                  <p className={styles.sucessoTexto}>
+                    Por mostrar interesse em operar por nossa
+                    plataforma.
                   </p>
 
-
-                  <p
-                    className={
-                      styles.sucessoSubtexto
-                    }
-                  >
-                    Seu cadastro está sendo
-                    analisado. Verifique o seu
-                    e-mail para acompanhar o
-                    retorno.
+                  <p className={styles.sucessoSubtexto}>
+                    Seu cadastro está sendo analisado.
+                    Verifique o seu e-mail para acompanhar
+                    o retorno.
                   </p>
-
 
                   <img
                     src={emailIcon}
                     alt="E-mail"
-                    className={
-                      styles.emailImg
-                    }
+                    className={styles.emailImg}
                   />
-
                 </div>
-
               )}
-
-
             </div>
-
           </div>
-
         </div>
 
-
         {children}
-
       </div>
-
     </div>
-
   );
-
 }

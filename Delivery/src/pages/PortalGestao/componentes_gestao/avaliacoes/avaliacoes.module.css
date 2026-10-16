@@ -35,6 +35,13 @@
   border-radius: 2px;
 
   line-height: 0;
+
+   user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+
+
+
 }
 
 /* =====================================================
@@ -58,9 +65,11 @@
   object-fit: cover;
   object-position: center;
 
-  user-select: none;
-  pointer-events: none;
-  -webkit-user-drag: none;
+ 
+
+    
+
+
 }
 
 /* =====================================================
@@ -76,7 +85,7 @@
 
   transform: translate(-50%, -50%);
 
-  width: 125px;
+  width: 120px;
   min-height: 94px;
   padding: 8px;
 
