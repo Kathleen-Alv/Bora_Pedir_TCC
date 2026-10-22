@@ -1,0 +1,221 @@
+.header {
+  flex: 0 0 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 30px;
+  background: #fff;
+  border-bottom: 1px solid #e8eeeb;
+}
+
+.headerEsquerda, .headerDireita {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #899397;
+  font-size: 11px;
+}
+
+.breadcrumb b {
+  color: #c5cdca;
+  font-weight: 400;
+}
+
+.breadcrumb strong {
+  overflow: hidden;
+  color: #2b363b;
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerDireita {
+  gap: 17px;
+  flex-shrink: 0;
+}
+
+.statusLoja {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #f1faf4;
+  cursor: pointer;
+}
+
+.lojaAberta {
+  color: #25844a;
+  background: #f0faf4;
+  border-color: #d8efdf;
+}
+
+.lojaFechada {
+  color: #b33d45;
+  background: #fff4f4;
+  border-color: #f1d8da;
+}
+
+.chave {
+  width: 25px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 12px;
+  background: #32a65e;
+}
+
+.lojaFechada .chave {
+  background: #c6cdca;
+}
+
+.bolinha {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px #0002;
+  transform: translateX(10px);
+  transition: transform .18s;
+}
+
+.lojaFechada .bolinha {
+  transform: translateX(0);
+}
+
+.textoStatus {
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.divisorHeader {
+  height: 28px;
+  width: 1px;
+  background: #edf0ee;
+}
+
+.botaoNotificacao {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #59676d;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.botaoNotificacao:hover {
+  background: #f5f7f6;
+}
+
+.badgeNotificacao {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 10px;
+  color: #fff;
+  background: var(--vermelho);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-left: 16px;
+  border-left: 1px solid #edf0ee;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #9d2430;
+  background: #fae6e8;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dadosUsuario {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dadosUsuario strong {
+  max-width: 150px;
+  overflow: hidden;
+  color: #2b363b;
+  font-size: 11px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dadosUsuario span {
+  color: #909b9e;
+  font-size: 10px;
+}
+
+.seta {
+  color: #899397;
+  font-size: 17px;
+  margin-left: 4px;
+}
+
+.conteudo {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 18px 24px 24px;
+  background: #f6f8f7;
+}
+
+
+.portalButton {
+  background-color: rgb(252, 239, 239);
+  width: 145px;
+  height: 38px;
+  border-radius: 5px;
+  border: 3px solid rgb(238, 216, 17);
+  color: #6e0808;
+  cursor: pointer;
+
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.portalButton:hover {
+  background-color: rgb(240, 235, 235);
+  border-color: rgb(236, 3, 3);
+}
+
+
+
+/**/

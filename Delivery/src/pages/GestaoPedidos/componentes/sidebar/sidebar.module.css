@@ -1,0 +1,252 @@
+.sidebar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  height: 100%;
+  padding: 18px 12px 14px;
+  background: #eeeaea;
+  border-right: 1px solid #882005;
+  transition: width 0.22s ease, min-width 0.22s ease;
+  /* MANTÉM VISÍVEL PARA O BOTÃO FICAR PARA FORA DA BORDA */
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.sidebarAberto {
+  width: 224px;
+  min-width: 224px;
+}
+
+.sidebarFechado {
+  width: 76px;
+  min-width: 76px;
+  align-items: center;
+}
+
+.sidebarTopo {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 5px 18px;
+  border-bottom: 1px solid #eff2f0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.logoSidebar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff4f4;
+  border: 1px solid #f4e0e2;
+}
+
+.logoSidebarImagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.infoSidebar {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.infoSidebar strong {
+  color: #242d32;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+}
+
+.infoSidebar span {
+  color: #899397;
+  font-size: 11px;
+}
+
+/* BOTÃO POSICIONADO PARA FORA DA BORDA */
+.botaoToggleSidebar {
+  position: absolute;
+  top: 50%;
+  right: -13px; /* Fica exatamente sobre a borda externa */
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #5a615d;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: #657176;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.botaoToggleSidebar:hover {
+  color: var(--vermelho);
+  border-color: #e8b7bc;
+}
+
+.menuContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden; /* Corta textos dos menus internos sem afetar a barra principal */
+}
+
+.menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 25px;
+}
+
+.menuLegenda {
+  padding: 0 10px 8px;
+  color: #020303;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.menuItem {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #08090a;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.18s, color 0.18s;
+  overflow: hidden;
+}
+
+.menuItem:hover {
+  background: #fff4f4;
+  color: var(--vermelho);
+}
+
+.menuItemAtivo {
+  color: var(--vermelho);
+  background: #f7f4f5;
+}
+
+.menuItemAtivo::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: var(--vermelho);
+}
+
+.menuIcone {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  display: grid;
+  place-items: center;
+}
+
+.menuItem img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  opacity: 0.76;
+}
+
+.menuItemAtivo img {
+  opacity: 1;
+}
+
+.menuTexto {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.15s ease;
+}
+
+/* --- ESTADOS DA SIDEBAR FECHADA --- */
+
+.sidebarFechado .sidebarTopo {
+  justify-content: center;
+  padding: 0 0 18px;
+  width: 100%;
+}
+
+.sidebarFechado .menu {
+  align-items: center;
+}
+
+/* Força a ocultação da legenda e textos no estado fechado */
+.sidebarFechado .menuLegenda,
+.sidebarFechado [class*="menuLegenda"],
+.sidebarFechado .menuTexto,
+.sidebarFechado [class*="menuTexto"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.sidebarFechado .menuItem {
+  width: 44px;
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebarFechado .menuItemAtivo::before {
+  left: -16px;
+}
+
+.menuInferior {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #eff2f0;
+}
+
+.sidebarFechado .menuInferior {
+  display: flex;
+  justify-content: center;
+}
+
+/* COLOQUE NO TSX*/
+.iconeConfiguracao {
+  font-size: 20px;
+  color: currentColor;
+}

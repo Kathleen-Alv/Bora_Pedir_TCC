@@ -1,0 +1,920 @@
+
+/* =========================================================
+   COLUNA DIREITA — RESUMO E DETALHES DO PEDIDO
+   Compatível com o GestaoPedidos.tsx
+========================================================= */
+
+/* COLUNA PRINCIPAL */
+
+.colunaDireitaFixa {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* =========================================================
+   1. CARTÕES DE RESUMO
+========================================================= */
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.resumoCard {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  min-height: 96px;
+  padding: 14px;
+  border: 1px solid #e8eeeb;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.resumoCard > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.resumoCard > div > span {
+  color: #758186;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.resumoCard strong {
+  color: #253137;
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+}
+
+.resumoCard small {
+  position: absolute;
+  bottom: 9px;
+  left: 14px;
+  right: 8px;
+  color: #a0a9aa;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.resumoIcone {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #7c898d;
+  background: #f1f4f3;
+  font-size: 16px;
+}
+
+.resumoNovos {
+  border-color: #f0d9dc;
+}
+
+.resumoNovos .resumoIcone {
+  color: var(--vermelho);
+  background: #fff0f1;
+}
+
+.resumoNovos strong {
+  color: var(--vermelho);
+}
+
+/* =========================================================
+   2. PAINEL DE DETALHES
+========================================================= */
+
+.detalhes {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid #d9e2dd;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(28, 48, 38, 0.08);
+}
+
+/* Cabeçalho */
+
+.detalhesTopo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 17px;
+  border-bottom: 2px solid #f0dfe1;
+  background: #fffafa;
+}
+
+.eyebrow {
+  color: #8a555b;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1.1px;
+  line-height: 1.4;
+}
+
+.detalhesTopo h3 {
+  margin: 3px 0 0;
+  color: #202b31;
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: -0.45px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.detalhesTopo > button {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: #8c979a;
+  background: #f5f7f6;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.detalhesTopo > button:hover {
+  background: #edf0ee;
+}
+
+/* Área rolável dos detalhes */
+
+.detalhesCorpoScroll {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 13px;
+  min-height: 0;
+  padding: 16px 22px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5cf transparent;
+}
+
+.detalhesCorpoScroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.detalhesCorpoScroll::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #cbd5cf;
+}
+
+/* =========================================================
+   3. CLIENTE E ENDEREÇO NA MESMA LINHA
+========================================================= */
+
+.detalheClienteEEndereco {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.detalheCliente {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 6px 2px;
+}
+
+.avatarGrande {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 85px;
+  height: 85px;
+  min-width: 45px;
+  border-radius: 50%;
+  color: #9f3440;
+  background: #fae9eb;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+
+.fotoAvatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+
+
+
+.dadosCliente {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.detalheCliente strong {
+  color: #202b31;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.detalheCliente span,
+.dataHorarioText {
+  color: #59676d;
+  font-size: 14px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* CPF na nota */
+
+.badgeCpf {
+  align-self: flex-start;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #384640;
+  background: #f0f4f2;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.badgeCpf strong {
+  font-weight: 750;
+}
+
+/* Divisórias */
+
+.separador {
+  flex-shrink: 0;
+  height: 1px;
+  min-height: 1px;
+  margin: 2px 0;
+  background: #edf0ee;
+}
+
+/* =========================================================
+   4. ENDEREÇO E PAGAMENTO
+========================================================= */
+
+.secaoDetalheBloco {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.secaoCabecalhoIcone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #273b32;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.secaoCabecalhoIcone > span {
+  flex-shrink: 0;
+}
+
+.secaoCabecalhoIcone strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.enderecoBox,
+.pagamentoBox {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #dfe8e3;
+  border-radius: 9px;
+  background: #f7faf8;
+}
+
+.enderecoBox p {
+  margin: 0;
+  color: #34443c;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.enderecoBox p + p {
+  margin-top: 2px;
+}
+
+.pontoRefText {
+  display: block;
+  margin-top: 5px;
+  color: #65746d;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.textoSimples {
+  margin: 0;
+  color: #53635b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* Informações do pagamento */
+
+.pagamentoLinha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #26372f;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.pagoTag,
+.pendenteTag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.4;
+}
+
+.pagoTag {
+  color: #137333;
+  background: #e6f4ea;
+}
+
+.pendenteTag {
+  color: #b06000;
+  background: #fef7e0;
+}
+
+.detalhePagamentoTexto {
+  display: block;
+  margin-top: 5px;
+  color: #64736b;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   5. TÍTULO E LISTA DOS ITENS
+========================================================= */
+
+.detalheSecaoTitulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0 8px;
+}
+
+.detalheSecaoTitulo strong {
+  color: #25352d;
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.detalheSecaoTitulo span {
+  flex-shrink: 0;
+  color: #64736b;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.listaDetalhes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 5px 0 12px;
+}
+
+/* Cartão individual de item */
+
+.itemDetalhe {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  min-width: 0;
+  padding: 12px 10px;
+  border: 1px solid #e5ece8;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.imagemItemDetalhe {
+  display: block;
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 9px;
+  object-fit: cover;
+  background-color: #f0f3f1;
+}
+
+.infoItemDetalhe {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.itemCabecalho {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  color: #202b28;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.itemCabecalho > strong {
+  flex: 1;
+  min-width: 80px;
+  overflow-wrap: anywhere;
+}
+
+.quantidade {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  color: #fff;
+  background: #bd1221;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.itemPreco {
+  margin-left: auto;
+  color: #202b28;
+  font-size: 16px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.itemObservacao {
+  display: block;
+  margin-top: 5px;
+  color: #a80f1c;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.itemDescricao {
+  margin: 5px 0 0;
+  color: #53635b;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.botaoVerMais {
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  color: #00704a;
+  background: none;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.botaoVerMais:hover {
+  color: #005236;
+}
+
+/* =========================================================
+   6. OBSERVAÇÃO DO CLIENTE
+========================================================= */
+
+.observacao {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 3px 0 10px;
+  padding: 12px 14px;
+  border: 1px solid #efdcae;
+  border-radius: 9px;
+  color: #5d4037;
+  background: #fff9e9;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.observacao > span {
+  flex-shrink: 0;
+  color: #b48b3d;
+  font-size: 16px;
+}
+
+.observacao > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.observacao strong {
+  color: #76551d;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.5;
+}
+
+.observacao p {
+  margin: 3px 0 0;
+  color: #705d3b;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   7. RESUMO FINANCEIRO
+========================================================= */
+
+.resumoValores {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid #dfe8e3;
+  border-radius: 10px;
+  background: #f6faf7;
+}
+
+.linhaTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  color: #52625a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.linhaTotal > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.linhaTotal > strong {
+  color: #27372f;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.linhaDesconto {
+  color: #d93025;
+}
+
+.linhaTotalDestaque {
+  margin-top: 5px;
+  padding-top: 12px;
+  border-top: 2px solid #dce6e0;
+  color: #202b28;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.linhaTotalDestaque strong {
+  color: #bd1221;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   8. TEMPO DE PREPARO
+========================================================= */
+
+.tempoPreparo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 7px 0;
+  padding: 13px 15px;
+  border: 1px solid #efdfb9;
+  border-radius: 10px;
+  color: #51452f;
+  background: #fff9e9;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.tempoPreparo > span {
+  flex-shrink: 0;
+  color: #bc8c2c;
+  font-size: 18px;
+}
+
+.tempoPreparo > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tempoPreparo strong {
+  color: #51452f;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.tempoPreparo small {
+  color: #827353;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.tempoPreparo > b {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: #805c15;
+  font-size: 16px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   9. BOTÕES DE AÇÃO
+========================================================= */
+
+.acoesDetalhes {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding: 14px 22px 20px;
+  border-top: 1px solid #edf0ee;
+  background: #eeeeee;
+}
+
+.acoesDetalhes > button {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  background: #41e73b;
+  color: white;
+}
+
+.aceitarGrande {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-width: 0;
+  min-height: 46px;
+  margin: 0;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  background: #00704a;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.aceitarGrande:hover {
+  background: #005236;
+}
+
+.aceitarGrande span {
+  flex-shrink: 0;
+}
+
+/* Quando o pedido está pronto */
+
+.prontoTag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+  padding: 13px;
+  border-radius: 7px;
+  color: #137333;
+  background: #e6f4ea;
+  font-size: 13px;
+  font-weight: 750;
+  text-align: center;
+}
+
+/* =========================================================
+   10. NENHUM PEDIDO SELECIONADO
+========================================================= */
+
+.detalheVazio {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 28px;
+  color: #66756d;
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* =========================================================
+   11. RESPONSIVIDADE DA COLUNA DIREITA
+========================================================= */
+
+@media (max-width: 1280px) {
+  .colunaDireitaFixa {
+    gap: 14px;
+  }
+
+  .resumo {
+    gap: 9px;
+  }
+
+  .resumoCard {
+    gap: 8px;
+    padding: 11px;
+  }
+
+  .resumoCard > div > span {
+    font-size: 12px;
+  }
+
+  .resumoCard strong {
+    font-size: 23px;
+  }
+
+  .resumoCard small {
+    left: 11px;
+    font-size: 10px;
+  }
+
+  .resumoIcone {
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+  }
+
+  .detalhesTopo {
+    padding: 15px 16px 12px;
+  }
+
+  .detalhesTopo h3 {
+    font-size: 18px;
+  }
+
+  .detalhesCorpoScroll {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .detalheClienteEEndereco {
+    grid-template-columns: minmax(160px, 0.8fr) minmax(0, 1.2fr);
+    gap: 12px;
+  }
+
+  .detalheCliente {
+    gap: 9px;
+  }
+
+  .detalheCliente strong {
+    font-size: 15px;
+  }
+
+  .detalheCliente span,
+  .dataHorarioText {
+    font-size: 12px;
+  }
+
+  .secaoCabecalhoIcone {
+    font-size: 13px;
+  }
+
+  .enderecoBox,
+  .pagamentoBox {
+    padding: 9px 10px;
+  }
+
+  .enderecoBox p,
+  .pagamentoLinha {
+    font-size: 12px;
+  }
+
+  .itemDetalhe {
+    gap: 9px;
+    padding: 9px 7px;
+  }
+
+  .imagemItemDetalhe {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+
+  .itemCabecalho {
+    gap: 5px;
+    font-size: 13px;
+  }
+
+  .quantidade {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    font-size: 11px;
+  }
+
+  .itemPreco {
+    font-size: 13px;
+  }
+
+  .itemDescricao {
+    font-size: 12px;
+  }
+
+  .acoesDetalhes {
+    padding: 12px 14px 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .colunaDireitaFixa {
+    height: auto;
+    min-height: 600px;
+  }
+
+  .resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .resumoCard {
+    min-height: 82px;
+  }
+
+  .detalheClienteEEndereco {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .detalhes {
+    min-height: 500px;
+  }
+}
