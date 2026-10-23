@@ -116,8 +116,9 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 30px;
   margin-top: 25px;
+  background-color: #ecf0f1;
 }
 
 .menuLegenda {
@@ -224,6 +225,7 @@
 }
 
 .sidebarFechado .menuItem {
+  
   width: 44px;
   justify-content: center;
   padding: 0;

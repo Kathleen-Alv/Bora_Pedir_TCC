@@ -14,7 +14,7 @@
 }
 
 /* =====================================================
-   COLUNA ESQUERDA — SCROLL DOS PEDIDOS
+   SCROLL E AGRUPAMENTO DAS COLUNAS
 ===================================================== */
 
 .colunaEsquerdaScroll {
@@ -37,7 +37,7 @@
 }
 
 /* =====================================================
-   COLUNAS DE STATUS
+   ESTRUTURA DAS COLUNAS DE STATUS
 ===================================================== */
 
 .coluna {
@@ -47,8 +47,6 @@
   border-radius: 11px;
   background: #f0f3f1;
 }
-
-/* Cabeçalho sem contador numérico */
 
 .colunaHeader {
   min-height: 44px;
@@ -72,44 +70,6 @@
   white-space: nowrap;
 }
 
-/* =====================================================
-   INDICADORES DE STATUS
-===================================================== */
-
-.pontoStatus {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
-  border-radius: 50%;
-}
-
-.ponto_novo {
-  background: #d42b39;
-}
-
-.ponto_preparo {
-  background: #e4a02a;
-}
-
-.ponto_pronto {
-  background: #32a15b;
-}
-
-/* Indicador NOVO */
-
-.piscando {
-  margin-left: auto;
-  color: var(--vermelho, #bd1221);
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.4px;
-  white-space: nowrap;
-}
-
-/* =====================================================
-   LISTA DE CARDS
-===================================================== */
-
 .listaCards {
   display: flex;
   flex-direction: column;
@@ -119,38 +79,77 @@
 }
 
 /* =====================================================
-   CARD DO PEDIDO
+   INDICADORES DAS COLUNAS
 ===================================================== */
 
-.pedidoCard {
+.pontoStatus {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+}
+
+/* Indicador de novos pedidos */
+
+.pontoNovo {
+  background: #d42b39;
+}
+
+/* Indicador de pedidos em preparo */
+
+.pontoPreparo {
+  background: #e4a02a;
+}
+
+/* Indicador de pedidos prontos */
+
+.pontoPronto {
+  background: #32a15b;
+}
+
+/* Texto NOVO no cabeçalho */
+
+.indicadorNovo {
+  margin-left: auto;
+  color: var(--vermelho, #bd1221);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+/* =====================================================
+   SELEÇÃO DO PEDIDO
+   APLICÁVEL AOS TRÊS TIPOS DE CARD
+===================================================== */
+
+.pedidoSelecionado {
+  outline: 2px solid #a5081a;
+  outline-offset: -2px;
+}
+
+/* =====================================================
+   STATUS 1 — PEDIDO NOVO
+   Card, conteúdo e ações independentes
+===================================================== */
+
+.pedidoNovo {
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 130px;
   height: auto;
   overflow: hidden;
-  border: 1px solid #e5eae7;
+  border: 1px solid #edc9cd;
   border-radius: 9px;
-  background: #ffffff;
-  box-shadow: 0 2px 4px #25382d05;
+  background: #fff9f9;
+  box-shadow: 0 2px 7px #bd12210b;
   box-sizing: border-box;
 }
 
-.pedidoNovo {
-  border-color: #edc9cd;
-  box-shadow: 0 2px 7px #bd12210b;
-}
+/* Área clicável do pedido novo */
 
-.pedidoSelecionado {
-  outline: 2px solid #e4a6ad;
-  outline-offset: -2px;
-}
-
-/* =====================================================
-   ÁREA CLICÁVEL DO CARD
-===================================================== */
-
-.cardClicavel {
+.pedidoNovoConteudo {
   display: block;
   width: 100%;
   padding: 12px;
@@ -162,15 +161,15 @@
   box-sizing: border-box;
 }
 
-.cardClicavel:focus-visible {
-  outline: 2px solid #bd1221;
+.pedidoNovoConteudo:focus-visible {
+  outline: 2px solid #bb7f84;
   outline-offset: -3px;
   border-radius: 8px;
 }
 
-/* Código do pedido e quantidade de itens */
+/* Código e quantidade de itens */
 
-.cardTopo {
+.pedidoNovoTopo {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -178,13 +177,13 @@
   margin-bottom: 8px;
 }
 
-.cardTopo strong {
+.pedidoNovoCodigo {
   color: #303c42;
   font-size: 13px;
   font-weight: 800;
 }
 
-.cardTopo span {
+.pedidoNovoQuantidade {
   color: #929da0;
   font-size: 11px;
   white-space: nowrap;
@@ -192,7 +191,7 @@
 
 /* Nome do cliente */
 
-.clienteLinha {
+.pedidoNovoCliente {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -200,18 +199,12 @@
   margin-bottom: 8px;
   color: #354147;
   font-size: 13px;
-}
-
-.clienteLinha strong {
   overflow-wrap: anywhere;
 }
 
-/* =====================================================
-   BOTÕES RECUSAR E ACEITAR
-   CENTRALIZADOS NO CARD
-===================================================== */
+/* Botões do pedido novo */
 
-.acoesCard {
+.pedidoNovoAcoes {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -222,12 +215,8 @@
   box-sizing: border-box;
 }
 
-/* Estilo base dos botões */
-
-.recusar,
-.aceitar,
-.acaoPronto,
-.aceitarGrande {
+.pedidoNovoRecusar,
+.pedidoNovoAceitar {
   min-height: 36px;
   display: inline-flex;
   align-items: center;
@@ -247,16 +236,14 @@
   box-sizing: border-box;
 }
 
-.recusar:active,
-.aceitar:active,
-.acaoPronto:active,
-.aceitarGrande:active {
+.pedidoNovoRecusar:active,
+.pedidoNovoAceitar:active {
   transform: scale(0.98);
 }
 
-/* Botão Recusar */
+/* Recusar pedido novo */
 
-.recusar {
+.pedidoNovoRecusar {
   flex: 0.5 0.5 0;
   min-width: 0;
   padding: 0 8px;
@@ -265,15 +252,15 @@
   background: #110f0f;
 }
 
-.recusar:hover {
+.pedidoNovoRecusar:hover {
   color: var(--vermelho, #bd1221);
   border-color: #edc7cb;
   background: #fff8f8;
 }
 
-/* Botão Aceitar */
+/* Aceitar pedido novo */
 
-.aceitar {
+.pedidoNovoAceitar {
   flex: 1 1 0;
   min-width: 0;
   padding: 0 8px;
@@ -282,42 +269,206 @@
   background: var(--vermelho, #bd1221);
 }
 
-.aceitar:hover,
-.aceitarGrande:hover {
+.pedidoNovoAceitar:hover {
   border-color: var(--vermelho-escuro, #a80f1c);
   background: var(--vermelho-escuro, #a80f1c);
 }
 
-.aceitar span,
-.acaoPronto span,
-.aceitarGrande span {
+.pedidoNovoSeta {
   font-size: 16px;
 }
 
 /* =====================================================
-   BOTÃO MARCAR COMO PRONTO
+   STATUS 2 — PEDIDO EM PREPARO
+   Card e conteúdo independentes
 ===================================================== */
 
-.acaoPronto {
+.pedidoPreparo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 130px;
+  height: auto;
+  overflow: hidden;
+  border: 1px solid #e5eae7;
+  border-radius: 9px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px #25382d05;
+  box-sizing: border-box;
+}
+
+/* Área clicável do pedido em preparo */
+
+.pedidoPreparoConteudo {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.pedidoPreparoConteudo:focus-visible {
+  outline: 2px solid #bd1221;
+  outline-offset: -3px;
+  border-radius: 8px;
+}
+
+/* Código e quantidade de itens */
+
+.pedidoPreparoTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pedidoPreparoCodigo {
+  color: #303c42;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pedidoPreparoQuantidade {
+  color: #929da0;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Nome do cliente */
+
+.pedidoPreparoCliente {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  margin-bottom: 8px;
+  color: #354147;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* Botão de avançar para pronto */
+
+.pedidoPreparoBotao {
   width: calc(100% - 24px);
   min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin: auto 12px 12px;
   padding: 0 10px;
   border: 1px solid #cfe8d7;
+  border-radius: 6px;
   color: #ffffff;
   background: #099c44;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+  box-sizing: border-box;
 }
 
-.acaoPronto:hover {
+.pedidoPreparoBotao:hover {
   border-color: #087f38;
   background: #087f38;
 }
 
+.pedidoPreparoBotao:active {
+  transform: scale(0.98);
+}
+
+.pedidoPreparoSeta {
+  font-size: 16px;
+}
+
 /* =====================================================
-   PEDIDO PRONTO
+   STATUS 3 — PEDIDO PRONTO
+   Card e conteúdo independentes
 ===================================================== */
 
-.prontoTag {
+.pedidoPronto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 130px;
+  height: auto;
+  overflow: hidden;
+  border: 1px solid #e5eae7;
+  border-radius: 9px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px #25382d05;
+  box-sizing: border-box;
+}
+
+/* Área clicável do pedido pronto */
+
+.pedidoProntoConteudo {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.pedidoProntoConteudo:focus-visible {
+  outline: 2px solid #bd1221;
+  outline-offset: -3px;
+  border-radius: 8px;
+}
+
+/* Código e quantidade de itens */
+
+.pedidoProntoTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pedidoProntoCodigo {
+  color: #303c42;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pedidoProntoQuantidade {
+  color: #929da0;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Nome do cliente */
+
+.pedidoProntoCliente {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  margin-bottom: 8px;
+  color: #354147;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* Identificação de pedido pronto */
+
+.pedidoProntoEtiqueta {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -348,7 +499,7 @@
   box-sizing: border-box;
 }
 
-.vazio > span {
+.vazioIcone {
   width: 28px;
   height: 28px;
   display: grid;
@@ -359,13 +510,13 @@
   font-size: 14px;
 }
 
-.vazio strong {
+.vazioTitulo {
   color: #6f7c80;
   font-size: 11px;
   font-weight: 700;
 }
 
-.vazio small {
+.vazioDescricao {
   font-size: 10px;
   line-height: 1.4;
 }
@@ -387,11 +538,11 @@
   line-height: 1.4;
 }
 
-.aviso > span {
+.avisoIcone {
   flex-shrink: 0;
 }
 
-.aviso button {
+.avisoFechar {
   flex-shrink: 0;
   margin-left: auto;
   padding: 0 2px;
@@ -412,14 +563,14 @@
     gap: 12px;
   }
 
-  .acoesCard {
+  .pedidoNovoAcoes {
     gap: 7px;
     padding-right: 8px;
     padding-left: 8px;
   }
 
-  .recusar,
-  .aceitar {
+  .pedidoNovoRecusar,
+  .pedidoNovoAceitar {
     font-size: 10px;
   }
 }

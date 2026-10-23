@@ -2,6 +2,15 @@
 import { useState } from "react";
 import styles from "./detalhe_pedidos.module.css";
 
+
+/* IMAGES  */
+
+import bannerNovoPedido from '../../../../assets/gestao_pedidos/novoPedido.png';
+import bannerPreparoPedido from '../../../../assets/gestao_pedidos/preparoPedido.png';
+import bannerProntoPedido from '../../../../assets/gestao_pedidos/prontoPedido.png';
+
+
+
 /* =====================================================
    TIPOS
 ===================================================== */
