@@ -6,6 +6,7 @@ import '../../services/auth_storage.dart';
 import '../../services/comercio_service.dart';
 import '../../widgets/bottom_navigation.dart';
 import '../../carrinho_compras/carrinho_compras_modal.dart';
+
 import '../../widgets/modal_conta.dart';
 import '../inicio/componentes/banner_inicio.dart';
 
@@ -632,9 +633,15 @@ class _InicioPageState extends State<InicioPage> {
                 ),
 
                 if (mostrarCarrinho)
-                CarrinhoComprasModal(
-                  total: totalCarrinho,
-                ),
+                  CarrinhoComprasModal(
+                    total: totalCarrinho,
+                    onFechar: () {
+                      setState(() {
+                        mostrarCarrinho = false;
+                      });
+                    },
+                    
+                  ),
 
                 BottomNavigation(
                   paginaAtual: paginaAtual,

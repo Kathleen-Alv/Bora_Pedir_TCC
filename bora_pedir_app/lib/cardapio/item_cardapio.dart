@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/carrinho_service.dart';
 
 class ItemCardapioPage extends StatefulWidget {
+  final int itemId;
   final String nome;
   final String descricao;
   final String imagem;
@@ -10,6 +11,7 @@ class ItemCardapioPage extends StatefulWidget {
 
   const ItemCardapioPage({
     super.key,
+    required this.itemId,
     required this.nome,
     required this.descricao,
     required this.imagem,
@@ -22,6 +24,48 @@ class ItemCardapioPage extends StatefulWidget {
 
 class _ItemCardapioPageState extends State<ItemCardapioPage> {
   int quantidade = 1;
+  bool _adicionando = false;
+
+  Future<void> _adicionarAoCarrinho() async {
+    if (_adicionando) return;
+
+    setState(() {
+      _adicionando = true;
+    });
+
+    try {
+      await CarrinhoService.adicionarItem(
+        itemId: widget.itemId,
+        quantidade: quantidade,
+      );
+
+      if (!mounted) return;
+
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível adicionar ao carrinho.\n${e.toString()}',
+          ),
+          backgroundColor: const Color(0xFFBD1221),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _adicionando = false;
+        });
+      }
+    }
+  }
+
+  String _formatarPreco(double valor) {
+    return 'R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,24 +91,21 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                               bottomLeft: Radius.circular(30),
                               bottomRight: Radius.circular(30),
                             ),
-                            child: Image.network(
-                              widget.imagem,
-                              fit: BoxFit.cover,
-                              errorBuilder: (
-                                context,
-                                error,
-                                stackTrace,
-                              ) {
-                                return Container(
-                                  color: const Color(0xFFF4F4F4),
-                                  child: const Icon(
-                                    Icons.restaurant,
-                                    size: 70,
-                                    color: Color(0xFFBDBDBD),
-                                  ),
-                                );
-                              },
-                            ),
+                            child: widget.imagem.isNotEmpty
+                                ? Image.network(
+                                    widget.imagem,
+                                    width: double.infinity,
+                                    height: 330,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (
+                                      context,
+                                      error,
+                                      stackTrace,
+                                    ) {
+                                      return _imagemPadrao();
+                                    },
+                                  )
+                                : _imagemPadrao(),
                           ),
                         ),
                         Positioned(
@@ -117,7 +158,9 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            widget.descricao,
+                            widget.descricao.isNotEmpty
+                                ? widget.descricao
+                                : 'Sem descrição disponível.',
                             style: const TextStyle(
                               fontSize: 14,
                               height: 1.5,
@@ -125,6 +168,9 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                             ),
                           ),
                           const SizedBox(height: 25),
+
+                          // Opções visuais mantidas do layout original.
+                          // A seleção de tamanho ainda não altera o preço enviado.
                           const Text(
                             'Tamanho',
                             style: TextStyle(
@@ -182,6 +228,8 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                 ),
               ),
             ),
+
+            // Barra inferior
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(
@@ -213,13 +261,15 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                     child: Row(
                       children: [
                         IconButton(
-                          onPressed: () {
-                            if (quantidade > 1) {
-                              setState(() {
-                                quantidade--;
-                              });
-                            }
-                          },
+                          onPressed: _adicionando
+                              ? null
+                              : () {
+                                  if (quantidade > 1) {
+                                    setState(() {
+                                      quantidade--;
+                                    });
+                                  }
+                                },
                           icon: const Icon(
                             Icons.remove,
                             size: 18,
@@ -234,11 +284,13 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () {
-                            setState(() {
-                              quantidade++;
-                            });
-                          },
+                          onPressed: _adicionando
+                              ? null
+                              : () {
+                                  setState(() {
+                                    quantidade++;
+                                  });
+                                },
                           icon: const Icon(
                             Icons.add,
                             size: 18,
@@ -253,33 +305,35 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                     child: SizedBox(
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
-                          CarrinhoService.adicionarItem(
-                            nome: widget.nome,
-                            preco: widget.preco,
-                            quantidade: quantidade,
-                          );
-
-                          Navigator.pop(
-                            context,
-                            true,
-                          );
-                        },
+                        onPressed:
+                            _adicionando ? null : _adicionarAoCarrinho,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFBD1221),
                           foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              const Color(0xFFBD1221).withValues(alpha: 0.7),
+                          disabledForegroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
                         ),
-                        child: Text(
-                          'Adicionar  •  R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        child: _adicionando
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                'Adicionar  •  ${_formatarPreco(total)}',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -288,6 +342,19 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _imagemPadrao() {
+    return Container(
+      width: double.infinity,
+      height: 330,
+      color: const Color(0xFFF4F4F4),
+      child: const Icon(
+        Icons.restaurant,
+        size: 70,
+        color: Color(0xFFBDBDBD),
       ),
     );
   }
