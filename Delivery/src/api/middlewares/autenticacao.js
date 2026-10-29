@@ -1,3 +1,5 @@
+
+
 import jwt from 'jsonwebtoken';
 
 
@@ -96,3 +98,10 @@ export function autenticar(req, res, next) {
     }
 
 }
+
+
+
+
+
+
+

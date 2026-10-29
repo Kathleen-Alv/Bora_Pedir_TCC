@@ -2,6 +2,10 @@ import { db } from "../../../configBancoDeDados/database.js";
 
 
 
+/* CARDAPIO DA GESTÃO DO PEDIDO <<  */
+
+
+
 // ================================================================
 // LISTAR CATEGORIAS
 // ================================================================

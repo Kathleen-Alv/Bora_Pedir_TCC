@@ -57,6 +57,9 @@ import loginClienteRoutes
     from './src/api/routes/loginCliente.routes.js';
 
 
+import carrinhoRoutes from './src/api/routes/carrinho.routes.js';
+
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -166,6 +169,11 @@ app.use(
     '/api/perfil', perfilRoutes
 );
 
+
+
+//CARRINHO DE COMPRAS 
+
+app.use('/api/carrinho', carrinhoRoutes);
 
 
 // ================================================================
