@@ -66,6 +66,8 @@ import enderecosClientesRoutes
 import pedidoRoutes
     from './src/api/routes/pedido.routes.js';
 
+
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -189,6 +191,7 @@ app.use('/api/enderecos-clientes', enderecosClientesRoutes);
 app.use('/api/pedidos', pedidoRoutes);
 
 
+
 // ================================================================
 // TESTE DA API
 // ================================================================
@@ -200,6 +203,8 @@ app.get('/', (req, res) => {
     });
 
 });
+
+
 
 
 
