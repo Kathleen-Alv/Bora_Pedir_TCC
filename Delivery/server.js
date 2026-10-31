@@ -57,8 +57,14 @@ import loginClienteRoutes
     from './src/api/routes/loginCliente.routes.js';
 
 
-import carrinhoRoutes from './src/api/routes/carrinho.routes.js';
+import carrinhoRoutes
+     from './src/api/routes/carrinho.routes.js';
 
+import enderecosClientesRoutes 
+    from './src/api/routes/enderecosClientes.routes.js';
+
+import pedidoRoutes
+    from './src/api/routes/pedido.routes.js';
 
 // ================================================================
 // APLICAÇÃO
@@ -174,6 +180,13 @@ app.use(
 //CARRINHO DE COMPRAS 
 
 app.use('/api/carrinho', carrinhoRoutes);
+
+//ENDEREÇO DOS CLIENTES
+
+app.use('/api/enderecos-clientes', enderecosClientesRoutes);
+
+//SEU PEDIDO - DETALHES DO QUE PEDIU
+app.use('/api/pedidos', pedidoRoutes);
 
 
 // ================================================================
