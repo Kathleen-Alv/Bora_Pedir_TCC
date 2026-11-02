@@ -1,8 +1,13 @@
+
 import 'package:flutter/material.dart';
+
+import '../../models/endereco_model.dart';
+import '../../services/endereco_service.dart';
 
 import 'cartao_pagamento.dart';
 import 'dinheiro_pagamento.dart';
 import 'pix_pagamento.dart';
+import 'cadastro_endereco.dart';
 
 class EnderecoPagamentoPage extends StatefulWidget {
   const EnderecoPagamentoPage({
@@ -16,20 +21,130 @@ class EnderecoPagamentoPage extends StatefulWidget {
 
 class _EnderecoPagamentoPageState
     extends State<EnderecoPagamentoPage> {
+
   // =========================================================
-  // FORMA DE PAGAMENTO SELECIONADA
+  // FORMA DE PAGAMENTO
   // =========================================================
 
   String? formaPagamento;
+
+  // =========================================================
+  // ENDEREÇO DO CLIENTE
+  // =========================================================
+
+  EnderecoModel? enderecoSelecionado;
+
+  bool carregandoEndereco = true;
+
+  // =========================================================
+  // INICIALIZAÇÃO
+  // =========================================================
+
+  @override
+  void initState() {
+    super.initState();
+
+    _inicializar();
+  }
+
+  Future<void> _inicializar() async {
+    final sucesso = await _carregarEndereco();
+
+    if (sucesso &&
+        enderecoSelecionado == null &&
+        mounted) {
+      await _abrirCadastroEndereco();
+    }
+  }
+
+  // =========================================================
+  // CARREGAR ENDEREÇO DO BANCO
+  // =========================================================
+
+  Future<bool> _carregarEndereco() async {
+    setState(() {
+      carregandoEndereco = true;
+    });
+
+    try {
+      final enderecos =
+          await EnderecoService.carregarEnderecos();
+
+      if (!mounted) return false;
+
+      setState(() {
+        enderecoSelecionado =
+            enderecos.isNotEmpty ? enderecos.first : null;
+
+        carregandoEndereco = false;
+      });
+
+      return true;
+
+    } catch (erro) {
+      if (!mounted) return false;
+
+      setState(() {
+        carregandoEndereco = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível carregar o endereço: $erro',
+          ),
+        ),
+      );
+
+      return false;
+    }
+  }
+
+  // =========================================================
+  // CADASTRAR OU EDITAR ENDEREÇO
+  // =========================================================
+
+  Future<void> _abrirCadastroEndereco() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CadastroEnderecoPage(
+          endereco: enderecoSelecionado,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    await _carregarEndereco();
+  }
 
   // =========================================================
   // CONTINUAR
   // =========================================================
 
   void continuar() {
-    // Se nenhuma forma foi selecionada,
-    // não faz nada.
-    if (formaPagamento == null) {
+
+    if (formaPagamento == null ||
+        enderecoSelecionado == null) {
+      return;
+    }
+
+    // Obtém o ID do endereço.
+    // O operador ! só é utilizado depois da validação.
+    final int? enderecoId = enderecoSelecionado!.id;
+
+    // Verifica se o endereço possui ID válido.
+    if (enderecoId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível identificar o endereço selecionado.',
+          ),
+          backgroundColor: Color(0xFFC8102E),
+        ),
+      );
+
       return;
     }
 
@@ -41,8 +156,9 @@ class _EnderecoPagamentoPageState
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const PixPagamentoPage(
+          builder: (context) => PixPagamentoPage(
             valor: 63.00,
+            enderecoId: enderecoId,
           ),
         ),
       );
@@ -58,8 +174,9 @@ class _EnderecoPagamentoPageState
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              const CartaoPagamentoPage(),
+          builder: (context) => CartaoPagamentoPage(
+            enderecoId: enderecoId,
+          ),
         ),
       );
 
@@ -74,14 +191,208 @@ class _EnderecoPagamentoPageState
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              const DinheiroPagamentoPage(),
+          builder: (context) => DinheiroPagamentoPage(
+            enderecoId: enderecoId,
+          ),
         ),
       );
 
       return;
     }
   }
+
+  // =========================================================
+  // CARTÃO DO ENDEREÇO
+  // =========================================================
+
+  Widget _cartaoEndereco() {
+    if (carregandoEndereco) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(25),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF5E5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.black,
+            width: 1.5,
+          ),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFC8102E),
+          ),
+        ),
+      );
+    }
+
+    // =======================================================
+    // NENHUM ENDEREÇO CADASTRADO
+    // =======================================================
+
+    if (enderecoSelecionado == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF5E5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.black,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.location_off_outlined,
+              color: Color(0xFFC8102E),
+              size: 35,
+            ),
+
+            const SizedBox(height: 10),
+
+            const Text(
+              'Nenhum endereço cadastrado',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            ElevatedButton(
+              onPressed: _abrirCadastroEndereco,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFC8102E),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Cadastrar endereço'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // =======================================================
+    // ENDEREÇO CADASTRADO
+    // =======================================================
+
+    final endereco = enderecoSelecionado!;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF5E5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.black,
+          width: 1.5,
+        ),
+      ),
+
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          // ÍCONE
+          const Icon(
+            Icons.location_on,
+            color: Color(0xFFC8102E),
+            size: 30,
+          ),
+
+          const SizedBox(width: 12),
+
+          // INFORMAÇÕES
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                Text(
+                  endereco.nomeEndereco,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                Text(
+                  '${endereco.endereco}, ${endereco.numero}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                if (endereco.complemento != null &&
+                    endereco.complemento!.isNotEmpty)
+                  Text(
+                    endereco.complemento!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  '${endereco.bairro} - '
+                  '${endereco.cidade}/${endereco.estado}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  'CEP: ${endereco.cep}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                if (endereco.referencia != null &&
+                    endereco.referencia!.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+
+                  Text(
+                    'Referência: ${endereco.referencia}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          // EDITAR
+          IconButton(
+            onPressed: _abrirCadastroEndereco,
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================
+  // TELA
+  // =========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +442,6 @@ class _EnderecoPagamentoPageState
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
 
             // =================================================
@@ -148,101 +458,7 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(height: 12),
 
-            Container(
-              width: double.infinity,
-
-              padding: const EdgeInsets.all(18),
-
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF5E5),
-
-                borderRadius:
-                    BorderRadius.circular(16),
-
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1.5,
-                ),
-              ),
-
-              child: Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
-                children: [
-
-                  // ÍCONE
-                  const Icon(
-                    Icons.location_on,
-                    color: Color(0xFFC8102E),
-                    size: 30,
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  // INFORMAÇÕES
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-
-                      children: const [
-
-                        Text(
-                          'Endereço de entrega',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight:
-                                FontWeight.bold,
-                          ),
-                        ),
-
-                        SizedBox(height: 6),
-
-                        Text(
-                          'Rua Exemplo, 123',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-
-                        SizedBox(height: 3),
-
-                        Text(
-                          'Centro - Osasco/SP',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-
-                        SizedBox(height: 3),
-
-                        Text(
-                          'CEP: 06000-000',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // EDITAR
-                  IconButton(
-                    onPressed: () {
-                      // Futuramente abrir alteração
-                      // de endereço.
-                    },
-
-                    icon: const Icon(
-                      Icons.edit_outlined,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _cartaoEndereco(),
 
             const SizedBox(height: 32),
 
@@ -321,10 +537,10 @@ class _EnderecoPagamentoPageState
               height: 58,
 
               child: ElevatedButton(
-                // Só permite continuar quando
-                // alguma forma estiver selecionada.
                 onPressed:
-                    formaPagamento == null
+                    formaPagamento == null ||
+                    enderecoSelecionado == null ||
+                    carregandoEndereco
                         ? null
                         : continuar,
 
@@ -340,8 +556,7 @@ class _EnderecoPagamentoPageState
                   disabledForegroundColor:
                       Colors.grey.shade600,
 
-                  shape:
-                      RoundedRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(30),
                   ),
@@ -377,36 +592,24 @@ class _EnderecoPagamentoPageState
 
     return GestureDetector(
       onTap: () {
-
-        // ===================================================
-        // IMPORTANTE:
-        //
-        // Aqui NÃO abrimos nenhuma tela.
-        //
-        // Apenas salvamos qual opção foi selecionada.
-        // ===================================================
-
         setState(() {
           formaPagamento = valor;
         });
       },
 
       child: AnimatedContainer(
-        duration:
-            const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 180),
 
         width: double.infinity,
 
-        padding:
-            const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
 
         decoration: BoxDecoration(
           color: selecionado
               ? const Color(0xFFFFF5E5)
               : Colors.white,
 
-          borderRadius:
-              BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16),
 
           border: Border.all(
             color: selecionado
@@ -420,10 +623,7 @@ class _EnderecoPagamentoPageState
         child: Row(
           children: [
 
-            // =================================================
             // ÍCONE
-            // =================================================
-
             Container(
               width: 48,
               height: 48,
@@ -449,10 +649,7 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(width: 14),
 
-            // =================================================
             // TEXTO
-            // =================================================
-
             Expanded(
               child: Column(
                 crossAxisAlignment:
@@ -462,11 +659,9 @@ class _EnderecoPagamentoPageState
 
                   Text(
                     titulo,
-
                     style: const TextStyle(
                       fontSize: 17,
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
@@ -474,7 +669,6 @@ class _EnderecoPagamentoPageState
 
                   Text(
                     descricao,
-
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black54,
@@ -486,10 +680,7 @@ class _EnderecoPagamentoPageState
 
             const SizedBox(width: 10),
 
-            // =================================================
             // RADIO
-            // =================================================
-
             Container(
               width: 23,
               height: 23,
@@ -514,8 +705,7 @@ class _EnderecoPagamentoPageState
 
                         decoration:
                             const BoxDecoration(
-                          color:
-                              Color(0xFFC8102E),
+                          color: Color(0xFFC8102E),
                           shape: BoxShape.circle,
                         ),
                       ),

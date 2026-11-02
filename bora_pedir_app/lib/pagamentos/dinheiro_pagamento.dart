@@ -1,9 +1,88 @@
+
 import 'package:flutter/material.dart';
 
-class DinheiroPagamentoPage extends StatelessWidget {
+// Tela de acompanhamento do pedido.
+import 'package:bora_pedir_app/pedido/pedido.dart';
+
+// Serviço de criação do pedido.
+import 'package:bora_pedir_app/services/pedido_service.dart';
+
+class DinheiroPagamentoPage extends StatefulWidget {
+  final int enderecoId;
+
   const DinheiroPagamentoPage({
     super.key,
+    required this.enderecoId,
   });
+
+  @override
+  State<DinheiroPagamentoPage> createState() =>
+      _DinheiroPagamentoPageState();
+}
+
+class _DinheiroPagamentoPageState
+    extends State<DinheiroPagamentoPage> {
+
+  bool processandoPedido = false;
+
+  // =========================
+  // FINALIZAR PEDIDO
+  // =========================
+
+  Future<void> _finalizarPedido() async {
+    if (processandoPedido) return;
+
+    setState(() {
+      processandoPedido = true;
+    });
+
+    try {
+      final resultado = await PedidoService.criarPedido(
+        enderecoId: widget.enderecoId,
+        formaPagamento: 'DINHEIRO',
+      );
+
+      if (!mounted) return;
+
+      final pedido = resultado['pedido'];
+
+      if (pedido == null || pedido['id'] == null) {
+        throw Exception('A API não retornou o identificador do pedido.');
+      }
+
+      final int pedidoId = int.parse(
+        pedido['id'].toString(),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PedidoPage(
+            pedidoId: pedidoId,
+          ),
+        ),
+      );
+
+    } catch (erro) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível finalizar o pedido: $erro',
+          ),
+          backgroundColor: const Color(0xFFC8102E),
+        ),
+      );
+
+    } finally {
+      if (mounted) {
+        setState(() {
+          processandoPedido = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,18 +218,9 @@ class DinheiroPagamentoPage extends StatelessWidget {
                 height: 58,
 
                 child: ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Pedido finalizado!',
-                        ),
-                        behavior:
-                            SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
+                  onPressed: processandoPedido
+                      ? null
+                      : _finalizarPedido,
 
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
@@ -160,17 +230,18 @@ class DinheiroPagamentoPage extends StatelessWidget {
 
                     elevation: 0,
 
-                    shape:
-                        RoundedRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(30),
                     ),
                   ),
 
-                  child: const Text(
-                    'Finalizar pedido',
+                  child: Text(
+                    processandoPedido
+                        ? 'Registrando pedido...'
+                        : 'Finalizar pedido',
 
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),

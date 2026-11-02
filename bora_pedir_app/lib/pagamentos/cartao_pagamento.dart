@@ -1,9 +1,19 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+// Tela de acompanhamento do pedido.
+import 'package:bora_pedir_app/pedido/pedido.dart';
+
+// Serviço de criação do pedido.
+import 'package:bora_pedir_app/services/pedido_service.dart';
+
 class CartaoPagamentoPage extends StatefulWidget {
+  final int enderecoId;
+
   const CartaoPagamentoPage({
     super.key,
+    required this.enderecoId,
   });
 
   @override
@@ -13,6 +23,7 @@ class CartaoPagamentoPage extends StatefulWidget {
 
 class _CartaoPagamentoPageState
     extends State<CartaoPagamentoPage> {
+
   final TextEditingController nomeController =
       TextEditingController();
 
@@ -20,6 +31,8 @@ class _CartaoPagamentoPageState
       TextEditingController();
 
   String tipoCartao = 'credito';
+
+  bool processandoPedido = false;
 
   @override
   void dispose() {
@@ -32,19 +45,13 @@ class _CartaoPagamentoPageState
   // FORMATAR NÚMERO DO CARTÃO
   // =========================
 
-  String _formatarNumeroCartao(
-    String valor,
-  ) {
+  String _formatarNumeroCartao(String valor) {
     final numeros =
         valor.replaceAll(RegExp(r'\D'), '');
 
     final partes = <String>[];
 
-    for (
-      int i = 0;
-      i < numeros.length;
-      i += 4
-    ) {
+    for (int i = 0; i < numeros.length; i += 4) {
       final fim =
           (i + 4 > numeros.length)
               ? numeros.length
@@ -62,13 +69,13 @@ class _CartaoPagamentoPageState
   // FINALIZAR PAGAMENTO
   // =========================
 
-  void _finalizarPagamento() {
-    final nome =
-        nomeController.text.trim();
+  Future<void> _finalizarPagamento() async {
+    if (processandoPedido) return;
 
-    final numero =
-        numeroController.text
-            .replaceAll(RegExp(r'\D'), '');
+    final nome = nomeController.text.trim();
+
+    final numero = numeroController.text
+        .replaceAll(RegExp(r'\D'), '');
 
     if (nome.isEmpty) {
       _mostrarMensagem(
@@ -84,49 +91,90 @@ class _CartaoPagamentoPageState
       return;
     }
 
-    // Futuramente aqui entrará
-    // a integração real do pagamento.
+    setState(() {
+      processandoPedido = true;
+    });
 
-    _mostrarMensagem(
-      'Pagamento pronto para ser processado.',
-    );
+    try {
+      // Define a forma de pagamento.
+      final String formaPagamento =
+          tipoCartao == 'credito'
+              ? 'CARTAO_CREDITO'
+              : 'CARTAO_DEBITO';
+
+      // Registra o pedido na API.
+      final resultado = await PedidoService.criarPedido(
+        enderecoId: widget.enderecoId,
+        formaPagamento: formaPagamento,
+      );
+
+      if (!mounted) return;
+
+      final pedido = resultado['pedido'];
+
+      if (pedido == null || pedido['id'] == null) {
+        throw Exception(
+          'A API não retornou o identificador do pedido.',
+        );
+      }
+
+      final int pedidoId = int.parse(
+        pedido['id'].toString(),
+      );
+
+      // Abre a tela de acompanhamento.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PedidoPage(
+            pedidoId: pedidoId,
+          ),
+        ),
+      );
+
+    } catch (erro) {
+      if (!mounted) return;
+
+      _mostrarMensagem(
+        'Não foi possível finalizar o pedido: $erro',
+      );
+
+    } finally {
+      if (mounted) {
+        setState(() {
+          processandoPedido = false;
+        });
+      }
+    }
   }
 
   // =========================
   // MENSAGEM
   // =========================
 
-  void _mostrarMensagem(
-    String mensagem,
-  ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+  void _mostrarMensagem(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(mensagem),
-        behavior:
-            SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final nome =
-        nomeController.text.isEmpty
-            ? 'SEU NOME'
-            : nomeController.text
-                .toUpperCase();
+    final nome = nomeController.text.isEmpty
+        ? 'SEU NOME'
+        : nomeController.text.toUpperCase();
 
-    final numero =
-        numeroController.text.isEmpty
-            ? '•••• •••• •••• ••••'
-            : _formatarNumeroCartao(
-                numeroController.text,
-              );
+    final numero = numeroController.text.isEmpty
+        ? '•••• •••• •••• ••••'
+        : _formatarNumeroCartao(
+            numeroController.text,
+          );
 
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFF7F7F5),
+      backgroundColor: const Color(0xFFF7F7F5),
 
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -151,15 +199,13 @@ class _CartaoPagamentoPageState
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
 
       body: SingleChildScrollView(
-        padding:
-            const EdgeInsets.fromLTRB(
+        padding: const EdgeInsets.fromLTRB(
           20,
           25,
           20,
@@ -167,9 +213,7 @@ class _CartaoPagamentoPageState
         ),
 
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.center,
-
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
             // =========================
@@ -177,43 +221,29 @@ class _CartaoPagamentoPageState
             // =========================
 
             AnimatedContainer(
-              duration:
-                  const Duration(
+              duration: const Duration(
                 milliseconds: 250,
               ),
 
               width: double.infinity,
               height: 220,
 
-              decoration:
-                  BoxDecoration(
-                borderRadius:
-                    BorderRadius.circular(
-                  18,
-                ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
 
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black
-                        .withOpacity(0.20),
-
+                    color: Colors.black.withOpacity(0.20),
                     blurRadius: 15,
-
-                    offset:
-                        const Offset(
-                      0,
-                      8,
-                    ),
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
 
-              clipBehavior:
-                  Clip.antiAlias,
+              clipBehavior: Clip.antiAlias,
 
               child: Stack(
                 fit: StackFit.expand,
-
                 children: [
 
                   // =========================
@@ -230,29 +260,17 @@ class _CartaoPagamentoPageState
                       stackTrace,
                     ) {
                       return Container(
-                        decoration:
-                            BoxDecoration(
-                          gradient:
-                              const LinearGradient(
-                            begin:
-                                Alignment.topLeft,
-                            end:
-                                Alignment.bottomRight,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                             colors: [
-                              Color(
-                                0xFF292929,
-                              ),
-                              Color(
-                                0xFF111111,
-                              ),
+                              Color(0xFF292929),
+                              Color(0xFF111111),
                             ],
                           ),
 
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            18,
-                          ),
+                          borderRadius: BorderRadius.circular(18),
                         ),
                       );
                     },
@@ -268,34 +286,26 @@ class _CartaoPagamentoPageState
                     bottom: 62,
 
                     child: AnimatedSwitcher(
-                      duration:
-                          const Duration(
+                      duration: const Duration(
                         milliseconds: 200,
                       ),
 
                       child: Text(
                         numero,
-                        key: ValueKey(
-                          numero,
-                        ),
+                        key: ValueKey(numero),
 
-                        textAlign:
-                            TextAlign.center,
+                        textAlign: TextAlign.center,
 
-                        style:
-                            const TextStyle(
-                          color:
-                              Colors.white,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 19,
-                          fontWeight:
-                              FontWeight.bold,
+                          fontWeight: FontWeight.bold,
                           letterSpacing: 1.5,
+
                           shadows: [
                             Shadow(
-                              color:
-                                  Colors.black54,
-                              blurRadius:
-                                  4,
+                              color: Colors.black54,
+                              blurRadius: 4,
                             ),
                           ],
                         ),
@@ -311,33 +321,25 @@ class _CartaoPagamentoPageState
                     left: 28,
                     bottom: 25,
 
-                    child:
-                        AnimatedSwitcher(
-                      duration:
-                          const Duration(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(
                         milliseconds: 200,
                       ),
 
                       child: Text(
                         nome,
-                        key: ValueKey(
-                          nome,
-                        ),
+                        key: ValueKey(nome),
 
-                        style:
-                            const TextStyle(
-                          color:
-                              Colors.white,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 13,
-                          fontWeight:
-                              FontWeight.bold,
+                          fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
+
                           shadows: [
                             Shadow(
-                              color:
-                                  Colors.black54,
-                              blurRadius:
-                                  4,
+                              color: Colors.black54,
+                              blurRadius: 4,
                             ),
                           ],
                         ),
@@ -355,15 +357,13 @@ class _CartaoPagamentoPageState
             // =========================
 
             const Align(
-              alignment:
-                  Alignment.centerLeft,
+              alignment: Alignment.centerLeft,
 
               child: Text(
                 'Tipo de cartão',
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -377,8 +377,7 @@ class _CartaoPagamentoPageState
                   child: _tipoCartao(
                     valor: 'credito',
                     titulo: 'Crédito',
-                    icone:
-                        Icons.credit_card,
+                    icone: Icons.credit_card,
                   ),
                 ),
 
@@ -388,8 +387,7 @@ class _CartaoPagamentoPageState
                   child: _tipoCartao(
                     valor: 'debito',
                     titulo: 'Débito',
-                    icone:
-                        Icons.payment,
+                    icone: Icons.payment,
                   ),
                 ),
               ],
@@ -402,15 +400,13 @@ class _CartaoPagamentoPageState
             // =========================
 
             const Align(
-              alignment:
-                  Alignment.centerLeft,
+              alignment: Alignment.centerLeft,
 
               child: Text(
                 'Nome no cartão',
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -418,68 +414,42 @@ class _CartaoPagamentoPageState
             const SizedBox(height: 8),
 
             TextField(
-              controller:
-                  nomeController,
+              controller: nomeController,
 
-              textCapitalization:
-                  TextCapitalization
-                      .characters,
+              textCapitalization: TextCapitalization.characters,
 
               onChanged: (_) {
                 setState(() {});
               },
 
-              decoration:
-                  InputDecoration(
-                hintText:
-                    'Digite o nome do titular',
+              decoration: InputDecoration(
+                hintText: 'Digite o nome do titular',
 
-                prefixIcon:
-                    const Icon(
+                prefixIcon: const Icon(
                   Icons.person_outline,
                 ),
 
                 filled: true,
+                fillColor: Colors.white,
 
-                fillColor:
-                    Colors.white,
-
-                border:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    14,
-                  ),
-
-                  borderSide:
-                      BorderSide.none,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
                 ),
 
-                enabledBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    14,
-                  ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
 
-                  borderSide:
-                      BorderSide(
-                    color:
-                        Colors.grey.shade300,
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade300,
                   ),
                 ),
 
-                focusedBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    14,
-                  ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
 
-                  borderSide:
-                      const BorderSide(
-                    color:
-                        Color(0xFFC8102E),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFC8102E),
                     width: 2,
                   ),
                 ),
@@ -493,15 +463,13 @@ class _CartaoPagamentoPageState
             // =========================
 
             const Align(
-              alignment:
-                  Alignment.centerLeft,
+              alignment: Alignment.centerLeft,
 
               child: Text(
                 'Número do cartão',
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -509,18 +477,14 @@ class _CartaoPagamentoPageState
             const SizedBox(height: 8),
 
             TextField(
-              controller:
-                  numeroController,
+              controller: numeroController,
 
-              keyboardType:
-                  TextInputType.number,
+              keyboardType: TextInputType.number,
 
               maxLength: 19,
 
               inputFormatters: [
-                FilteringTextInputFormatter
-                    .digitsOnly,
-
+                FilteringTextInputFormatter.digitsOnly,
                 _NumeroCartaoFormatter(),
               ],
 
@@ -528,59 +492,35 @@ class _CartaoPagamentoPageState
                 setState(() {});
               },
 
-              decoration:
-                  InputDecoration(
-                hintText:
-                    '0000 0000 0000 0000',
-
+              decoration: InputDecoration(
+                hintText: '0000 0000 0000 0000',
                 counterText: '',
 
-                prefixIcon:
-                    const Icon(
+                prefixIcon: const Icon(
                   Icons.credit_card,
                 ),
 
                 filled: true,
+                fillColor: Colors.white,
 
-                fillColor:
-                    Colors.white,
-
-                border:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    14,
-                  ),
-
-                  borderSide:
-                      BorderSide.none,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
                 ),
 
-                enabledBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    14,
-                  ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
 
-                  borderSide:
-                      BorderSide(
-                    color:
-                        Colors.grey.shade300,
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade300,
                   ),
                 ),
 
-                focusedBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    14,
-                  ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
 
-                  borderSide:
-                      const BorderSide(
-                    color:
-                        Color(0xFFC8102E),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFC8102E),
                     width: 2,
                   ),
                 ),
@@ -597,38 +537,29 @@ class _CartaoPagamentoPageState
               width: double.infinity,
               height: 58,
 
-              child:
-                  ElevatedButton(
-                onPressed:
-                    _finalizarPagamento,
+              child: ElevatedButton(
+                onPressed: processandoPedido
+                    ? null
+                    : _finalizarPagamento,
 
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      const Color(
-                    0xFFC8102E,
-                  ),
-
-                  foregroundColor:
-                      Colors.white,
-
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFC8102E),
+                  foregroundColor: Colors.white,
                   elevation: 0,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      30,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
 
-                child: const Text(
-                  'Finalizar pagamento',
-                  style: TextStyle(
+                child: Text(
+                  processandoPedido
+                      ? 'Registrando pedido...'
+                      : 'Finalizar pagamento',
+
+                  style: const TextStyle(
                     fontSize: 18,
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -648,8 +579,7 @@ class _CartaoPagamentoPageState
     required String titulo,
     required IconData icone,
   }) {
-    final selecionado =
-        tipoCartao == valor;
+    final selecionado = tipoCartao == valor;
 
     return GestureDetector(
       onTap: () {
@@ -659,52 +589,39 @@ class _CartaoPagamentoPageState
       },
 
       child: AnimatedContainer(
-        duration:
-            const Duration(
+        duration: const Duration(
           milliseconds: 180,
         ),
 
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 15,
         ),
 
-        decoration:
-            BoxDecoration(
+        decoration: BoxDecoration(
           color: selecionado
               ? const Color(0xFFFFF5E5)
               : Colors.white,
 
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
+          borderRadius: BorderRadius.circular(14),
 
           border: Border.all(
             color: selecionado
-                ? const Color(
-                    0xFFC8102E,
-                  )
+                ? const Color(0xFFC8102E)
                 : Colors.grey.shade300,
 
-            width:
-                selecionado ? 2 : 1,
+            width: selecionado ? 2 : 1,
           ),
         ),
 
         child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
-
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
             Icon(
               icone,
 
               color: selecionado
-                  ? const Color(
-                      0xFFC8102E,
-                    )
+                  ? const Color(0xFFC8102E)
                   : Colors.black54,
             ),
 
@@ -715,13 +632,10 @@ class _CartaoPagamentoPageState
 
               style: TextStyle(
                 fontSize: 16,
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
 
                 color: selecionado
-                    ? const Color(
-                        0xFFC8102E,
-                      )
+                    ? const Color(0xFFC8102E)
                     : Colors.black87,
               ),
             ),
@@ -736,49 +650,39 @@ class _CartaoPagamentoPageState
 // FORMATADOR DO CARTÃO
 // =========================
 
-class _NumeroCartaoFormatter
-    extends TextInputFormatter {
+class _NumeroCartaoFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    final numeros =
-        newValue.text.replaceAll(
+    final numeros = newValue.text.replaceAll(
       RegExp(r'\D'),
       '',
     );
 
-    final limitado =
-        numeros.length > 16
-            ? numeros.substring(0, 16)
-            : numeros;
+    final limitado = numeros.length > 16
+        ? numeros.substring(0, 16)
+        : numeros;
 
     final partes = <String>[];
 
-    for (
-      int i = 0;
-      i < limitado.length;
-      i += 4
-    ) {
-      final fim =
-          (i + 4 > limitado.length)
-              ? limitado.length
-              : i + 4;
+    for (int i = 0; i < limitado.length; i += 4) {
+      final fim = (i + 4 > limitado.length)
+          ? limitado.length
+          : i + 4;
 
       partes.add(
         limitado.substring(i, fim),
       );
     }
 
-    final formatado =
-        partes.join(' ');
+    final formatado = partes.join(' ');
 
     return TextEditingValue(
       text: formatado,
 
-      selection:
-          TextSelection.collapsed(
+      selection: TextSelection.collapsed(
         offset: formatado.length,
       ),
     );

@@ -5,12 +5,20 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+// Ajuste os caminhos conforme a localização real dos arquivos.
+import '../../services/pedido_service.dart';
+import '.././pedido/pedido.dart';
+
+// Tela de acompanhamento do pedido.
+
 class PixPagamentoPage extends StatefulWidget {
   final double valor;
+  final int? enderecoId;
 
   const PixPagamentoPage({
     super.key,
     this.valor = 63.00,
+    this.enderecoId,
   });
 
   @override
@@ -29,6 +37,7 @@ class _PixPagamentoPageState
 
   bool expirado = false;
   bool copiado = false;
+  bool processandoPedido = false;
 
   @override
   void initState() {
@@ -306,21 +315,92 @@ class _PixPagamentoPageState
   // JÁ PAGUEI
   // =========================
 
-  void _jaPaguei() {
-    if (expirado) {
+  Future<void> _jaPaguei() async {
+    if (expirado || processandoPedido) {
       return;
     }
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Pagamento informado. Aguardando confirmação.',
+    if (widget.enderecoId == null ||
+        widget.enderecoId! <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível identificar o endereço de entrega.',
+          ),
+          backgroundColor: Color(0xFFC8102E),
         ),
-        behavior:
-            SnackBarBehavior.floating,
-      ),
-    );
+      );
+
+      return;
+    }
+
+    setState(() {
+      processandoPedido = true;
+    });
+
+    try {
+      // =========================
+      // CRIAR PEDIDO NA API
+      // =========================
+
+      final resultado =
+          await PedidoService.criarPedido(
+        enderecoId: widget.enderecoId!,
+        formaPagamento: 'PIX',
+      );
+
+      final pedido = resultado['pedido'];
+
+      if (pedido == null || pedido['id'] == null) {
+        throw Exception(
+          'O servidor não retornou o ID do pedido.',
+        );
+      }
+
+      final pedidoId = int.parse(
+        pedido['id'].toString(),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      _timer?.cancel();
+
+      // =========================
+      // ABRIR PEDIDO
+      // =========================
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PedidoPage(
+            pedidoId: pedidoId,
+          ),
+        ),
+      );
+
+    } catch (erro) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            erro.toString().replaceFirst(
+              'Exception: ',
+              '',
+            ),
+          ),
+          backgroundColor: const Color(0xFFC8102E),
+        ),
+      );
+
+      setState(() {
+        processandoPedido = false;
+      });
+    }
   }
 
   // =========================
@@ -766,7 +846,7 @@ class _PixPagamentoPageState
 
                   child: OutlinedButton.icon(
                     onPressed:
-                        expirado
+                        expirado || processandoPedido
                             ? null
                             : _jaPaguei,
 
@@ -774,8 +854,10 @@ class _PixPagamentoPageState
                       Icons.check_circle_outline,
                     ),
 
-                    label: const Text(
-                      'Já paguei',
+                    label: Text(
+                      processandoPedido
+                          ? 'Registrando pedido...'
+                          : 'Já paguei',
                     ),
 
                     style:

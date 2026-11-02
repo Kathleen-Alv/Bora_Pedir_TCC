@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class BannerInicio extends StatefulWidget {
@@ -19,24 +20,29 @@ class _BannerInicioState extends State<BannerInicio> {
   int paginaAtual = 0;
 
   // =========================================================
-  // BANNERS DE TESTE
+  // LISTA DE BANNERS ORIGINAL
   // =========================================================
 
   final List<Map<String, String>> banners = [
     {
-      'titulo': 'SEU SABOR\nPERFEITO.',
-      'descricao': 'Escolha seu prato favorito\ne bora pedir.',
-      'botao': 'BORA PEDIR  ›',
+      'nome': 'Seleção',
+      'imagem': 'assets/promo_inicio/selecao.png',
+      'categoria': 'Seleção',
     },
     {
-      'titulo': 'PEÇA SEU\nPRATO FAVORITO.',
-      'descricao': 'Encontre os melhores sabores\nperto de você.',
-      'botao': 'VER CARDÁPIO  ›',
+      'nome': 'Pizzas',
+      'imagem': 'assets/promo_inicio/pizzas.png',
+      'categoria': 'Pizza',
     },
     {
-      'titulo': 'HOJE É DIA\nDE PEDIR.',
-      'descricao': 'Escolha um comércio\ne faça seu pedido.',
-      'botao': 'PEDIR AGORA  ›',
+      'nome': 'Carnes',
+      'imagem': 'assets/promo_inicio/carnes.png',
+      'categoria': 'Carnes',
+    },
+    {
+      'nome': 'Japonesa',
+      'imagem': 'assets/promo_inicio/comidasJaponesa.png',
+      'categoria': 'Japonesa',
     },
   ];
 
@@ -47,8 +53,17 @@ class _BannerInicioState extends State<BannerInicio> {
   @override
   void dispose() {
     _pageController.dispose();
-
     super.dispose();
+  }
+
+  // =========================================================
+  // AÇÃO AO CLICAR NO BANNER
+  // =========================================================
+
+  void _aoClicarNoBanner(Map<String, String> banner) {
+    debugPrint('Banner clicado: ${banner['nome']}');
+
+    // TODO: Adicione sua navegação por categoria.
   }
 
   // =========================================================
@@ -57,28 +72,20 @@ class _BannerInicioState extends State<BannerInicio> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
+    return LayoutBuilder(
+      builder: (context, constraints) {
 
-        // =====================================================
-        // ÁREA DO BANNER
-        // =====================================================
+        // ALTURA AUTOMÁTICA NA PROPORÇÃO 16:9
+        final double alturaBanner =
+            constraints.maxWidth * 9 / 16;
 
-        SizedBox(
+        return SizedBox(
           width: double.infinity,
-          height: 230,
-
+          height: alturaBanner,
           child: PageView.builder(
             controller: _pageController,
-
             itemCount: banners.length,
-
-            // =================================================
-            // EFEITO DE ARRASTAR
-            // =================================================
-
             pageSnapping: true,
-
             physics: const BouncingScrollPhysics(),
 
             onPageChanged: (index) {
@@ -91,256 +98,89 @@ class _BannerInicioState extends State<BannerInicio> {
               final banner = banners[index];
 
               return _BannerCard(
-                titulo: banner['titulo']!,
-                descricao: banner['descricao']!,
-                botao: banner['botao']!,
+                imagem: banner['imagem'] ?? '',
+                onTap: () => _aoClicarNoBanner(banner),
               );
             },
           ),
-        ),
-
-        // =====================================================
-        // INDICADORES
-        // =====================================================
-
-        const SizedBox(
-          height: 10,
-        ),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: List.generate(
-            banners.length,
-
-            (index) {
-              final bool ativo = paginaAtual == index;
-
-              return AnimatedContainer(
-                duration: const Duration(
-                  milliseconds: 250,
-                ),
-
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 3,
-                ),
-
-                width: ativo ? 18 : 6,
-
-                height: 6,
-
-                decoration: BoxDecoration(
-                  color: ativo
-                      ? const Color(0xFFC8102E)
-                      : Colors.grey.shade300,
-
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
 
-
-// =================================================================
+// ================================================================
 // CARD DO BANNER
-// =================================================================
+// PREENCHIMENTO TOTAL - PROPORÇÃO 16:9
+// ================================================================
 
 class _BannerCard extends StatelessWidget {
-  final String titulo;
-  final String descricao;
-  final String botao;
+  final String imagem;
+  final VoidCallback onTap;
 
   const _BannerCard({
-    required this.titulo,
-    required this.descricao,
-    required this.botao,
+    required this.imagem,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
 
-      height: 230,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(
+          horizontal: 4,
+        ),
 
-      margin: const EdgeInsets.symmetric(
-        horizontal: 4,
-      ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: const Color(0xFFEFEFEF),
 
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
 
-        color: const Color(0xFF202020),
+        clipBehavior: Clip.antiAlias,
 
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+        child: Image.asset(
+          imagem,
 
-            blurRadius: 10,
+          // PREENCHE TODO O ESPAÇO DISPONÍVEL
+          fit: BoxFit.cover,
 
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+          // CENTRALIZA A IMAGEM
+          alignment: Alignment.center,
 
-      clipBehavior: Clip.antiAlias,
+          width: double.infinity,
+          height: double.infinity,
 
-      child: Stack(
-        fit: StackFit.expand,
+          // TRATAMENTO DE ERRO
+          errorBuilder: (
+            context,
+            error,
+            stackTrace,
+          ) {
+            return Container(
+              color: const Color(0xFF202020),
 
-        children: [
-
-          // =====================================================
-          // IMAGEM
-          // =====================================================
-
-          Image.asset(
-            'assets/banner.png',
-
-            fit: BoxFit.cover,
-
-            errorBuilder: (
-              context,
-              error,
-              stackTrace,
-            ) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF171717),
-                      Color(0xFF4A4A4A),
-                    ],
-
-                    begin: Alignment.centerLeft,
-
-                    end: Alignment.centerRight,
-                  ),
+              child: const Center(
+                child: Icon(
+                  Icons.image_not_supported_outlined,
+                  color: Colors.white54,
+                  size: 36,
                 ),
-              );
-            },
-          ),
-
-          // =====================================================
-          // GRADIENTE ESCURO
-          // =====================================================
-
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withOpacity(0.72),
-
-                  Colors.black.withOpacity(0.05),
-                ],
-
-                begin: Alignment.centerLeft,
-
-                end: Alignment.centerRight,
               ),
-            ),
-          ),
-
-          // =====================================================
-          // CONTEÚDO
-          // =====================================================
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              18,
-              16,
-              18,
-              14,
-            ),
-
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-
-                const Text(
-                  'Premium',
-
-                  style: TextStyle(
-                    color: Color(0xFFD8B36A),
-
-                    fontSize: 12,
-
-                    fontStyle: FontStyle.italic,
-
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 1,
-                ),
-
-                Text(
-                  titulo,
-
-                  style: const TextStyle(
-                    color: Colors.white,
-
-                    fontSize: 21,
-
-                    height: 1.0,
-
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 7,
-                ),
-
-                Text(
-                  descricao,
-
-                  style: const TextStyle(
-                    color: Colors.white,
-
-                    fontSize: 9,
-
-                    height: 1.25,
-                  ),
-                ),
-
-                const Spacer(),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 13,
-                    vertical: 7,
-                  ),
-
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD89A16),
-
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-
-                  child: Text(
-                    botao,
-
-                    style: const TextStyle(
-                      color: Colors.white,
-
-                      fontSize: 8,
-
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }

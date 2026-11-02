@@ -34,6 +34,7 @@ flutter:
     - assets/takeaway.png
     - assets/cartao_bora_pedir.png
     - assets/money.png
+    - assets/promo_inicio/
 
 flutter_launcher_icons:
   android: true
