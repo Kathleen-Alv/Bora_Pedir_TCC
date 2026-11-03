@@ -229,7 +229,7 @@ class _ContaPageState extends State<ContaPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // ==================================================
-              // FOTO
+              // FOTO DE PERFIL
               // ==================================================
 
               SizedBox(
@@ -240,14 +240,18 @@ class _ContaPageState extends State<ContaPage> {
                     Container(
                       width: tamanhoFoto,
                       height: tamanhoFoto,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF0F0F0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDE8EC),
                         shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFF8C9D1),
+                          width: 1.5,
+                        ),
                       ),
                       child: Icon(
                         Icons.person_outline_rounded,
                         size: tamanhoFoto * 0.57,
-                        color: const Color(0xFF929292),
+                        color: vermelho,
                       ),
                     ),
 
@@ -331,8 +335,7 @@ class _ContaPageState extends State<ContaPage> {
 
                     InkWell(
                       onTap: () {
-                        // A navegação para edição será integrada
-                        // quando a tela de edição estiver disponível.
+                        // Navegação para edição futura.
                       },
                       borderRadius: BorderRadius.circular(7),
                       child: const Padding(

@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../services/comercio_service.dart';
 import '../../services/carrinho_service.dart';
+import '../../widgets/bottom_navigation.dart';
 import '../carrinho_compras/carrinho_compras_modal.dart';
 import 'item_cardapio.dart';
 
@@ -474,7 +475,7 @@ class _CardapioPageState extends State<CardapioPage> {
                         ],
                       ),
 
-                      // Informações do comércio
+                      // INFORMAÇÕES DO COMÉRCIO
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.fromLTRB(
@@ -550,7 +551,7 @@ class _CardapioPageState extends State<CardapioPage> {
                     ],
                   ),
 
-                  // Logo sobre o banner
+                  // LOGO SOBRE O BANNER
                   Positioned(
                     left: 20,
                     top: 110,
@@ -718,30 +719,11 @@ class _CardapioPageState extends State<CardapioPage> {
             CarrinhoComprasModal(
               total: totalCarrinho,
               onFechar: _fecharCarrinho,
-             
             ),
 
-          Container(
-            height: 65,
-            color: Colors.white,
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _BottomItem(
-                  icone: Icons.home,
-                  texto: 'Início',
-                  selecionado: true,
-                ),
-                _BottomItem(
-                  icone: Icons.receipt_long,
-                  texto: 'Pedidos',
-                ),
-                _BottomItem(
-                  icone: Icons.person,
-                  texto: 'Perfil',
-                ),
-              ],
-            ),
+          BottomNavigation(
+            paginaAtual: 0,
+            onItemSelecionado: (_) {},
           ),
         ],
       ),
@@ -1190,48 +1172,6 @@ class _ItemCardapio extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ===========================================================
-// NAVEGAÇÃO INFERIOR
-// ===========================================================
-
-class _BottomItem extends StatelessWidget {
-  final IconData icone;
-  final String texto;
-  final bool selecionado;
-
-  const _BottomItem({
-    required this.icone,
-    required this.texto,
-    this.selecionado = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icone,
-          size: 22,
-          color: selecionado
-              ? const Color(0xFF009E7A)
-              : const Color(0xFF777777),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          texto,
-          style: TextStyle(
-            fontSize: 10,
-            color: selecionado
-                ? const Color(0xFF009E7A)
-                : const Color(0xFF777777),
-          ),
-        ),
-      ],
     );
   }
 }

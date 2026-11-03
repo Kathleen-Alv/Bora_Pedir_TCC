@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 
 import '../pages/inicio/inicio.dart';
+import '../pages/procurar/procurar.dart';
 import '../pages/perfil/perfil.dart';
+import '../pages/perfil/historico_pedidos/historico_pedidos.dart';
 
 class BottomNavigation extends StatelessWidget {
   final int paginaAtual;
@@ -14,16 +16,14 @@ class BottomNavigation extends StatelessWidget {
     required this.onItemSelecionado,
   });
 
+  static const Color corPrincipal = Color(0xFFC8102E);
+  static const Color corTexto = Color(0xFF777777);
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          16,
-          8,
-          16,
-          12,
-        ),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: Container(
           height: 60,
           decoration: BoxDecoration(
@@ -46,21 +46,18 @@ class BottomNavigation extends StatelessWidget {
                 texto: 'Início',
                 icone: Icons.home_outlined,
               ),
-
               _item(
                 context: context,
                 indice: 1,
                 texto: 'Procurar',
                 icone: Icons.search,
               ),
-
               _item(
                 context: context,
                 indice: 2,
                 texto: 'Pedidos',
                 icone: Icons.receipt_long_outlined,
               ),
-
               _item(
                 context: context,
                 indice: 3,
@@ -74,6 +71,10 @@ class BottomNavigation extends StatelessWidget {
     );
   }
 
+  // =========================================================
+  // ITEM DA NAVEGAÇÃO
+  // =========================================================
+
   Widget _item({
     required BuildContext context,
     required int indice,
@@ -85,65 +86,42 @@ class BottomNavigation extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-
         onTap: () {
-          // =========================================================
-          // NÃO FAZ NADA SE JÁ ESTIVER NA PÁGINA
-          // =========================================================
-
           if (paginaAtual == indice) {
             return;
           }
 
-          // =========================================================
-          // ATUALIZA O ITEM SELECIONADO
-          // =========================================================
-
           onItemSelecionado(indice);
 
-          // =========================================================
-          // NAVEGAÇÃO
-          // =========================================================
+          Widget? destino;
 
-          if (indice == 0) {
+          switch (indice) {
+            case 0:
+              destino = const InicioPage();
+              break;
+
+            case 1:
+              destino = const PesquisarPage();
+              break;
+
+            case 2:
+              destino = HistoricoPedidoPage();
+              break;
+
+            case 3:
+              destino = const PerfilPage();
+              break;
+          }
+
+          if (destino != null) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const InicioPage(),
+                builder: (context) => destino!,
               ),
             );
-          }
-
-          // =========================================================
-          // PERFIL
-          // =========================================================
-
-          if (indice == 3) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PerfilPage(),
-              ),
-            );
-          }
-
-          // =========================================================
-          // PROCURAR
-          // =========================================================
-
-          if (indice == 1) {
-            // Página será adicionada depois.
-          }
-
-          // =========================================================
-          // PEDIDOS
-          // =========================================================
-
-          if (indice == 2) {
-            // Página será adicionada depois.
           }
         },
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -155,12 +133,7 @@ class BottomNavigation extends StatelessWidget {
               height: selecionado ? 32 : 28,
               decoration: BoxDecoration(
                 color: selecionado
-                    ? const Color.fromARGB(
-                        255,
-                        255,
-                        75,
-                        75,
-                      )
+                    ? corPrincipal
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
@@ -180,13 +153,8 @@ class BottomNavigation extends StatelessWidget {
               curve: Curves.easeOut,
               style: TextStyle(
                 color: selecionado
-                    ? const Color.fromARGB(
-                        255,
-                        233,
-                        2,
-                        2,
-                      )
-                    : const Color(0xFF777777),
+                    ? corPrincipal
+                    : corTexto,
                 fontSize: 11,
                 fontWeight: selecionado
                     ? FontWeight.bold

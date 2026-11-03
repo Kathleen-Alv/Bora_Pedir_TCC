@@ -105,7 +105,7 @@ class _ConteudoModalConta extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFE90202),
+                  backgroundColor: const Color(0xFFC8102E),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(

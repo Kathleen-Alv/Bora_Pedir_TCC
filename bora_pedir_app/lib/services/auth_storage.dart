@@ -39,6 +39,19 @@ class AuthStorage {
     return prefs.getString(_nomeKey);
   }
 
+static Future<String?> getNomePrimeiro() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  final nomeCompleto = prefs.getString(_nomeKey);
+
+  if (nomeCompleto == null || nomeCompleto.trim().isEmpty) {
+    return null;
+  }
+
+  return nomeCompleto.trim().split(RegExp(r'\s+')).first;
+}
+
+
   static Future<String?> getEmail() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_emailKey);

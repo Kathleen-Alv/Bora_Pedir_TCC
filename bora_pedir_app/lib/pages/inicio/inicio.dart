@@ -343,24 +343,26 @@ class _InicioPageState extends State<InicioPage> {
   }
 
   // =============================================================
-  // CABEÇALHO VERMELHO FIXO
+  // CABEÇALHO
   // =============================================================
 
   Widget _construirCabecalho() {
     return Container(
       height: 64,
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 9),
-      decoration: BoxDecoration(
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      decoration: const BoxDecoration(
         color: vermelho,
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.zero,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Stack(
             alignment: Alignment.center,
             children: [
+              // LOGO CENTRALIZADA
+
               Center(
                 child: IgnorePointer(
                   child: Image.asset(
@@ -379,85 +381,68 @@ class _InicioPageState extends State<InicioPage> {
                 ),
               ),
 
-              // LADO ESQUERDO
+              // LADO ESQUERDO - SAUDAÇÃO
 
               Positioned(
                 left: 0,
                 top: 0,
                 bottom: 0,
                 width: constraints.maxWidth * 0.39,
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        color: vermelho,
-                        size: 24,
-                      ),
-                    ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FutureBuilder<String?>(
+                    future: AuthStorage.getNomePrimeiro(),
+                    builder: (context, snapshot) {
+                      final nome = snapshot.data;
 
-                    const SizedBox(width: 6),
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            nome != null && nome.isNotEmpty
+                                ? 'Olá, $nome'
+                                : 'Olá!',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
 
-                    Expanded(
-                      child: FutureBuilder<String?>(
-                        future: AuthStorage.getNome(),
-                        builder: (context, snapshot) {
-                          final nome = snapshot.data;
+                          const SizedBox(height: 3),
 
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                nome != null && nome.isNotEmpty
-                                    ? 'Olá, $nome'
-                                    : 'Olá!',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-
-                              const SizedBox(height: 2),
-
-                              const Text(
-                                'Bora Pedir',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                          const Text(
+                            'Bora Pedir',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
 
-              // LADO DIREITO
+              // LADO DIREITO - PESQUISA E CARRINHO
 
               Positioned(
                 right: 0,
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     _botaoCabecalho(
                       icone: Icons.search,
                       onTap: () {},
                     ),
 
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 10),
 
                     _botaoCabecalho(
                       icone: Icons.shopping_cart_outlined,
@@ -474,26 +459,27 @@ class _InicioPageState extends State<InicioPage> {
   }
 
   // =============================================================
-  // BOTÕES DO CABEÇALHO
+  // BOTÕES DO CABEÇALHO - FUNDO BRANCO
   // =============================================================
 
   Widget _botaoCabecalho({
     required IconData icone,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 34,
-        height: 34,
-        decoration: const BoxDecoration(
-          color: Colors.black,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icone,
-          color: vermelho,
-          size: 20,
+    return Material(
+      color: Colors.white,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Icon(
+            icone,
+            color: vermelho,
+            size: 20,
+          ),
         ),
       ),
     );
@@ -531,14 +517,9 @@ class _InicioPageState extends State<InicioPage> {
             height: 66,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-
-              // Permite arrastar para os dois lados.
-              // A lista permanece em uma única linha.
-
               physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics(),
               ),
-
               padding: EdgeInsets.zero,
               itemCount: categorias.length,
               separatorBuilder: (context, index) {
