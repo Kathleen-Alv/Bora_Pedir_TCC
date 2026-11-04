@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import '../../services/carrinho_service.dart';
@@ -108,6 +109,7 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                                 : _imagemPadrao(),
                           ),
                         ),
+
                         Positioned(
                           top: 18,
                           left: 18,
@@ -118,6 +120,7 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                             },
                           ),
                         ),
+
                         Positioned(
                           top: 18,
                           right: 18,
@@ -128,6 +131,7 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                         ),
                       ],
                     ),
+
                     Padding(
                       padding: const EdgeInsets.fromLTRB(
                         24,
@@ -147,7 +151,9 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                               height: 1.15,
                             ),
                           ),
+
                           const SizedBox(height: 20),
+
                           const Text(
                             'Detalhes',
                             style: TextStyle(
@@ -156,7 +162,9 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                               color: Color(0xFF151515),
                             ),
                           ),
+
                           const SizedBox(height: 8),
+
                           Text(
                             widget.descricao.isNotEmpty
                                 ? widget.descricao
@@ -167,59 +175,7 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                               color: Color(0xFF777777),
                             ),
                           ),
-                          const SizedBox(height: 25),
 
-                          // Opções visuais mantidas do layout original.
-                          // A seleção de tamanho ainda não altera o preço enviado.
-                          const Text(
-                            'Tamanho',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF151515),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          _OpcaoPreco(
-                            titulo: 'Small (S)',
-                            preco: widget.preco,
-                            selecionado: true,
-                            onTap: () {},
-                          ),
-                          _OpcaoPreco(
-                            titulo: 'Medium (M)',
-                            preco: widget.preco + 1,
-                            selecionado: false,
-                            onTap: () {},
-                          ),
-                          _OpcaoPreco(
-                            titulo: 'Large (L)',
-                            preco: widget.preco + 2,
-                            selecionado: false,
-                            onTap: () {},
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Adicionais',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF151515),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const _Adicional(
-                            nome: 'Queijo extra',
-                            preco: 2.50,
-                          ),
-                          const _Adicional(
-                            nome: 'Bacon',
-                            preco: 4.00,
-                          ),
-                          const _Adicional(
-                            nome: 'Molho especial',
-                            preco: 2.00,
-                          ),
                           const SizedBox(height: 30),
                         ],
                       ),
@@ -229,7 +185,7 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
               ),
             ),
 
-            // Barra inferior
+            // BARRA INFERIOR
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(
@@ -276,6 +232,7 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                           ),
                           color: const Color(0xFF555555),
                         ),
+
                         Text(
                           '$quantidade',
                           style: const TextStyle(
@@ -283,6 +240,7 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+
                         IconButton(
                           onPressed: _adicionando
                               ? null
@@ -300,7 +258,9 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                       ],
                     ),
                   ),
+
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: SizedBox(
                       height: 48,
@@ -387,115 +347,6 @@ class _BotaoCircular extends StatelessWidget {
             color: const Color(0xFF333333),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _OpcaoPreco extends StatelessWidget {
-  final String titulo;
-  final double preco;
-  final bool selecionado;
-  final VoidCallback onTap;
-
-  const _OpcaoPreco({
-    required this.titulo,
-    required this.preco,
-    required this.selecionado,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 7),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 9,
-        ),
-        decoration: BoxDecoration(
-          color: selecionado
-              ? const Color(0xFFFFF7F2)
-              : Colors.white,
-          border: Border.all(
-            color: selecionado
-                ? const Color(0xFFBD1221)
-                : const Color(0xFFE4E4E4),
-          ),
-          borderRadius: BorderRadius.circular(7),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                titulo,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Text(
-              'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Adicional extends StatelessWidget {
-  final String nome;
-  final double preco;
-
-  const _Adicional({
-    required this.nome,
-    required this.preco,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: const Color(0xFFD4D4D4),
-              ),
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              nome,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF444444),
-              ),
-            ),
-          ),
-          Text(
-            '+ R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}',
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF555555),
-            ),
-          ),
-        ],
       ),
     );
   }

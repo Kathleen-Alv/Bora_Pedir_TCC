@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../cardapio/cardapio_page.dart';
 import '../../services/auth_storage.dart';
 import '../../services/comercio_service.dart';
+import '../../services/carrinho_service.dart';
 import '../../widgets/bottom_navigation.dart';
 import '../../widgets/modal_conta.dart';
 import '../inicio/componentes/banner_inicio.dart';
@@ -32,6 +33,9 @@ class _InicioPageState extends State<InicioPage> {
 
   int paginaAtual = 0;
 
+  // CONTADOR DO CARRINHO
+  int quantidadeCarrinho = 0;
+
   static const Color vermelho = Color(0xFFC8102E);
   static const Color fundo = Color(0xFFFFFFFF);
   static const Color bege = Color(0xFFE9C38D);
@@ -57,6 +61,117 @@ class _InicioPageState extends State<InicioPage> {
 
     _verificarModalConta();
     _buscarComercios();
+    _atualizarCarrinho();
+  }
+
+  // =========================================================
+  // ATUALIZAR CONTADOR DO CARRINHO
+  // =========================================================
+
+  Future<void> _atualizarCarrinho() async {
+    try {
+      await CarrinhoService.carregar();
+
+      if (!mounted) return;
+
+      setState(() {
+        quantidadeCarrinho = CarrinhoService.quantidadeItens;
+      });
+    } catch (e) {
+      debugPrint('Erro ao atualizar carrinho: $e');
+    }
+  }
+
+  // =========================================================
+  // ABRIR A LOJA ASSOCIADA AO CARRINHO
+  // =========================================================
+
+  Future<void> _abrirLojaDoCarrinho() async {
+    try {
+      // Atualiza os dados para obter o comercio_id mais recente.
+      await CarrinhoService.carregar();
+
+      if (!mounted) return;
+
+      setState(() {
+        quantidadeCarrinho = CarrinhoService.quantidadeItens;
+      });
+
+      if (!CarrinhoService.possuiItens) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Seu carrinho está vazio.'),
+          ),
+        );
+        return;
+      }
+
+      final int? comercioId = CarrinhoService.comercioId;
+
+      if (comercioId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Não foi possível identificar a loja do carrinho.'),
+          ),
+        );
+        return;
+      }
+
+      // Procura a loja na lista já carregada na tela inicial.
+      Map<String, dynamic>? comercioEncontrado;
+
+      for (final comercio in comercios) {
+        final id = int.tryParse('${comercio['id'] ?? ''}');
+
+        if (id == comercioId) {
+          comercioEncontrado = comercio;
+          break;
+        }
+      }
+
+      // Se a lista ainda não contém a loja, busca novamente na API.
+      if (comercioEncontrado == null) {
+        final dados = await ComercioService.buscarComercios();
+
+        if (!mounted) return;
+
+        setState(() {
+          comercios = dados;
+          carregandoComercios = false;
+        });
+
+        for (final comercio in dados) {
+          final id = int.tryParse('${comercio['id'] ?? ''}');
+
+          if (id == comercioId) {
+            comercioEncontrado = comercio;
+            break;
+          }
+        }
+      }
+
+      if (!mounted) return;
+
+      if (comercioEncontrado == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('A loja dos itens do carrinho não foi encontrada.'),
+          ),
+        );
+        return;
+      }
+
+      // Abre exatamente o cardápio do comércio vinculado ao carrinho.
+      await _abrirCardapio(comercioEncontrado);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Não foi possível abrir a loja: $e'),
+        ),
+      );
+    }
   }
 
   // =========================================================
@@ -123,6 +238,30 @@ class _InicioPageState extends State<InicioPage> {
     setState(() {
       mostrarMensagemBoasVindas = false;
     });
+  }
+
+  // =========================================================
+  // ABRIR CARDÁPIO
+  // =========================================================
+
+  Future<void> _abrirCardapio(
+    Map<String, dynamic> comercio,
+  ) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardapioPage(
+          comercioId: comercio['id'],
+          nomeComercio: comercio['nome_comercio'] ?? '',
+          categoriaComercio: comercio['categoria'] ?? '',
+          logoComercio: comercio['logo'] ?? '',
+          bannerComercio: comercio['banner'] ?? '',
+        ),
+      ),
+    );
+
+    // Atualiza o contador quando voltar do cardápio.
+    await _atualizarCarrinho();
   }
 
   // =========================================================
@@ -243,23 +382,7 @@ class _InicioPageState extends State<InicioPage> {
                                           comercio['categoria'] ?? '',
                                       logo: comercio['logo'] ?? '',
                                       onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                CardapioPage(
-                                              comercioId: comercio['id'],
-                                              nomeComercio:
-                                                  comercio['nome_comercio'] ?? '',
-                                              categoriaComercio:
-                                                  comercio['categoria'] ?? '',
-                                              logoComercio:
-                                                  comercio['logo'] ?? '',
-                                              bannerComercio:
-                                                  comercio['banner'] ?? '',
-                                            ),
-                                          ),
-                                        );
+                                        _abrirCardapio(comercio);
                                       },
                                     ),
                                   );
@@ -430,23 +553,57 @@ class _InicioPageState extends State<InicioPage> {
                 ),
               ),
 
-              // LADO DIREITO - PESQUISA E CARRINHO
+              // LADO DIREITO - CARRINHO
 
               Positioned(
                 right: 0,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _botaoCabecalho(
-                      icone: Icons.search,
-                      onTap: () {},
-                    ),
-
                     const SizedBox(width: 10),
 
-                    _botaoCabecalho(
-                      icone: Icons.shopping_cart_outlined,
-                      onTap: () {},
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        _botaoCabecalho(
+                          icone: Icons.shopping_cart_outlined,
+                          onTap: _abrirLojaDoCarrinho,
+                        ),
+
+                        // CONTADOR DE ITENS
+
+                        if (quantidadeCarrinho > 0)
+                          Positioned(
+                            right: -5,
+                            top: -5,
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                minWidth: 18,
+                                minHeight: 18,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 3,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF8E267),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                quantidadeCarrinho > 99
+                                    ? '99+'
+                                    : '$quantidadeCarrinho',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Color(0xFF202020),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),
