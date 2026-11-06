@@ -963,3 +963,141 @@ export async function atualizarStatusPedido(req, res) {
         }
     }
 }
+
+
+//LISTAR HISTORICO DE PEDIDOS
+
+
+
+export async function listarHistoricoPedidos(req, res) {
+    try {
+        const clienteId = Number(req.usuario?.cliente_id);
+
+        if (!Number.isInteger(clienteId) || clienteId <= 0) {
+            return res.status(401).json({
+                message: 'Cliente não autenticado.'
+            });
+        }
+
+        // 1. Busca os pedidos do cliente, com os dados do comércio e avaliação.
+        const pedidos = await db.query(
+            `
+            SELECT
+                p.id,
+                p.status,
+                p.forma_pagamento,
+                p.subtotal,
+                p.taxa_entrega,
+                p.valor_total,
+                p.criado_em,
+
+                dc.nome_comercio,
+                dc.logo AS logo_comercio,
+
+                ap.nota AS avaliacao_nota,
+                ap.comentario AS avaliacao_comentario,
+                ap.criado_em AS avaliacao_criada_em
+
+            FROM pedidos p
+
+            LEFT JOIN dados_comercio dc
+                ON dc.comercio_id = p.comercio_id
+
+            LEFT JOIN avaliacoes_pedido ap
+                ON ap.pedido_id = p.id
+                AND ap.cliente_id = p.cliente_id
+
+            WHERE p.cliente_id = ?
+
+            ORDER BY p.criado_em DESC
+            `,
+            [clienteId]
+        );
+
+        if (pedidos.length === 0) {
+            return res.status(200).json({
+                message: 'Nenhum pedido encontrado.',
+                pedidos: []
+            });
+        }
+
+        // 2. Busca os itens de todos os pedidos de uma só vez.
+        const idsPedidos = pedidos.map(pedido => Number(pedido.id));
+
+        const placeholders = idsPedidos.map(() => '?').join(', ');
+
+        const itens = await db.query(
+            `
+            SELECT
+                id,
+                pedido_id,
+                item_cardapio_id,
+                nome_produto,
+                quantidade,
+                preco_unitario,
+                subtotal,
+                observacao
+
+            FROM itens_pedido
+
+            WHERE pedido_id IN (${placeholders})
+
+            ORDER BY id ASC
+            `,
+            idsPedidos
+        );
+
+        // 3. Agrupa os produtos pelo pedido correspondente.
+        const historico = pedidos.map(pedido => {
+            const itensPedido = itens
+                .filter(item => Number(item.pedido_id) === Number(pedido.id))
+                .map(item => ({
+                    id: Number(item.id),
+                    item_cardapio_id: Number(item.item_cardapio_id),
+                    nome: item.nome_produto,
+                    quantidade: Number(item.quantidade),
+                    preco: Number(item.preco_unitario),
+                    subtotal: Number(item.subtotal),
+                    observacao: item.observacao
+                }));
+
+            return {
+                id: Number(pedido.id),
+                status: pedido.status,
+                forma_pagamento: pedido.forma_pagamento,
+
+                subtotal: Number(pedido.subtotal),
+                taxa_entrega: Number(pedido.taxa_entrega),
+                valor_total: Number(pedido.valor_total),
+
+                criado_em: pedido.criado_em,
+
+                nome_comercio: pedido.nome_comercio,
+                logo_comercio: pedido.logo_comercio,
+
+                avaliacao: pedido.avaliacao_nota !== null
+                    ? {
+                        nota: Number(pedido.avaliacao_nota),
+                        comentario: pedido.avaliacao_comentario,
+                        criado_em: pedido.avaliacao_criada_em
+                    }
+                    : null,
+
+                itens: itensPedido
+            };
+        });
+
+        return res.status(200).json({
+            message: 'Histórico de pedidos encontrado.',
+            pedidos: historico
+        });
+
+    } catch (error) {
+        console.error('Erro ao listar histórico de pedidos:', error);
+
+        return res.status(500).json({
+            message: 'Erro ao buscar histórico de pedidos.',
+            error: error.message
+        });
+    }
+}

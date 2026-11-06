@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
+
 import '../../../widgets/bottom_navigation.dart';
+import '../../../services/historico_pedido_service.dart';
+import '../../../pedido/pedido.dart';
 
 // ============================================================
 // MODELOS
@@ -24,6 +27,51 @@ class HistoricoPedido {
     required this.itens,
     this.avaliacao,
   });
+
+  factory HistoricoPedido.fromJson(Map<String, dynamic> json) {
+    final avaliacaoJson = json['avaliacao'];
+
+    final itensJson = json['itens'] is List
+        ? json['itens'] as List
+        : [];
+
+    final logo = json['logo_comercio']?.toString();
+
+    return HistoricoPedido(
+      id: int.tryParse(json['id'].toString()) ?? 0,
+
+      nomeComercio:
+          json['nome_comercio']?.toString() ??
+          'Comércio não identificado',
+
+      fotoComercio: logo == null
+          ? null
+          : HistoricoPedidoService.resolverImagem(logo),
+
+      data: DateTime.tryParse(
+            json['criado_em']?.toString() ?? '',
+          ) ??
+          DateTime.now(),
+
+      valorTotal: _converterDouble(json['valor_total']),
+
+      avaliacao: avaliacaoJson is Map
+          ? int.tryParse(avaliacaoJson['nota'].toString())
+          : null,
+
+      itens: itensJson.map((item) {
+        return ItemHistoricoPedido.fromJson(
+          Map<String, dynamic>.from(item),
+        );
+      }).toList(),
+    );
+  }
+
+  static double _converterDouble(dynamic valor) {
+    if (valor is num) return valor.toDouble();
+
+    return double.tryParse(valor?.toString() ?? '') ?? 0;
+  }
 }
 
 class ItemHistoricoPedido {
@@ -37,205 +85,41 @@ class ItemHistoricoPedido {
     required this.precoUnitario,
   });
 
+  factory ItemHistoricoPedido.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return ItemHistoricoPedido(
+      nome: json['nome']?.toString() ?? 'Produto',
+
+      quantidade: int.tryParse(
+            json['quantidade'].toString(),
+          ) ??
+          0,
+
+      precoUnitario: _converterDouble(json['preco']),
+    );
+  }
+
   double get subtotal => quantidade * precoUnitario;
+
+  static double _converterDouble(dynamic valor) {
+    if (valor is num) return valor.toDouble();
+
+    return double.tryParse(valor?.toString() ?? '') ?? 0;
+  }
 }
-
-// ============================================================
-// FOTOS DE DEMONSTRAÇÃO
-// ============================================================
-
-const String fotoBurger =
-    'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=300&q=85';
-
-const String fotoPizza =
-    'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&q=85';
-
-const String fotoSaborReal =
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=85';
-
-const String fotoCantina =
-    'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=300&q=85';
-
-const String fotoAcai =
-    'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=300&q=85';
-
-// ============================================================
-// CINCO PEDIDOS FICTÍCIOS
-// ============================================================
-
-final List<HistoricoPedido> pedidosExemplo = [
-  HistoricoPedido(
-    id: 1042,
-    nomeComercio: 'Burger House',
-    fotoComercio: fotoBurger,
-    data: DateTime.now().subtract(const Duration(days: 1)),
-    valorTotal: 58.90,
-    avaliacao: 5,
-    itens: [
-      ItemHistoricoPedido(
-        nome: 'X-Burger Especial',
-        quantidade: 2,
-        precoUnitario: 19.90,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Batata frita grande',
-        quantidade: 1,
-        precoUnitario: 12.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Refrigerante Coca-Cola 350ml',
-        quantidade: 1,
-        precoUnitario: 7.10,
-      ),
-    ],
-  ),
-
-  HistoricoPedido(
-    id: 1038,
-    nomeComercio: 'Pizzaria Bella Massa',
-    fotoComercio: fotoPizza,
-    data: DateTime.now().subtract(const Duration(days: 2)),
-    valorTotal: 89.90,
-    avaliacao: null,
-    itens: [
-      ItemHistoricoPedido(
-        nome: 'Pizza de Calabresa Grande',
-        quantidade: 1,
-        precoUnitario: 49.90,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Pizza de Chocolate Pequena',
-        quantidade: 1,
-        precoUnitario: 29.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Refrigerante Guaraná 2L',
-        quantidade: 1,
-        precoUnitario: 11.00,
-      ),
-    ],
-  ),
-
-  HistoricoPedido(
-    id: 1029,
-    nomeComercio: 'Sabor Real',
-    fotoComercio: fotoSaborReal,
-    data: DateTime.now().subtract(const Duration(days: 4)),
-    valorTotal: 76.50,
-    avaliacao: 4,
-    itens: [
-      ItemHistoricoPedido(
-        nome: 'Prato feito de frango grelhado',
-        quantidade: 2,
-        precoUnitario: 22.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Porção de batata frita',
-        quantidade: 1,
-        precoUnitario: 15.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Suco natural de laranja 500ml',
-        quantidade: 1,
-        precoUnitario: 10.50,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Pudim de leite condensado',
-        quantidade: 1,
-        precoUnitario: 7.00,
-      ),
-    ],
-  ),
-
-  HistoricoPedido(
-    id: 1015,
-    nomeComercio: 'Cantina da Praça',
-    fotoComercio: fotoCantina,
-    data: DateTime.now().subtract(const Duration(days: 7)),
-    valorTotal: 112.80,
-    avaliacao: 5,
-    itens: [
-      ItemHistoricoPedido(
-        nome: 'Lasanha à bolonhesa tamanho família',
-        quantidade: 1,
-        precoUnitario: 42.90,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Parmegiana de frango',
-        quantidade: 1,
-        precoUnitario: 28.90,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Porção de arroz branco',
-        quantidade: 2,
-        precoUnitario: 8.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Salada completa',
-        quantidade: 1,
-        precoUnitario: 9.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Suco de maracujá 500ml',
-        quantidade: 2,
-        precoUnitario: 7.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Brownie com chocolate',
-        quantidade: 1,
-        precoUnitario: 10.00,
-      ),
-    ],
-  ),
-
-  HistoricoPedido(
-    id: 1007,
-    nomeComercio: 'Açaí Tropical',
-    fotoComercio: fotoAcai,
-    data: DateTime.now().subtract(const Duration(days: 12)),
-    valorTotal: 46.90,
-    avaliacao: null,
-    itens: [
-      ItemHistoricoPedido(
-        nome: 'Açaí de 700ml',
-        quantidade: 1,
-        precoUnitario: 25.90,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Adicional de leite em pó',
-        quantidade: 1,
-        precoUnitario: 4.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Adicional de Nutella',
-        quantidade: 1,
-        precoUnitario: 8.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Morango adicional',
-        quantidade: 1,
-        precoUnitario: 5.00,
-      ),
-      ItemHistoricoPedido(
-        nome: 'Granola',
-        quantidade: 1,
-        precoUnitario: 4.00,
-      ),
-    ],
-  ),
-];
 
 // ============================================================
 // TELA
 // ============================================================
 
 class HistoricoPedidoPage extends StatefulWidget {
-  final List<HistoricoPedido> pedidos;
+  final List<HistoricoPedido>? pedidos;
 
-  HistoricoPedidoPage({
+  const HistoricoPedidoPage({
     super.key,
-    List<HistoricoPedido>? pedidos,
-  }) : pedidos = pedidos ?? pedidosExemplo;
+    this.pedidos,
+  });
 
   @override
   State<HistoricoPedidoPage> createState() =>
@@ -248,6 +132,91 @@ class _HistoricoPedidoPageState extends State<HistoricoPedidoPage> {
   static const Color texto = Color(0xFF252525);
   static const Color textoSecundario = Color(0xFF777777);
   static const Color amarelo = Color(0xFFFFC928);
+
+  final HistoricoPedidoService _service =
+      HistoricoPedidoService();
+
+  List<HistoricoPedido> pedidos = [];
+
+  bool carregando = true;
+  String? erro;
+
+  // ============================================================
+  // INICIALIZAÇÃO
+  // ============================================================
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.pedidos != null) {
+      pedidos = widget.pedidos!;
+      carregando = false;
+    } else {
+      _carregarHistorico();
+    }
+  }
+
+  // ============================================================
+  // BUSCAR HISTÓRICO
+  // ============================================================
+
+  Future<void> _carregarHistorico() async {
+    if (!mounted) return;
+
+    setState(() {
+      carregando = true;
+      erro = null;
+    });
+
+    try {
+      final resultado = await _service.buscarHistorico();
+
+      final pedidosCarregados = resultado.map((json) {
+        return HistoricoPedido.fromJson(json);
+      }).toList();
+
+      if (!mounted) return;
+
+      setState(() {
+        pedidos = pedidosCarregados;
+        carregando = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        erro = e.toString().replaceFirst('Exception: ', '');
+        carregando = false;
+      });
+    }
+  }
+
+  // ============================================================
+  // ABRIR PEDIDO CORRESPONDENTE
+  // ============================================================
+
+  void _abrirPedido(HistoricoPedido pedido) {
+    if (pedido.id <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível identificar este pedido.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PedidoPage(
+          pedidoId: pedido.id,
+        ),
+      ),
+    );
+  }
 
   // ============================================================
   // FORMATAÇÃO
@@ -686,39 +655,51 @@ class _HistoricoPedidoPageState extends State<HistoricoPedidoPage> {
   }
 
   // ============================================================
-  // CARTÃO
+  // CARTÃO CLICÁVEL
   // ============================================================
 
   Widget _cartaoPedido(HistoricoPedido pedido) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
+      child: Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFEBEBEB),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.035),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _abrirPedido(pedido),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFFEBEBEB),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.035),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _informacoesPedido(pedido),
+                _listaItens(pedido),
+                const SizedBox(height: 3),
+                _totalPedido(pedido),
+                _avaliacaoPedido(pedido),
+              ],
+            ),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _informacoesPedido(pedido),
-          _listaItens(pedido),
-          const SizedBox(height: 3),
-          _totalPedido(pedido),
-          _avaliacaoPedido(pedido),
-        ],
+        ),
       ),
     );
   }
@@ -778,6 +759,76 @@ class _HistoricoPedidoPageState extends State<HistoricoPedidoPage> {
   }
 
   // ============================================================
+  // CARREGAMENTO
+  // ============================================================
+
+  Widget _estadoCarregando() {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: vermelho,
+        strokeWidth: 2.5,
+      ),
+    );
+  }
+
+  // ============================================================
+  // ERRO
+  // ============================================================
+
+  Widget _estadoErro() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 35),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.cloud_off_rounded,
+              color: vermelho,
+              size: 45,
+            ),
+
+            const SizedBox(height: 15),
+
+            const Text(
+              'Não foi possível carregar seu histórico',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: texto,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              erro ?? 'Tente novamente.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                color: textoSecundario,
+              ),
+            ),
+
+            const SizedBox(height: 18),
+
+            ElevatedButton.icon(
+              onPressed: _carregarHistorico,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Tentar novamente'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: vermelho,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
   // BUILD
   // ============================================================
 
@@ -816,7 +867,9 @@ class _HistoricoPedidoPageState extends State<HistoricoPedidoPage> {
                       const SizedBox(height: 5),
 
                       Text(
-                        '${widget.pedidos.length} ${widget.pedidos.length == 1 ? 'pedido realizado' : 'pedidos realizados'}',
+                        carregando
+                            ? 'Carregando pedidos...'
+                            : '${pedidos.length} ${pedidos.length == 1 ? 'pedido realizado' : 'pedidos realizados'}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: textoSecundario,
@@ -828,22 +881,30 @@ class _HistoricoPedidoPageState extends State<HistoricoPedidoPage> {
                 ),
 
                 Expanded(
-                  child: widget.pedidos.isEmpty
-                      ? _historicoVazio()
-                      : ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(
-                            16,
-                            0,
-                            16,
-                            20,
-                          ),
-                          itemCount: widget.pedidos.length,
-                          itemBuilder: (context, index) {
-                            return _cartaoPedido(
-                              widget.pedidos[index],
-                            );
-                          },
-                        ),
+                  child: carregando
+                      ? _estadoCarregando()
+                      : erro != null
+                          ? _estadoErro()
+                          : pedidos.isEmpty
+                              ? _historicoVazio()
+                              : RefreshIndicator(
+                                  color: vermelho,
+                                  onRefresh: _carregarHistorico,
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      16,
+                                      0,
+                                      16,
+                                      20,
+                                    ),
+                                    itemCount: pedidos.length,
+                                    itemBuilder: (context, index) {
+                                      return _cartaoPedido(
+                                        pedidos[index],
+                                      );
+                                    },
+                                  ),
+                                ),
                 ),
               ],
             ),

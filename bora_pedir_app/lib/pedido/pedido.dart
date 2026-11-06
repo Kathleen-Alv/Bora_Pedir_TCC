@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -7,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/bottom_navigation.dart';
+import '.././pedido/componentes/pedido_header.dart';
 
 /// ===============================================================
 /// BORA PEDIR — TELA DE ACOMPANHAMENTO DO PEDIDO
@@ -16,6 +16,9 @@ import '../../widgets/bottom_navigation.dart';
 /// - Autenticação: Bearer token (SharedPreferences)
 /// - Atualização automática: a cada 15 segundos
 /// - Dados: pedidos + itens_pedido + dados_comercio
+///
+/// COMPONENTES:
+/// - PedidoHeader: cabeçalho separado
 ///
 /// Para abrir a tela:
 ///
@@ -33,6 +36,10 @@ class PedidoCores {
   static const Color trilha = Color(0xFFE2E2E2);
   static const Color verde = Color(0xFF2D8A58);
 }
+
+// ===============================================================
+// STATUS DO PEDIDO
+// ===============================================================
 
 enum StatusPedido {
   aguardandoConfirmacao,
@@ -138,6 +145,10 @@ extension StatusPedidoTexto on StatusPedido {
   }
 }
 
+// ===============================================================
+// TELA PRINCIPAL
+// ===============================================================
+
 class PedidoPage extends StatefulWidget {
   const PedidoPage({
     super.key,
@@ -154,8 +165,7 @@ class PedidoPage extends StatefulWidget {
   State<PedidoPage> createState() => PedidoPageState();
 }
 
-class PedidoPageState extends State<PedidoPage>
-    with TickerProviderStateMixin {
+class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
   // Ajuste conforme a ordem das opções do seu menu inferior.
   int paginaAtual = 2;
 
@@ -254,8 +264,7 @@ class PedidoPageState extends State<PedidoPage>
         },
       );
 
-      final contentType =
-          resposta.headers['content-type']?.toLowerCase() ?? '';
+      final contentType = resposta.headers['content-type']?.toLowerCase() ?? '';
 
       if (!contentType.contains('application/json')) {
         throw Exception(
@@ -266,9 +275,7 @@ class PedidoPageState extends State<PedidoPage>
       final dynamic dados = jsonDecode(resposta.body);
 
       if (resposta.statusCode != 200) {
-        final mensagem = dados is Map
-            ? dados['message']?.toString()
-            : null;
+        final mensagem = dados is Map ? dados['message']?.toString() : null;
 
         throw Exception(
           mensagem ?? 'Não foi possível consultar o pedido.',
@@ -316,8 +323,7 @@ class PedidoPageState extends State<PedidoPage>
         nomeRestaurante =
             pedido['nome_restaurante']?.toString() ?? 'Restaurante';
 
-        logoRestaurante =
-            pedido['logo_restaurante']?.toString();
+        logoRestaurante = pedido['logo_restaurante']?.toString();
 
         subtotal = _converterDouble(pedido['subtotal']);
         taxaEntrega = _converterDouble(pedido['taxa_entrega']);
@@ -503,9 +509,14 @@ class PedidoPageState extends State<PedidoPage>
             Positioned.fill(
               child: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: _header(),
+                  // =================================================
+                  // CABEÇALHO SEPARADO
+                  // =================================================
+
+                  const SliverToBoxAdapter(
+                    child: PedidoHeader(),
                   ),
+
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
@@ -518,13 +529,9 @@ class PedidoPageState extends State<PedidoPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _cartaoRestaurante(),
-
                           const SizedBox(height: 24),
-
                           _tituloSecao('Acompanhe seu pedido'),
-
                           const SizedBox(height: 5),
-
                           Text(
                             'Status: ${_status.titulo}',
                             style: const TextStyle(
@@ -533,23 +540,14 @@ class PedidoPageState extends State<PedidoPage>
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-
                           const SizedBox(height: 18),
-
                           _linhaProgresso(compacto),
-
                           const SizedBox(height: 18),
-
                           _mensagemStatus(),
-
                           const SizedBox(height: 24),
-
                           _painelPedido(),
-
                           const SizedBox(height: 16),
-
                           _ajudaCard(),
-
                           const SizedBox(height: 120),
                         ],
                       ),
@@ -574,35 +572,6 @@ class PedidoPageState extends State<PedidoPage>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  // ===============================================================
-  // HEADER
-  // ===============================================================
-
-  Widget _header() {
-    return Container(
-      height: 88,
-      width: double.infinity,
-      color: PedidoCores.vermelho,
-      alignment: Alignment.center,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Image.asset(
-          'assets/logoInicio.png',
-          width: 64,
-          height: 64,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return const Icon(
-              Icons.delivery_dining_rounded,
-              color: Colors.white,
-              size: 48,
-            );
-          },
         ),
       ),
     );
@@ -642,9 +611,7 @@ class PedidoPageState extends State<PedidoPage>
             clipBehavior: Clip.antiAlias,
             child: _imagemRestaurante(),
           ),
-
           const SizedBox(width: 15),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -660,9 +627,7 @@ class PedidoPageState extends State<PedidoPage>
                     color: PedidoCores.texto,
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
                 OutlinedButton.icon(
                   onPressed: widget.onContato ?? () {},
                   icon: const Icon(
@@ -708,8 +673,7 @@ class PedidoPageState extends State<PedidoPage>
 
     final caminho = logoRestaurante!;
 
-    final url = caminho.startsWith('http://') ||
-            caminho.startsWith('https://')
+    final url = caminho.startsWith('http://') || caminho.startsWith('https://')
         ? caminho
         : '$baseUrl${caminho.startsWith('/') ? '' : '/'}$caminho';
 
@@ -756,8 +720,7 @@ class PedidoPageState extends State<PedidoPage>
     final atual = _status.etapa;
 
     final pedidoEncerradoComProblema =
-        _status == StatusPedido.recusado ||
-        _status == StatusPedido.cancelado;
+        _status == StatusPedido.recusado || _status == StatusPedido.cancelado;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 17, 10, 15),
@@ -779,19 +742,15 @@ class PedidoPageState extends State<PedidoPage>
                   builder: (context, constraints) {
                     final larguraLinha = constraints.maxWidth - 48;
 
-                    final progressoAtual =
-                        atual / (etapas.length - 1);
+                    final progressoAtual = atual / (etapas.length - 1);
 
                     final proximaEtapa =
-                        atual < etapas.length - 1 &&
-                                !_status.encerrado
+                        atual < etapas.length - 1 && !_status.encerrado
                             ? atual + _movimentoController.value
                             : atual.toDouble();
 
                     final xCentro = 24 +
-                        (larguraLinha *
-                            proximaEtapa /
-                            (etapas.length - 1));
+                        (larguraLinha * proximaEtapa / (etapas.length - 1));
 
                     return Stack(
                       alignment: Alignment.centerLeft,
@@ -901,9 +860,7 @@ class PedidoPageState extends State<PedidoPage>
               },
             ),
           ),
-
           const SizedBox(height: 7),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(etapas.length, (i) {
@@ -919,11 +876,8 @@ class PedidoPageState extends State<PedidoPage>
                     style: TextStyle(
                       fontSize: compacto ? 9 : 10,
                       height: 1.15,
-                      fontWeight:
-                          ativo ? FontWeight.w800 : FontWeight.w600,
-                      color: ativo
-                          ? PedidoCores.texto
-                          : PedidoCores.textoSuave,
+                      fontWeight: ativo ? FontWeight.w800 : FontWeight.w600,
+                      color: ativo ? PedidoCores.texto : PedidoCores.textoSuave,
                     ),
                   ),
                 ),
@@ -940,20 +894,16 @@ class PedidoPageState extends State<PedidoPage>
   // ===============================================================
 
   Widget _mensagemStatus() {
-    final problema = _status == StatusPedido.recusado ||
-        _status == StatusPedido.cancelado;
+    final problema =
+        _status == StatusPedido.recusado || _status == StatusPedido.cancelado;
 
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: problema
-            ? const Color(0xFFFFEEEE)
-            : const Color(0xFFFFF8E8),
+        color: problema ? const Color(0xFFFFEEEE) : const Color(0xFFFFF8E8),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: problema
-              ? const Color(0xFFF0CACA)
-              : const Color(0xFFF1E2B9),
+          color: problema ? const Color(0xFFF0CACA) : const Color(0xFFF1E2B9),
         ),
       ),
       child: Row(
@@ -965,9 +915,7 @@ class PedidoPageState extends State<PedidoPage>
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: problema
-                    ? const Color(0xFFF8DADA)
-                    : PedidoCores.amarelo,
+                color: problema ? const Color(0xFFF8DADA) : PedidoCores.amarelo,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -977,9 +925,7 @@ class PedidoPageState extends State<PedidoPage>
               ),
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -992,9 +938,7 @@ class PedidoPageState extends State<PedidoPage>
                     color: PedidoCores.texto,
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   _status.descricao,
                   style: const TextStyle(
@@ -1045,7 +989,6 @@ class PedidoPageState extends State<PedidoPage>
                   ),
                 ),
               ),
-
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -1066,9 +1009,7 @@ class PedidoPageState extends State<PedidoPage>
               ),
             ],
           ),
-
           const SizedBox(height: 5),
-
           Text(
             'Cliente: $nomeCliente',
             style: const TextStyle(
@@ -1076,16 +1017,12 @@ class PedidoPageState extends State<PedidoPage>
               color: PedidoCores.textoSuave,
             ),
           ),
-
           const SizedBox(height: 18),
-
           const Divider(
             color: Color(0xFFD9C7AF),
             height: 1,
           ),
-
           const SizedBox(height: 12),
-
           if (itens.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
@@ -1099,31 +1036,21 @@ class PedidoPageState extends State<PedidoPage>
             )
           else
             ...itens.map(_linhaItem),
-
           const SizedBox(height: 8),
-
           const Divider(
             color: Color(0xFFD9C7AF),
             height: 1,
           ),
-
           const SizedBox(height: 12),
-
           _linhaValor('Subtotal', _subtotal),
-
           const SizedBox(height: 8),
-
           _linhaValor('Taxa de entrega', taxaEntrega),
-
           const SizedBox(height: 12),
-
           const Divider(
             color: Color(0xFFD9C7AF),
             height: 1,
           ),
-
           const SizedBox(height: 12),
-
           Row(
             children: [
               const Expanded(
@@ -1135,7 +1062,6 @@ class PedidoPageState extends State<PedidoPage>
                   ),
                 ),
               ),
-
               Text(
                 _moeda(_total),
                 style: const TextStyle(
@@ -1146,9 +1072,7 @@ class PedidoPageState extends State<PedidoPage>
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -1163,9 +1087,7 @@ class PedidoPageState extends State<PedidoPage>
                   color: PedidoCores.vermelho,
                   size: 20,
                 ),
-
                 SizedBox(width: 9),
-
                 Expanded(
                   child: Text(
                     'O status será atualizado conforme o restaurante e a entrega avançarem.',
@@ -1211,9 +1133,7 @@ class PedidoPageState extends State<PedidoPage>
               ),
             ),
           ),
-
           const SizedBox(width: 10),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 5),
@@ -1227,7 +1147,6 @@ class PedidoPageState extends State<PedidoPage>
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
                   if (item.observacao != null &&
                       item.observacao!.trim().isNotEmpty) ...[
                     const SizedBox(height: 3),
@@ -1243,9 +1162,7 @@ class PedidoPageState extends State<PedidoPage>
               ),
             ),
           ),
-
           const SizedBox(width: 8),
-
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Text(
@@ -1277,7 +1194,6 @@ class PedidoPageState extends State<PedidoPage>
             ),
           ),
         ),
-
         Text(
           _moeda(valor),
           style: const TextStyle(
@@ -1318,9 +1234,7 @@ class PedidoPageState extends State<PedidoPage>
               size: 25,
             ),
           ),
-
           const SizedBox(width: 12),
-
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1332,9 +1246,7 @@ class PedidoPageState extends State<PedidoPage>
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-
                 SizedBox(height: 3),
-
                 Text(
                   'Entre em contato com o restaurante sobre seu pedido.',
                   style: TextStyle(
@@ -1346,7 +1258,6 @@ class PedidoPageState extends State<PedidoPage>
               ],
             ),
           ),
-
           const Icon(
             Icons.chevron_right_rounded,
             color: PedidoCores.textoSuave,

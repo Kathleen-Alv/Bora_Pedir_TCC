@@ -976,3 +976,607 @@
     font-size: 18px;
   }
 }
+
+
+
+
+/* =====================================================
+   PROVA FOTOGRÁFICA — BORA PEDIR
+===================================================== */
+
+.provaFotografica {
+  width: 100%;
+  min-width: 0;
+  margin: 18px 0 22px;
+  padding: 19px;
+  border: 1px solid #e1e9e4;
+  border-radius: 13px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* CABEÇALHO */
+
+.provaCabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.provaEyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #00704a;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1px;
+}
+
+.provaTitulo {
+  margin: 0;
+  color: #25352d;
+  font-size: 19px;
+  font-weight: 850;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  text-align: left;
+}
+
+.provaSelo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 9px;
+  border: 1px solid #dcebe1;
+  border-radius: 20px;
+  color: #287047;
+  background: #f0f7f2;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.provaSelo > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #29965a;
+}
+
+/* SUBTÍTULO */
+
+.provaSubtitulo {
+  max-width: 620px;
+  margin: 0 0 17px;
+  color: #64736b;
+  font-size: 13px;
+  font-weight: 450;
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* INPUT OCULTO */
+
+.provaInput {
+  display: none;
+}
+
+/* GALERIA */
+
+.provaGaleria {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-width: 0;
+}
+
+.provaLista {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* CARTÃO DA FOTOGRAFIA */
+
+.provaFotoCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid #e4ebe6;
+  border-radius: 10px;
+  background: #fff;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.provaFotoCard:hover {
+  transform: translateY(-2px);
+  border-color: #b8d5c3;
+  box-shadow: 0 4px 12px rgba(25, 65, 43, 0.08);
+}
+
+/* IMAGEM */
+
+.provaFotoBotao {
+  display: block;
+  width: 100%;
+  height: 112px;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: 7px;
+  background: #f0f4f1;
+  cursor: zoom-in;
+}
+
+.provaFoto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.provaFotoBotao:hover .provaFoto {
+  transform: scale(1.06);
+}
+
+/* LEGENDA */
+
+.provaFotoLegenda {
+  display: block;
+  overflow: hidden;
+  padding: 2px 3px 3px;
+  color: #65746b;
+  font-size: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* REMOVER FOTOGRAFIA */
+
+.provaRemover {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(30, 35, 32, 0.72);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.provaRemover:hover {
+  background: #bd1221;
+}
+
+/* =====================================================
+   CARTÃO DE ADICIONAR FOTOGRAFIA
+===================================================== */
+
+.provaAdicionar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 145px;
+  padding: 12px 6px;
+  border: 1.5px dashed #b8cfc0;
+  border-radius: 10px;
+  color: #426b52;
+  background: #f7faf8;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.provaAdicionar:hover {
+  border-color: #00704a;
+  background: #edf6ef;
+  box-shadow: 0 4px 12px rgba(0, 112, 74, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ÍCONE DE MAIS */
+
+.provaAdicionarIcone {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border: 1px solid #c9dfd0;
+  border-radius: 50%;
+  color: #fff;
+  background: #00704a;
+  font-size: 29px;
+  font-weight: 400;
+  line-height: 1;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.provaAdicionar:hover .provaAdicionarIcone {
+  background: #005236;
+  transform: scale(1.08);
+}
+
+.provaAdicionar strong {
+  color: #345b43;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.provaAdicionar small {
+  color: #89978e;
+  font-size: 10px;
+  text-align: center;
+}
+
+/* SETAS DA GALERIA */
+
+.provaSeta {
+  display: grid;
+  flex: 0 0 27px;
+  place-items: center;
+  width: 27px;
+  height: 35px;
+  padding: 0;
+  border: 1px solid #e2eae5;
+  border-radius: 7px;
+  color: #52675a;
+  background: #f5f8f6;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.provaSeta:hover {
+  border-color: #b8d5c3;
+  color: #00704a;
+  background: #eaf3ed;
+}
+
+/* RODAPÉ */
+
+.provaRodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1ee;
+}
+
+.provaRodape span {
+  color: #849188;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+/* =====================================================
+   EXPLICAÇÃO ANTIFRAUDE
+===================================================== */
+
+.provaExplicacao {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 12px;
+  border: 1px solid #e1ebe4;
+  border-radius: 9px;
+  background: #f6faf7;
+}
+
+.provaExplicacaoIcone {
+  display: grid;
+  flex: 0 0 25px;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  color: #fff;
+  background: #00704a;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.provaExplicacao > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.provaExplicacao strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #263a2e;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.provaExplicacao p {
+  margin: 0 0 7px;
+  color: #617067;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.provaExplicacao p:last-child {
+  margin-bottom: 0;
+}
+
+/* =====================================================
+   MODAL DE FOTOGRAFIA
+===================================================== */
+
+.provaModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(12, 19, 15, 0.91);
+  cursor: zoom-out;
+}
+
+.provaModalImagem {
+  display: block;
+  max-width: 90%;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 9px;
+  cursor: default;
+  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.3);
+}
+
+.provaModalFechar {
+  position: absolute;
+  top: 19px;
+  right: 23px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 27px;
+  cursor: pointer;
+}
+
+.provaModalFechar:hover {
+  background: #bd1221;
+}
+
+/* =====================================================
+   RESPONSIVIDADE
+===================================================== */
+
+@media (max-width: 900px) {
+  .provaFotografica {
+    padding: 16px;
+  }
+
+  .provaLista {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .provaFotoBotao {
+    height: 105px;
+  }
+}
+
+@media (max-width: 600px) {
+  .provaCabecalho {
+    align-items: flex-start;
+  }
+
+  .provaTitulo {
+    font-size: 17px;
+  }
+
+  .provaSelo {
+    font-size: 9px;
+  }
+
+  .provaLista {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .provaFotoBotao {
+    height: 115px;
+  }
+
+  .provaAdicionar {
+    min-height: 145px;
+  }
+
+  .provaSubtitulo {
+    font-size: 12px;
+  }
+
+  .provaRodape {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .provaModal {
+    padding: 15px;
+  }
+
+  .provaModalImagem {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .provaFotografica {
+    padding: 12px;
+  }
+
+  .provaLista {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .provaFotoBotao {
+    height: 95px;
+  }
+
+  .provaAdicionarIcone {
+    width: 34px;
+    height: 34px;
+    font-size: 25px;
+  }
+}
+
+
+
+/* CARD DA FOTOGRAFIA */
+
+.provaFotoCard {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.provaFotoBotao {
+  width: 100%;
+  height: 125px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #dfe8e3;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.provaFoto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.provaFotoBotao:hover .provaFoto {
+  transform: scale(1.04);
+}
+
+/* IDENTIFICAÇÃO E DATA/HORÁRIO */
+
+.provaFotoInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.provaFotoLegenda {
+  color: #27372f;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.provaFotoDataHora {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: #68776e;
+  font-size: 10px;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.provaFotoDataHora span {
+  color: #a80f1c;
+  font-size: 13px;
+}
+
+/* REMOVER FOTO LOCAL */
+
+.provaRemover {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(30, 30, 30, 0.75);
+  color: #fff;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.provaRemover:hover {
+  background: #bd1221;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 600px) {
+  .provaFotoBotao {
+    height: 110px;
+  }
+
+  .provaFotoInfo {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .provaFotoDataHora {
+    justify-content: flex-start;
+    font-size: 9px;
+  }
+}
