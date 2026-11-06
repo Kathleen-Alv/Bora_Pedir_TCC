@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -7,6 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/bottom_navigation.dart';
 import '.././pedido/componentes/pedido_header.dart';
+import '.././pedido/componentes/seu_pedido.dart';
+import '.././pedido/componentes/acompanhar_pedido.dart';
+import '.././pedido/componentes/cartao_restaurante.dart';
 
 /// ===============================================================
 /// BORA PEDIR — TELA DE ACOMPANHAMENTO DO PEDIDO
@@ -18,7 +22,10 @@ import '.././pedido/componentes/pedido_header.dart';
 /// - Dados: pedidos + itens_pedido + dados_comercio
 ///
 /// COMPONENTES:
-/// - PedidoHeader: cabeçalho separado
+/// - PedidoHeader
+/// - CartaoRestaurante
+/// - AcompanhePedido
+/// - SeuPedido
 ///
 /// Para abrir a tela:
 ///
@@ -165,7 +172,8 @@ class PedidoPage extends StatefulWidget {
   State<PedidoPage> createState() => PedidoPageState();
 }
 
-class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
+class PedidoPageState extends State<PedidoPage>
+    with TickerProviderStateMixin {
   // Ajuste conforme a ordem das opções do seu menu inferior.
   int paginaAtual = 2;
 
@@ -195,11 +203,8 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
   double taxaEntrega = 0;
   double total = 0;
 
+  // Modelo ItemPedido importado de seu_pedido.dart.
   List<ItemPedido> itens = [];
-
-  double get _subtotal => subtotal;
-
-  double get _total => total;
 
   @override
   void initState() {
@@ -264,7 +269,8 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
         },
       );
 
-      final contentType = resposta.headers['content-type']?.toLowerCase() ?? '';
+      final contentType =
+          resposta.headers['content-type']?.toLowerCase() ?? '';
 
       if (!contentType.contains('application/json')) {
         throw Exception(
@@ -275,7 +281,8 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
       final dynamic dados = jsonDecode(resposta.body);
 
       if (resposta.statusCode != 200) {
-        final mensagem = dados is Map ? dados['message']?.toString() : null;
+        final mensagem =
+            dados is Map ? dados['message']?.toString() : null;
 
         throw Exception(
           mensagem ?? 'Não foi possível consultar o pedido.',
@@ -319,7 +326,9 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
 
       setState(() {
         numeroPedido = pedido['id']?.toString() ?? '';
+
         nomeCliente = pedido['nome_cliente']?.toString() ?? '';
+
         nomeRestaurante =
             pedido['nome_restaurante']?.toString() ?? 'Restaurante';
 
@@ -510,7 +519,7 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
               child: CustomScrollView(
                 slivers: [
                   // =================================================
-                  // CABEÇALHO SEPARADO
+                  // CABEÇALHO
                   // =================================================
 
                   const SliverToBoxAdapter(
@@ -528,26 +537,57 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _cartaoRestaurante(),
-                          const SizedBox(height: 24),
-                          _tituloSecao('Acompanhe seu pedido'),
-                          const SizedBox(height: 5),
-                          Text(
-                            'Status: ${_status.titulo}',
-                            style: const TextStyle(
-                              color: PedidoCores.textoSuave,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          // =================================================
+                          // CARTÃO DO RESTAURANTE
+                          // =================================================
+
+                          CartaoRestaurante(
+                            nomeRestaurante: nomeRestaurante,
+                            logoRestaurante: logoRestaurante,
+                            baseUrl: baseUrl,
+                            onContato: widget.onContato,
                           ),
-                          const SizedBox(height: 18),
-                          _linhaProgresso(compacto),
-                          const SizedBox(height: 18),
-                          _mensagemStatus(),
+
                           const SizedBox(height: 24),
-                          _painelPedido(),
+
+                          // =================================================
+                          // ACOMPANHE SEU PEDIDO
+                          // =================================================
+
+                          AcompanhePedido(
+                            statusTitulo: _status.titulo,
+                            statusDescricao: _status.descricao,
+                            statusIcone: _status.icone,
+                            etapaAtual: _status.etapa,
+                            pedidoEncerrado: _status.encerrado,
+                            movimentoController: _movimentoController,
+                            pulsoController: _pulsoController,
+                            compacto: compacto,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // =================================================
+                          // SEU PEDIDO
+                          // =================================================
+
+                          SeuPedido(
+                            numeroPedido: numeroPedido,
+                            nomeCliente: nomeCliente,
+                            itens: itens,
+                            subtotal: subtotal,
+                            taxaEntrega: taxaEntrega,
+                            total: total,
+                          ),
+
                           const SizedBox(height: 16),
+
+                          // =================================================
+                          // AJUDA
+                          // =================================================
+
                           _ajudaCard(),
+
                           const SizedBox(height: 120),
                         ],
                       ),
@@ -557,7 +597,10 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
               ),
             ),
 
-            // Menu inferior fixo.
+            // =====================================================
+            // MENU INFERIOR FIXO
+            // =====================================================
+
             Positioned(
               left: 0,
               right: 0,
@@ -574,634 +617,6 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
           ],
         ),
       ),
-    );
-  }
-
-  // ===============================================================
-  // CARTÃO DO RESTAURANTE
-  // ===============================================================
-
-  Widget _cartaoRestaurante() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xFFEDEDED),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.035),
-            blurRadius: 16,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 88,
-            height: 88,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFFDDF2FF),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: _imagemRestaurante(),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nomeRestaurante,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 19,
-                    height: 1.15,
-                    fontWeight: FontWeight.w800,
-                    color: PedidoCores.texto,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: widget.onContato ?? () {},
-                  icon: const Icon(
-                    Icons.chat_bubble_rounded,
-                    size: 18,
-                  ),
-                  label: const Text('Entrar em contato'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: PedidoCores.vermelho,
-                    side: const BorderSide(
-                      color: PedidoCores.vermelho,
-                      width: 1.1,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _imagemRestaurante() {
-    if (logoRestaurante == null || logoRestaurante!.isEmpty) {
-      return const Icon(
-        Icons.storefront_rounded,
-        color: PedidoCores.vermelho,
-        size: 43,
-      );
-    }
-
-    final caminho = logoRestaurante!;
-
-    final url = caminho.startsWith('http://') || caminho.startsWith('https://')
-        ? caminho
-        : '$baseUrl${caminho.startsWith('/') ? '' : '/'}$caminho';
-
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return const Icon(
-          Icons.storefront_rounded,
-          color: PedidoCores.vermelho,
-          size: 43,
-        );
-      },
-    );
-  }
-
-  // ===============================================================
-  // TÍTULO DE SEÇÃO
-  // ===============================================================
-
-  Widget _tituloSecao(String titulo) {
-    return Text(
-      titulo,
-      style: const TextStyle(
-        color: PedidoCores.texto,
-        fontSize: 21,
-        fontWeight: FontWeight.w900,
-      ),
-    );
-  }
-
-  // ===============================================================
-  // LINHA DE PROGRESSO
-  // ===============================================================
-
-  Widget _linhaProgresso(bool compacto) {
-    final etapas = <_Etapa>[
-      _Etapa('Recebido', Icons.receipt_long_rounded),
-      _Etapa('Em preparo', Icons.soup_kitchen_rounded),
-      _Etapa('A caminho', Icons.delivery_dining_rounded),
-      _Etapa('Entregue', Icons.check_circle_rounded),
-    ];
-
-    final atual = _status.etapa;
-
-    final pedidoEncerradoComProblema =
-        _status == StatusPedido.recusado || _status == StatusPedido.cancelado;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 17, 10, 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFEDEDED),
-        ),
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 60,
-            child: AnimatedBuilder(
-              animation: _movimentoController,
-              builder: (context, child) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final larguraLinha = constraints.maxWidth - 48;
-
-                    final progressoAtual = atual / (etapas.length - 1);
-
-                    final proximaEtapa =
-                        atual < etapas.length - 1 && !_status.encerrado
-                            ? atual + _movimentoController.value
-                            : atual.toDouble();
-
-                    final xCentro = 24 +
-                        (larguraLinha * proximaEtapa / (etapas.length - 1));
-
-                    return Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        // Linha de fundo.
-                        Positioned(
-                          left: 24,
-                          right: 24,
-                          top: 27,
-                          child: Container(
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: PedidoCores.trilha,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-
-                        // Linha preenchida.
-                        Positioned(
-                          left: 24,
-                          top: 27,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 450),
-                            curve: Curves.easeOutCubic,
-                            width: larguraLinha * progressoAtual,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: pedidoEncerradoComProblema
-                                  ? PedidoCores.vermelho
-                                  : PedidoCores.vermelho,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-
-                        // Indicador animado.
-                        if (!_status.encerrado)
-                          Positioned(
-                            left: (xCentro - 8).clamp(
-                              16.0,
-                              constraints.maxWidth - 16,
-                            ),
-                            top: 21,
-                            child: IgnorePointer(
-                              child: Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: PedidoCores.amarelo,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: PedidoCores.vermelho,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: PedidoCores.vermelho
-                                          .withOpacity(0.22),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                        // Ícones das etapas.
-                        for (int i = 0; i < etapas.length; i++)
-                          Positioned(
-                            left: 24 +
-                                (larguraLinha * i / (etapas.length - 1)) -
-                                17,
-                            top: 5,
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 350),
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: i <= atual
-                                    ? PedidoCores.vermelho
-                                    : Colors.white,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: i <= atual
-                                      ? PedidoCores.vermelho
-                                      : PedidoCores.trilha,
-                                  width: 2,
-                                ),
-                              ),
-                              child: Icon(
-                                i < atual
-                                    ? Icons.check_rounded
-                                    : etapas[i].icone,
-                                size: 20,
-                                color: i <= atual
-                                    ? Colors.white
-                                    : PedidoCores.textoSuave,
-                              ),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 7),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(etapas.length, (i) {
-              final ativo = i <= atual;
-
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: Text(
-                    etapas[i].titulo,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: compacto ? 9 : 10,
-                      height: 1.15,
-                      fontWeight: ativo ? FontWeight.w800 : FontWeight.w600,
-                      color: ativo ? PedidoCores.texto : PedidoCores.textoSuave,
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===============================================================
-  // MENSAGEM DO STATUS
-  // ===============================================================
-
-  Widget _mensagemStatus() {
-    final problema =
-        _status == StatusPedido.recusado || _status == StatusPedido.cancelado;
-
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: problema ? const Color(0xFFFFEEEE) : const Color(0xFFFFF8E8),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: problema ? const Color(0xFFF0CACA) : const Color(0xFFF1E2B9),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ScaleTransition(
-            scale: _pulsoController,
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: problema ? const Color(0xFFF8DADA) : PedidoCores.amarelo,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _status.icone,
-                color: PedidoCores.vermelho,
-                size: 23,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _status.titulo,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15,
-                    color: PedidoCores.texto,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _status.descricao,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.4,
-                    color: PedidoCores.textoSuave,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===============================================================
-  // PAINEL DO PEDIDO
-  // ===============================================================
-
-  Widget _painelPedido() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
-      decoration: BoxDecoration(
-        color: PedidoCores.creme,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.brown.withOpacity(0.06),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Seu pedido',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: PedidoCores.texto,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.75),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '#$numeroPedido',
-                  style: const TextStyle(
-                    color: PedidoCores.vermelho,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Text(
-            'Cliente: $nomeCliente',
-            style: const TextStyle(
-              fontSize: 12,
-              color: PedidoCores.textoSuave,
-            ),
-          ),
-          const SizedBox(height: 18),
-          const Divider(
-            color: Color(0xFFD9C7AF),
-            height: 1,
-          ),
-          const SizedBox(height: 12),
-          if (itens.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Text(
-                'Nenhum item encontrado neste pedido.',
-                style: TextStyle(
-                  color: PedidoCores.textoSuave,
-                  fontSize: 12,
-                ),
-              ),
-            )
-          else
-            ...itens.map(_linhaItem),
-          const SizedBox(height: 8),
-          const Divider(
-            color: Color(0xFFD9C7AF),
-            height: 1,
-          ),
-          const SizedBox(height: 12),
-          _linhaValor('Subtotal', _subtotal),
-          const SizedBox(height: 8),
-          _linhaValor('Taxa de entrega', taxaEntrega),
-          const SizedBox(height: 12),
-          const Divider(
-            color: Color(0xFFD9C7AF),
-            height: 1,
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Total do pedido',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              Text(
-                _moeda(_total),
-                style: const TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w900,
-                  color: PedidoCores.vermelho,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.65),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  color: PedidoCores.vermelho,
-                  size: 20,
-                ),
-                SizedBox(width: 9),
-                Expanded(
-                  child: Text(
-                    'O status será atualizado conforme o restaurante e a entrega avançarem.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.35,
-                      color: PedidoCores.texto,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===============================================================
-  // LINHA DO ITEM
-  // ===============================================================
-
-  Widget _linhaItem(ItemPedido item) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Text(
-              '${item.quantidade}x',
-              style: const TextStyle(
-                color: PedidoCores.vermelho,
-                fontWeight: FontWeight.w900,
-                fontSize: 11,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.nome,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (item.observacao != null &&
-                      item.observacao!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 3),
-                    Text(
-                      item.observacao!,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: PedidoCores.textoSuave,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: Text(
-              _moeda(item.subtotal),
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===============================================================
-  // LINHA DE VALOR
-  // ===============================================================
-
-  Widget _linhaValor(String titulo, double valor) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            titulo,
-            style: const TextStyle(
-              fontSize: 13,
-              color: PedidoCores.textoSuave,
-            ),
-          ),
-        ),
-        Text(
-          _moeda(valor),
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
     );
   }
 
@@ -1234,7 +649,9 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
               size: 25,
             ),
           ),
+
           const SizedBox(width: 12),
+
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1246,7 +663,9 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
+
                 SizedBox(height: 3),
+
                 Text(
                   'Entre em contato com o restaurante sobre seu pedido.',
                   style: TextStyle(
@@ -1258,6 +677,7 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
               ],
             ),
           ),
+
           const Icon(
             Icons.chevron_right_rounded,
             color: PedidoCores.textoSuave,
@@ -1266,43 +686,4 @@ class PedidoPageState extends State<PedidoPage> with TickerProviderStateMixin {
       ),
     );
   }
-
-  // ===============================================================
-  // FORMATAÇÃO DE MOEDA
-  // ===============================================================
-
-  String _moeda(double valor) {
-    return 'R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}';
-  }
-}
-
-// ===============================================================
-// MODELO DOS ITENS DO PEDIDO
-// ===============================================================
-
-class ItemPedido {
-  const ItemPedido({
-    required this.nome,
-    required this.quantidade,
-    required this.preco,
-    required this.subtotal,
-    this.observacao,
-  });
-
-  final String nome;
-  final int quantidade;
-  final double preco;
-  final double subtotal;
-  final String? observacao;
-}
-
-// ===============================================================
-// ETAPAS DO PROGRESSO
-// ===============================================================
-
-class _Etapa {
-  const _Etapa(this.titulo, this.icone);
-
-  final String titulo;
-  final IconData icone;
 }

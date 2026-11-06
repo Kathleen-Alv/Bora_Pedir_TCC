@@ -10,52 +10,53 @@ class PedidoHeader extends StatelessWidget {
     this.onVoltar,
   });
 
-  static const Color vermelho = Color(0xFFBD1221);
+  static const Color vermelho = Color(0xFFC8102E);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 12,
-      ),
-      child: Row(
-        children: [
-          // Botão voltar
-          GestureDetector(
-            onTap: onVoltar ?? () => Navigator.pop(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.grey.shade200,
+    return Container(
+      width: double.infinity,
+      color: vermelho,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 12,
+        ),
+        child: Row(
+          children: [
+            // Botão voltar
+            GestureDetector(
+              onTap: onVoltar ?? () => Navigator.pop(context),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 18,
+                  color: vermelho,
                 ),
               ),
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                size: 18,
-                color: vermelho,
-              ),
             ),
-          ),
 
-          const Spacer(),
+            const Spacer(),
 
-          // Identidade visual
-          Image.asset(
-            'assets/logoInicio.png',
-            height: 38,
-            fit: BoxFit.contain,
-          ),
+            // Identidade visual
+            Image.asset(
+              'assets/logoInicio.png',
+              height: 38,
+              fit: BoxFit.contain,
+            ),
 
-          const Spacer(),
+            const Spacer(),
 
-          // Espaço para manter a logo centralizada
-          const SizedBox(width: 40),
-        ],
+            // Espaço para manter a logo centralizada
+            const SizedBox(width: 40),
+          ],
+        ),
       ),
     );
   }
