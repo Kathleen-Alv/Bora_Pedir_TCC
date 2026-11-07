@@ -9,147 +9,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/bottom_navigation.dart';
 import '.././pedido/componentes/pedido_header.dart';
 import '.././pedido/componentes/seu_pedido.dart';
-import '.././pedido/componentes/acompanhar_pedido.dart';
 import '.././pedido/componentes/cartao_restaurante.dart';
+import '.././pedido/componentes/foto_pedido.dart';
+import '.././pedido/componentes/acompanhar_pedido.dart';
 
 /// ===============================================================
-/// BORA PEDIR — TELA DE ACOMPANHAMENTO DO PEDIDO
+/// BORA PEDIR — TELA DO PEDIDO
 ///
 /// INTEGRAÇÃO:
-/// - Consulta: GET /api/pedidos/:id
-/// - Autenticação: Bearer token (SharedPreferences)
-/// - Atualização automática: a cada 15 segundos
-/// - Dados: pedidos + itens_pedido + dados_comercio
+/// - GET /api/pedidos/:id
+/// - Autenticação Bearer Token
+/// - Atualização automática a cada 15 segundos
 ///
 /// COMPONENTES:
 /// - PedidoHeader
 /// - CartaoRestaurante
 /// - AcompanhePedido
+/// - FotoPedido
 /// - SeuPedido
-///
-/// Para abrir a tela:
-///
-/// PedidoPage(pedidoId: idDoPedido)
 /// ===============================================================
 
 class PedidoCores {
   static const Color vermelho = Color(0xFFBD1221);
   static const Color vermelhoEscuro = Color(0xFFA80F1C);
-  static const Color creme = Color(0xFFF1E1CC);
-  static const Color amarelo = Color(0xFFF8E267);
   static const Color fundo = Color(0xFFF7F7F5);
   static const Color texto = Color(0xFF171717);
   static const Color textoSuave = Color(0xFF6D6D6D);
-  static const Color trilha = Color(0xFFE2E2E2);
-  static const Color verde = Color(0xFF2D8A58);
-}
-
-// ===============================================================
-// STATUS DO PEDIDO
-// ===============================================================
-
-enum StatusPedido {
-  aguardandoConfirmacao,
-  emPreparo,
-  saiuParaEntrega,
-  entregue,
-  recusado,
-  cancelado,
-}
-
-extension StatusPedidoTexto on StatusPedido {
-  String get titulo {
-    switch (this) {
-      case StatusPedido.aguardandoConfirmacao:
-        return 'Aguardando confirmação';
-
-      case StatusPedido.emPreparo:
-        return 'Em preparo';
-
-      case StatusPedido.saiuParaEntrega:
-        return 'Saiu para entrega';
-
-      case StatusPedido.entregue:
-        return 'Pedido entregue';
-
-      case StatusPedido.recusado:
-        return 'Pedido recusado';
-
-      case StatusPedido.cancelado:
-        return 'Pedido cancelado';
-    }
-  }
-
-  String get descricao {
-    switch (this) {
-      case StatusPedido.aguardandoConfirmacao:
-        return 'O restaurante recebeu seu pedido e vai confirmar em instantes.';
-
-      case StatusPedido.emPreparo:
-        return 'O restaurante confirmou o pedido e está preparando tudo.';
-
-      case StatusPedido.saiuParaEntrega:
-        return 'Seu pedido saiu do restaurante. Está a caminho!';
-
-      case StatusPedido.entregue:
-        return 'Bom apetite! Esperamos que você aproveite seu pedido.';
-
-      case StatusPedido.recusado:
-        return 'O restaurante não pôde aceitar seu pedido. Consulte o suporte para mais informações.';
-
-      case StatusPedido.cancelado:
-        return 'Este pedido foi cancelado.';
-    }
-  }
-
-  IconData get icone {
-    switch (this) {
-      case StatusPedido.aguardandoConfirmacao:
-        return Icons.mark_chat_unread_rounded;
-
-      case StatusPedido.emPreparo:
-        return Icons.soup_kitchen_rounded;
-
-      case StatusPedido.saiuParaEntrega:
-        return Icons.delivery_dining_rounded;
-
-      case StatusPedido.entregue:
-        return Icons.check_circle_rounded;
-
-      case StatusPedido.recusado:
-        return Icons.cancel_rounded;
-
-      case StatusPedido.cancelado:
-        return Icons.block_rounded;
-    }
-  }
-
-  /// Índice utilizado na linha de progresso.
-  int get etapa {
-    switch (this) {
-      case StatusPedido.aguardandoConfirmacao:
-        return 0;
-
-      case StatusPedido.emPreparo:
-        return 1;
-
-      case StatusPedido.saiuParaEntrega:
-        return 2;
-
-      case StatusPedido.entregue:
-        return 3;
-
-      case StatusPedido.recusado:
-      case StatusPedido.cancelado:
-        return 0;
-    }
-  }
-
-  bool get encerrado {
-    return this == StatusPedido.entregue ||
-        this == StatusPedido.recusado ||
-        this == StatusPedido.cancelado;
-  }
 }
 
 // ===============================================================
@@ -163,9 +48,7 @@ class PedidoPage extends StatefulWidget {
     this.onContato,
   });
 
-  /// ID do pedido criado no banco de dados.
   final int pedidoId;
-
   final VoidCallback? onContato;
 
   @override
@@ -174,24 +57,54 @@ class PedidoPage extends StatefulWidget {
 
 class PedidoPageState extends State<PedidoPage>
     with TickerProviderStateMixin {
-  // Ajuste conforme a ordem das opções do seu menu inferior.
+  // =============================================================
+  // MENU INFERIOR
+  // =============================================================
+
   int paginaAtual = 2;
 
-  // Endereço da API.
-  // Para emulador Android, localhost normalmente deve ser substituído
-  // por 10.0.2.2.
-  // Para celular físico, utilize o IP do computador na rede.
+  // =============================================================
+  // ENDEREÇO DA API
+  // =============================================================
+
+  // Emulador Android: http://10.0.2.2:3000
+  // Celular físico: utilizar o IP do computador.
   static const String baseUrl = 'http://localhost:3000';
-
-  late StatusPedido _status;
-
-  late AnimationController _movimentoController;
-  late AnimationController _pulsoController;
 
   Timer? _timerAtualizacao;
 
+  // =============================================================
+  // ANIMAÇÕES DO ACOMPANHAMENTO
+  // =============================================================
+
+  late AnimationController movimentoController;
+  late AnimationController pulsoController;
+
+  // =============================================================
+  // STATUS DO PEDIDO
+  // =============================================================
+
+  String statusTitulo = 'Aguardando confirmação';
+
+  String statusDescricao =
+      'O restaurante recebeu seu pedido e vai confirmar em instantes.';
+
+  IconData statusIcone = Icons.mark_chat_unread_rounded;
+
+  int etapaAtual = 0;
+
+  bool pedidoEncerrado = false;
+
+  // =============================================================
+  // CARREGAMENTO
+  // =============================================================
+
   bool carregando = true;
   String? erro;
+
+  // =============================================================
+  // DADOS DO PEDIDO
+  // =============================================================
 
   String nomeRestaurante = '';
   String nomeCliente = '';
@@ -203,21 +116,36 @@ class PedidoPageState extends State<PedidoPage>
   double taxaEntrega = 0;
   double total = 0;
 
-  // Modelo ItemPedido importado de seu_pedido.dart.
+  // =============================================================
+  // ITENS
+  // =============================================================
+
   List<ItemPedido> itens = [];
+
+  // =============================================================
+  // FOTOS DO PEDIDO
+  // =============================================================
+
+  List<String> fotosPedido = [];
+
+  bool carregandoFotos = false;
+
+  // =============================================================
+  // INICIALIZAÇÃO
+  // =============================================================
 
   @override
   void initState() {
     super.initState();
 
-    _status = StatusPedido.aguardandoConfirmacao;
-
-    _movimentoController = AnimationController(
+    // Animação do indicador de progresso.
+    movimentoController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
-    );
+    )..repeat();
 
-    _pulsoController = AnimationController(
+    // Animação de pulsação da mensagem.
+    pulsoController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
       lowerBound: 0.94,
@@ -226,21 +154,127 @@ class PedidoPageState extends State<PedidoPage>
 
     buscarPedido();
 
-    // Atualiza os dados do pedido a cada 15 segundos.
+    // Atualização automática a cada 15 segundos.
     _timerAtualizacao = Timer.periodic(
       const Duration(seconds: 15),
       (_) {
-        if (!mounted || _status.encerrado) return;
+        if (!mounted || pedidoEncerrado) return;
+
         buscarPedido(silencioso: true);
       },
     );
   }
 
   // ===============================================================
+  // ATUALIZAR STATUS VISUAL
+  // ===============================================================
+
+  void _atualizarStatusVisual(String statusRecebido) {
+    final status = statusRecebido
+        .trim()
+        .toUpperCase()
+        .replaceAll(' ', '_');
+
+    switch (status) {
+      case 'PENDENTE':
+      case 'AGUARDANDO_CONFIRMACAO':
+        statusTitulo = 'Aguardando confirmação';
+
+        statusDescricao =
+            'O restaurante recebeu seu pedido e vai confirmar em instantes.';
+
+        statusIcone = Icons.mark_chat_unread_rounded;
+
+        etapaAtual = 0;
+        pedidoEncerrado = false;
+        break;
+
+      case 'ACEITO':
+      case 'EM_PREPARO':
+      case 'PREPARO':
+        statusTitulo = 'Em preparo';
+
+        statusDescricao =
+            'O restaurante confirmou seu pedido e está preparando tudo.';
+
+        statusIcone = Icons.soup_kitchen_rounded;
+
+        etapaAtual = 1;
+        pedidoEncerrado = false;
+        break;
+
+      case 'SAIU_PARA_ENTREGA':
+      case 'EM_ENTREGA':
+      case 'A_CAMINHO':
+        statusTitulo = 'Saiu para entrega';
+
+        statusDescricao =
+            'Seu pedido saiu do restaurante. Está a caminho!';
+
+        statusIcone = Icons.delivery_dining_rounded;
+
+        etapaAtual = 2;
+        pedidoEncerrado = false;
+        break;
+
+      case 'CONCLUIDO':
+      case 'ENTREGUE':
+        statusTitulo = 'Pedido entregue';
+
+        statusDescricao =
+            'Bom apetite! Esperamos que você aproveite seu pedido.';
+
+        statusIcone = Icons.check_circle_rounded;
+
+        etapaAtual = 3;
+        pedidoEncerrado = true;
+        break;
+
+      case 'RECUSADO':
+      case 'REJEITADO':
+        statusTitulo = 'Pedido recusado';
+
+        statusDescricao =
+            'O restaurante não pôde aceitar seu pedido. Consulte o suporte para mais informações.';
+
+        statusIcone = Icons.cancel_rounded;
+
+        etapaAtual = 0;
+        pedidoEncerrado = true;
+        break;
+
+      case 'CANCELADO':
+      case 'CANCELADA':
+        statusTitulo = 'Pedido cancelado';
+
+        statusDescricao = 'Este pedido foi cancelado.';
+
+        statusIcone = Icons.block_rounded;
+
+        etapaAtual = 0;
+        pedidoEncerrado = true;
+        break;
+
+      default:
+        statusTitulo = 'Aguardando confirmação';
+
+        statusDescricao =
+            'O restaurante recebeu seu pedido e vai confirmar em instantes.';
+
+        statusIcone = Icons.mark_chat_unread_rounded;
+
+        etapaAtual = 0;
+        pedidoEncerrado = false;
+    }
+  }
+
+  // ===============================================================
   // BUSCAR PEDIDO NA API
   // ===============================================================
 
-  Future<void> buscarPedido({bool silencioso = false}) async {
+  Future<void> buscarPedido({
+    bool silencioso = false,
+  }) async {
     if (!silencioso && mounted) {
       setState(() {
         carregando = true;
@@ -298,6 +332,10 @@ class PedidoPageState extends State<PedidoPage>
       final Map<String, dynamic> pedido =
           Map<String, dynamic>.from(dados['pedido']);
 
+      // =========================================================
+      // ITENS DO PEDIDO
+      // =========================================================
+
       final List<dynamic> itensJson =
           pedido['itens'] is List ? pedido['itens'] : [];
 
@@ -305,6 +343,7 @@ class PedidoPageState extends State<PedidoPage>
         final item = Map<String, dynamic>.from(itemJson);
 
         final quantidade = _converterInt(item['quantidade']);
+
         final preco = _converterDouble(item['preco']);
 
         return ItemPedido(
@@ -318,11 +357,11 @@ class PedidoPageState extends State<PedidoPage>
         );
       }).toList();
 
-      final novoStatus = converterStatus(
-        pedido['status']?.toString() ?? '',
-      );
-
       if (!mounted) return;
+
+      // =========================================================
+      // ATUALIZAR DADOS NA TELA
+      // =========================================================
 
       setState(() {
         numeroPedido = pedido['id']?.toString() ?? '';
@@ -335,33 +374,36 @@ class PedidoPageState extends State<PedidoPage>
         logoRestaurante = pedido['logo_restaurante']?.toString();
 
         subtotal = _converterDouble(pedido['subtotal']);
+
         taxaEntrega = _converterDouble(pedido['taxa_entrega']);
+
         total = _converterDouble(pedido['valor_total']);
 
         itens = itensCarregados;
 
-        _status = novoStatus;
+        // Atualiza o componente de acompanhamento.
+        _atualizarStatusVisual(
+          pedido['status']?.toString() ?? '',
+        );
 
         carregando = false;
         erro = null;
       });
 
-      if (_status.encerrado) {
-        _movimentoController.stop();
+      // Se o pedido foi encerrado, não precisa continuar consultando.
+      if (pedidoEncerrado) {
         _timerAtualizacao?.cancel();
-      } else {
-        _movimentoController
-          ..reset()
-          ..repeat();
+        movimentoController.stop();
       }
     } catch (e) {
       if (!mounted) return;
 
-      // Durante as atualizações automáticas, mantém os dados
-      // que já foram carregados na tela.
+      // Durante atualizações automáticas,
+      // mantém os dados que já foram carregados.
       if (!silencioso) {
         setState(() {
           erro = e.toString().replaceFirst('Exception: ', '');
+
           carregando = false;
         });
       }
@@ -393,59 +435,16 @@ class PedidoPageState extends State<PedidoPage>
     return int.tryParse(valor.toString()) ?? 0;
   }
 
-  StatusPedido converterStatus(String status) {
-    switch (status.toUpperCase()) {
-      case 'PENDENTE':
-        return StatusPedido.aguardandoConfirmacao;
-
-      case 'ACEITO':
-      case 'EM_PREPARO':
-        return StatusPedido.emPreparo;
-
-      case 'SAIU_PARA_ENTREGA':
-        return StatusPedido.saiuParaEntrega;
-
-      case 'CONCLUIDO':
-        return StatusPedido.entregue;
-
-      case 'RECUSADO':
-        return StatusPedido.recusado;
-
-      case 'CANCELADO':
-        return StatusPedido.cancelado;
-
-      default:
-        return StatusPedido.aguardandoConfirmacao;
-    }
-  }
-
   // ===============================================================
-  // ATUALIZAÇÃO MANUAL DO STATUS
+  // DISPOSE
   // ===============================================================
-
-  void atualizarStatus(StatusPedido novoStatus) {
-    if (!mounted || novoStatus == _status) return;
-
-    setState(() {
-      _status = novoStatus;
-    });
-
-    if (_status.encerrado) {
-      _movimentoController.stop();
-      _timerAtualizacao?.cancel();
-    } else {
-      _movimentoController
-        ..reset()
-        ..repeat();
-    }
-  }
 
   @override
   void dispose() {
     _timerAtualizacao?.cancel();
 
-    _movimentoController.dispose();
-    _pulsoController.dispose();
+    movimentoController.dispose();
+    pulsoController.dispose();
 
     super.dispose();
   }
@@ -456,6 +455,15 @@ class PedidoPageState extends State<PedidoPage>
 
   @override
   Widget build(BuildContext context) {
+    // LARGURA DA TELA
+    final largura = MediaQuery.sizeOf(context).width;
+
+    final compacto = largura < 390;
+
+    // =============================================================
+    // CARREGAMENTO INICIAL
+    // =============================================================
+
     if (carregando) {
       return const Scaffold(
         backgroundColor: PedidoCores.fundo,
@@ -466,6 +474,10 @@ class PedidoPageState extends State<PedidoPage>
         ),
       );
     }
+
+    // =============================================================
+    // ERRO NA CONSULTA
+    // =============================================================
 
     if (erro != null) {
       return Scaffold(
@@ -481,7 +493,9 @@ class PedidoPageState extends State<PedidoPage>
                   color: PedidoCores.vermelho,
                   size: 48,
                 ),
+
                 const SizedBox(height: 12),
+
                 Text(
                   erro!,
                   textAlign: TextAlign.center,
@@ -490,14 +504,18 @@ class PedidoPageState extends State<PedidoPage>
                     fontSize: 14,
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 ElevatedButton(
                   onPressed: buscarPedido,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PedidoCores.vermelho,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Tentar novamente'),
+                  child: const Text(
+                    'Tentar novamente',
+                  ),
                 ),
               ],
             ),
@@ -506,8 +524,9 @@ class PedidoPageState extends State<PedidoPage>
       );
     }
 
-    final largura = MediaQuery.sizeOf(context).width;
-    final compacto = largura < 390;
+    // =============================================================
+    // TELA PRINCIPAL
+    // =============================================================
 
     return Scaffold(
       backgroundColor: PedidoCores.fundo,
@@ -515,13 +534,14 @@ class PedidoPageState extends State<PedidoPage>
         top: false,
         child: Stack(
           children: [
+            // =====================================================
+            // CONTEÚDO PRINCIPAL
+            // =====================================================
+
             Positioned.fill(
               child: CustomScrollView(
                 slivers: [
-                  // =================================================
                   // CABEÇALHO
-                  // =================================================
-
                   const SliverToBoxAdapter(
                     child: PedidoHeader(),
                   ),
@@ -537,9 +557,9 @@ class PedidoPageState extends State<PedidoPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // =================================================
+                          // =======================================
                           // CARTÃO DO RESTAURANTE
-                          // =================================================
+                          // =======================================
 
                           CartaoRestaurante(
                             nomeRestaurante: nomeRestaurante,
@@ -550,26 +570,37 @@ class PedidoPageState extends State<PedidoPage>
 
                           const SizedBox(height: 24),
 
-                          // =================================================
+                          // =======================================
                           // ACOMPANHE SEU PEDIDO
-                          // =================================================
+                          // =======================================
 
                           AcompanhePedido(
-                            statusTitulo: _status.titulo,
-                            statusDescricao: _status.descricao,
-                            statusIcone: _status.icone,
-                            etapaAtual: _status.etapa,
-                            pedidoEncerrado: _status.encerrado,
-                            movimentoController: _movimentoController,
-                            pulsoController: _pulsoController,
+                            statusTitulo: statusTitulo,
+                           
+                            etapaAtual: etapaAtual,
+                            pedidoEncerrado: pedidoEncerrado,
+                            movimentoController: movimentoController,
+                            
                             compacto: compacto,
                           ),
 
                           const SizedBox(height: 24),
 
-                          // =================================================
+                          // =======================================
+                          // FOTOS DO PEDIDO
+                          // =======================================
+
+                          FotoPedido(
+                            fotos: fotosPedido,
+                            carregando: carregandoFotos,
+                            baseUrl: baseUrl,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // =======================================
                           // SEU PEDIDO
-                          // =================================================
+                          // =======================================
 
                           SeuPedido(
                             numeroPedido: numeroPedido,
@@ -582,9 +613,9 @@ class PedidoPageState extends State<PedidoPage>
 
                           const SizedBox(height: 16),
 
-                          // =================================================
+                          // =======================================
                           // AJUDA
-                          // =================================================
+                          // =======================================
 
                           _ajudaCard(),
 

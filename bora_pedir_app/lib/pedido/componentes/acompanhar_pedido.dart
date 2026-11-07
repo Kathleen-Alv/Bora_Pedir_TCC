@@ -5,32 +5,28 @@ import 'package:flutter/material.dart';
 /// BORA PEDIR — COMPONENTE ACOMPANHE SEU PEDIDO
 ///
 /// Responsável por:
-/// - Título e status atual
+/// - Título do acompanhamento
+/// - Status atual em texto
 /// - Linha de progresso animada
-/// - Mensagem dinâmica do pedido
+///
+/// Não exibe o cartão de mensagem do status.
 /// ===============================================================
 
 class AcompanhePedido extends StatelessWidget {
   const AcompanhePedido({
     super.key,
     required this.statusTitulo,
-    required this.statusDescricao,
-    required this.statusIcone,
     required this.etapaAtual,
     required this.pedidoEncerrado,
     required this.movimentoController,
-    required this.pulsoController,
     required this.compacto,
   });
 
   final String statusTitulo;
-  final String statusDescricao;
-  final IconData statusIcone;
   final int etapaAtual;
   final bool pedidoEncerrado;
 
   final AnimationController movimentoController;
-  final AnimationController pulsoController;
 
   final bool compacto;
 
@@ -68,10 +64,6 @@ class AcompanhePedido extends StatelessWidget {
         const SizedBox(height: 18),
 
         _linhaProgresso(),
-
-        const SizedBox(height: 18),
-
-        _mensagemStatus(),
       ],
     );
   }
@@ -201,10 +193,14 @@ class AcompanhePedido extends StatelessWidget {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: i <= atual ? vermelho : Colors.white,
+                                color: i <= atual
+                                    ? vermelho
+                                    : Colors.white,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: i <= atual ? vermelho : trilha,
+                                  color: i <= atual
+                                      ? vermelho
+                                      : trilha,
                                   width: 2,
                                 ),
                               ),
@@ -229,6 +225,7 @@ class AcompanhePedido extends StatelessWidget {
 
           const SizedBox(height: 7),
 
+          // Nomes das etapas.
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(etapas.length, (i) {
@@ -252,82 +249,6 @@ class AcompanhePedido extends StatelessWidget {
                 ),
               );
             }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===============================================================
-  // MENSAGEM DO STATUS
-  // ===============================================================
-
-  Widget _mensagemStatus() {
-    final problema = statusTitulo == 'Pedido recusado' ||
-        statusTitulo == 'Pedido cancelado';
-
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: problema
-            ? const Color(0xFFFFEEEE)
-            : const Color(0xFFFFF8E8),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: problema
-              ? const Color(0xFFF0CACA)
-              : const Color(0xFFF1E2B9),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ScaleTransition(
-            scale: pulsoController,
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: problema
-                    ? const Color(0xFFF8DADA)
-                    : amarelo,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                statusIcone,
-                color: vermelho,
-                size: 23,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  statusTitulo,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15,
-                    color: texto,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  statusDescricao,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.4,
-                    color: textoSuave,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

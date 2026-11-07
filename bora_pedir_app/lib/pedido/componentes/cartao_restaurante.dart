@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class CartaoRestaurante extends StatelessWidget {
@@ -7,227 +6,263 @@ class CartaoRestaurante extends StatelessWidget {
     required this.nomeRestaurante,
     required this.logoRestaurante,
     required this.baseUrl,
+    this.endereco,
+    this.categoria,
+    this.avaliacao,
+    this.totalAvaliacoes,
     this.onContato,
   });
 
   final String nomeRestaurante;
   final String? logoRestaurante;
   final String baseUrl;
+
+  final String? endereco;
+  final String? categoria;
+  final double? avaliacao;
+  final int? totalAvaliacoes;
+
   final VoidCallback? onContato;
 
   static const Color vermelho = Color(0xFFBD1221);
-  static const Color vermelhoEscuro = Color(0xFFA80F1C);
-  static const Color texto = Color(0xFF171717);
+  static const Color texto = Color(0xFF111111);
   static const Color textoSuave = Color(0xFF777777);
+  static const Color amarelo = Color(0xFFFFC43D);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(17),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(23),
-        border: Border.all(
-          color: const Color(0xFFF0EEEE),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF171717).withOpacity(0.045),
-            blurRadius: 22,
-            offset: const Offset(0, 7),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // LOGO DO RESTAURANTE
-              Container(
-                width: 82,
-                height: 82,
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: vermelho.withOpacity(0.16),
-                    width: 1.5,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: Color(0xFFEFEFEF),
+            width: 1,
+          ),
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final largura = constraints.maxWidth;
+          final tamanhoLogo = largura < 350 ? 66.0 : 78.0;
+
+          return SizedBox(
+            height: tamanhoLogo, // Força a altura exata do cartão à altura da logo
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // =================================================
+                // LOGO DO COMÉRCIO
+                // =================================================
+                Container(
+                  width: tamanhoLogo,
+                  height: tamanhoLogo,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE9EDF0),
+                    borderRadius: BorderRadius.circular(17),
+                    border: Border.all(
+                      color: const Color(0xFFE6E6E6),
+                    ),
                   ),
-                  color: const Color(0xFFFFF7F5),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: _imagemRestaurante(),
+                  ),
                 ),
-                child: ClipOval(
-                  child: _imagemRestaurante(),
-                ),
-              ),
 
-              const SizedBox(width: 15),
+                const SizedBox(width: 12),
 
-              // INFORMAÇÕES DO RESTAURANTE
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 7,
-                          height: 7,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF2DAB70),
-                            shape: BoxShape.circle,
-                          ),
+                // =================================================
+                // INFORMAÇÕES DO COMÉRCIO
+                // =================================================
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribui uniformemente na altura da logo
+                    children: [
+                      // Nome do comércio
+                      Text(
+                        nomeRestaurante.trim().isEmpty
+                            ? 'Nome do comércio'
+                            : nomeRestaurante,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: texto,
+                          fontSize: largura < 350 ? 14 : 16,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.4,
+                          height: 1.1,
                         ),
-
-                        const SizedBox(width: 6),
-
-                        const Text(
-                          'SEU RESTAURANTE',
-                          style: TextStyle(
-                            fontSize: 9,
-                            letterSpacing: 1.1,
-                            fontWeight: FontWeight.w800,
-                            color: textoSuave,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 9),
-
-                    Text(
-                      nomeRestaurante.isEmpty
-                          ? 'Restaurante'
-                          : nomeRestaurante,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        height: 1.2,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.4,
-                        color: texto,
                       ),
-                    ),
 
-                    const SizedBox(height: 7),
-
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.verified_rounded,
-                          color: vermelho,
-                          size: 14,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Estabelecimento do pedido',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: textoSuave,
+                      // Endereço
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Endereço:',
+                            style: TextStyle(
+                              color: texto,
+                              fontSize: largura < 350 ? 10 : 11,
+                              fontWeight: FontWeight.w800,
+                              height: 1.0,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          Text(
+                            _textoOuPadrao(
+                              endereco,
+                              'Endereço não informado',
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: textoSuave,
+                              fontSize: largura < 350 ? 9.5 : 10.5,
+                              fontWeight: FontWeight.w500,
+                              height: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Categoria
+                      Row(
+                        children: [
+                          Text(
+                            'Categoria:',
+                            style: TextStyle(
+                              color: texto,
+                              fontSize: largura < 350 ? 10 : 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              _textoOuPadrao(
+                                categoria,
+                                'Não informada',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: textoSuave,
+                                fontSize: largura < 350 ? 9.5 : 10.5,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Avaliação
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: amarelo,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            avaliacao != null
+                                ? avaliacao!
+                                    .toStringAsFixed(1)
+                                    .replaceAll('.', ',')
+                                : '—',
+                            style: TextStyle(
+                              color: texto,
+                              fontSize: largura < 350 ? 11 : 12,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          Flexible(
+                            child: Text(
+                              totalAvaliacoes != null
+                                  ? '(${totalAvaliacoes} avaliações)'
+                                  : 'Avaliações dos clientes',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: textoSuave,
+                                fontSize: largura < 350 ? 8.5 : 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
+
+                const SizedBox(width: 8),
+
+                // =================================================
+                // BOTÃO CONVERSAR
+                // =================================================
+                _botaoConversar(largura),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ===============================================================
+  // BOTÃO DE CONVERSA
+  // ===============================================================
+  Widget _botaoConversar(double largura) {
+    final compacto = largura < 350;
+
+    return Material(
+      color: vermelho,
+      borderRadius: BorderRadius.circular(15),
+      child: InkWell(
+        onTap: onContato,
+        borderRadius: BorderRadius.circular(15),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: compacto ? 8 : 12,
+            vertical: compacto ? 10 : 12,
+          ),
+          constraints: const BoxConstraints(
+            minHeight: 44,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Conversar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: compacto ? 10 : 11.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.forum_outlined,
+                    color: Colors.white,
+                    size: 17,
+                  ),
+                ],
               ),
             ],
           ),
-
-          const SizedBox(height: 17),
-
-          // DIVISÓRIA
-          Container(
-            height: 1,
-            color: const Color(0xFFF0EEEE),
-          ),
-
-          const SizedBox(height: 14),
-
-          // CONTATO
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: vermelho.withOpacity(0.07),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: const Icon(
-                  Icons.chat_bubble_outline_rounded,
-                  color: vermelho,
-                  size: 18,
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Precisa falar com o restaurante?',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: texto,
-                      ),
-                    ),
-                    SizedBox(height: 3),
-                    Text(
-                      'Entre em contato sobre seu pedido.',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: textoSuave,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Material(
-                color: vermelho,
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  onTap: onContato,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 13,
-                      vertical: 11,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text(
-                          'Conversar',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -235,23 +270,21 @@ class CartaoRestaurante extends StatelessWidget {
   // ===============================================================
   // IMAGEM DO RESTAURANTE
   // ===============================================================
-
   Widget _imagemRestaurante() {
-    if (logoRestaurante == null || logoRestaurante!.isEmpty) {
+    if (logoRestaurante == null || logoRestaurante!.trim().isEmpty) {
       return _imagemPadrao();
     }
 
-    final caminho = logoRestaurante!;
+    final caminho = logoRestaurante!.trim();
 
-    final url = caminho.startsWith('http://') ||
-            caminho.startsWith('https://')
+    final url = caminho.startsWith('http://') || caminho.startsWith('https://')
         ? caminho
         : '$baseUrl${caminho.startsWith('/') ? '' : '/'}$caminho';
 
     return Image.network(
       url,
-      width: 76,
-      height: 76,
+      width: double.infinity,
+      height: double.infinity,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return _imagemPadrao();
@@ -259,15 +292,29 @@ class CartaoRestaurante extends StatelessWidget {
     );
   }
 
+  // ===============================================================
+  // IMAGEM PADRÃO
+  // ===============================================================
   Widget _imagemPadrao() {
     return Container(
-      color: const Color(0xFFFFF0ED),
+      color: const Color(0xFFF5E9E7),
       alignment: Alignment.center,
       child: const Icon(
         Icons.storefront_rounded,
         color: vermelho,
-        size: 36,
+        size: 34,
       ),
     );
+  }
+
+  // ===============================================================
+  // TEXTO PADRÃO
+  // ===============================================================
+  String _textoOuPadrao(String? valor, String padrao) {
+    if (valor == null || valor.trim().isEmpty) {
+      return padrao;
+    }
+
+    return valor.trim();
   }
 }
