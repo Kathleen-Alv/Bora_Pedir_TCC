@@ -1,36 +1,72 @@
-//CRIAR
-
 
 import 'package:flutter/material.dart';
 
-class FotoPedido extends StatelessWidget {
+import '../../../services/foto_pedido_service.dart';
+
+class FotoPedido extends StatefulWidget {
   const FotoPedido({
     super.key,
-    this.fotos = const [],
-    this.carregando = false,
-    this.baseUrl,
+    required this.pedidoId,
   });
 
-  final List<String> fotos;
-  final bool carregando;
-  final String? baseUrl;
+  final int pedidoId;
 
   static const Color vermelho = Color(0xFFBD1221);
   static const Color fundo = Color(0xFFF7F7F7);
   static const Color texto = Color(0xFF222222);
 
-  String _resolverUrl(String caminho) {
-    if (caminho.startsWith('http://') ||
-        caminho.startsWith('https://')) {
-      return caminho;
-    }
+  @override
+  State<FotoPedido> createState() => _FotoPedidoState();
+}
 
-    if (baseUrl == null || baseUrl!.isEmpty) {
-      return caminho;
-    }
+class _FotoPedidoState extends State<FotoPedido> {
+  List<Map<String, dynamic>> fotos = [];
 
-    return '${baseUrl!.replaceAll(RegExp(r'/$'), '')}/${caminho.replaceFirst(RegExp(r'^/'), '')}';
+  bool carregando = true;
+  String? erro;
+
+  @override
+  void initState() {
+    super.initState();
+    _buscarFotos();
   }
+
+  // ============================================================
+  // BUSCAR FOTOS DO PEDIDO
+  // ============================================================
+
+  Future<void> _buscarFotos() async {
+    if (mounted) {
+      setState(() {
+        carregando = true;
+        erro = null;
+      });
+    }
+
+    try {
+      final resultado = await FotoPedidoService.buscarFotos(
+        widget.pedidoId,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        fotos = resultado;
+        carregando = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        carregando = false;
+        erro = e.toString().replaceFirst('Exception: ', '');
+      });
+    }
+  }
+
+  // ============================================================
+  // ABRIR FOTO AMPLIADA
+  // ============================================================
 
   void _abrirFoto(BuildContext context, String caminho) {
     showDialog(
@@ -47,18 +83,20 @@ class FotoPedido extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 child: InteractiveViewer(
                   child: Image.network(
-                    _resolverUrl(caminho),
+                    caminho,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const SizedBox(
-                      height: 250,
-                      child: Center(
-                        child: Icon(
-                          Icons.broken_image_outlined,
-                          color: Colors.white,
-                          size: 45,
+                    errorBuilder: (_, __, ___) {
+                      return const SizedBox(
+                        height: 250,
+                        child: Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            color: Colors.white,
+                            size: 45,
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -81,6 +119,10 @@ class FotoPedido extends StatelessWidget {
       },
     );
   }
+
+  // ============================================================
+  // CABEÇALHO
+  // ============================================================
 
   Widget _cabecalho() {
     return Container(
@@ -137,6 +179,10 @@ class FotoPedido extends StatelessWidget {
     );
   }
 
+  // ============================================================
+  // FOTO VAZIA
+  // ============================================================
+
   Widget _fotoVazia() {
     return Container(
       width: 94,
@@ -178,7 +224,14 @@ class FotoPedido extends StatelessWidget {
     );
   }
 
-  Widget _fotoCard(BuildContext context, String caminho) {
+  // ============================================================
+  // CARD DA FOTO
+  // ============================================================
+
+  Widget _fotoCard(
+    BuildContext context,
+    String caminho,
+  ) {
     return GestureDetector(
       onTap: () => _abrirFoto(context, caminho),
       child: Container(
@@ -196,25 +249,27 @@ class FotoPedido extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             Image.network(
-              _resolverUrl(caminho),
+              caminho,
               fit: BoxFit.cover,
               loadingBuilder: (context, child, progress) {
                 if (progress == null) return child;
 
                 return const Center(
                   child: CircularProgressIndicator(
-                    color: vermelho,
+                    color: FotoPedido.vermelho,
                     strokeWidth: 2,
                   ),
                 );
               },
-              errorBuilder: (_, __, ___) => const Center(
-                child: Icon(
-                  Icons.broken_image_outlined,
-                  color: Colors.grey,
-                  size: 30,
-                ),
-              ),
+              errorBuilder: (_, __, ___) {
+                return const Center(
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                );
+              },
             ),
             Positioned(
               right: 7,
@@ -237,6 +292,10 @@ class FotoPedido extends StatelessWidget {
       ),
     );
   }
+
+  // ============================================================
+  // AVISO DE SEGURANÇA
+  // ============================================================
 
   Widget _avisoSeguranca() {
     return Container(
@@ -265,7 +324,7 @@ class FotoPedido extends StatelessWidget {
                 Text(
                   'Segurança do seu pedido!',
                   style: TextStyle(
-                    color: texto,
+                    color: FotoPedido.texto,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
@@ -291,6 +350,93 @@ class FotoPedido extends StatelessWidget {
       ),
     );
   }
+
+  // ============================================================
+  // CONTEÚDO DAS FOTOS
+  // ============================================================
+
+  Widget _conteudoFotos() {
+    if (carregando) {
+      return const SizedBox(
+        height: 112,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: FotoPedido.vermelho,
+            strokeWidth: 2,
+          ),
+        ),
+      );
+    }
+
+    if (erro != null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.cloud_off_outlined,
+              color: Colors.grey,
+              size: 27,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              erro!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: _buscarFotos,
+              icon: const Icon(
+                Icons.refresh,
+                color: FotoPedido.vermelho,
+              ),
+              label: const Text(
+                'Tentar novamente',
+                style: TextStyle(
+                  color: FotoPedido.vermelho,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: fotos.isEmpty ? 112 : 132,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: fotos.isEmpty ? 4 : fotos.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          if (fotos.isEmpty) {
+            return _fotoVazia();
+          }
+
+          final caminho = fotos[index]['foto']?.toString() ?? '';
+
+          if (caminho.isEmpty) {
+            return _fotoVazia();
+          }
+
+          return _fotoCard(context, caminho);
+        },
+      ),
+    );
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -324,14 +470,16 @@ class FotoPedido extends StatelessWidget {
                       child: Text(
                         'Registros do preparo',
                         style: TextStyle(
-                          color: texto,
+                          color: FotoPedido.texto,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                     Text(
-                      '${fotos.length} ${fotos.length == 1 ? 'foto' : 'fotos'}',
+                      carregando
+                          ? '...'
+                          : '${fotos.length} ${fotos.length == 1 ? 'foto' : 'fotos'}',
                       style: const TextStyle(
                         color: Color(0xFF888888),
                         fontSize: 11,
@@ -343,38 +491,7 @@ class FotoPedido extends StatelessWidget {
 
                 const SizedBox(height: 13),
 
-                if (carregando)
-                  const SizedBox(
-                    height: 112,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: vermelho,
-                        strokeWidth: 2,
-                      ),
-                    ),
-                  )
-                else
-                  SizedBox(
-                    height: fotos.isEmpty ? 112 : 132,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: fotos.isEmpty
-                          ? 4
-                          : fotos.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(width: 10),
-                      itemBuilder: (context, index) {
-                        if (fotos.isEmpty) {
-                          return _fotoVazia();
-                        }
-
-                        return _fotoCard(
-                          context,
-                          fotos[index],
-                        );
-                      },
-                    ),
-                  ),
+                _conteudoFotos(),
 
                 const SizedBox(height: 16),
 

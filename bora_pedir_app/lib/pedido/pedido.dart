@@ -7,11 +7,12 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/bottom_navigation.dart';
-import '.././pedido/componentes/pedido_header.dart';
-import '.././pedido/componentes/seu_pedido.dart';
-import '.././pedido/componentes/cartao_restaurante.dart';
-import '.././pedido/componentes/foto_pedido.dart';
-import '.././pedido/componentes/acompanhar_pedido.dart';
+
+import '../pedido/componentes/pedido_header.dart';
+import '../pedido/componentes/seu_pedido.dart';
+import '../pedido/componentes/cartao_restaurante.dart';
+import '../pedido/componentes/foto_pedido.dart';
+import '../pedido/componentes/acompanhar_pedido.dart';
 
 /// ===============================================================
 /// BORA PEDIR — TELA DO PEDIDO
@@ -19,7 +20,9 @@ import '.././pedido/componentes/acompanhar_pedido.dart';
 /// INTEGRAÇÃO:
 /// - GET /api/pedidos/:id
 /// - Autenticação Bearer Token
-/// - Atualização automática a cada 15 segundos
+/// - Atualização do pedido a cada 15 segundos
+/// - Atualização das fotos a cada 3 segundos
+/// - Atualização imediata ao retornar ao aplicativo
 ///
 /// COMPONENTES:
 /// - PedidoHeader
@@ -56,7 +59,8 @@ class PedidoPage extends StatefulWidget {
 }
 
 class PedidoPageState extends State<PedidoPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+
   // =============================================================
   // MENU INFERIOR
   // =============================================================
@@ -71,10 +75,19 @@ class PedidoPageState extends State<PedidoPage>
   // Celular físico: utilizar o IP do computador.
   static const String baseUrl = 'http://localhost:3000';
 
+  // Atualização do pedido.
   Timer? _timerAtualizacao;
 
+  // Atualização das fotos.
+  Timer? _timerFotos;
+
+  bool _buscaEmAndamento = false;
+
+  // Versão utilizada para atualizar o componente FotoPedido.
+  int _versaoFotos = 0;
+
   // =============================================================
-  // ANIMAÇÕES DO ACOMPANHAMENTO
+  // ANIMAÇÕES
   // =============================================================
 
   late AnimationController movimentoController;
@@ -100,6 +113,7 @@ class PedidoPageState extends State<PedidoPage>
   // =============================================================
 
   bool carregando = true;
+
   String? erro;
 
   // =============================================================
@@ -107,13 +121,17 @@ class PedidoPageState extends State<PedidoPage>
   // =============================================================
 
   String nomeRestaurante = '';
+
   String nomeCliente = '';
+
   String numeroPedido = '';
 
   String? logoRestaurante;
 
   double subtotal = 0;
+
   double taxaEntrega = 0;
+
   double total = 0;
 
   // =============================================================
@@ -123,14 +141,6 @@ class PedidoPageState extends State<PedidoPage>
   List<ItemPedido> itens = [];
 
   // =============================================================
-  // FOTOS DO PEDIDO
-  // =============================================================
-
-  List<String> fotosPedido = [];
-
-  bool carregandoFotos = false;
-
-  // =============================================================
   // INICIALIZAÇÃO
   // =============================================================
 
@@ -138,13 +148,13 @@ class PedidoPageState extends State<PedidoPage>
   void initState() {
     super.initState();
 
-    // Animação do indicador de progresso.
+    WidgetsBinding.instance.addObserver(this);
+
     movimentoController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat();
 
-    // Animação de pulsação da mensagem.
     pulsoController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -152,32 +162,125 @@ class PedidoPageState extends State<PedidoPage>
       upperBound: 1.06,
     )..repeat(reverse: true);
 
+    // Busca os dados do pedido imediatamente.
     buscarPedido();
 
-    // Atualização automática a cada 15 segundos.
-    _timerAtualizacao = Timer.periodic(
-      const Duration(seconds: 15),
-      (_) {
-        if (!mounted || pedidoEncerrado) return;
+    // Inicia as atualizações automáticas.
+    _iniciarAtualizacoes();
+  }
 
-        buscarPedido(silencioso: true);
+  // =============================================================
+  // CICLO DE VIDA DO APLICATIVO
+  // =============================================================
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+
+    if (state == AppLifecycleState.resumed) {
+
+      // O aplicativo voltou para primeiro plano.
+      // Faz uma consulta imediata das fotos e do pedido.
+
+      _iniciarAtualizacoes();
+
+      buscarPedido(silencioso: true);
+
+      _atualizarFotos();
+
+    } else if (
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached
+    ) {
+
+      // Evita consultas desnecessárias em segundo plano.
+
+      _pararAtualizacoes();
+    }
+  }
+
+  // =============================================================
+  // INICIAR ATUALIZAÇÕES AUTOMÁTICAS
+  // =============================================================
+
+  void _iniciarAtualizacoes() {
+
+    if (!mounted) return;
+
+    // Atualização dos dados do pedido a cada 15 segundos.
+
+    _timerAtualizacao?.cancel();
+
+    if (!pedidoEncerrado) {
+      _timerAtualizacao = Timer.periodic(
+        const Duration(seconds: 15),
+        (_) {
+          if (!mounted || pedidoEncerrado) return;
+
+          buscarPedido(silencioso: true);
+        },
+      );
+    }
+
+    // Atualização das fotos a cada 3 segundos.
+    //
+    // O componente FotoPedido será reconstruído com uma nova Key.
+    // Isso faz com que ele execute novamente sua consulta à API.
+
+    _timerFotos?.cancel();
+
+    _timerFotos = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) {
+        if (!mounted) return;
+
+        _atualizarFotos();
       },
     );
   }
 
-  // ===============================================================
+  // =============================================================
+  // PARAR ATUALIZAÇÕES
+  // =============================================================
+
+  void _pararAtualizacoes() {
+
+    _timerAtualizacao?.cancel();
+    _timerFotos?.cancel();
+
+    _timerAtualizacao = null;
+    _timerFotos = null;
+  }
+
+  // =============================================================
+  // ATUALIZAR FOTOS
+  // =============================================================
+
+  void _atualizarFotos() {
+
+    if (!mounted) return;
+
+    setState(() {
+      _versaoFotos++;
+    });
+  }
+
+  // =============================================================
   // ATUALIZAR STATUS VISUAL
-  // ===============================================================
+  // =============================================================
 
   void _atualizarStatusVisual(String statusRecebido) {
+
     final status = statusRecebido
         .trim()
         .toUpperCase()
         .replaceAll(' ', '_');
 
     switch (status) {
+
       case 'PENDENTE':
       case 'AGUARDANDO_CONFIRMACAO':
+
         statusTitulo = 'Aguardando confirmação';
 
         statusDescricao =
@@ -186,12 +289,15 @@ class PedidoPageState extends State<PedidoPage>
         statusIcone = Icons.mark_chat_unread_rounded;
 
         etapaAtual = 0;
+
         pedidoEncerrado = false;
+
         break;
 
       case 'ACEITO':
       case 'EM_PREPARO':
       case 'PREPARO':
+
         statusTitulo = 'Em preparo';
 
         statusDescricao =
@@ -200,12 +306,15 @@ class PedidoPageState extends State<PedidoPage>
         statusIcone = Icons.soup_kitchen_rounded;
 
         etapaAtual = 1;
+
         pedidoEncerrado = false;
+
         break;
 
       case 'SAIU_PARA_ENTREGA':
       case 'EM_ENTREGA':
       case 'A_CAMINHO':
+
         statusTitulo = 'Saiu para entrega';
 
         statusDescricao =
@@ -214,11 +323,14 @@ class PedidoPageState extends State<PedidoPage>
         statusIcone = Icons.delivery_dining_rounded;
 
         etapaAtual = 2;
+
         pedidoEncerrado = false;
+
         break;
 
       case 'CONCLUIDO':
       case 'ENTREGUE':
+
         statusTitulo = 'Pedido entregue';
 
         statusDescricao =
@@ -227,11 +339,14 @@ class PedidoPageState extends State<PedidoPage>
         statusIcone = Icons.check_circle_rounded;
 
         etapaAtual = 3;
+
         pedidoEncerrado = true;
+
         break;
 
       case 'RECUSADO':
       case 'REJEITADO':
+
         statusTitulo = 'Pedido recusado';
 
         statusDescricao =
@@ -240,11 +355,14 @@ class PedidoPageState extends State<PedidoPage>
         statusIcone = Icons.cancel_rounded;
 
         etapaAtual = 0;
+
         pedidoEncerrado = true;
+
         break;
 
       case 'CANCELADO':
       case 'CANCELADA':
+
         statusTitulo = 'Pedido cancelado';
 
         statusDescricao = 'Este pedido foi cancelado.';
@@ -252,10 +370,13 @@ class PedidoPageState extends State<PedidoPage>
         statusIcone = Icons.block_rounded;
 
         etapaAtual = 0;
+
         pedidoEncerrado = true;
+
         break;
 
       default:
+
         statusTitulo = 'Aguardando confirmação';
 
         statusDescricao =
@@ -264,18 +385,24 @@ class PedidoPageState extends State<PedidoPage>
         statusIcone = Icons.mark_chat_unread_rounded;
 
         etapaAtual = 0;
+
         pedidoEncerrado = false;
     }
   }
 
-  // ===============================================================
+  // =============================================================
   // BUSCAR PEDIDO NA API
-  // ===============================================================
+  // =============================================================
 
   Future<void> buscarPedido({
     bool silencioso = false,
   }) async {
-    if (!silencioso && mounted) {
+
+    if (!mounted || _buscaEmAndamento) return;
+
+    _buscaEmAndamento = true;
+
+    if (!silencioso) {
       setState(() {
         carregando = true;
         erro = null;
@@ -283,7 +410,9 @@ class PedidoPageState extends State<PedidoPage>
     }
 
     try {
-      final preferencias = await SharedPreferences.getInstance();
+
+      final preferencias =
+          await SharedPreferences.getInstance();
 
       final token = preferencias.getString('token');
 
@@ -293,15 +422,21 @@ class PedidoPageState extends State<PedidoPage>
         );
       }
 
-      final resposta = await http.get(
-        Uri.parse(
-          '$baseUrl/api/pedidos/${widget.pedidoId}',
-        ),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
+      final resposta = await http
+          .get(
+            Uri.parse(
+              '$baseUrl/api/pedidos/${widget.pedidoId}',
+            ),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(
+            const Duration(seconds: 20),
+          );
+
+      if (!mounted) return;
 
       final contentType =
           resposta.headers['content-type']?.toLowerCase() ?? '';
@@ -312,9 +447,12 @@ class PedidoPageState extends State<PedidoPage>
         );
       }
 
-      final dynamic dados = jsonDecode(resposta.body);
+      final dynamic dados = jsonDecode(
+        utf8.decode(resposta.bodyBytes),
+      );
 
       if (resposta.statusCode != 200) {
+
         final mensagem =
             dados is Map ? dados['message']?.toString() : null;
 
@@ -340,11 +478,14 @@ class PedidoPageState extends State<PedidoPage>
           pedido['itens'] is List ? pedido['itens'] : [];
 
       final itensCarregados = itensJson.map((itemJson) {
+
         final item = Map<String, dynamic>.from(itemJson);
 
-        final quantidade = _converterInt(item['quantidade']);
+        final quantidade =
+            _converterInt(item['quantidade']);
 
-        final preco = _converterDouble(item['preco']);
+        final preco =
+            _converterDouble(item['preco']);
 
         return ItemPedido(
           nome: item['nome']?.toString() ?? 'Produto',
@@ -355,66 +496,122 @@ class PedidoPageState extends State<PedidoPage>
               : _converterDouble(item['subtotal']),
           observacao: item['observacao']?.toString(),
         );
+
       }).toList();
 
       if (!mounted) return;
+
+      // =========================================================
+      // STATUS
+      // =========================================================
+
+      final statusRecebido =
+          pedido['status']?.toString() ?? '';
 
       // =========================================================
       // ATUALIZAR DADOS NA TELA
       // =========================================================
 
       setState(() {
+
         numeroPedido = pedido['id']?.toString() ?? '';
 
-        nomeCliente = pedido['nome_cliente']?.toString() ?? '';
+        nomeCliente =
+            pedido['nome_cliente']?.toString() ?? '';
 
         nomeRestaurante =
             pedido['nome_restaurante']?.toString() ?? 'Restaurante';
 
-        logoRestaurante = pedido['logo_restaurante']?.toString();
+        logoRestaurante =
+            pedido['logo_restaurante']?.toString();
 
-        subtotal = _converterDouble(pedido['subtotal']);
+        subtotal =
+            _converterDouble(pedido['subtotal']);
 
-        taxaEntrega = _converterDouble(pedido['taxa_entrega']);
+        taxaEntrega =
+            _converterDouble(pedido['taxa_entrega']);
 
-        total = _converterDouble(pedido['valor_total']);
+        total =
+            _converterDouble(pedido['valor_total']);
 
         itens = itensCarregados;
 
-        // Atualiza o componente de acompanhamento.
-        _atualizarStatusVisual(
-          pedido['status']?.toString() ?? '',
-        );
+        _atualizarStatusVisual(statusRecebido);
 
         carregando = false;
+
         erro = null;
       });
 
-      // Se o pedido foi encerrado, não precisa continuar consultando.
+      // =========================================================
+      // ENCERRAMENTO DO ACOMPANHAMENTO
+      // =========================================================
+
       if (pedidoEncerrado) {
+
+        // Para apenas a atualização do status.
+        // A consulta de fotos continua funcionando.
+
         _timerAtualizacao?.cancel();
+        _timerAtualizacao = null;
+
         movimentoController.stop();
+
+        pulsoController.stop();
+
+      } else {
+
+        if (!movimentoController.isAnimating) {
+          movimentoController.repeat();
+        }
+
+        if (!pulsoController.isAnimating) {
+          pulsoController.repeat(reverse: true);
+        }
+
+        // Caso o pedido tenha voltado a um status ativo,
+        // garante que a atualização de status seja retomada.
+
+        if (_timerAtualizacao == null) {
+          _timerAtualizacao = Timer.periodic(
+            const Duration(seconds: 15),
+            (_) {
+              if (!mounted || pedidoEncerrado) return;
+
+              buscarPedido(silencioso: true);
+            },
+          );
+        }
       }
+
     } catch (e) {
+
       if (!mounted) return;
 
-      // Durante atualizações automáticas,
-      // mantém os dados que já foram carregados.
       if (!silencioso) {
         setState(() {
-          erro = e.toString().replaceFirst('Exception: ', '');
+          erro = e.toString().replaceFirst(
+            'Exception: ',
+            '',
+          );
 
           carregando = false;
         });
       }
+
+    } finally {
+
+      _buscaEmAndamento = false;
+
     }
   }
 
-  // ===============================================================
+  // =============================================================
   // CONVERSÃO DOS DADOS
-  // ===============================================================
+  // =============================================================
 
   double _converterDouble(dynamic valor) {
+
     if (valor == null) return 0;
 
     if (valor is num) {
@@ -428,6 +625,7 @@ class PedidoPageState extends State<PedidoPage>
   }
 
   int _converterInt(dynamic valor) {
+
     if (valor == null) return 0;
 
     if (valor is int) return valor;
@@ -435,34 +633,38 @@ class PedidoPageState extends State<PedidoPage>
     return int.tryParse(valor.toString()) ?? 0;
   }
 
-  // ===============================================================
+  // =============================================================
   // DISPOSE
-  // ===============================================================
+  // =============================================================
 
   @override
   void dispose() {
-    _timerAtualizacao?.cancel();
+
+    WidgetsBinding.instance.removeObserver(this);
+
+    _pararAtualizacoes();
 
     movimentoController.dispose();
+
     pulsoController.dispose();
 
     super.dispose();
   }
 
-  // ===============================================================
+  // =============================================================
   // BUILD
-  // ===============================================================
+  // =============================================================
 
   @override
   Widget build(BuildContext context) {
-    // LARGURA DA TELA
+
     final largura = MediaQuery.sizeOf(context).width;
 
     final compacto = largura < 390;
 
-    // =============================================================
+    // ===========================================================
     // CARREGAMENTO INICIAL
-    // =============================================================
+    // ===========================================================
 
     if (carregando) {
       return const Scaffold(
@@ -475,9 +677,9 @@ class PedidoPageState extends State<PedidoPage>
       );
     }
 
-    // =============================================================
+    // ===========================================================
     // ERRO NA CONSULTA
-    // =============================================================
+    // ===========================================================
 
     if (erro != null) {
       return Scaffold(
@@ -488,6 +690,7 @@ class PedidoPageState extends State<PedidoPage>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+
                 const Icon(
                   Icons.error_outline_rounded,
                   color: PedidoCores.vermelho,
@@ -524,9 +727,9 @@ class PedidoPageState extends State<PedidoPage>
       );
     }
 
-    // =============================================================
+    // ===========================================================
     // TELA PRINCIPAL
-    // =============================================================
+    // ===========================================================
 
     return Scaffold(
       backgroundColor: PedidoCores.fundo,
@@ -534,14 +737,17 @@ class PedidoPageState extends State<PedidoPage>
         top: false,
         child: Stack(
           children: [
-            // =====================================================
+
+            // ===================================================
             // CONTEÚDO PRINCIPAL
-            // =====================================================
+            // ===================================================
 
             Positioned.fill(
               child: CustomScrollView(
                 slivers: [
+
                   // CABEÇALHO
+
                   const SliverToBoxAdapter(
                     child: PedidoHeader(),
                   ),
@@ -555,11 +761,13 @@ class PedidoPageState extends State<PedidoPage>
                         0,
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
                         children: [
-                          // =======================================
+
+                          // =====================================
                           // CARTÃO DO RESTAURANTE
-                          // =======================================
+                          // =====================================
 
                           CartaoRestaurante(
                             nomeRestaurante: nomeRestaurante,
@@ -570,37 +778,37 @@ class PedidoPageState extends State<PedidoPage>
 
                           const SizedBox(height: 24),
 
-                          // =======================================
+                          // =====================================
                           // ACOMPANHE SEU PEDIDO
-                          // =======================================
+                          // =====================================
 
                           AcompanhePedido(
                             statusTitulo: statusTitulo,
-                           
                             etapaAtual: etapaAtual,
                             pedidoEncerrado: pedidoEncerrado,
-                            movimentoController: movimentoController,
-                            
+                            movimentoController:
+                                movimentoController,
                             compacto: compacto,
                           ),
 
                           const SizedBox(height: 24),
 
-                          // =======================================
+                          // =====================================
                           // FOTOS DO PEDIDO
-                          // =======================================
+                          // =====================================
 
                           FotoPedido(
-                            fotos: fotosPedido,
-                            carregando: carregandoFotos,
-                            baseUrl: baseUrl,
+                            key: ValueKey(
+                              'fotos_${widget.pedidoId}_$_versaoFotos',
+                            ),
+                            pedidoId: widget.pedidoId,
                           ),
 
                           const SizedBox(height: 24),
 
-                          // =======================================
+                          // =====================================
                           // SEU PEDIDO
-                          // =======================================
+                          // =====================================
 
                           SeuPedido(
                             numeroPedido: numeroPedido,
@@ -613,9 +821,9 @@ class PedidoPageState extends State<PedidoPage>
 
                           const SizedBox(height: 16),
 
-                          // =======================================
+                          // =====================================
                           // AJUDA
-                          // =======================================
+                          // =====================================
 
                           _ajudaCard(),
 
@@ -628,9 +836,9 @@ class PedidoPageState extends State<PedidoPage>
               ),
             ),
 
-            // =====================================================
+            // ===================================================
             // MENU INFERIOR FIXO
-            // =====================================================
+            // ===================================================
 
             Positioned(
               left: 0,
@@ -651,11 +859,12 @@ class PedidoPageState extends State<PedidoPage>
     );
   }
 
-  // ===============================================================
+  // =============================================================
   // CARD DE AJUDA
-  // ===============================================================
+  // =============================================================
 
   Widget _ajudaCard() {
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -667,6 +876,7 @@ class PedidoPageState extends State<PedidoPage>
       ),
       child: Row(
         children: [
+
           Container(
             width: 42,
             height: 42,
@@ -687,6 +897,7 @@ class PedidoPageState extends State<PedidoPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 Text(
                   'Precisa de ajuda?',
                   style: TextStyle(
@@ -705,6 +916,7 @@ class PedidoPageState extends State<PedidoPage>
                     color: PedidoCores.textoSuave,
                   ),
                 ),
+
               ],
             ),
           ),
@@ -713,6 +925,7 @@ class PedidoPageState extends State<PedidoPage>
             Icons.chevron_right_rounded,
             color: PedidoCores.textoSuave,
           ),
+
         ],
       ),
     );
