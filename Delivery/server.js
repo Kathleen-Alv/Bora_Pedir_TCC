@@ -14,15 +14,12 @@ import cors from 'cors';
 // Path
 import path from 'path';
 
-
-import perfilRoutes from './src/api/routes/perfil.routes.js';
-
-
-
-
 // ================================================================
 // ROTAS
 // ================================================================
+
+import perfilRoutes 
+    from './src/api/routes/perfil.routes.js';
 
 import cadastroEntregadorRoutes
     from './src/api/routes/cadastroEntregador.routes.js';
@@ -45,10 +42,8 @@ import recuperacaoSenhaRoutes
 import comercioRoutes
     from './src/api/routes/comercio.routes.js';
 
-
 import cardapioRoutes
-     from './src/api/routes/cardapio.routes.js';
-
+    from './src/api/routes/cardapio.routes.js';
 
 import cadastroClienteRoutes
     from './src/api/routes/cadastroCliente.routes.js';
@@ -56,17 +51,14 @@ import cadastroClienteRoutes
 import loginClienteRoutes
     from './src/api/routes/loginCliente.routes.js';
 
-
 import carrinhoRoutes
-     from './src/api/routes/carrinho.routes.js';
+    from './src/api/routes/carrinho.routes.js';
 
 import enderecosClientesRoutes 
     from './src/api/routes/enderecosClientes.routes.js';
 
 import pedidoRoutes
     from './src/api/routes/pedido.routes.js';
-
-
 
 // ================================================================
 // APLICAÇÃO
@@ -76,7 +68,6 @@ const app = express();
 
 const PORT = 3000;
 
-
 // ================================================================
 // MIDDLEWARES
 // ================================================================
@@ -85,13 +76,11 @@ app.use(cors());
 
 app.use(express.json());
 
-
 // ================================================================
 // ARQUIVOS ESTÁTICOS
 // ================================================================
 
 // Permite acessar as imagens salvas dentro de /uploads
-
 app.use(
     '/uploads',
     express.static(
@@ -99,17 +88,15 @@ app.use(
     )
 );
 
-
 // ================================================================
-// ROTAS
+// REGISTRO DE ROTAS
 // ================================================================
 
-// Cadastro de entregadores
+// Cadastro e Gestão de entregadores
 app.use(
     '/api/entregadores',
     cadastroEntregadorRoutes
 );
-
 
 // Cadastro de comércio
 app.use(
@@ -117,13 +104,11 @@ app.use(
     cadastroComercioRoutes
 );
 
-
 // Administração
 app.use(
     '/api/admin',
     adminRoutes
 );
-
 
 // Emails
 app.use(
@@ -131,13 +116,11 @@ app.use(
     emailRoutes
 );
 
-
 // Login de comércio
 app.use(
     '/api/login-comercio',
     loginComercioRoutes
 );
-
 
 // Recuperação de senha
 app.use(
@@ -145,78 +128,70 @@ app.use(
     recuperacaoSenhaRoutes
 );
 
-
 // Primeiro acesso / gerenciamento do comércio
 app.use(
     '/api/comercios',
     comercioRoutes
 );
 
-//CARDAPIO ROUTES
-
+// Cardápio
 app.use(
     '/api/cardapio',
     cardapioRoutes
 );
 
-
-
+// Cadastro e gestão de Clientes (inclui upload da foto de perfil: PATCH /api/clientes/:id/foto)
 app.use(
     '/api/clientes',
     cadastroClienteRoutes
 );
 
+// Login do cliente
 app.use(
     '/api/login-cliente',
     loginClienteRoutes
 );
 
-
-//Mostrar dados do perfil
+// Mostrar dados do perfil
 app.use(
-    '/api/perfil', perfilRoutes
+    '/api/perfil',
+    perfilRoutes
 );
 
+// Carrinho de compras
+app.use(
+    '/api/carrinho',
+    carrinhoRoutes
+);
 
+// Endereços dos clientes
+app.use(
+    '/api/enderecos-clientes',
+    enderecosClientesRoutes
+);
 
-//CARRINHO DE COMPRAS 
-
-app.use('/api/carrinho', carrinhoRoutes);
-
-//ENDEREÇO DOS CLIENTES
-
-app.use('/api/enderecos-clientes', enderecosClientesRoutes);
-
-//SEU PEDIDO - DETALHES DO QUE PEDIU
-app.use('/api/pedidos', pedidoRoutes);
-
-
+// Pedidos e detalhes dos itens
+app.use(
+    '/api/pedidos',
+    pedidoRoutes
+);
 
 // ================================================================
 // TESTE DA API
 // ================================================================
 
 app.get('/', (req, res) => {
-
     res.json({
         message: 'API funcionando!'
     });
-
 });
-
-
-
-
-
 
 // ================================================================
 // INICIAR SERVIDOR
 // ================================================================
 
 app.listen(PORT, '0.0.0.0', () => {
-
     console.log(
         `Servidor rodando em http://localhost:${PORT}`
     );
-
 });

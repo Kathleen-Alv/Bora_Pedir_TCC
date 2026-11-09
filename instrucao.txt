@@ -243,6 +243,9 @@ start ms-settings:developers
 Para img SVG:
 flutter pub add flutter_svg
 
+para receber e enviar as img
+npm install multer
+
 
 
 

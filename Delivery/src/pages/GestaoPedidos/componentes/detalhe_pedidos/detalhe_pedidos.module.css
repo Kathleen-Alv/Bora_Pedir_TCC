@@ -1562,6 +1562,87 @@
   background: #bd1221;
 }
 
+
+
+/* =====================================================
+   CABEÇALHO DOS DETALHES DO PEDIDO
+===================================================== */
+
+.detalhesTopo {
+    width: 100%;
+    min-height: 78px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+    padding: 12px 20px;
+
+    box-sizing: border-box;
+}
+
+.detalhesTopoTitulo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    flex: 1;
+    min-width: 0;
+}
+
+.detalhesTopoAcoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* Botão de fechar */
+
+.detalhesTopoAcoes > button:not(.chatButton) {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #f1f1f1;
+    color: #555;
+
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.detalhesTopoAcoes > button:not(.chatButton):hover {
+    background: #e5e5e5;
+}
+
+/* Responsividade */
+
+@media (max-width: 520px) {
+    .detalhesTopo {
+        padding: 10px 14px;
+        gap: 8px;
+    }
+
+    .detalhesTopoAcoes {
+        gap: 6px;
+    }
+}
+
+
+
+
+
 /* RESPONSIVIDADE */
 
 @media (max-width: 600px) {

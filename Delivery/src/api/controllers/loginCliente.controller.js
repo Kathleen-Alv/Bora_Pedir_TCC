@@ -70,7 +70,7 @@ export async function loginCliente(req, res) {
         }
 
         // ========================================================
-        // VERIFICA SE POSSUI PERFIL DE CLIENTE
+        // VERIFICA SE POSSUI PERFIL DE CLIENTE (INCLUI A FOTO)
         // ========================================================
 
         const clientes = await conexao.query(
@@ -78,7 +78,8 @@ export async function loginCliente(req, res) {
             SELECT
                 id,
                 nome,
-                telefone
+                telefone,
+                foto
             FROM clientes
             WHERE usuario_id = ?
             `,
@@ -101,33 +102,34 @@ export async function loginCliente(req, res) {
         // GERA TOKEN
         // ========================================================
 
- const token =
-    jwt.sign(
-        {
-            usuario_id: Number(usuario.id),
+        const token =
+            jwt.sign(
+                {
+                    usuario_id: Number(usuario.id),
+                    cliente_id: Number(cliente.id),
+                    tipo: 'cliente'
+                },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: '7d'
+                }
+            );
+
+        // ========================================================
+        // RESPOSTA (INCLUI O CAMPO FOTO)
+        // ========================================================
+
+        return res.status(200).json({
+            message: 'Login realizado com sucesso.',
+            token,
+            tipo: 'cliente',
             cliente_id: Number(cliente.id),
-            tipo: 'cliente'
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: '7d'
-        }
-    );
-
-        // ========================================================
-        // RESPOSTA
-        // ========================================================
-
-    return res.status(200).json({
-    message: 'Login realizado com sucesso.',
-    token,
-    tipo: 'cliente',
-    cliente_id: Number(cliente.id),
-    usuario_id: Number(usuario.id),
-    nome: cliente.nome,
-    email: usuario.email,
-    telefone: cliente.telefone
-});
+            usuario_id: Number(usuario.id),
+            nome: cliente.nome,
+            email: usuario.email,
+            telefone: cliente.telefone,
+            foto: cliente.foto || null
+        });
 
     } catch (error) {
 

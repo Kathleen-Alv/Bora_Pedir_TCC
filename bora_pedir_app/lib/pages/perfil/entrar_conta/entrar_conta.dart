@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../services/auth_storage.dart';
-
-import '../../inicio/inicio.dart';
-
-import '../recuperar_senha/recuperar_senha.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/auth_storage.dart';
+import '../../inicio/inicio.dart';
 import '../criar_conta/criar_conta.dart';
+import '../recuperar_senha/recuperar_senha.dart';
 
 class EntrarContaPage extends StatefulWidget {
   const EntrarContaPage({super.key});
@@ -38,7 +36,6 @@ class _EntrarContaPageState extends State<EntrarContaPage> {
   void dispose() {
     emailController.dispose();
     senhaController.dispose();
-
     super.dispose();
   }
 
@@ -46,71 +43,74 @@ class _EntrarContaPageState extends State<EntrarContaPage> {
   // LOGIN
   // =============================================================
 
-Future<void> entrar() async {
-  final email = emailController.text.trim();
-  final senha = senhaController.text;
+  Future<void> entrar() async {
+    final email = emailController.text.trim();
+    final senha = senhaController.text;
 
-  if (email.isEmpty || senha.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Preencha o e-mail e a senha.'),
-      ),
-    );
-    return;
-  }
-
-  setState(() {
-    carregando = true;
-  });
-
-  try {
-    final resposta = await AuthService.loginCliente(
-      email: email,
-      senha: senha,
-    );
-
-    await AuthStorage.salvarLogin(
-      token: resposta['token'],
-      tipo: resposta['tipo'],
-      clienteId: resposta['cliente_id'],
-      usuarioId: resposta['usuario_id'],
-      nome: resposta['nome'],
-      email: resposta['email'],
-      telefone: resposta['telefone'],
-    );
-
-    if (!mounted) return;
+    if (email.isEmpty || senha.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preencha o e-mail e a senha.'),
+        ),
+      );
+      return;
+    }
 
     setState(() {
-      carregando = false;
+      carregando = true;
     });
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => InicioPage(
-          mostrarBoasVindas: true,
-        ),
-      ),
-      (route) => false,
-    );
-  } catch (error) {
-    if (!mounted) return;
+    try {
+      final resposta = await AuthService.loginCliente(
+        email: email,
+        senha: senha,
+      );
 
-    setState(() {
-      carregando = false;
-    });
+      // Salva os dados de login localmente (incluindo a foto)
+      await AuthStorage.salvarLogin(
+        token: resposta['token'],
+        tipo: resposta['tipo'],
+        clienteId: resposta['cliente_id'],
+        usuarioId: resposta['usuario_id'],
+        nome: resposta['nome'],
+        email: resposta['email'],
+        telefone: resposta['telefone'],
+        foto: resposta['foto'],
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          error.toString().replaceFirst('Exception: ', ''),
+      if (!mounted) return;
+
+      setState(() {
+        carregando = false;
+      });
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const InicioPage(
+            mostrarBoasVindas: true,
+          ),
         ),
-        backgroundColor: Colors.red,
-      ),
-    );
+        (route) => false,
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        carregando = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.toString().replaceFirst('Exception: ', ''),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-}
+
   // =============================================================
   // TELA
   // =============================================================
@@ -337,15 +337,13 @@ Future<void> entrar() async {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RecuperarSenhaPage(),
-                        ),
-                      );
-                    },
-                    // Recuperação de senha será implementada depois.
-                  
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RecuperarSenhaPage(),
+                      ),
+                    );
+                  },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 4,

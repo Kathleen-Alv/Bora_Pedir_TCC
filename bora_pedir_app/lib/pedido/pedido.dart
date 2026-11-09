@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -83,8 +82,9 @@ class PedidoPageState extends State<PedidoPage>
 
   bool _buscaEmAndamento = false;
 
-  // Versão utilizada para atualizar o componente FotoPedido.
-  int _versaoFotos = 0;
+  // Mantém o estado do componente FotoPedido entre as atualizações.
+  final GlobalKey<FotoPedidoState> fotoPedidoKey =
+      GlobalKey<FotoPedidoState>();
 
   // =============================================================
   // ANIMAÇÕES
@@ -223,9 +223,7 @@ class PedidoPageState extends State<PedidoPage>
     }
 
     // Atualização das fotos a cada 3 segundos.
-    //
-    // O componente FotoPedido será reconstruído com uma nova Key.
-    // Isso faz com que ele execute novamente sua consulta à API.
+    // A GlobalKey mantém o componente e as imagens já carregadas.
 
     _timerFotos?.cancel();
 
@@ -256,14 +254,12 @@ class PedidoPageState extends State<PedidoPage>
   // ATUALIZAR FOTOS
   // =============================================================
 
-  void _atualizarFotos() {
+void _atualizarFotos() {
+  if (!mounted) return;
 
-    if (!mounted) return;
-
-    setState(() {
-      _versaoFotos++;
-    });
-  }
+  // Solicita atualização sem reconstruir o widget.
+  fotoPedidoKey.currentState?.atualizarFotos();
+}
 
   // =============================================================
   // ATUALIZAR STATUS VISUAL
@@ -798,9 +794,7 @@ class PedidoPageState extends State<PedidoPage>
                           // =====================================
 
                           FotoPedido(
-                            key: ValueKey(
-                              'fotos_${widget.pedidoId}_$_versaoFotos',
-                            ),
+                            key: fotoPedidoKey,
                             pedidoId: widget.pedidoId,
                           ),
 

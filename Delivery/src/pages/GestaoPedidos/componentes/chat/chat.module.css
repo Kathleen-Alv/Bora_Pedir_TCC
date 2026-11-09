@@ -5,7 +5,6 @@
 
 .chat {
     position: fixed;
-
     right: 35px;
     bottom: 30px;
 
@@ -18,7 +17,6 @@
     overflow: hidden;
 
     border: 1px solid rgba(255, 255, 255, 0.55);
-
     border-radius: 24px;
 
     background:
@@ -49,7 +47,52 @@
 
 
 /* =====================================================
-   HEADER
+   IMAGENS DAS MENSAGENS
+===================================================== */
+
+.chat img {
+    display: block;
+
+    max-width: 100%;
+    height: auto;
+
+    object-fit: contain;
+    object-position: center;
+}
+
+
+/* =====================================================
+   ÁREA DE MENSAGENS
+===================================================== */
+
+.messages {
+    flex: 1;
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 20px 17px;
+
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.messages::-webkit-scrollbar {
+    width: 5px;
+}
+
+.messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+
+/* =====================================================
+   HEADER DO CHAT
 ===================================================== */
 
 .header {
@@ -62,11 +105,9 @@
 
     padding: 0 18px;
 
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 
-    background:
-        rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.28);
 }
 
 
@@ -77,7 +118,6 @@
 .headerInfo {
     display: flex;
     align-items: center;
-
     gap: 11px;
 }
 
@@ -89,41 +129,37 @@
     align-items: center;
     justify-content: center;
 
+    flex-shrink: 0;
+
     border-radius: 14px;
 
     background: #bd1221;
-
     color: white;
 
     font-size: 13px;
     font-weight: 800;
 
-    box-shadow:
-        0 6px 18px rgba(189, 18, 33, 0.25);
+    box-shadow: 0 6px 18px rgba(189, 18, 33, 0.25);
 }
 
 .userInfo {
     display: flex;
     flex-direction: column;
-
     gap: 4px;
 }
 
 .userInfo strong {
     font-size: 14px;
     font-weight: 700;
-
     color: #171717;
 }
 
 .userInfo span {
     display: flex;
     align-items: center;
-
     gap: 6px;
 
     font-size: 11px;
-
     color: #686868;
 }
 
@@ -132,24 +168,22 @@
     height: 7px;
 
     display: inline-block;
+    flex-shrink: 0;
 
     border-radius: 50%;
-
     background: #32b768;
 
-    box-shadow:
-        0 0 0 3px rgba(50, 183, 104, 0.12);
+    box-shadow: 0 0 0 3px rgba(50, 183, 104, 0.12);
 }
 
 
 /* =====================================================
-   BOTÕES DO HEADER
+   BOTÕES DO HEADER DO CHAT
 ===================================================== */
 
 .headerActions {
     display: flex;
     align-items: center;
-
     gap: 5px;
 }
 
@@ -165,11 +199,9 @@
     justify-content: center;
 
     background: rgba(255, 255, 255, 0.42);
-
     color: #555;
 
     font-size: 20px;
-
     cursor: pointer;
 
     transition:
@@ -179,41 +211,7 @@
 
 .actionButton:hover {
     background: rgba(255, 255, 255, 0.78);
-
     transform: translateY(-1px);
-}
-
-
-/* =====================================================
-   ÁREA DE MENSAGENS
-===================================================== */
-
-.messages {
-    flex: 1;
-
-    overflow-y: auto;
-
-    padding: 20px 17px;
-
-    background:
-        rgba(255, 255, 255, 0.18);
-}
-
-
-/* Barra de rolagem */
-
-.messages::-webkit-scrollbar {
-    width: 5px;
-}
-
-.messages::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.messages::-webkit-scrollbar-thumb {
-    border-radius: 20px;
-
-    background: rgba(0, 0, 0, 0.12);
 }
 
 
@@ -225,20 +223,17 @@
     width: fit-content;
 
     margin: 0 auto 22px;
-
     padding: 6px 11px;
 
     border-radius: 20px;
 
     background: rgba(255, 255, 255, 0.65);
-
     color: #777;
 
     font-size: 10px;
     font-weight: 600;
 
-    box-shadow:
-        0 3px 10px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
 
@@ -248,7 +243,6 @@
 
 .messageRow {
     display: flex;
-
     width: 100%;
 
     margin-bottom: 15px;
@@ -283,7 +277,6 @@
     border-radius: 9px;
 
     background: #bd1221;
-
     color: white;
 
     font-size: 8px;
@@ -300,6 +293,7 @@
     flex-direction: column;
 
     max-width: 75%;
+    min-width: 0;
 }
 
 .sent .messageContent {
@@ -312,6 +306,9 @@
 ===================================================== */
 
 .messageBubble {
+    max-width: 100%;
+    min-width: 0;
+
     padding: 11px 14px;
 
     border-radius: 16px;
@@ -320,11 +317,11 @@
     line-height: 1.55;
 
     color: #272727;
-
     background: rgba(255, 255, 255, 0.91);
 
-    box-shadow:
-        0 5px 18px rgba(0, 0, 0, 0.055);
+    overflow-wrap: anywhere;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.055);
 }
 
 .received .messageBubble {
@@ -335,7 +332,6 @@
     border-top-right-radius: 5px;
 
     background: #646060;
-
     color: white;
 }
 
@@ -346,11 +342,9 @@
 
 .messageTime {
     margin-top: 5px;
-
     padding: 0 3px;
 
     font-size: 9px;
-
     color: #858585;
 }
 
@@ -362,11 +356,9 @@
 .footer {
     padding: 13px 15px 15px;
 
-    border-top:
-        1px solid rgba(255, 255, 255, 0.55);
+    border-top: 1px solid rgba(255, 255, 255, 0.55);
 
-    background:
-        rgba(255, 255, 255, 0.27);
+    background: rgba(255, 255, 255, 0.27);
 }
 
 
@@ -377,21 +369,16 @@
 .inputArea {
     display: flex;
     align-items: center;
-
     gap: 8px;
 
     padding: 6px;
 
-    border:
-        1px solid rgba(255, 255, 255, 0.7);
-
+    border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 17px;
 
-    background:
-        rgba(255, 255, 255, 0.76);
+    background: rgba(255, 255, 255, 0.76);
 
-    box-shadow:
-        0 7px 25px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.06);
 }
 
 
@@ -406,11 +393,9 @@
     flex-shrink: 0;
 
     border: none;
-
     border-radius: 11px;
 
     background: transparent;
-
     color: #777;
 
     font-size: 22px;
@@ -425,7 +410,6 @@
 
 .attachButton:hover {
     background: rgba(0, 0, 0, 0.05);
-
     color: #333;
 }
 
@@ -436,7 +420,6 @@
 
 .input {
     flex: 1;
-
     min-width: 0;
 
     height: 36px;
@@ -445,7 +428,6 @@
     outline: none;
 
     background: transparent;
-
     color: #222;
 
     font-size: 12px;
@@ -471,17 +453,14 @@
     justify-content: center;
 
     border: none;
-
     border-radius: 13px;
 
     background: #bd1221;
-
     color: white;
 
     cursor: pointer;
 
-    box-shadow:
-        0 7px 17px rgba(189, 18, 33, 0.25);
+    box-shadow: 0 7px 17px rgba(189, 18, 33, 0.25);
 
     transition:
         transform 0.2s ease,
@@ -491,8 +470,7 @@
 .sendButton:hover {
     transform: translateY(-2px);
 
-    box-shadow:
-        0 10px 22px rgba(189, 18, 33, 0.32);
+    box-shadow: 0 10px 22px rgba(189, 18, 33, 0.32);
 }
 
 .sendButton:active {
@@ -505,66 +483,70 @@
 }
 
 
-
 /* =====================================================
-   BOTÃO FLUTUANTE DO CHAT
+   BOTÃO DO CHAT NO CABEÇALHO DO PEDIDO
 ===================================================== */
 
 .chatButton {
-    position: fixed;
+    position: relative;
 
-    right: 30px;
-    bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    width: 72px;
-    height: 72px;
+    flex-shrink: 0;
+
+    width: 52px;
+    height: 52px;
 
     padding: 0;
-
     border: none;
-
-    border-radius: 50%;
+    border-radius: 0;
 
     background: transparent;
-
     cursor: pointer;
 
-    z-index: 9999;
-
-    overflow: hidden;
+    z-index: 2;
+    overflow: visible;
 
     transition:
         transform 0.25s ease,
         filter 0.25s ease;
 }
 
-
-/* IMAGEM */
-
 .chatButton img {
+    display: block;
+
     width: 100%;
     height: 100%;
 
-    display: block;
+    max-width: none;
+    max-height: none;
 
     object-fit: contain;
+    object-position: center;
+
+    border-radius: 0;
+    clip-path: none;
 }
 
 
-/* Efeito ao passar o mouse */
+/* =====================================================
+   EFEITO AO PASSAR O MOUSE
+===================================================== */
 
 .chatButton:hover {
     transform: scale(1.08);
 
-    filter:
-        drop-shadow(
-            0 10px 20px
-            rgba(0, 0, 0, 0.20)
-        );
+    filter: drop-shadow(
+        0 8px 15px rgba(0, 0, 0, 0.18)
+    );
 }
 
 
-/* Clique */
+/* =====================================================
+   CLIQUE
+===================================================== */
 
 .chatButton:active {
     transform: scale(0.94);
@@ -584,17 +566,13 @@
     justify-content: center;
 
     border: none;
-
     border-radius: 10px;
 
-    background:
-        rgba(255, 255, 255, 0.45);
-
+    background: rgba(255, 255, 255, 0.45);
     color: #555;
 
     font-size: 25px;
     font-weight: 300;
-
     line-height: 1;
 
     cursor: pointer;
@@ -605,30 +583,9 @@
 }
 
 .closeButton:hover {
-    background:
-        rgba(255, 255, 255, 0.85);
-
+    background: rgba(255, 255, 255, 0.85);
     transform: scale(1.05);
 }
-
-
-/* =====================================================
-   RESPONSIVO
-===================================================== */
-
-@media (max-width: 520px) {
-
-    .chatButton {
-        right: 18px;
-        bottom: 18px;
-
-        width: 62px;
-        height: 62px;
-    }
-
-}
-
-
 
 
 /* =====================================================
@@ -637,14 +594,18 @@
 
 @media (max-width: 520px) {
 
-    .chatWindow {
+    .chat {
         right: 12px;
         bottom: 12px;
 
         width: calc(100vw - 24px);
-        height: calc(100vh - 24px);
+        height: calc(100dvh - 24px);
 
         border-radius: 20px;
     }
 
+    .chatButton {
+        width: 44px;
+        height: 44px;
+    }
 }

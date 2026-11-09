@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../services/foto_pedido_service.dart';
 
@@ -16,14 +17,16 @@ class FotoPedido extends StatefulWidget {
   static const Color texto = Color(0xFF222222);
 
   @override
-  State<FotoPedido> createState() => _FotoPedidoState();
+  FotoPedidoState createState() => FotoPedidoState();
 }
 
-class _FotoPedidoState extends State<FotoPedido> {
+class FotoPedidoState extends State<FotoPedido> {
   List<Map<String, dynamic>> fotos = [];
 
   bool carregando = true;
   String? erro;
+
+  bool _buscaFotosEmAndamento = false;
 
   @override
   void initState() {
@@ -31,12 +34,39 @@ class _FotoPedidoState extends State<FotoPedido> {
     _buscarFotos();
   }
 
+  @override
+  void didUpdateWidget(covariant FotoPedido oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.pedidoId != widget.pedidoId) {
+      fotos = [];
+      carregando = true;
+      erro = null;
+      _buscarFotos();
+    }
+  }
+
+  // ============================================================
+  // MÉTODO PÚBLICO PARA ATUALIZAR AS FOTOS
+  // Chamado pela PedidoPage através da GlobalKey.
+  // ============================================================
+
+  Future<void> atualizarFotos() async {
+    await _buscarFotos();
+  }
+
   // ============================================================
   // BUSCAR FOTOS DO PEDIDO
   // ============================================================
 
   Future<void> _buscarFotos() async {
-    if (mounted) {
+    if (!mounted || _buscaFotosEmAndamento) return;
+
+    _buscaFotosEmAndamento = true;
+
+    // Não mostra carregamento novamente quando já existem fotos.
+    // Assim, as imagens permanecem visíveis durante a consulta.
+    if (fotos.isEmpty) {
       setState(() {
         carregando = true;
         erro = null;
@@ -50,17 +80,41 @@ class _FotoPedidoState extends State<FotoPedido> {
 
       if (!mounted) return;
 
-      setState(() {
-        fotos = resultado;
-        carregando = false;
-      });
+      // Compara as URLs para evitar reconstruções desnecessárias.
+      final fotosAtuais = fotos
+          .map((foto) => foto['foto']?.toString() ?? '')
+          .toList();
+
+      final novasFotos = resultado
+          .map((foto) => foto['foto']?.toString() ?? '')
+          .toList();
+
+      final houveAlteracao = !listEquals(
+        fotosAtuais,
+        novasFotos,
+      );
+
+      if (houveAlteracao || carregando || erro != null) {
+        setState(() {
+          fotos = resultado;
+          carregando = false;
+          erro = null;
+        });
+      }
     } catch (e) {
       if (!mounted) return;
 
+      // Se já existem fotos, não as remove por causa de uma
+      // falha momentânea na consulta.
       setState(() {
         carregando = false;
-        erro = e.toString().replaceFirst('Exception: ', '');
+
+        if (fotos.isEmpty) {
+          erro = e.toString().replaceFirst('Exception: ', '');
+        }
       });
+    } finally {
+      _buscaFotosEmAndamento = false;
     }
   }
 
@@ -250,7 +304,9 @@ class _FotoPedidoState extends State<FotoPedido> {
           children: [
             Image.network(
               caminho,
+              key: ValueKey(caminho),
               fit: BoxFit.cover,
+              gaplessPlayback: true,
               loadingBuilder: (context, child, progress) {
                 if (progress == null) return child;
 
@@ -356,7 +412,7 @@ class _FotoPedidoState extends State<FotoPedido> {
   // ============================================================
 
   Widget _conteudoFotos() {
-    if (carregando) {
+    if (carregando && fotos.isEmpty) {
       return const SizedBox(
         height: 112,
         child: Center(
@@ -368,7 +424,7 @@ class _FotoPedidoState extends State<FotoPedido> {
       );
     }
 
-    if (erro != null) {
+    if (erro != null && fotos.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(15),
@@ -394,7 +450,7 @@ class _FotoPedidoState extends State<FotoPedido> {
             ),
             const SizedBox(height: 8),
             TextButton.icon(
-              onPressed: _buscarFotos,
+              onPressed: atualizarFotos,
               icon: const Icon(
                 Icons.refresh,
                 color: FotoPedido.vermelho,
@@ -458,7 +514,6 @@ class _FotoPedidoState extends State<FotoPedido> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _cabecalho(),
-
           Padding(
             padding: const EdgeInsets.all(15),
             child: Column(
@@ -477,7 +532,7 @@ class _FotoPedidoState extends State<FotoPedido> {
                       ),
                     ),
                     Text(
-                      carregando
+                      carregando && fotos.isEmpty
                           ? '...'
                           : '${fotos.length} ${fotos.length == 1 ? 'foto' : 'fotos'}',
                       style: const TextStyle(
@@ -488,13 +543,9 @@ class _FotoPedidoState extends State<FotoPedido> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 13),
-
                 _conteudoFotos(),
-
                 const SizedBox(height: 16),
-
                 _avisoSeguranca(),
               ],
             ),

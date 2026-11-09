@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import styles from './chat.module.css';
 
-import imgChat from '../../../../assets/chat.png';
+import imgChat from '../../../../assets/chat/chat.png';
 
 
 export function Chat() {

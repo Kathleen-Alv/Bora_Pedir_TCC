@@ -1,3 +1,4 @@
+import { Chat } from "../chat/chat.tsx";
 
 import {
   useEffect,
@@ -64,7 +65,6 @@ export type PedidoDetalhe = {
   total: number;
   tempoPreparo?: number;
 
-  // Aceita tanto o formato antigo (URL) quanto o novo (objeto com data).
   fotosProva?: (string | FotoProvaPedido)[];
 };
 
@@ -82,7 +82,6 @@ type DetalhePedidosProps = {
   onMarcarPronto?: (pedido: PedidoDetalhe) => void;
   onEnviarEntrega?: (pedido: PedidoDetalhe) => void;
 
-  // Envia os arquivos para integração com o backend.
   onFotosSelecionadas?: (
     pedido: PedidoDetalhe,
     arquivos: File[]
@@ -93,9 +92,28 @@ type FotoGaleria = {
   id: string;
   url: string;
   criadoEm?: string;
-  arquivo?: File;
-  local?: boolean;
 };
+
+/* =====================================================
+   CONFIGURAÇÃO DA API
+===================================================== */
+
+// Se sua API estiver em outra porta ou endereço,
+// altere esta URL.
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+// =====================================================
+// TOKEN DE AUTENTICAÇÃO
+// =====================================================
+
+// Este código considera que o login web salva o JWT
+// no localStorage com a chave "token".
+
+function obterToken(): string | null {
+  return localStorage.getItem("token");
+}
 
 /* =====================================================
    FOTO DO CLIENTE
@@ -113,15 +131,6 @@ const formatarMoeda = (valor: number) =>
     style: "currency",
     currency: "BRL",
   });
-
-/*
-  Converte a data para o padrão:
-
-  05/11/2026 às 22:35:12
-
-  Quando recebe uma data SQL sem fuso horário,
-  interpreta o horário como horário local.
-*/
 
 const formatarDataHora = (valor?: string) => {
   if (!valor) return "Data não disponível";
@@ -158,6 +167,108 @@ const formatarDataHora = (valor?: string) => {
 };
 
 /* =====================================================
+   RESOLVER URL DA FOTOGRAFIA
+===================================================== */
+
+function resolverUrlFoto(caminho: string): string {
+  const foto = String(caminho ?? "").trim();
+
+  if (!foto) return "";
+
+  if (
+    foto.startsWith("http://") ||
+    foto.startsWith("https://") ||
+    foto.startsWith("blob:") ||
+    foto.startsWith("data:")
+  ) {
+    return foto;
+  }
+
+  return `${API_BASE_URL}${foto.startsWith("/") ? "" : "/"}${foto}`;
+}
+
+/* =====================================================
+   TRATAR RESPOSTA DA API
+===================================================== */
+
+async function lerRespostaAPI(
+  resposta: Response
+): Promise<any> {
+  const texto = await resposta.text();
+
+  let dados: any = {};
+
+  try {
+    dados = texto ? JSON.parse(texto) : {};
+  } catch {
+    throw new Error(
+      "A API retornou uma resposta inválida. Verifique a rota do servidor."
+    );
+  }
+
+  if (!resposta.ok) {
+    throw new Error(
+      dados.message || "Não foi possível concluir a operação."
+    );
+  }
+
+  return dados;
+}
+
+/* =====================================================
+   CONVERTER FOTOS INICIAIS
+===================================================== */
+
+function converterFotosIniciais(
+  fotos: PedidoDetalhe["fotosProva"],
+  pedidoId: number
+): FotoGaleria[] {
+  return (fotos ?? []).map((foto, index) => {
+    if (typeof foto === "string") {
+      return {
+        id: `inicial-${pedidoId}-${index}`,
+        url: resolverUrlFoto(foto),
+      };
+    }
+
+    return {
+      id: String(foto.id ?? `inicial-${pedidoId}-${index}`),
+      url: resolverUrlFoto(foto.url),
+      criadoEm: foto.criadoEm,
+    };
+  });
+}
+
+/* =====================================================
+   BUSCAR FOTOS DO SERVIDOR
+===================================================== */
+
+async function buscarFotosPedidoAPI(
+  pedidoId: number,
+  token: string
+): Promise<FotoGaleria[]> {
+  const resposta = await fetch(
+    `${API_BASE_URL}/api/pedidos/${pedidoId}/fotos`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const dados = await lerRespostaAPI(resposta);
+
+  return (dados.fotos ?? []).map(
+    (foto: any, index: number) => ({
+      id: String(foto.id ?? index),
+      url: resolverUrlFoto(foto.foto),
+      criadoEm: foto.criado_em ?? undefined,
+    })
+  );
+}
+
+/* =====================================================
    COMPONENTE
 ===================================================== */
 
@@ -174,6 +285,7 @@ export default function DetalhePedidos({
   onEnviarEntrega,
   onFotosSelecionadas,
 }: DetalhePedidosProps) {
+
   const [descricoesExpandidas, setDescricoesExpandidas] =
     useState<number[]>([]);
 
@@ -182,8 +294,17 @@ export default function DetalhePedidos({
   const [fotoAmpliada, setFotoAmpliada] =
     useState<string | null>(null);
 
-  const [fotosLocais, setFotosLocais] =
+  const [fotosServidor, setFotosServidor] =
     useState<FotoGaleria[]>([]);
+
+  const [carregandoFotos, setCarregandoFotos] =
+    useState(false);
+
+  const [enviandoFotos, setEnviandoFotos] =
+    useState(false);
+
+  const [erroFotos, setErroFotos] =
+    useState<string | null>(null);
 
   const inputFotosRef = useRef<HTMLInputElement>(null);
 
@@ -191,14 +312,82 @@ export default function DetalhePedidos({
   const LIMITE_FOTOS = 10;
 
   /* =====================================================
-     REINICIAR AO TROCAR DE PEDIDO
+     CARREGAR FOTOS AO ABRIR OU TROCAR DE PEDIDO
   ===================================================== */
 
   useEffect(() => {
+    let ativo = true;
+
     setInicioFotos(0);
     setFotoAmpliada(null);
     setDescricoesExpandidas([]);
-    setFotosLocais([]);
+    setErroFotos(null);
+
+    if (!pedido?.id) {
+      setFotosServidor([]);
+      return;
+    }
+
+    setFotosServidor(
+      converterFotosIniciais(
+        pedido.fotosProva,
+        pedido.id
+      )
+    );
+
+    async function carregarFotos() {
+      const token = obterToken();
+
+      if (!token) {
+        if (ativo) {
+          setErroFotos(
+            "Token de autenticação não encontrado. Faça login novamente."
+          );
+        }
+
+        return;
+      }
+
+      try {
+        setCarregandoFotos(true);
+
+        const fotos = await buscarFotosPedidoAPI(
+          pedido!.id,
+          token
+        );
+
+        if (ativo) {
+          setFotosServidor(fotos);
+          setErroFotos(null);
+        }
+
+      } catch (erro) {
+        console.error(
+          "Erro ao carregar fotos do pedido:",
+          erro
+        );
+
+        if (ativo) {
+          setErroFotos(
+            erro instanceof Error
+              ? erro.message
+              : "Não foi possível carregar as fotografias."
+          );
+        }
+
+      } finally {
+        if (ativo) {
+          setCarregandoFotos(false);
+        }
+      }
+    }
+
+    carregarFotos();
+
+    return () => {
+      ativo = false;
+    };
+
   }, [pedido?.id]);
 
   /* =====================================================
@@ -236,25 +425,7 @@ export default function DetalhePedidos({
      GALERIA DE PROVAS FOTOGRÁFICAS
   ===================================================== */
 
-  const fotosServidor: FotoGaleria[] = (
-    pedido?.fotosProva ?? []
-  ).map((foto, index) => {
-    // Compatibilidade com o formato antigo: somente URL.
-    if (typeof foto === "string") {
-      return {
-        id: `servidor-${pedido?.id}-${index}`,
-        url: foto,
-      };
-    }
-
-    return {
-      id: `servidor-${pedido?.id}-${foto.id ?? index}`,
-      url: foto.url,
-      criadoEm: foto.criadoEm,
-    };
-  });
-
-  const todasFotos = [...fotosServidor, ...fotosLocais];
+  const todasFotos = fotosServidor;
 
   const fotosVisiveis = todasFotos.slice(
     inicioFotos,
@@ -271,25 +442,56 @@ export default function DetalhePedidos({
   ===================================================== */
 
   const abrirSeletorFotos = () => {
+    if (enviandoFotos) return;
+
     inputFotosRef.current?.click();
   };
 
   /* =====================================================
-     SELECIONAR FOTOS
+     SELECIONAR E ENVIAR FOTOS
   ===================================================== */
 
-  const selecionarFotos = (
+  const selecionarFotos = async (
     evento: ChangeEvent<HTMLInputElement>
   ) => {
+    const input = evento.currentTarget;
+
     const arquivos = Array.from(
-      evento.target.files ?? []
+      input.files ?? []
     );
 
     if (!arquivos.length || !pedido) return;
 
-    const imagensValidas = arquivos.filter((arquivo) =>
-      arquivo.type.startsWith("image/")
+    setErroFotos(null);
+
+    const token = obterToken();
+
+    if (!token) {
+      setErroFotos(
+        "Sua sessão expirou. Faça login novamente."
+      );
+
+      input.value = "";
+      return;
+    }
+
+    const formatosPermitidos = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+    const imagensValidas = arquivos.filter(
+      (arquivo) =>
+        formatosPermitidos.includes(arquivo.type) &&
+        arquivo.size <= 5 * 1024 * 1024
     );
+
+    if (imagensValidas.length !== arquivos.length) {
+      setErroFotos(
+        "Algumas imagens foram ignoradas. São permitidos JPEG, PNG e WEBP de até 5 MB cada."
+      );
+    }
 
     const espacoDisponivel =
       LIMITE_FOTOS - todasFotos.length;
@@ -300,66 +502,89 @@ export default function DetalhePedidos({
     );
 
     if (!selecionadas.length) {
-      evento.target.value = "";
+      if (espacoDisponivel <= 0) {
+        setErroFotos(
+          "Este pedido já atingiu o limite de 10 fotografias."
+        );
+      }
+
+      input.value = "";
       return;
     }
 
-    const novasFotos: FotoGaleria[] = selecionadas.map(
-      (arquivo) => ({
-        id: `${Date.now()}-${Math.random()}`,
-        url: URL.createObjectURL(arquivo),
+    if (selecionadas.length < imagensValidas.length) {
+      setErroFotos(
+        `Foram selecionadas apenas ${selecionadas.length} imagens, respeitando o limite de 10 fotografias.`
+      );
+    }
 
-        // Horário provisório para a pré-visualização.
-        // O horário definitivo deverá vir do banco.
-        criadoEm: new Date().toISOString(),
+    try {
+      setEnviandoFotos(true);
 
-        arquivo,
-        local: true,
-      })
-    );
+      const formulario = new FormData();
 
-    setFotosLocais((anteriores) => [
-      ...anteriores,
-      ...novasFotos,
-    ]);
+      selecionadas.forEach((arquivo) => {
+        formulario.append("fotos", arquivo);
+      });
 
-    onFotosSelecionadas?.(pedido, selecionadas);
+      const resposta = await fetch(
+        `${API_BASE_URL}/api/pedidos/${pedido.id}/fotos`,
+        {
+          method: "POST",
 
-    // Leva a galeria para o final.
-    const novaQuantidade =
-      todasFotos.length + novasFotos.length;
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
 
-    setInicioFotos(
-      Math.max(
-        0,
-        Math.ceil(
-          novaQuantidade / TOTAL_VISIVEL - 1
-        ) * TOTAL_VISIVEL
-      )
-    );
+          body: formulario,
+        }
+      );
 
-    evento.target.value = "";
-  };
+      await lerRespostaAPI(resposta);
 
-  /* =====================================================
-     REMOVER FOTO LOCAL
-  ===================================================== */
+      // Consulta novamente os dados definitivos do banco.
 
-  const removerFotoLocal = (id: string) => {
-    const foto = fotosLocais.find(
-      (item) => item.id === id
-    );
+      const fotosAtualizadas =
+        await buscarFotosPedidoAPI(
+          pedido.id,
+          token
+        );
 
-    if (!foto) return;
+      setFotosServidor(fotosAtualizadas);
 
-    URL.revokeObjectURL(foto.url);
+      setInicioFotos(
+        Math.max(
+          0,
+          Math.floor(
+            (fotosAtualizadas.length - 1) /
+              TOTAL_VISIVEL
+          ) * TOTAL_VISIVEL
+        )
+      );
 
-    setFotosLocais((anteriores) =>
-      anteriores.filter((item) => item.id !== id)
-    );
+      onFotosSelecionadas?.(
+        pedido,
+        selecionadas
+      );
 
-    setFotoAmpliada(null);
-    setInicioFotos(0);
+      setErroFotos(null);
+
+    } catch (erro) {
+      console.error(
+        "Erro ao enviar fotografias:",
+        erro
+      );
+
+      setErroFotos(
+        erro instanceof Error
+          ? erro.message
+          : "Não foi possível enviar as fotografias."
+      );
+
+    } finally {
+      setEnviandoFotos(false);
+      input.value = "";
+    }
   };
 
   /* =====================================================
@@ -370,7 +595,10 @@ export default function DetalhePedidos({
     setInicioFotos((atual) =>
       Math.min(
         atual + TOTAL_VISIVEL,
-        Math.max(0, todasFotos.length - TOTAL_VISIVEL)
+        Math.max(
+          0,
+          todasFotos.length - TOTAL_VISIVEL
+        )
       )
     );
   };
@@ -388,9 +616,11 @@ export default function DetalhePedidos({
   return (
     <div className={styles.colunaDireitaFixa}>
       <section className={styles.detalhes}>
+
         {/* CABEÇALHO */}
 
         <header className={styles.detalhesTopo}>
+           
           <div>
             <span className={styles.eyebrow}>
               DETALHES DO PEDIDO
@@ -401,7 +631,12 @@ export default function DetalhePedidos({
                 ? `Pedido ${pedido.codigo}`
                 : "Detalhes do pedido"}
             </h3>
+            
           </div>
+
+          <div className={styles.detalhesTopoAcoes}>
+    <Chat />
+          
 
           {onFechar && (
             <button
@@ -413,6 +648,7 @@ export default function DetalhePedidos({
               ×
             </button>
           )}
+          </div>
         </header>
 
         {!pedido ? (
@@ -425,6 +661,7 @@ export default function DetalhePedidos({
         ) : (
           <>
             <div className={styles.detalhesCorpoScroll}>
+
               {/* CLIENTE E ENDEREÇO */}
 
               <div className={styles.detalheClienteEEndereco}>
@@ -502,6 +739,7 @@ export default function DetalhePedidos({
                     descricoesExpandidas.includes(item.id);
 
                   const descricao = item.descricao || "";
+
                   const descricaoLonga =
                     descricao.length > 100;
 
@@ -513,7 +751,7 @@ export default function DetalhePedidos({
                       {item.foto && (
                         <img
                           className={styles.imagemItemDetalhe}
-                          src={item.foto}
+                          src={resolverUrlFoto(item.foto)}
                           alt={item.nome}
                           loading="lazy"
                         />
@@ -586,6 +824,7 @@ export default function DetalhePedidos({
               <div className={styles.resumoValores}>
                 <div className={styles.linhaTotal}>
                   <span>Subtotal dos itens</span>
+
                   <strong>
                     {formatarMoeda(pedido.subtotal)}
                   </strong>
@@ -596,6 +835,7 @@ export default function DetalhePedidos({
                     className={`${styles.linhaTotal} ${styles.linhaDesconto}`}
                   >
                     <span>Desconto</span>
+
                     <strong>
                       -{formatarMoeda(pedido.desconto ?? 0)}
                     </strong>
@@ -605,6 +845,7 @@ export default function DetalhePedidos({
                 {(pedido.taxaEntrega ?? 0) > 0 && (
                   <div className={styles.linhaTotal}>
                     <span>Taxa de entrega</span>
+
                     <strong>
                       {formatarMoeda(
                         pedido.taxaEntrega ?? 0
@@ -617,15 +858,14 @@ export default function DetalhePedidos({
                   className={`${styles.linhaTotal} ${styles.linhaTotalDestaque}`}
                 >
                   <span>Total do pedido</span>
+
                   <strong>
                     {formatarMoeda(pedido.total)}
                   </strong>
                 </div>
               </div>
 
-              {/* =================================================
-                  PROVA FOTOGRÁFICA
-              ================================================= */}
+              {/* PROVA FOTOGRÁFICA */}
 
               <section className={styles.provaFotografica}>
                 <div className={styles.provaCabecalho}>
@@ -653,20 +893,40 @@ export default function DetalhePedidos({
                 <p className={styles.provaSubtitulo}>
                   Seu cliente acompanha tudo em tempo real!
                   As fotos registradas são compartilhadas
-                  instantaneamente no aplicativo, permitindo que
-                  ele visualize cada etapa do preparo do pedido.
+                  no aplicativo, permitindo que ele visualize
+                  as etapas do pedido.
                 </p>
 
-                {/* INPUT OCULTO */}
+                {/* INPUT */}
 
                 <input
                   ref={inputFotosRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   multiple
                   className={styles.provaInput}
                   onChange={selecionarFotos}
+                  disabled={enviandoFotos}
                 />
+
+                {/* FEEDBACK */}
+
+                {carregandoFotos && (
+                  <p>Carregando fotografias...</p>
+                )}
+
+                {erroFotos && (
+                  <p
+                    role="alert"
+                    style={{
+                      color: "#bd1221",
+                      fontSize: "13px",
+                      margin: "8px 0",
+                    }}
+                  >
+                    {erroFotos}
+                  </p>
+                )}
 
                 {/* GALERIA */}
 
@@ -684,7 +944,8 @@ export default function DetalhePedidos({
 
                   <div className={styles.provaLista}>
                     {fotosVisiveis.map((foto, index) => {
-                      const numeroFoto = inicioFotos + index + 1;
+                      const numeroFoto =
+                        inicioFotos + index + 1;
 
                       return (
                         <div
@@ -707,8 +968,6 @@ export default function DetalhePedidos({
                             />
                           </button>
 
-                          {/* IDENTIFICAÇÃO + DATA/HORA */}
-
                           <div className={styles.provaFotoInfo}>
                             <strong
                               className={styles.provaFotoLegenda}
@@ -720,49 +979,47 @@ export default function DetalhePedidos({
                               className={styles.provaFotoDataHora}
                               title={formatarDataHora(foto.criadoEm)}
                             >
-                              <span aria-hidden="true">◷   </span>
+                              <span aria-hidden="true">
+                                ◷{" "}
+                              </span>
+
                               {formatarDataHora(foto.criadoEm)}
                             </span>
                           </div>
-
-                          {foto.local && (
-                            <button
-                              type="button"
-                              className={styles.provaRemover}
-                              onClick={() =>
-                                removerFotoLocal(foto.id)
-                              }
-                              title="Remover fotografia"
-                              aria-label="Remover fotografia"
-                            >
-                              ×
-                            </button>
-                          )}
                         </div>
                       );
                     })}
 
-                    {/* CARTÃO DE ADICIONAR */}
+                    {/* ADICIONAR FOTOS */}
 
                     {todasFotos.length < LIMITE_FOTOS && (
                       <button
                         type="button"
                         className={styles.provaAdicionar}
                         onClick={abrirSeletorFotos}
+                        disabled={
+                          enviandoFotos || carregandoFotos
+                        }
                       >
                         <span
                           className={styles.provaAdicionarIcone}
                         >
-                          +
+                          {enviandoFotos ? "…" : "+"}
                         </span>
 
                         <strong>
-                          {todasFotos.length === 0
-                            ? "Adicionar fotos"
-                            : "Adicionar mais"}
+                          {enviandoFotos
+                            ? "Enviando fotos..."
+                            : todasFotos.length === 0
+                              ? "Adicionar fotos"
+                              : "Adicionar mais"}
                         </strong>
 
-                        <small>Selecionar imagens</small>
+                        <small>
+                          {enviandoFotos
+                            ? "Aguarde o envio"
+                            : "Selecionar imagens"}
+                        </small>
                       </button>
                     )}
                   </div>
@@ -787,9 +1044,13 @@ export default function DetalhePedidos({
                   </span>
 
                   <span>
-                    {todasFotos.length === 0
-                      ? "Nenhuma foto adicionada"
-                      : "Fotografias registradas"}
+                    {enviandoFotos
+                      ? "Enviando fotografias..."
+                      : carregandoFotos
+                        ? "Carregando fotografias..."
+                        : todasFotos.length === 0
+                          ? "Nenhuma foto adicionada"
+                          : "Fotografias registradas no servidor"}
                   </span>
                 </div>
 
@@ -866,6 +1127,7 @@ export default function DetalhePedidos({
 
                     <div>
                       <strong>Tempo de preparo</strong>
+
                       <small>
                         Previsão informada pelo estabelecimento
                       </small>
@@ -945,7 +1207,10 @@ export default function DetalhePedidos({
             onClick={(evento) => evento.stopPropagation()}
           />
         </div>
+
       )}
+      
     </div>
+    
   );
 }

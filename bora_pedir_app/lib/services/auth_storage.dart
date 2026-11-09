@@ -8,6 +8,7 @@ class AuthStorage {
   static const String _nomeKey = 'nome';
   static const String _emailKey = 'email';
   static const String _telefoneKey = 'telefone';
+  static const String _fotoKey = 'foto';
 
   static Future<void> salvarLogin({
     required String token,
@@ -17,6 +18,7 @@ class AuthStorage {
     required String nome,
     required String email,
     required String telefone,
+    String? foto,
   }) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -27,6 +29,17 @@ class AuthStorage {
     await prefs.setString(_nomeKey, nome);
     await prefs.setString(_emailKey, email);
     await prefs.setString(_telefoneKey, telefone);
+    
+    if (foto != null && foto.isNotEmpty) {
+      await prefs.setString(_fotoKey, foto);
+    } else {
+      await prefs.remove(_fotoKey);
+    }
+  }
+
+  static Future<void> salvarFoto(String fotoUrl) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_fotoKey, fotoUrl);
   }
 
   static Future<String?> getToken() async {
@@ -34,23 +47,26 @@ class AuthStorage {
     return prefs.getString(_tokenKey);
   }
 
+  static Future<int?> getClienteId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_clienteIdKey);
+  }
+
   static Future<String?> getNome() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_nomeKey);
   }
 
-static Future<String?> getNomePrimeiro() async {
-  final prefs = await SharedPreferences.getInstance();
+  static Future<String?> getNomePrimeiro() async {
+    final prefs = await SharedPreferences.getInstance();
+    final nomeCompleto = prefs.getString(_nomeKey);
 
-  final nomeCompleto = prefs.getString(_nomeKey);
+    if (nomeCompleto == null || nomeCompleto.trim().isEmpty) {
+      return null;
+    }
 
-  if (nomeCompleto == null || nomeCompleto.trim().isEmpty) {
-    return null;
+    return nomeCompleto.trim().split(RegExp(r'\s+')).first;
   }
-
-  return nomeCompleto.trim().split(RegExp(r'\s+')).first;
-}
-
 
   static Future<String?> getEmail() async {
     final prefs = await SharedPreferences.getInstance();
@@ -62,9 +78,13 @@ static Future<String?> getNomePrimeiro() async {
     return prefs.getString(_telefoneKey);
   }
 
+  static Future<String?> getFoto() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_fotoKey);
+  }
+
   static Future<bool> estaLogado() async {
     final prefs = await SharedPreferences.getInstance();
-
     return prefs.getString(_tokenKey) != null;
   }
 
@@ -78,5 +98,6 @@ static Future<String?> getNomePrimeiro() async {
     await prefs.remove(_nomeKey);
     await prefs.remove(_emailKey);
     await prefs.remove(_telefoneKey);
+    await prefs.remove(_fotoKey);
   }
 }
