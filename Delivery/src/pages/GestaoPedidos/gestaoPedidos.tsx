@@ -28,6 +28,8 @@ import DetalhePedidos, {
   type PedidoDetalhe,
 } from "./componentes/detalhe_pedidos/detalhe_pedidos";
 
+import { Duvidas } from "./duvidas/duvidas";
+
 /* =====================================================
    TIPOS
 ===================================================== */
@@ -639,75 +641,73 @@ export function GestaoPedidos() {
      RENDERIZAR CONTEÚDO DA PÁGINA
   ===================================================== */
 
-  const renderPedidos = () => {
-    const selecionado = pedidosLista.find(
-      (pedido) => pedido.id === pedidoSelecionado
-    );
 
-    if (paginaAtiva === "cardapio") {
-      return <Cardapio />;
-    }
+const renderPedidos = () => {
+  const selecionado = pedidosLista.find(
+    (pedido) => pedido.id === pedidoSelecionado
+  );
 
-    if (paginaAtiva === "portalGestao") {
-      return <PortalGestao />;
-    }
+  // CARDÁPIO
+  if (paginaAtiva === "cardapio") {
+    return <Cardapio />;
+  }
 
-    if (
-      paginaAtiva !== "pedidos" &&
-      paginaAtiva !== "entrega" &&
-      paginaAtiva !== "pedidosConcluidos"
-    ) {
-      return (
-        <section className={styles.paginaInterna}>
-          <h2>{titulos[paginaAtiva]}</h2>
+  // PORTAL DE GESTÃO
+  if (paginaAtiva === "portalGestao") {
+    return <PortalGestao />;
+  }
 
-          <p>
-            Esta área estará disponível nesta seção do
-            Portal Gestão.
-          </p>
-        </section>
-      );
-    }
+  // DÚVIDAS
+  if (paginaAtiva === "duvidas") {
+    return <Duvidas />;
+  }
 
-    const pedidoDetalhe: PedidoDetalhe | null =
-      selecionado
-        ? converterParaDetalhe(selecionado)
-        : null;
-
+  // CONFIGURAÇÕES
+  if (paginaAtiva === "configuracoes") {
     return (
-      <div className={styles.areaPedidos}>
-        {/* COLUNA ESQUERDA */}
-
-        <ColunaPedidos
-          pedidos={pedidosFiltrados}
-          pedidoSelecionadoId={pedidoSelecionado}
-          onSelecionarPedido={(id) =>
-            setPedidoSelecionado(id)
-          }
-          onAlterarStatus={alterarStatus}
-          onRecusarPedido={recusarPedido}
-        />
-
-        {/* COLUNA DIREITA */}
-
-        <DetalhePedidos
-          pedido={pedidoDetalhe}
-          resumo={resumo}
-          onFechar={() => setPedidoSelecionado(null)}
-          onAceitar={() => {
-            if (selecionado) {
-              alterarStatus(selecionado.id, "preparo");
-            }
-          }}
-          onMarcarPronto={() => {
-            if (selecionado) {
-              alterarStatus(selecionado.id, "pronto");
-            }
-          }}
-        />
-      </div>
+      <section className={styles.paginaInterna}>
+        <h2>Configurações</h2>
+      </section>
     );
-  };
+  }
+
+  // PEDIDOS, ENTREGA E CONCLUÍDOS
+  const pedidoDetalhe: PedidoDetalhe | null =
+    selecionado
+      ? converterParaDetalhe(selecionado)
+      : null;
+
+  return (
+    <div className={styles.areaPedidos}>
+      <ColunaPedidos
+        pedidos={pedidosFiltrados}
+        pedidoSelecionadoId={pedidoSelecionado}
+        onSelecionarPedido={(id) =>
+          setPedidoSelecionado(id)
+        }
+        onAlterarStatus={alterarStatus}
+        onRecusarPedido={recusarPedido}
+      />
+
+      <DetalhePedidos
+        pedido={pedidoDetalhe}
+        resumo={resumo}
+        onFechar={() => setPedidoSelecionado(null)}
+        onAceitar={() => {
+          if (selecionado) {
+            alterarStatus(selecionado.id, "preparo");
+          }
+        }}
+        onMarcarPronto={() => {
+          if (selecionado) {
+            alterarStatus(selecionado.id, "pronto");
+          }
+        }}
+      />
+    </div>
+  );
+};
+
 
   /* =====================================================
      ESTRUTURA PRINCIPAL

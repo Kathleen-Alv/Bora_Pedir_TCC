@@ -765,10 +765,19 @@ void _atualizarFotos() {
                           // CARTÃO DO RESTAURANTE
                           // =====================================
 
+                          // =====================================
+                          // CARTÃO DO RESTAURANTE
+                          // =====================================
+
                           CartaoRestaurante(
                             nomeRestaurante: nomeRestaurante,
                             logoRestaurante: logoRestaurante,
                             baseUrl: baseUrl,
+                            pedidoId: widget.pedidoId,
+                            endereco: null,
+                            categoria: null,
+                            avaliacao: null,
+                            totalAvaliacoes: null,
                             onContato: widget.onContato,
                           ),
 

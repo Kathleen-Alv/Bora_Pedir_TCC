@@ -1,11 +1,16 @@
+
 import 'package:flutter/material.dart';
 
-class CartaoRestaurante extends StatelessWidget {
+import '../../pages/perfil/chat/chat.dart';
+import '../../services/chat/chat.service.dart';
+
+class CartaoRestaurante extends StatefulWidget {
   const CartaoRestaurante({
     super.key,
     required this.nomeRestaurante,
     required this.logoRestaurante,
     required this.baseUrl,
+    required this.pedidoId,
     this.endereco,
     this.categoria,
     this.avaliacao,
@@ -16,6 +21,7 @@ class CartaoRestaurante extends StatelessWidget {
   final String nomeRestaurante;
   final String? logoRestaurante;
   final String baseUrl;
+  final int pedidoId;
 
   final String? endereco;
   final String? categoria;
@@ -24,10 +30,90 @@ class CartaoRestaurante extends StatelessWidget {
 
   final VoidCallback? onContato;
 
+  @override
+  State<CartaoRestaurante> createState() => _CartaoRestauranteState();
+}
+
+class _CartaoRestauranteState extends State<CartaoRestaurante> {
   static const Color vermelho = Color(0xFFBD1221);
   static const Color texto = Color(0xFF111111);
   static const Color textoSuave = Color(0xFF777777);
   static const Color amarelo = Color(0xFFFFC43D);
+
+  bool _abrindoChat = false;
+
+  // ===============================================================
+  // ABRIR CHAT DO PEDIDO
+  // ===============================================================
+
+  Future<void> _abrirChat() async {
+    if (_abrindoChat) return;
+
+    setState(() {
+      _abrindoChat = true;
+    });
+
+    try {
+      final chatService = ChatService(
+        baseUrl: widget.baseUrl,
+      );
+
+      // A resposta é um Map<String, dynamic>.
+      final Map<String, dynamic> resposta =
+          await chatService.criarChatPedido(
+        pedidoId: widget.pedidoId,
+      );
+
+      // Extrai o ID da conversa.
+      final dynamic idRecebido =
+          resposta['chat_id'] ??
+          resposta['id'] ??
+          (resposta['chat'] is Map
+              ? (resposta['chat'] as Map)['id']
+              : null);
+
+      final int? chatId = idRecebido is int
+          ? idRecebido
+          : int.tryParse(idRecebido?.toString() ?? '');
+
+      if (chatId == null || chatId <= 0) {
+        throw Exception(
+          'A API não retornou um ID de conversa válido.',
+        );
+      }
+
+      if (!mounted) return;
+
+      // Abre a conversa.
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatPage(
+            chatId: chatId,
+            nomeComercio: widget.nomeRestaurante,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível abrir a conversa: $e',
+          ),
+          backgroundColor: vermelho,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _abrindoChat = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +138,14 @@ class CartaoRestaurante extends StatelessWidget {
           final tamanhoLogo = largura < 350 ? 66.0 : 78.0;
 
           return SizedBox(
-            height: tamanhoLogo, // Força a altura exata do cartão à altura da logo
+            height: tamanhoLogo,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // =================================================
                 // LOGO DO COMÉRCIO
                 // =================================================
+
                 Container(
                   width: tamanhoLogo,
                   height: tamanhoLogo,
@@ -80,16 +167,18 @@ class CartaoRestaurante extends StatelessWidget {
                 // =================================================
                 // INFORMAÇÕES DO COMÉRCIO
                 // =================================================
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribui uniformemente na altura da logo
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Nome do comércio
+
                       Text(
-                        nomeRestaurante.trim().isEmpty
+                        widget.nomeRestaurante.trim().isEmpty
                             ? 'Nome do comércio'
-                            : nomeRestaurante,
+                            : widget.nomeRestaurante,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -102,6 +191,7 @@ class CartaoRestaurante extends StatelessWidget {
                       ),
 
                       // Endereço
+
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -116,7 +206,7 @@ class CartaoRestaurante extends StatelessWidget {
                           ),
                           Text(
                             _textoOuPadrao(
-                              endereco,
+                              widget.endereco,
                               'Endereço não informado',
                             ),
                             maxLines: 1,
@@ -132,6 +222,7 @@ class CartaoRestaurante extends StatelessWidget {
                       ),
 
                       // Categoria
+
                       Row(
                         children: [
                           Text(
@@ -146,7 +237,7 @@ class CartaoRestaurante extends StatelessWidget {
                           Expanded(
                             child: Text(
                               _textoOuPadrao(
-                                categoria,
+                                widget.categoria,
                                 'Não informada',
                               ),
                               maxLines: 1,
@@ -162,6 +253,7 @@ class CartaoRestaurante extends StatelessWidget {
                       ),
 
                       // Avaliação
+
                       Row(
                         children: [
                           const Icon(
@@ -171,8 +263,8 @@ class CartaoRestaurante extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            avaliacao != null
-                                ? avaliacao!
+                            widget.avaliacao != null
+                                ? widget.avaliacao!
                                     .toStringAsFixed(1)
                                     .replaceAll('.', ',')
                                 : '—',
@@ -185,8 +277,8 @@ class CartaoRestaurante extends StatelessWidget {
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(
-                              totalAvaliacoes != null
-                                  ? '(${totalAvaliacoes} avaliações)'
+                              widget.totalAvaliacoes != null
+                                  ? '(${widget.totalAvaliacoes} avaliações)'
                                   : 'Avaliações dos clientes',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -208,6 +300,7 @@ class CartaoRestaurante extends StatelessWidget {
                 // =================================================
                 // BOTÃO CONVERSAR
                 // =================================================
+
                 _botaoConversar(largura),
               ],
             ),
@@ -220,6 +313,7 @@ class CartaoRestaurante extends StatelessWidget {
   // ===============================================================
   // BOTÃO DE CONVERSA
   // ===============================================================
+
   Widget _botaoConversar(double largura) {
     final compacto = largura < 350;
 
@@ -227,7 +321,7 @@ class CartaoRestaurante extends StatelessWidget {
       color: vermelho,
       borderRadius: BorderRadius.circular(15),
       child: InkWell(
-        onTap: onContato,
+        onTap: _abrindoChat ? null : _abrirChat,
         borderRadius: BorderRadius.circular(15),
         child: Container(
           padding: EdgeInsets.symmetric(
@@ -236,31 +330,39 @@ class CartaoRestaurante extends StatelessWidget {
           ),
           constraints: const BoxConstraints(
             minHeight: 44,
+            minWidth: 76,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Conversar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: compacto ? 10 : 11.5,
-                      fontWeight: FontWeight.w900,
+          child: Center(
+            child: _abrindoChat
+                ? const SizedBox(
+                    width: 17,
+                    height: 17,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
                     ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Conversar',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: compacto ? 10 : 11.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.forum_outlined,
+                        color: Colors.white,
+                        size: 17,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  const Icon(
-                    Icons.forum_outlined,
-                    color: Colors.white,
-                    size: 17,
-                  ),
-                ],
-              ),
-            ],
           ),
         ),
       ),
@@ -270,16 +372,19 @@ class CartaoRestaurante extends StatelessWidget {
   // ===============================================================
   // IMAGEM DO RESTAURANTE
   // ===============================================================
+
   Widget _imagemRestaurante() {
-    if (logoRestaurante == null || logoRestaurante!.trim().isEmpty) {
+    if (widget.logoRestaurante == null ||
+        widget.logoRestaurante!.trim().isEmpty) {
       return _imagemPadrao();
     }
 
-    final caminho = logoRestaurante!.trim();
+    final caminho = widget.logoRestaurante!.trim();
 
-    final url = caminho.startsWith('http://') || caminho.startsWith('https://')
+    final url = caminho.startsWith('http://') ||
+            caminho.startsWith('https://')
         ? caminho
-        : '$baseUrl${caminho.startsWith('/') ? '' : '/'}$caminho';
+        : '${widget.baseUrl}${caminho.startsWith('/') ? '' : '/'}$caminho';
 
     return Image.network(
       url,
@@ -295,6 +400,7 @@ class CartaoRestaurante extends StatelessWidget {
   // ===============================================================
   // IMAGEM PADRÃO
   // ===============================================================
+
   Widget _imagemPadrao() {
     return Container(
       color: const Color(0xFFF5E9E7),
@@ -310,6 +416,7 @@ class CartaoRestaurante extends StatelessWidget {
   // ===============================================================
   // TEXTO PADRÃO
   // ===============================================================
+
   String _textoOuPadrao(String? valor, String padrao) {
     if (valor == null || valor.trim().isEmpty) {
       return padrao;

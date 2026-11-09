@@ -60,6 +60,9 @@ import enderecosClientesRoutes
 import pedidoRoutes
     from './src/api/routes/pedido.routes.js';
 
+import chatRoutes
+    from './src/api/routes/chat.routes.js';
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -174,6 +177,24 @@ app.use(
 app.use(
     '/api/pedidos',
     pedidoRoutes
+);
+
+// ================================================================
+// PEDIDOS
+// ================================================================
+
+app.use(
+    '/api/pedidos',
+    pedidoRoutes
+);
+
+// ================================================================
+// CHAT ENTRE CLIENTES E COMÉRCIOS
+// ================================================================
+
+app.use(
+    '/api/chat',
+    chatRoutes
 );
 
 // ================================================================

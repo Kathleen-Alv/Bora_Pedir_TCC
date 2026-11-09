@@ -1,37 +1,36 @@
 
 /* =====================================================
    JANELA PRINCIPAL
+   CHAT INTEGRADO À ÁREA DA PÁGINA
 ===================================================== */
 
 .chat {
-    position: fixed;
-    right: 35px;
-    bottom: 30px;
+    position: relative;
 
-    width: 420px;
-    height: 600px;
+    inset: auto;
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    flex: 1;
 
     display: flex;
     flex-direction: column;
 
     overflow: hidden;
 
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 24px;
+    border: none;
+    border-radius: 0;
 
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.42),
-            rgba(255, 255, 255, 0.16)
-        );
+    background: #FFFFFF;
 
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    box-shadow: none;
 
-    box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.18),
-        0 8px 25px rgba(0, 0, 0, 0.08);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 
     font-family:
         Inter,
@@ -42,7 +41,8 @@
 
     color: #171717;
 
-    z-index: 9999;
+    z-index: auto;
+    box-sizing: border-box;
 }
 
 
@@ -52,10 +52,8 @@
 
 .chat img {
     display: block;
-
     max-width: 100%;
     height: auto;
-
     object-fit: contain;
     object-position: center;
 }
@@ -68,13 +66,15 @@
 .messages {
     flex: 1;
     min-height: 0;
+    min-width: 0;
 
     overflow-y: auto;
     overflow-x: hidden;
 
-    padding: 20px 17px;
+    padding: 20px 22px;
 
-    background: rgba(255, 255, 255, 0.18);
+    background: #FFFFFF;
+    box-sizing: border-box;
 }
 
 .messages::-webkit-scrollbar {
@@ -96,18 +96,20 @@
 ===================================================== */
 
 .header {
-    height: 78px;
-    min-height: 78px;
+    height: 68px;
+    min-height: 68px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    padding: 0 18px;
+    padding: 0 22px;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid #EDF1EE;
 
-    background: rgba(255, 255, 255, 0.28);
+    background: #FFFFFF;
+
+    box-sizing: border-box;
 }
 
 
@@ -119,6 +121,8 @@
     display: flex;
     align-items: center;
     gap: 11px;
+
+    min-width: 0;
 }
 
 .avatar {
@@ -133,25 +137,31 @@
 
     border-radius: 14px;
 
-    background: #bd1221;
-    color: white;
+    background: #BD1221;
+    color: #FFFFFF;
 
     font-size: 13px;
     font-weight: 800;
 
-    box-shadow: 0 6px 18px rgba(189, 18, 33, 0.25);
+    box-shadow: 0 6px 18px rgba(189, 18, 33, 0.18);
 }
 
 .userInfo {
     display: flex;
     flex-direction: column;
     gap: 4px;
+
+    min-width: 0;
 }
 
 .userInfo strong {
     font-size: 14px;
     font-weight: 700;
     color: #171717;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .userInfo span {
@@ -171,7 +181,7 @@
     flex-shrink: 0;
 
     border-radius: 50%;
-    background: #32b768;
+    background: #32B768;
 
     box-shadow: 0 0 0 3px rgba(50, 183, 104, 0.12);
 }
@@ -198,8 +208,8 @@
     align-items: center;
     justify-content: center;
 
-    background: rgba(255, 255, 255, 0.42);
-    color: #555;
+    background: #F5F7F6;
+    color: #555555;
 
     font-size: 20px;
     cursor: pointer;
@@ -210,7 +220,7 @@
 }
 
 .actionButton:hover {
-    background: rgba(255, 255, 255, 0.78);
+    background: #EDF1EE;
     transform: translateY(-1px);
 }
 
@@ -227,8 +237,8 @@
 
     border-radius: 20px;
 
-    background: rgba(255, 255, 255, 0.65);
-    color: #777;
+    background: #F3F8F5;
+    color: #777777;
 
     font-size: 10px;
     font-weight: 600;
@@ -276,8 +286,8 @@
 
     border-radius: 9px;
 
-    background: #bd1221;
-    color: white;
+    background: #BD1221;
+    color: #FFFFFF;
 
     font-size: 8px;
     font-weight: 800;
@@ -317,11 +327,11 @@
     line-height: 1.55;
 
     color: #272727;
-    background: rgba(255, 255, 255, 0.91);
+    background: #F2F4F3;
 
     overflow-wrap: anywhere;
 
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.055);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
 }
 
 .received .messageBubble {
@@ -332,7 +342,7 @@
     border-top-right-radius: 5px;
 
     background: #646060;
-    color: white;
+    color: #FFFFFF;
 }
 
 
@@ -354,11 +364,13 @@
 ===================================================== */
 
 .footer {
-    padding: 13px 15px 15px;
+    flex-shrink: 0;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.55);
+    padding: 13px 20px 16px;
 
-    background: rgba(255, 255, 255, 0.27);
+    border-top: 1px solid #EDF1EE;
+
+    background: #FFFFFF;
 }
 
 
@@ -373,12 +385,12 @@
 
     padding: 6px;
 
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    border: 1px solid #E5EAE6;
     border-radius: 17px;
 
-    background: rgba(255, 255, 255, 0.76);
+    background: #F8FAF9;
 
-    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
 }
 
 
@@ -396,7 +408,7 @@
     border-radius: 11px;
 
     background: transparent;
-    color: #777;
+    color: #777777;
 
     font-size: 22px;
     font-weight: 300;
@@ -410,7 +422,7 @@
 
 .attachButton:hover {
     background: rgba(0, 0, 0, 0.05);
-    color: #333;
+    color: #333333;
 }
 
 
@@ -428,13 +440,13 @@
     outline: none;
 
     background: transparent;
-    color: #222;
+    color: #222222;
 
     font-size: 12px;
 }
 
 .input::placeholder {
-    color: #999;
+    color: #999999;
 }
 
 
@@ -455,12 +467,12 @@
     border: none;
     border-radius: 13px;
 
-    background: #bd1221;
-    color: white;
+    background: #BD1221;
+    color: #FFFFFF;
 
     cursor: pointer;
 
-    box-shadow: 0 7px 17px rgba(189, 18, 33, 0.25);
+    box-shadow: 0 7px 17px rgba(189, 18, 33, 0.20);
 
     transition:
         transform 0.2s ease,
@@ -470,11 +482,16 @@
 .sendButton:hover {
     transform: translateY(-2px);
 
-    box-shadow: 0 10px 22px rgba(189, 18, 33, 0.32);
+    box-shadow: 0 10px 22px rgba(189, 18, 33, 0.28);
 }
 
 .sendButton:active {
     transform: scale(0.94);
+}
+
+.sendButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .sendButton svg {
@@ -568,8 +585,8 @@
     border: none;
     border-radius: 10px;
 
-    background: rgba(255, 255, 255, 0.45);
-    color: #555;
+    background: #F5F7F6;
+    color: #555555;
 
     font-size: 25px;
     font-weight: 300;
@@ -583,8 +600,118 @@
 }
 
 .closeButton:hover {
-    background: rgba(255, 255, 255, 0.85);
+    background: #EDF1EE;
     transform: scale(1.05);
+}
+
+
+
+/* =====================================================
+   CHAT INTEGRADO NA PÁGINA DE DÚVIDAS
+===================================================== */
+
+.chatIntegrado {
+    position: relative;
+
+    inset: auto;
+
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+
+    right: auto;
+    bottom: auto;
+
+    border: none;
+    border-radius: 0;
+
+    box-shadow: none;
+
+    z-index: 1;
+
+    background: #FFFFFF;
+
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Cabeçalho do chat integrado */
+
+.chatIntegrado .header {
+    flex-shrink: 0;
+
+    background: #FFFFFF;
+
+    border-bottom: 1px solid #EDF1EE;
+}
+
+/* Área das mensagens */
+
+.chatIntegrado .messages {
+    flex: 1;
+    min-height: 0;
+
+    overflow-y: auto;
+
+    background: #FFFFFF;
+
+    padding: 22px;
+}
+
+/* Rodapé */
+
+.chatIntegrado .footer {
+    flex-shrink: 0;
+
+    background: #FFFFFF;
+
+    border-top: 1px solid #EDF1EE;
+
+    padding: 14px 18px;
+}
+
+/* Input */
+
+.chatIntegrado .inputArea {
+    background: #F8FAF8;
+
+    border: 1px solid #E5EBE6;
+
+    box-shadow: none;
+}
+
+/* Erro */
+
+.chatErro {
+    width: fit-content;
+    max-width: 90%;
+
+    margin: 12px auto;
+    padding: 10px 14px;
+
+    border-radius: 9px;
+
+    background: #FFF1F2;
+    color: #BD1221;
+
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Imagens */
+
+.chatIntegrado .messageBubble img {
+    display: block;
+
+    max-width: 220px;
+    max-height: 220px;
+
+    width: auto;
+    height: auto;
+
+    object-fit: contain;
+
+    border-radius: 8px;
 }
 
 
@@ -592,20 +719,33 @@
    RESPONSIVIDADE
 ===================================================== */
 
-@media (max-width: 520px) {
-
+@media (max-width: 750px) {
     .chat {
-        right: 12px;
-        bottom: 12px;
-
-        width: calc(100vw - 24px);
-        height: calc(100dvh - 24px);
-
-        border-radius: 20px;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
     }
 
+    .messages {
+        padding: 16px 12px;
+    }
+
+    .footer {
+        padding: 10px 12px 12px;
+    }
+
+    .header {
+        padding: 0 13px;
+    }
+}
+
+@media (max-width: 480px) {
     .chatButton {
         width: 44px;
         height: 44px;
+    }
+
+    .messageContent {
+        max-width: 85%;
     }
 }

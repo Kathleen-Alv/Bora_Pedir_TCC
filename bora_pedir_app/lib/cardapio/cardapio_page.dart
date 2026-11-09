@@ -1,11 +1,17 @@
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/comercio_service.dart';
 import '../../services/carrinho_service.dart';
 import '../../widgets/bottom_navigation.dart';
 import '../carrinho_compras/carrinho_compras_modal.dart';
 import 'item_cardapio.dart';
+import '../pages/perfil/chat/chat.dart';
 
 class CardapioPage extends StatefulWidget {
   final int comercioId;
@@ -28,6 +34,8 @@ class CardapioPage extends StatefulWidget {
 }
 
 class _CardapioPageState extends State<CardapioPage> {
+  static const Color vermelho = Color(0xFFBD1221);
+
   List<Map<String, dynamic>> categorias = [];
   List<Map<String, dynamic>> itens = [];
 
@@ -39,6 +47,9 @@ class _CardapioPageState extends State<CardapioPage> {
   bool carrinhoVisivel = false;
   double totalCarrinho = 0;
   bool carregandoCarrinho = false;
+
+  // Controle de abertura do chat.
+  bool abrindoChat = false;
 
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _chavesCategorias = {};
@@ -134,6 +145,118 @@ class _CardapioPageState extends State<CardapioPage> {
         erro = 'Não foi possível carregar o cardápio.';
       });
     }
+  }
+
+  // =========================================================
+  // ABRIR CHAT COM O COMÉRCIO
+  // =========================================================
+
+  Future<void> _abrirChat() async {
+    if (abrindoChat) return;
+
+    setState(() {
+      abrindoChat = true;
+    });
+
+    try {
+      final preferencias = await SharedPreferences.getInstance();
+
+      final token = preferencias.getString('token') ?? '';
+
+      if (token.isEmpty) {
+        _mostrarAviso(
+          'Faça login novamente para conversar com o comércio.',
+        );
+        return;
+      }
+
+      final baseUrl = ComercioService.baseUrl.replaceFirst(
+        RegExp(r'/$'),
+        '',
+      );
+
+      final resposta = await http.post(
+        Uri.parse('$baseUrl/api/chat/duvida'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'comercio_id': widget.comercioId,
+        }),
+      );
+
+      Map<String, dynamic> dados = {};
+
+      try {
+        final decodificado = jsonDecode(resposta.body);
+
+        if (decodificado is Map<String, dynamic>) {
+          dados = decodificado;
+        }
+      } catch (_) {
+        debugPrint('Resposta inválida ao abrir chat: ${resposta.body}');
+      }
+
+      if (resposta.statusCode != 200 &&
+          resposta.statusCode != 201) {
+        _mostrarAviso(
+          dados['mensagem']?.toString() ??
+              'Não foi possível abrir a conversa.',
+        );
+        return;
+      }
+
+      final chatId = int.tryParse(
+        dados['chat_id']?.toString() ?? '',
+      );
+
+      if (chatId == null || chatId <= 0) {
+        _mostrarAviso(
+          'O servidor não retornou um identificador válido para a conversa.',
+        );
+        return;
+      }
+
+      if (!mounted) return;
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatPage(
+            chatId: chatId,
+            nomeComercio: widget.nomeComercio,
+          ),
+        ),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('ERRO AO ABRIR CHAT: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (mounted) {
+        _mostrarAviso(
+          'Não foi possível conectar ao chat. Tente novamente.',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          abrindoChat = false;
+        });
+      }
+    }
+  }
+
+  void _mostrarAviso(String mensagem) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: vermelho,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   // =========================================================
@@ -350,13 +473,7 @@ class _CardapioPageState extends State<CardapioPage> {
     );
 
     if (itemId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível identificar este produto.'),
-          backgroundColor: Color(0xFFBD1221),
-        ),
-      );
-
+      _mostrarAviso('Não foi possível identificar este produto.');
       return;
     }
 
@@ -510,6 +627,8 @@ class _CardapioPageState extends State<CardapioPage> {
                               ),
                             ),
                             const SizedBox(height: 18),
+
+                            // INFORMAÇÕES E BOTÃO DO CHAT
                             Row(
                               children: [
                                 const Expanded(
@@ -536,11 +655,49 @@ class _CardapioPageState extends State<CardapioPage> {
                                   height: 45,
                                   color: const Color(0xFFE5E5E5),
                                 ),
+
+                                // TELEFONE
                                 const Expanded(
+                                  flex: 2,
                                   child: _InformacaoComercio(
                                     icone: Icons.phone,
                                     titulo: 'Telefone',
                                     valor: '(11) 98765-4321',
+                                  ),
+                                ),
+
+                                const SizedBox(width: 5),
+
+                                // BOTÃO PARA ABRIR O CHAT
+                                Tooltip(
+                                  message: 'Conversar com o comércio',
+                                  child: Material(
+                                    color: vermelho,
+                                    borderRadius: BorderRadius.circular(13),
+                                    child: InkWell(
+                                      onTap: abrindoChat ? null : _abrirChat,
+                                      borderRadius: BorderRadius.circular(13),
+                                      child: SizedBox(
+                                        width: 43,
+                                        height: 43,
+                                        child: Center(
+                                          child: abrindoChat
+                                              ? const SizedBox(
+                                                  width: 19,
+                                                  height: 19,
+                                                  child: CircularProgressIndicator(
+                                                    color: Colors.white,
+                                                    strokeWidth: 2,
+                                                  ),
+                                                )
+                                              : const Icon(
+                                                  Icons.chat_bubble_outline,
+                                                  color: Colors.white,
+                                                  size: 21,
+                                                ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
