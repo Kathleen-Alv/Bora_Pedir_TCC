@@ -13,18 +13,28 @@ import { db } from '../../../configBancoDeDados/database.js';
    id
    comercio_id
    papel: COMERCIO
+
+   IMPORTANTE:
+   O mesmo usuarios.id pode existir nos dois papéis.
+   Por isso, o papel também faz parte da identificação.
 ===================================================== */
 
 function identificarParticipante(usuario) {
     const numeroValido = (valor) => {
         const numero = Number(valor);
+
         return Number.isSafeInteger(numero) && numero > 0;
     };
 
+    const papel = String(
+        usuario?.papel ?? usuario?.tipo ?? ''
+    ).trim().toUpperCase();
+
+    // CLIENTE
     if (
-        usuario?.tipo === 'cliente' &&
-        numeroValido(usuario.usuario_id) &&
-        numeroValido(usuario.cliente_id)
+        papel === 'CLIENTE' &&
+        numeroValido(usuario?.usuario_id) &&
+        numeroValido(usuario?.cliente_id)
     ) {
         return {
             usuarioId: Number(usuario.usuario_id),
@@ -34,10 +44,11 @@ function identificarParticipante(usuario) {
         };
     }
 
+    // COMÉRCIO
     if (
-        usuario?.papel === 'COMERCIO' &&
-        numeroValido(usuario.id) &&
-        numeroValido(usuario.comercio_id)
+        papel === 'COMERCIO' &&
+        numeroValido(usuario?.id) &&
+        numeroValido(usuario?.comercio_id)
     ) {
         return {
             usuarioId: Number(usuario.id),
@@ -50,6 +61,10 @@ function identificarParticipante(usuario) {
     return null;
 }
 
+/* =====================================================
+   VALIDAR ID
+===================================================== */
+
 function validarId(valor) {
     const numero = Number(valor);
 
@@ -60,9 +75,6 @@ function validarId(valor) {
 
 /* =====================================================
    VERIFICAR ACESSO À CONVERSA
-
-   Somente o cliente e o comércio daquela conversa
-   podem visualizar e enviar mensagens.
 ===================================================== */
 
 async function buscarChatComParticipantes(conexao, chatId) {
@@ -73,10 +85,13 @@ async function buscarChatComParticipantes(conexao, chatId) {
             cl.usuario_id AS cliente_usuario_id,
             co.usuario_id AS comercio_usuario_id
         FROM chat c
+
         INNER JOIN clientes cl
             ON cl.id = c.cliente_id
+
         INNER JOIN comercios co
             ON co.id = c.comercio_id
+
         WHERE c.id = ?
         LIMIT 1
         `,
@@ -86,8 +101,19 @@ async function buscarChatComParticipantes(conexao, chatId) {
     return resultado[0] || null;
 }
 
+/* =====================================================
+   VALIDAR PARTICIPANTE DA CONVERSA
+
+   A validação considera:
+   - ID do usuário;
+   - Papel autenticado;
+   - ID do perfil correspondente.
+===================================================== */
+
 function participanteTemAcesso(chat, participante) {
-    if (!chat || !participante) return false;
+    if (!chat || !participante) {
+        return false;
+    }
 
     if (participante.tipo === 'CLIENTE') {
         return (
@@ -112,7 +138,6 @@ function participanteTemAcesso(chat, participante) {
    POST /api/chat/duvida
 
    Somente cliente pode iniciar.
-   O comercio_id vem do corpo da requisição.
 ===================================================== */
 
 export async function criarChatDuvida(req, res) {
@@ -130,7 +155,7 @@ export async function criarChatDuvida(req, res) {
         });
     }
 
-    const comercioId = validarId(req.body.comercio_id);
+    const comercioId = validarId(req.body?.comercio_id);
 
     if (!comercioId) {
         return res.status(400).json({
@@ -142,10 +167,10 @@ export async function criarChatDuvida(req, res) {
 
     try {
         conexao = await db.getConnection();
+
         await conexao.beginTransaction();
 
-        // Bloqueia a linha do cliente para evitar
-        // criação simultânea de conversas duplicadas.
+        // Verifica o perfil do cliente autenticado.
         const cliente = await conexao.query(
             `
             SELECT id
@@ -154,7 +179,10 @@ export async function criarChatDuvida(req, res) {
               AND usuario_id = ?
             FOR UPDATE
             `,
-            [participante.clienteId, participante.usuarioId]
+            [
+                participante.clienteId,
+                participante.usuarioId
+            ]
         );
 
         if (!cliente.length) {
@@ -165,6 +193,7 @@ export async function criarChatDuvida(req, res) {
             });
         }
 
+        // Verifica se o comércio existe.
         const comercio = await conexao.query(
             `
             SELECT id
@@ -183,10 +212,10 @@ export async function criarChatDuvida(req, res) {
             });
         }
 
-        // Recupera uma conversa de dúvida que ainda esteja aberta.
+        // Recupera uma conversa de dúvida ainda aberta.
         const existente = await conexao.query(
             `
-            SELECT id
+            SELECT id, tipo, status
             FROM chat
             WHERE cliente_id = ?
               AND comercio_id = ?
@@ -195,7 +224,10 @@ export async function criarChatDuvida(req, res) {
             ORDER BY id DESC
             LIMIT 1
             `,
-            [participante.clienteId, comercioId]
+            [
+                participante.clienteId,
+                comercioId
+            ]
         );
 
         if (existente.length) {
@@ -204,11 +236,12 @@ export async function criarChatDuvida(req, res) {
             return res.status(200).json({
                 mensagem: 'Conversa recuperada.',
                 chat_id: Number(existente[0].id),
-                tipo: 'DUVIDA',
-                status: 'ABERTO'
+                tipo: existente[0].tipo,
+                status: existente[0].status
             });
         }
 
+        // Cria uma nova conversa.
         const resultado = await conexao.query(
             `
             INSERT INTO chat (
@@ -220,7 +253,10 @@ export async function criarChatDuvida(req, res) {
             )
             VALUES (?, ?, NULL, 'DUVIDA', 'ABERTO')
             `,
-            [participante.clienteId, comercioId]
+            [
+                participante.clienteId,
+                comercioId
+            ]
         );
 
         await conexao.commit();
@@ -233,7 +269,9 @@ export async function criarChatDuvida(req, res) {
         });
 
     } catch (erro) {
-        if (conexao) await conexao.rollback();
+        if (conexao) {
+            await conexao.rollback();
+        }
 
         console.error('Erro ao criar chat de dúvida:', erro);
 
@@ -242,7 +280,9 @@ export async function criarChatDuvida(req, res) {
         });
 
     } finally {
-        if (conexao) conexao.release();
+        if (conexao) {
+            conexao.release();
+        }
     }
 }
 
@@ -253,7 +293,7 @@ export async function criarChatDuvida(req, res) {
 
    O pedido determina o cliente e o comércio.
 ===================================================== */
-
+/*
 export async function criarChatPedido(req, res) {
     const participante = identificarParticipante(req.usuario);
     const pedidoId = validarId(req.params.pedidoId);
@@ -274,6 +314,7 @@ export async function criarChatPedido(req, res) {
 
     try {
         conexao = await db.getConnection();
+
         await conexao.beginTransaction();
 
         const pedidos = await conexao.query(
@@ -286,6 +327,7 @@ export async function criarChatPedido(req, res) {
             FROM pedidos
             WHERE id = ?
             LIMIT 1
+            FOR UPDATE
             `,
             [pedidoId]
         );
@@ -366,10 +408,12 @@ export async function criarChatPedido(req, res) {
         });
 
     } catch (erro) {
-        if (conexao) await conexao.rollback();
+        if (conexao) {
+            await conexao.rollback();
+        }
 
-        // Caso duas requisições tentem criar o chat
-        // do mesmo pedido simultaneamente, recupera o existente.
+        // Recupera o chat caso outra requisição
+        // tenha criado a conversa simultaneamente.
         if (erro.code === 'ER_DUP_ENTRY') {
             try {
                 const existente = await db.query(
@@ -390,8 +434,12 @@ export async function criarChatPedido(req, res) {
                         status: existente[0].status
                     });
                 }
+
             } catch (erroConsulta) {
-                console.error(erroConsulta);
+                console.error(
+                    'Erro ao recuperar chat do pedido:',
+                    erroConsulta
+                );
             }
         }
 
@@ -402,17 +450,200 @@ export async function criarChatPedido(req, res) {
         });
 
     } finally {
-        if (conexao) conexao.release();
+        if (conexao) {
+            conexao.release();
+        }
     }
 }
+    */
+
+
+export async function criarChatPedido(req, res) {
+    const participante = identificarParticipante(req.usuario);
+    const pedidoId = validarId(req.params.pedidoId);
+
+    if (!participante) {
+        return res.status(403).json({
+            mensagem: 'Usuário não autorizado a utilizar o chat.'
+        });
+    }
+
+    if (!pedidoId) {
+        return res.status(400).json({
+            mensagem: 'Pedido inválido.'
+        });
+    }
+
+    let conexao;
+
+    try {
+        conexao = await db.getConnection();
+
+        await conexao.beginTransaction();
+
+        // Busca o pedido e o nome verdadeiro do cliente.
+        const pedidos = await conexao.query(
+                `
+                SELECT
+                    p.id,
+                    p.cliente_id,
+                    p.comercio_id,
+                    p.status,
+                    cl.nome AS nome_cliente
+                FROM pedidos p
+                INNER JOIN clientes cl
+                    ON cl.id = p.cliente_id
+                WHERE p.id = ?
+                LIMIT 1
+                FOR UPDATE
+                `,
+                [pedidoId]
+            );
+
+        if (!pedidos.length) {
+            await conexao.rollback();
+
+            return res.status(404).json({
+                mensagem: 'Pedido não encontrado.'
+            });
+        }
+
+        const pedido = pedidos[0];
+
+        const pertenceAoCliente =
+            participante.tipo === 'CLIENTE' &&
+            Number(pedido.cliente_id) === participante.clienteId;
+
+        const pertenceAoComercio =
+            participante.tipo === 'COMERCIO' &&
+            Number(pedido.comercio_id) === participante.comercioId;
+
+        if (!pertenceAoCliente && !pertenceAoComercio) {
+            await conexao.rollback();
+
+            return res.status(403).json({
+                mensagem: 'Você não tem acesso ao chat deste pedido.'
+            });
+        }
+
+        // Um pedido só pode possuir um chat.
+        const existente = await conexao.query(
+            `
+            SELECT id, tipo, status
+            FROM chat
+            WHERE pedido_id = ?
+            LIMIT 1
+            `,
+            [pedidoId]
+        );
+
+        if (existente.length) {
+            await conexao.commit();
+
+            return res.status(200).json({
+                mensagem: 'Conversa do pedido recuperada.',
+                chat_id: Number(existente[0].id),
+                tipo: existente[0].tipo,
+                status: existente[0].status,
+                nome_cliente: pedido.nome_cliente
+            });
+        }
+
+        // Cria uma nova conversa.
+        const resultado = await conexao.query(
+            `
+            INSERT INTO chat (
+                cliente_id,
+                comercio_id,
+                pedido_id,
+                tipo,
+                status
+            )
+            VALUES (?, ?, ?, 'PEDIDO', 'ABERTO')
+            `,
+            [
+                Number(pedido.cliente_id),
+                Number(pedido.comercio_id),
+                pedidoId
+            ]
+        );
+
+        await conexao.commit();
+
+        return res.status(201).json({
+            mensagem: 'Chat do pedido criado com sucesso.',
+            chat_id: Number(resultado.insertId),
+            tipo: 'PEDIDO',
+            status: 'ABERTO',
+            nome_cliente: pedido.nome_cliente
+        });
+
+    } catch (erro) {
+        if (conexao) {
+            await conexao.rollback();
+        }
+
+        // Recupera o chat caso outra requisição
+        // tenha criado a conversa simultaneamente.
+        if (erro.code === 'ER_DUP_ENTRY') {
+            try {
+                const existente = await db.query(
+                    `
+                    SELECT
+                        c.id,
+                        c.tipo,
+                        c.status,
+                        cl.nome AS nome_cliente
+                    FROM chat c
+
+                    INNER JOIN clientes cl
+                        ON cl.id = c.cliente_id
+
+                    WHERE c.pedido_id = ?
+                    LIMIT 1
+                    `,
+                    [pedidoId]
+                );
+
+                if (existente.length) {
+                    return res.status(200).json({
+                        mensagem: 'Conversa do pedido recuperada.',
+                        chat_id: Number(existente[0].id),
+                        tipo: existente[0].tipo,
+                        status: existente[0].status,
+                        nome_cliente: existente[0].nome_cliente
+                    });
+                }
+
+            } catch (erroConsulta) {
+                console.error(
+                    'Erro ao recuperar chat do pedido:',
+                    erroConsulta
+                );
+            }
+        }
+
+        console.error('Erro ao criar chat do pedido:', erro);
+
+        return res.status(500).json({
+            mensagem: 'Erro ao criar conversa do pedido.'
+        });
+
+    } finally {
+        if (conexao) {
+            conexao.release();
+        }
+    }
+}
+
 
 /* =====================================================
    LISTAR CONVERSAS DO USUÁRIO
 
    GET /api/chat
 
-   No site: retorna nome do cliente.
-   No app: retorna nome do comércio.
+   CLIENTE: retorna conversas dos seus chats.
+   COMÉRCIO: retorna conversas dos seus chats.
 ===================================================== */
 
 export async function listarChats(req, res) {
@@ -469,6 +700,14 @@ export async function listarChats(req, res) {
                 ) AS tipo_ultima_mensagem,
 
                 (
+                    SELECT m.remetente_tipo
+                    FROM mensagem_chat m
+                    WHERE m.chat_id = c.id
+                    ORDER BY m.id DESC
+                    LIMIT 1
+                ) AS tipo_ultimo_remetente,
+
+                (
                     SELECT m.criado_em
                     FROM mensagem_chat m
                     WHERE m.chat_id = c.id
@@ -519,6 +758,9 @@ export async function listarChats(req, res) {
    BUSCAR MENSAGENS
 
    GET /api/chat/:chatId/mensagens
+
+   O papel gravado na mensagem determina o remetente.
+   Não comparar somente usuarios.id.
 ===================================================== */
 
 export async function listarMensagens(req, res) {
@@ -559,6 +801,7 @@ export async function listarMensagens(req, res) {
                 m.id,
                 m.chat_id,
                 m.remetente_usuario_id,
+                m.remetente_tipo,
                 m.mensagem,
                 m.tipo_mensagem,
                 m.arquivo_url,
@@ -566,22 +809,32 @@ export async function listarMensagens(req, res) {
                 m.criado_em,
 
                 CASE
-                    WHEN m.remetente_usuario_id = cl.usuario_id
+                    WHEN m.remetente_tipo = 'CLIENTE'
                         THEN 'CLIENTE'
-                    WHEN m.remetente_usuario_id = co.usuario_id
+
+                    WHEN m.remetente_tipo = 'COMERCIO'
                         THEN 'COMERCIO'
-                    ELSE 'SISTEMA'
-                END AS remetente_tipo,
+
+                    WHEN m.remetente_tipo = 'SISTEMA'
+                        THEN 'SISTEMA'
+
+                    ELSE 'INDEFINIDO'
+                END AS remetente_tipo_exibicao,
 
                 CASE
-                    WHEN m.remetente_usuario_id = cl.usuario_id
+                    WHEN m.remetente_tipo = 'CLIENTE'
                         THEN cl.nome
-                    WHEN m.remetente_usuario_id = co.usuario_id
+
+                    WHEN m.remetente_tipo = 'COMERCIO'
                         THEN COALESCE(
                             dc.nome_comercio,
                             co.nome_responsavel
                         )
-                    ELSE 'Sistema'
+
+                    WHEN m.remetente_tipo = 'SISTEMA'
+                        THEN 'Sistema'
+
+                    ELSE 'Remetente não identificado'
                 END AS remetente_nome
 
             FROM mensagem_chat m
@@ -605,10 +858,18 @@ export async function listarMensagens(req, res) {
             [chatId]
         );
 
+        // Mantém remetente_tipo como campo principal
+        // para o Flutter e React consumirem o mesmo formato.
+        const mensagensFormatadas = mensagens.map((mensagem) => ({
+            ...mensagem,
+            remetente_tipo:
+                mensagem.remetente_tipo_exibicao
+        }));
+
         return res.status(200).json({
             chat_id: chatId,
             status: chat.status,
-            mensagens
+            mensagens: mensagensFormatadas
         });
 
     } catch (erro) {
@@ -619,7 +880,9 @@ export async function listarMensagens(req, res) {
         });
 
     } finally {
-        if (conexao) conexao.release();
+        if (conexao) {
+            conexao.release();
+        }
     }
 }
 
@@ -628,15 +891,15 @@ export async function listarMensagens(req, res) {
 
    POST /api/chat/:chatId/mensagens
 
-   O remetente é identificado pelo JWT.
-   O frontend não escolhe o remetente.
+   O remetente é definido exclusivamente pelo JWT.
+   O frontend não escolhe o papel do remetente.
 ===================================================== */
 
 export async function enviarMensagem(req, res) {
     const participante = identificarParticipante(req.usuario);
     const chatId = validarId(req.params.chatId);
 
-    const mensagem = typeof req.body.mensagem === 'string'
+    const mensagem = typeof req.body?.mensagem === 'string'
         ? req.body.mensagem.trim()
         : '';
 
@@ -668,6 +931,7 @@ export async function enviarMensagem(req, res) {
 
     try {
         conexao = await db.getConnection();
+
         await conexao.beginTransaction();
 
         const chats = await conexao.query(
@@ -677,10 +941,13 @@ export async function enviarMensagem(req, res) {
                 cl.usuario_id AS cliente_usuario_id,
                 co.usuario_id AS comercio_usuario_id
             FROM chat c
+
             INNER JOIN clientes cl
                 ON cl.id = c.cliente_id
+
             INNER JOIN comercios co
                 ON co.id = c.comercio_id
+
             WHERE c.id = ?
             FOR UPDATE
             `,
@@ -705,19 +972,24 @@ export async function enviarMensagem(req, res) {
             });
         }
 
+        // Salva ID e papel do remetente.
+        // O mesmo usuarioId pode enviar mensagens
+        // como CLIENTE ou COMERCIO.
         const resultado = await conexao.query(
             `
             INSERT INTO mensagem_chat (
                 chat_id,
                 remetente_usuario_id,
+                remetente_tipo,
                 mensagem,
                 tipo_mensagem
             )
-            VALUES (?, ?, ?, 'TEXTO')
+            VALUES (?, ?, ?, ?, 'TEXTO')
             `,
             [
                 chatId,
                 participante.usuarioId,
+                participante.tipo,
                 mensagem
             ]
         );
@@ -747,7 +1019,9 @@ export async function enviarMensagem(req, res) {
         });
 
     } catch (erro) {
-        if (conexao) await conexao.rollback();
+        if (conexao) {
+            await conexao.rollback();
+        }
 
         console.error('Erro ao enviar mensagem:', erro);
 
@@ -756,7 +1030,9 @@ export async function enviarMensagem(req, res) {
         });
 
     } finally {
-        if (conexao) conexao.release();
+        if (conexao) {
+            conexao.release();
+        }
     }
 }
 
@@ -765,7 +1041,7 @@ export async function enviarMensagem(req, res) {
 
    PATCH /api/chat/:chatId/lida
 
-   Marca somente mensagens enviadas pela outra pessoa.
+   Considera ID + PAPEL.
 ===================================================== */
 
 export async function marcarMensagensLidas(req, res) {
@@ -805,13 +1081,20 @@ export async function marcarMensagensLidas(req, res) {
             UPDATE mensagem_chat
             SET lida_em = CURRENT_TIMESTAMP
             WHERE chat_id = ?
-              AND remetente_usuario_id <> ?
+
+              AND (
+                    remetente_usuario_id <> ?
+                    OR remetente_tipo <> ?
+                    OR remetente_tipo IS NULL
+              )
+
               AND lida_em IS NULL
               AND tipo_mensagem <> 'SISTEMA'
             `,
             [
                 chatId,
-                participante.usuarioId
+                participante.usuarioId,
+                participante.tipo
             ]
         );
 
@@ -828,7 +1111,9 @@ export async function marcarMensagensLidas(req, res) {
         });
 
     } finally {
-        if (conexao) conexao.release();
+        if (conexao) {
+            conexao.release();
+        }
     }
 }
 
@@ -858,6 +1143,7 @@ export async function encerrarChat(req, res) {
 
     try {
         conexao = await db.getConnection();
+
         await conexao.beginTransaction();
 
         const chats = await conexao.query(
@@ -867,10 +1153,13 @@ export async function encerrarChat(req, res) {
                 cl.usuario_id AS cliente_usuario_id,
                 co.usuario_id AS comercio_usuario_id
             FROM chat c
+
             INNER JOIN clientes cl
                 ON cl.id = c.cliente_id
+
             INNER JOIN comercios co
                 ON co.id = c.comercio_id
+
             WHERE c.id = ?
             FOR UPDATE
             `,
@@ -914,7 +1203,9 @@ export async function encerrarChat(req, res) {
         });
 
     } catch (erro) {
-        if (conexao) await conexao.rollback();
+        if (conexao) {
+            await conexao.rollback();
+        }
 
         console.error('Erro ao encerrar chat:', erro);
 
@@ -923,6 +1214,8 @@ export async function encerrarChat(req, res) {
         });
 
     } finally {
-        if (conexao) conexao.release();
+        if (conexao) {
+            conexao.release();
+        }
     }
 }

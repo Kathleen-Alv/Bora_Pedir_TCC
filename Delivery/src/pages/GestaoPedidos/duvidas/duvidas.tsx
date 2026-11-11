@@ -15,6 +15,7 @@ import { Chat } from "../componentes/chat/chat";
 
 type Conversa = {
     id: number;
+    chat_id?: number;
     cliente_id: number;
     comercio_id: number;
     tipo: "PEDIDO" | "DUVIDA";
@@ -57,26 +58,34 @@ export function Duvidas() {
 
     useEffect(() => {
 
-        const tokenSalvo =
-            localStorage.getItem("token");
+        const tokenSalvo = localStorage.getItem("token");
 
         if (!tokenSalvo) {
+
             setErro("Sessão não encontrada. Faça login novamente.");
             setCarregando(false);
+
             return;
         }
-
-        setToken(tokenSalvo);
 
         try {
 
             const partes = tokenSalvo.split(".");
+
+            if (partes.length !== 3) {
+                throw new Error("Token JWT inválido.");
+            }
 
             const payload = JSON.parse(
                 atob(
                     partes[1]
                         .replace(/-/g, "+")
                         .replace(/_/g, "/")
+                        .padEnd(
+                            partes[1].length +
+                            (4 - partes[1].length % 4) % 4,
+                            "="
+                        )
                 )
             );
 
@@ -84,11 +93,26 @@ export function Duvidas() {
                 payload.id ??
                 payload.usuario_id;
 
-            if (id) {
-                setUsuarioLogadoId(Number(id));
-            } else {
-                setErro("Não foi possível identificar o usuário autenticado.");
+            if (!id || !Number.isInteger(Number(id))) {
+
+                setErro(
+                    "Não foi possível identificar o usuário autenticado."
+                );
+
+                setCarregando(false);
+
+                return;
             }
+
+            setUsuarioLogadoId(Number(id));
+            setToken(tokenSalvo);
+
+            console.log("USUÁRIO AUTENTICADO:", {
+                id: Number(id),
+                tipo: payload.tipo,
+                papel: payload.papel,
+                comercio_id: payload.comercio_id,
+            });
 
         } catch (error) {
 
@@ -96,6 +120,7 @@ export function Duvidas() {
 
             setErro("Não foi possível validar a sessão.");
 
+            setCarregando(false);
         }
 
     }, []);
@@ -123,21 +148,110 @@ export function Duvidas() {
                 }
             );
 
-            const dados = await resposta.json();
+            const textoResposta = await resposta.text();
 
-            if (!resposta.ok) {
+            let dados: any = {};
+
+            try {
+
+                dados = textoResposta
+                    ? JSON.parse(textoResposta)
+                    : {};
+
+            } catch {
+
+                console.error(
+                    "Resposta inválida da API de conversas:",
+                    textoResposta
+                );
+
                 throw new Error(
-                    dados.message ||
-                    dados.mensagem ||
-                    "Não foi possível carregar as conversas."
+                    "O servidor não retornou uma resposta JSON válida."
                 );
             }
 
-            const lista = dados.chats ?? dados.conversas ?? [];
+            if (!resposta.ok) {
 
-            setConversas(
-                Array.isArray(lista) ? lista : []
+                throw new Error(
+                    dados.message ||
+                    dados.mensagem ||
+                    `Erro ao carregar conversas (${resposta.status}).`
+                );
+            }
+
+            const lista =
+                dados.chats ??
+                dados.conversas ??
+                [];
+
+            if (!Array.isArray(lista)) {
+
+                throw new Error(
+                    "A API retornou uma lista de conversas inválida."
+                );
+            }
+
+            console.log("CONVERSAS RECEBIDAS DA API:", lista);
+
+            /* =========================================
+               NORMALIZAR IDENTIFICADOR DA CONVERSA
+
+               O backend pode enviar:
+               id: 1
+
+               ou:
+               chat_id: 1
+            ========================================= */
+
+            const conversasNormalizadas: Conversa[] = lista
+                .map((conversa: any) => {
+
+                    const identificador =
+                        conversa.id ??
+                        conversa.chat_id;
+
+                    return {
+                        ...conversa,
+
+                        id: Number(identificador),
+
+                        chat_id: Number(identificador),
+
+                        cliente_id: Number(conversa.cliente_id),
+
+                        comercio_id: Number(conversa.comercio_id),
+
+                    };
+
+                })
+                .filter((conversa: Conversa) => {
+
+                    return (
+                        Number.isInteger(conversa.id) &&
+                        conversa.id > 0
+                    );
+
+                });
+
+            console.log(
+                "CONVERSAS NORMALIZADAS:",
+                conversasNormalizadas
             );
+
+            setConversas(conversasNormalizadas);
+
+            // Atualiza a conversa selecionada sem perder a seleção.
+            setConversaSelecionada((anterior) => {
+
+                if (!anterior) return null;
+
+                return (
+                    conversasNormalizadas.find(
+                        (conversa) => conversa.id === anterior.id
+                    ) ?? null
+                );
+
+            });
 
         } catch (error) {
 
@@ -168,11 +282,15 @@ export function Duvidas() {
         carregarConversas();
 
         const intervalo = window.setInterval(() => {
+
             carregarConversas();
+
         }, 10000);
 
         return () => {
+
             window.clearInterval(intervalo);
+
         };
 
     }, [token, carregarConversas]);
@@ -183,21 +301,30 @@ export function Duvidas() {
 
     function abrirConversa(conversa: Conversa) {
 
+        if (!conversa.id || conversa.id <= 0) {
+
+            console.error(
+                "Não foi possível abrir a conversa. ID inválido:",
+                conversa
+            );
+
+            setErro("Não foi possível identificar esta conversa.");
+
+            return;
+        }
+
+        setErro("");
+
         setConversaSelecionada(conversa);
 
-    }
-
-    /* =================================================
-       VOLTAR PARA LISTA
-    ================================================= */
-
-    function voltarParaConversas() {
-
-        setConversaSelecionada(null);
-
-        carregarConversas();
+        console.log(
+            "CONVERSA SELECIONADA:",
+            conversa
+        );
 
     }
+
+   
 
     /* =================================================
        FORMATAÇÃO
@@ -248,13 +375,7 @@ export function Duvidas() {
 
                 </div>
 
-                <button
-                    type="button"
-                    className={styles.refreshButton}
-                    onClick={carregarConversas}
-                >
-                    Atualizar
-                </button>
+                
 
             </header>
 
@@ -309,10 +430,11 @@ export function Duvidas() {
                         )}
 
                     {!carregando &&
+
                         conversas.map((conversa) => (
 
                             <button
-                                key={conversa.id}
+                                key={`conversa-${conversa.id}`}
                                 type="button"
                                 className={`${styles.conversa} ${
                                     conversaSelecionada?.id === conversa.id
@@ -323,10 +445,12 @@ export function Duvidas() {
                             >
 
                                 <div className={styles.avatar}>
+
                                     {conversa.nome_cliente
                                         ?.trim()
                                         .charAt(0)
                                         .toUpperCase() || "C"}
+
                                 </div>
 
                                 <div className={styles.conversaInfo}>
@@ -360,7 +484,9 @@ export function Duvidas() {
 
                             </button>
 
-                        ))}
+                        ))
+
+                    }
 
                 </aside>
 
@@ -370,49 +496,39 @@ export function Duvidas() {
 
                 <section className={styles.chatArea}>
 
-                    {conversaSelecionada && usuarioLogadoId > 0 && (
+                    {conversaSelecionada && (
 
-                        <>
+                        usuarioLogadoId > 0 && token ? (
 
-                            <div className={styles.chatTop}>
+                            <>
 
-                                <button
-                                    type="button"
-                                    className={styles.backButton}
-                                    onClick={voltarParaConversas}
-                                >
-                                    ← Voltar
-                                </button>
+                               
 
-                                <div>
+                                <div className={styles.chatContent}>
 
-                                    <strong>
-                                        {conversaSelecionada.nome_cliente}
-                                    </strong>
-
-                                    <span>
-                                        {conversaSelecionada.tipo === "PEDIDO"
-                                            ? "Conversa sobre pedido"
-                                            : "Dúvida"}
-                                    </span>
+                                    <Chat
+                                        key={`chat-${conversaSelecionada.id}`}
+                                        chatId={conversaSelecionada.id}
+                                        usuarioLogadoId={usuarioLogadoId}
+                                        nomeExibido={
+                                            conversaSelecionada.nome_cliente
+                                        }
+                                        token={token}
+                                        modoIntegrado
+                                    />
 
                                 </div>
 
+                            </>
+
+                        ) : (
+
+                            <div className={styles.error}>
+                                Não foi possível identificar sua sessão.
+                                Faça login novamente.
                             </div>
 
-                            <div className={styles.chatContent}>
-
-                                <Chat
-                                    chatId={conversaSelecionada.id}
-                                    usuarioLogadoId={usuarioLogadoId}
-                                    nomeExibido={conversaSelecionada.nome_cliente}
-                                    token={token}
-                                    modoIntegrado
-                                />
-
-                            </div>
-
-                        </>
+                        )
 
                     )}
 

@@ -23,7 +23,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   static const Color vermelho = Color(0xFFBD1221);
-  static const Color cinzaMensagem = Color(0xFF646060);
+  static const Color corMensagemEnviada = Color(0xFF080808);
+  static const Color corMensagemRecebida = Colors.white;
   static const Color fundo = Color(0xFFF5F5F5);
 
   // =====================================================
@@ -35,10 +36,12 @@ class _ChatPageState extends State<ChatPage> {
       return 'http://localhost:3000';
     }
 
-    // Emulador Android.
-    // Para celular físico, substitua pelo IP do computador.
     return 'http://10.0.2.2:3000';
   }
+
+  // =====================================================
+  // CONTROLLERS
+  // =====================================================
 
   final TextEditingController mensagemController =
       TextEditingController();
@@ -46,11 +49,16 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController scrollController =
       ScrollController();
 
+  // =====================================================
+  // ESTADOS
+  // =====================================================
+
   List<Map<String, dynamic>> mensagens = [];
 
   Timer? temporizador;
 
   String token = '';
+
   int usuarioId = 0;
 
   bool carregando = true;
@@ -82,8 +90,20 @@ class _ChatPageState extends State<ChatPage> {
 
       token = preferencias.getString('token') ?? '';
 
-      usuarioId =
-          preferencias.getInt('usuario_id') ?? 0;
+      final idSalvo = preferencias.get('usuario_id');
+
+      usuarioId = int.tryParse(
+            idSalvo?.toString() ?? '',
+          ) ??
+          0;
+
+      debugPrint('=================================');
+      debugPrint('INICIALIZAÇÃO DO CHAT FLUTTER');
+      debugPrint('CHAT ID: ${widget.chatId}');
+      debugPrint('USUÁRIO LOGADO ID: $usuarioId');
+      debugPrint('PERFIL ATIVO: CLIENTE');
+      debugPrint('TOKEN EXISTE: ${token.isNotEmpty}');
+      debugPrint('=================================');
 
       if (token.isEmpty || usuarioId <= 0) {
         if (!mounted) return;
@@ -110,9 +130,7 @@ class _ChatPageState extends State<ChatPage> {
         },
       );
     } catch (erro) {
-      debugPrint(
-        'Erro ao inicializar chat: $erro',
-      );
+      debugPrint('Erro ao inicializar chat: $erro');
 
       if (!mounted) return;
 
@@ -211,6 +229,20 @@ class _ChatPageState extends State<ChatPage> {
           )
           .toList();
 
+      // =================================================
+      // CONFERÊNCIA DOS REMETENTES
+      // =================================================
+
+      for (final mensagem in novasMensagens) {
+        debugPrint(
+          'MENSAGEM ${mensagem['id']} | '
+          'REMETENTE ID: ${mensagem['remetente_usuario_id']} | '
+          'REMETENTE TIPO: ${mensagem['remetente_tipo']} | '
+          'PERFIL ATUAL: CLIENTE | '
+          'É MINHA: ${mensagemEhMinha(mensagem)}',
+        );
+      }
+
       if (!mounted) return;
 
       final mudou = jsonEncode(mensagens) !=
@@ -232,15 +264,10 @@ class _ChatPageState extends State<ChatPage> {
       }
 
       await marcarComoLidas();
-
     } on TimeoutException catch (erro) {
-      debugPrint(
-        'CHAT GET TIMEOUT: $erro',
-      );
+      debugPrint('CHAT GET TIMEOUT: $erro');
     } catch (erro) {
-      debugPrint(
-        'Erro ao buscar mensagens: $erro',
-      );
+      debugPrint('Erro ao buscar mensagens: $erro');
 
       if (mounted && !silencioso && carregando) {
         mostrarMensagem(
@@ -351,12 +378,10 @@ class _ChatPageState extends State<ChatPage> {
         mensagemController.clear();
 
         await buscarMensagens(silencioso: true);
-
       } else if (resposta.statusCode == 401) {
         mostrarMensagem(
           'Sua sessão expirou. Faça login novamente.',
         );
-
       } else {
         final mensagemErro = dados is Map
             ? dados['mensagem'] ??
@@ -375,9 +400,7 @@ class _ChatPageState extends State<ChatPage> {
         );
       }
     } catch (erro) {
-      debugPrint(
-        'Erro ao enviar mensagem: $erro',
-      );
+      debugPrint('Erro ao enviar mensagem: $erro');
 
       if (mounted) {
         mostrarMensagem(
@@ -414,12 +437,33 @@ class _ChatPageState extends State<ChatPage> {
   bool mensagemEhMinha(
     Map<String, dynamic> mensagem,
   ) {
-    final remetenteId = int.tryParse(
-          mensagem['remetente_usuario_id']?.toString() ?? '',
-        ) ??
-        0;
+    // No aplicativo Flutter, o perfil ativo é CLIENTE.
+    // Não comparar apenas o usuario_id, pois o mesmo
+    // usuário pode possuir também um perfil COMERCIO.
 
-    return remetenteId == usuarioId;
+    final remetenteTipo = mensagem['remetente_tipo']
+        ?.toString()
+        .trim()
+        .toUpperCase();
+
+    return remetenteTipo == 'CLIENTE';
+  }
+
+  // =====================================================
+  // IDENTIFICAR TIPO DE MENSAGEM
+  // =====================================================
+
+  bool mensagemEhSistema(
+    Map<String, dynamic> mensagem,
+  ) {
+    final tipoMensagem =
+        mensagem['tipo_mensagem']?.toString().toUpperCase();
+
+    final remetenteTipo =
+        mensagem['remetente_tipo']?.toString().toUpperCase();
+
+    return tipoMensagem == 'SISTEMA' ||
+        remetenteTipo == 'SISTEMA';
   }
 
   // =====================================================
@@ -463,19 +507,17 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   // =====================================================
-  // TELA
+  // TELA PRINCIPAL
   // =====================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: fundo,
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
         surfaceTintColor: Colors.white,
-
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -484,9 +526,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-
         titleSpacing: 0,
-
         title: Row(
           children: [
             Container(
@@ -506,9 +546,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
             ),
-
             const SizedBox(width: 11),
-
             Expanded(
               child: Text(
                 widget.nomeComercio,
@@ -524,7 +562,6 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-
       body: Column(
         children: [
           Expanded(
@@ -558,7 +595,6 @@ class _ChatPageState extends State<ChatPage> {
                         },
                       ),
           ),
-
           construirCampoMensagem(),
         ],
       ),
@@ -573,102 +609,122 @@ class _ChatPageState extends State<ChatPage> {
     Map<String, dynamic> mensagem,
   ) {
     final minhaMensagem = mensagemEhMinha(mensagem);
+    final sistema = mensagemEhSistema(mensagem);
 
-    final tipo = mensagem['tipo_mensagem'] ?? 'TEXTO';
+    final tipo =
+        mensagem['tipo_mensagem']?.toString() ?? 'TEXTO';
 
-    final texto = mensagem['mensagem']?.toString() ?? '';
+    final texto =
+        mensagem['mensagem']?.toString() ?? '';
 
     final horario = formatarHorario(
       mensagem['criado_em'],
     );
 
+    // Mensagens do sistema ficam centralizadas.
+    if (sistema) {
+      return Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth:
+                MediaQuery.of(context).size.width * 0.85,
+          ),
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 9,
+          ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFECECEC),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Text(
+            texto,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF666666),
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              height: 1.4,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Align(
       alignment: minhaMensagem
           ? Alignment.centerRight
           : Alignment.centerLeft,
-
       child: Container(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.78,
+          maxWidth:
+              MediaQuery.of(context).size.width * 0.78,
         ),
-
-        margin: const EdgeInsets.only(bottom: 12),
-
+        margin: const EdgeInsets.only(bottom: 13),
         padding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 10,
         ),
-
         decoration: BoxDecoration(
           color: minhaMensagem
-              ? cinzaMensagem
-              : Colors.white,
-
+              ? corMensagemEnviada
+              : corMensagemRecebida,
+          border: minhaMensagem
+              ? null
+              : Border.all(
+                  color: const Color(0xFFE2E5E3),
+                  width: 1,
+                ),
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(15),
-            topRight: const Radius.circular(15),
-
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
             bottomLeft: Radius.circular(
-              minhaMensagem ? 15 : 4,
+              minhaMensagem ? 16 : 4,
             ),
-
             bottomRight: Radius.circular(
-              minhaMensagem ? 4 : 15,
+              minhaMensagem ? 4 : 16,
             ),
           ),
-
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 4,
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 5,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (tipo == 'IMAGEM' &&
                 mensagem['arquivo_url'] != null)
               const Padding(
-                padding: EdgeInsets.only(bottom: 5),
+                padding: EdgeInsets.only(bottom: 6),
                 child: Icon(
                   Icons.image,
                   size: 35,
                   color: Colors.grey,
                 ),
               ),
-
-            if (tipo == 'SISTEMA')
-              Text(
-                texto,
-                style: const TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                ),
-              )
-            else
+            if (texto.isNotEmpty)
               Text(
                 texto,
                 style: TextStyle(
                   color: minhaMensagem
                       ? Colors.white
-                      : const Color(0xFF222222),
+                      : const Color(0xFF171717),
                   fontSize: 14,
-                  height: 1.4,
+                  height: 1.45,
                 ),
               ),
-
             const SizedBox(height: 5),
-
             Text(
               horario,
               style: TextStyle(
                 color: minhaMensagem
                     ? Colors.white70
-                    : Colors.black45,
+                    : const Color(0xFF858585),
                 fontSize: 10,
               ),
             ),
@@ -685,7 +741,6 @@ class _ChatPageState extends State<ChatPage> {
   Widget construirCampoMensagem() {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -696,10 +751,8 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-
       child: SafeArea(
         top: false,
-
         child: Row(
           children: [
             Expanded(
@@ -707,25 +760,22 @@ class _ChatPageState extends State<ChatPage> {
                 controller: mensagemController,
                 minLines: 1,
                 maxLines: 4,
-                textCapitalization: TextCapitalization.sentences,
+                textCapitalization:
+                    TextCapitalization.sentences,
                 onSubmitted: (_) => enviarMensagem(),
-
                 decoration: InputDecoration(
                   hintText: 'Digite sua mensagem...',
-
                   hintStyle: const TextStyle(
                     color: Colors.black38,
                     fontSize: 14,
                   ),
-
                   filled: true,
                   fillColor: const Color(0xFFF1F1F1),
-
-                  contentPadding: const EdgeInsets.symmetric(
+                  contentPadding:
+                      const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 12,
                   ),
-
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,
@@ -733,18 +783,14 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
             ),
-
             const SizedBox(width: 10),
-
             SizedBox(
               width: 44,
               height: 44,
-
               child: ElevatedButton(
                 onPressed: enviando
                     ? null
                     : enviarMensagem,
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: vermelho,
                   foregroundColor: Colors.white,
@@ -752,7 +798,6 @@ class _ChatPageState extends State<ChatPage> {
                   shape: const CircleBorder(),
                   elevation: 0,
                 ),
-
                 child: enviando
                     ? const SizedBox(
                         width: 18,

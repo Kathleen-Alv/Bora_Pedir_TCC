@@ -1,12 +1,10 @@
 
 /* =====================================================
    JANELA PRINCIPAL
-   CHAT INTEGRADO À ÁREA DA PÁGINA
 ===================================================== */
 
 .chat {
     position: relative;
-
     inset: auto;
 
     width: 100%;
@@ -26,7 +24,6 @@
     border-radius: 0;
 
     background: #FFFFFF;
-
     box-shadow: none;
 
     backdrop-filter: none;
@@ -40,14 +37,12 @@
         sans-serif;
 
     color: #171717;
-
     z-index: auto;
     box-sizing: border-box;
 }
 
-
 /* =====================================================
-   IMAGENS DAS MENSAGENS
+   IMAGENS
 ===================================================== */
 
 .chat img {
@@ -58,15 +53,17 @@
     object-position: center;
 }
 
-
 /* =====================================================
-   ÁREA DE MENSAGENS
+   ÁREA DE MENSAGENS - SCROLL
 ===================================================== */
 
 .messages {
-    flex: 1;
+    flex: 1 1 0;
     min-height: 0;
     min-width: 0;
+
+    display: flex;
+    flex-direction: column;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -75,29 +72,42 @@
 
     background: #FFFFFF;
     box-sizing: border-box;
+
+    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
+
+    scrollbar-width: thin;
+    scrollbar-color: #BD1221 #F1F1F1;
 }
 
+/* Barra de rolagem Chrome, Edge e Safari */
+
 .messages::-webkit-scrollbar {
-    width: 5px;
+    width: 7px;
 }
 
 .messages::-webkit-scrollbar-track {
-    background: transparent;
+    background: #F1F1F1;
+    border-radius: 20px;
 }
 
 .messages::-webkit-scrollbar-thumb {
     border-radius: 20px;
-    background: rgba(0, 0, 0, 0.12);
+    background: #BD1221;
 }
 
+.messages::-webkit-scrollbar-thumb:hover {
+    background: #8F0D19;
+}
 
 /* =====================================================
-   HEADER DO CHAT
+   HEADER
 ===================================================== */
 
 .header {
     height: 68px;
     min-height: 68px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
@@ -106,16 +116,10 @@
     padding: 0 22px;
 
     border-bottom: 1px solid #EDF1EE;
-
     background: #FFFFFF;
 
     box-sizing: border-box;
 }
-
-
-/* =====================================================
-   INFORMAÇÕES DO USUÁRIO
-===================================================== */
 
 .headerInfo {
     display: flex;
@@ -186,9 +190,8 @@
     box-shadow: 0 0 0 3px rgba(50, 183, 104, 0.12);
 }
 
-
 /* =====================================================
-   BOTÕES DO HEADER DO CHAT
+   BOTÕES DO HEADER
 ===================================================== */
 
 .headerActions {
@@ -224,7 +227,6 @@
     transform: translateY(-1px);
 }
 
-
 /* =====================================================
    DATA
 ===================================================== */
@@ -246,6 +248,14 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
+/* =====================================================
+   GRUPO DE MENSAGENS
+===================================================== */
+
+.messageGroup {
+    width: 100%;
+    min-width: 0;
+}
 
 /* =====================================================
    LINHA DA MENSAGEM
@@ -253,7 +263,10 @@
 
 .messageRow {
     display: flex;
+    align-items: flex-end;
+
     width: 100%;
+    min-width: 0;
 
     margin-bottom: 15px;
 }
@@ -266,14 +279,13 @@
     justify-content: flex-end;
 }
 
-
 /* =====================================================
-   AVATAR PEQUENO
+   AVATAR DAS MENSAGENS RECEBIDAS
 ===================================================== */
 
 .smallAvatar {
-    width: 27px;
-    height: 27px;
+    width: 29px;
+    height: 29px;
 
     flex-shrink: 0;
 
@@ -281,18 +293,17 @@
     align-items: center;
     justify-content: center;
 
-    margin-right: 8px;
-    margin-top: 3px;
+    margin-right: 9px;
+    margin-bottom: 19px;
 
-    border-radius: 9px;
+    border-radius: 10px;
 
     background: #BD1221;
     color: #FFFFFF;
 
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 800;
 }
-
 
 /* =====================================================
    CONTEÚDO DA MENSAGEM
@@ -306,45 +317,79 @@
     min-width: 0;
 }
 
+.received .messageContent {
+    align-items: flex-start;
+}
+
 .sent .messageContent {
     align-items: flex-end;
 }
 
-
 /* =====================================================
-   BALÃO
+   BALÃO PADRÃO
 ===================================================== */
 
 .messageBubble {
     max-width: 100%;
-    min-width: 0;
+    min-width: 35px;
 
-    padding: 11px 14px;
+    padding: 11px 15px;
 
-    border-radius: 16px;
+    border-radius: 17px;
 
     font-size: 13px;
     line-height: 1.55;
 
-    color: #272727;
-    background: #F2F4F3;
-
     overflow-wrap: anywhere;
+    word-break: break-word;
 
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
 }
+
+/* =====================================================
+   MENSAGEM RECEBIDA
+   BRANCA / ESQUERDA
+===================================================== */
 
 .received .messageBubble {
-    border-top-left-radius: 5px;
+    background: #FFFFFF;
+    color: #171717;
+
+    border: 1px solid #E2E5E3;
+
+    border-bottom-left-radius: 4px;
 }
+
+/* =====================================================
+   MENSAGEM ENVIADA
+   PRETA / DIREITA
+===================================================== */
 
 .sent .messageBubble {
-    border-top-right-radius: 5px;
-
-    background: #646060;
+    background: #080808;
     color: #FFFFFF;
+
+    border: 1px solid #080808;
+
+    border-bottom-right-radius: 4px;
 }
 
+/* =====================================================
+   IMAGENS DENTRO DOS BALÕES
+===================================================== */
+
+.messageBubble img {
+    display: block;
+
+    max-width: 240px;
+    max-height: 240px;
+
+    width: auto;
+    height: auto;
+
+    object-fit: contain;
+    border-radius: 9px;
+}
 
 /* =====================================================
    HORÁRIO
@@ -358,7 +403,6 @@
     color: #858585;
 }
 
-
 /* =====================================================
    RODAPÉ
 ===================================================== */
@@ -369,10 +413,10 @@
     padding: 13px 20px 16px;
 
     border-top: 1px solid #EDF1EE;
-
     background: #FFFFFF;
-}
 
+    box-sizing: border-box;
+}
 
 /* =====================================================
    ÁREA DO INPUT
@@ -392,7 +436,6 @@
 
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
 }
-
 
 /* =====================================================
    BOTÃO ANEXAR
@@ -425,7 +468,6 @@
     color: #333333;
 }
 
-
 /* =====================================================
    INPUT
 ===================================================== */
@@ -448,7 +490,6 @@
 .input::placeholder {
     color: #999999;
 }
-
 
 /* =====================================================
    BOTÃO ENVIAR
@@ -499,9 +540,8 @@
     height: 17px;
 }
 
-
 /* =====================================================
-   BOTÃO DO CHAT NO CABEÇALHO DO PEDIDO
+   BOTÃO DO CHAT
 ===================================================== */
 
 .chatButton {
@@ -547,11 +587,6 @@
     clip-path: none;
 }
 
-
-/* =====================================================
-   EFEITO AO PASSAR O MOUSE
-===================================================== */
-
 .chatButton:hover {
     transform: scale(1.08);
 
@@ -560,15 +595,9 @@
     );
 }
 
-
-/* =====================================================
-   CLIQUE
-===================================================== */
-
 .chatButton:active {
     transform: scale(0.94);
 }
-
 
 /* =====================================================
    BOTÃO FECHAR
@@ -604,8 +633,6 @@
     transform: scale(1.05);
 }
 
-
-
 /* =====================================================
    CHAT INTEGRADO NA PÁGINA DE DÚVIDAS
 ===================================================== */
@@ -613,74 +640,73 @@
 .chatIntegrado {
     position: relative;
 
-    inset: auto;
-
     width: 100%;
-    height: 100%;
+    height: 0;
+
+    min-width: 0;
     min-height: 0;
+
+    flex: 1 1 0;
+
+    display: flex;
+    flex-direction: column;
 
     right: auto;
     bottom: auto;
+    inset: auto;
 
     border: none;
     border-radius: 0;
 
     box-shadow: none;
-
     z-index: 1;
 
     background: #FFFFFF;
 
+    overflow: hidden;
+
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-}
 
-/* Cabeçalho do chat integrado */
+    box-sizing: border-box;
+}
 
 .chatIntegrado .header {
     flex-shrink: 0;
 
     background: #FFFFFF;
-
     border-bottom: 1px solid #EDF1EE;
 }
 
-/* Área das mensagens */
-
 .chatIntegrado .messages {
-    flex: 1;
+    flex: 1 1 0;
     min-height: 0;
 
     overflow-y: auto;
+    overflow-x: hidden;
 
     background: #FFFFFF;
-
     padding: 22px;
 }
-
-/* Rodapé */
 
 .chatIntegrado .footer {
     flex-shrink: 0;
 
     background: #FFFFFF;
-
     border-top: 1px solid #EDF1EE;
 
     padding: 14px 18px;
 }
 
-/* Input */
-
 .chatIntegrado .inputArea {
     background: #F8FAF8;
-
     border: 1px solid #E5EBE6;
-
     box-shadow: none;
 }
 
-/* Erro */
+/* =====================================================
+   ERRO
+===================================================== */
 
 .chatErro {
     width: fit-content;
@@ -697,23 +723,6 @@
     font-size: 12px;
     text-align: center;
 }
-
-/* Imagens */
-
-.chatIntegrado .messageBubble img {
-    display: block;
-
-    max-width: 220px;
-    max-height: 220px;
-
-    width: auto;
-    height: auto;
-
-    object-fit: contain;
-
-    border-radius: 8px;
-}
-
 
 /* =====================================================
    RESPONSIVIDADE
@@ -748,4 +757,31 @@
     .messageContent {
         max-width: 85%;
     }
+
+    .chatIntegrado .messages {
+        padding: 16px 12px;
+    }
 }
+
+
+
+/* =====================================================
+   REMOVER SCROLL EXTERNO DO CHAT
+===================================================== */
+
+.chat {
+    min-height: 0;
+    overflow: hidden !important;
+}
+
+.chatIntegrado {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden !important;
+}
+

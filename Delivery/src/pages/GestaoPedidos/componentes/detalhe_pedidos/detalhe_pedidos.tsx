@@ -1,3 +1,4 @@
+
 import { Chat } from "../chat/chat.tsx";
 
 import {
@@ -81,7 +82,6 @@ type DetalhePedidosProps = {
   onAceitar?: (pedido: PedidoDetalhe) => void;
   onMarcarPronto?: (pedido: PedidoDetalhe) => void;
   onEnviarEntrega?: (pedido: PedidoDetalhe) => void;
-
   onFotosSelecionadas?: (
     pedido: PedidoDetalhe,
     arquivos: File[]
@@ -94,25 +94,64 @@ type FotoGaleria = {
   criadoEm?: string;
 };
 
+type DadosChatPedido = {
+  chatId: number;
+  nomeCliente: string;
+};
+
 /* =====================================================
    CONFIGURAÇÃO DA API
 ===================================================== */
 
-// Se sua API estiver em outra porta ou endereço,
-// altere esta URL.
-
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-// =====================================================
-// TOKEN DE AUTENTICAÇÃO
-// =====================================================
-
-// Este código considera que o login web salva o JWT
-// no localStorage com a chave "token".
+/* =====================================================
+   TOKEN DE AUTENTICAÇÃO
+===================================================== */
 
 function obterToken(): string | null {
   return localStorage.getItem("token");
+}
+
+/* =====================================================
+   IDENTIFICAR USUÁRIO PELO TOKEN
+===================================================== */
+
+function obterUsuarioLogadoId(token: string): number | null {
+  try {
+    const partes = token.split(".");
+
+    if (partes.length !== 3) return null;
+
+    const payloadBase64 = partes[1]
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const payloadTexto = atob(
+      payloadBase64.padEnd(
+        Math.ceil(payloadBase64.length / 4) * 4,
+        "="
+      )
+    );
+
+    const payload = JSON.parse(payloadTexto);
+
+    const id = Number(
+      payload.id ?? payload.usuario_id
+    );
+
+    return Number.isSafeInteger(id) && id > 0
+      ? id
+      : null;
+  } catch (erro) {
+    console.error(
+      "Erro ao identificar usuário pelo token:",
+      erro
+    );
+
+    return null;
+  }
 }
 
 /* =====================================================
@@ -208,11 +247,58 @@ async function lerRespostaAPI(
 
   if (!resposta.ok) {
     throw new Error(
-      dados.message || "Não foi possível concluir a operação."
+      dados.message ||
+      dados.mensagem ||
+      "Não foi possível concluir a operação."
     );
   }
 
   return dados;
+}
+
+/* =====================================================
+   CRIAR OU RECUPERAR CHAT DO PEDIDO
+
+   O nome do cliente vem do backend:
+   pedidos.cliente_id -> clientes.id -> clientes.nome
+===================================================== */
+
+async function buscarOuCriarChatPedido(
+  pedidoId: number,
+  token: string,
+  nomeFallback: string
+): Promise<DadosChatPedido> {
+  const resposta = await fetch(
+    `${API_BASE_URL}/api/chat/pedido/${pedidoId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const dados = await lerRespostaAPI(resposta);
+
+  console.log("DADOS RECEBIDOS DO CHAT:", dados);
+
+  const chatId = Number(dados.chat_id);
+
+  if (!Number.isSafeInteger(chatId) || chatId <= 0) {
+    throw new Error(
+      "O servidor não retornou um identificador válido para a conversa."
+    );
+  }
+
+  const nomeRetornado = String(
+    dados.nome_cliente ?? ""
+  ).trim();
+
+  return {
+    chatId,
+    nomeCliente: nomeRetornado || nomeFallback || "Cliente",
+  };
 }
 
 /* =====================================================
@@ -285,7 +371,6 @@ export default function DetalhePedidos({
   onEnviarEntrega,
   onFotosSelecionadas,
 }: DetalhePedidosProps) {
-
   const [descricoesExpandidas, setDescricoesExpandidas] =
     useState<number[]>([]);
 
@@ -306,10 +391,176 @@ export default function DetalhePedidos({
   const [erroFotos, setErroFotos] =
     useState<string | null>(null);
 
+  /* =====================================================
+     ESTADOS DO CHAT
+  ===================================================== */
+
+  const [chatId, setChatId] = useState<number | null>(null);
+
+  const [nomeCliente, setNomeCliente] = useState("Cliente");
+
+  const [chatAberto, setChatAberto] = useState(false);
+
+  const [carregandoChat, setCarregandoChat] =
+    useState(false);
+
+  const [erroChat, setErroChat] =
+    useState<string | null>(null);
+
   const inputFotosRef = useRef<HTMLInputElement>(null);
 
   const TOTAL_VISIVEL = 4;
   const LIMITE_FOTOS = 10;
+
+  /* =====================================================
+     DADOS DO USUÁRIO AUTENTICADO
+  ===================================================== */
+
+  const tokenChat = obterToken();
+
+  const usuarioLogadoId = tokenChat
+    ? obterUsuarioLogadoId(tokenChat)
+    : null;
+
+  /* =====================================================
+     CARREGAR CHAT DO PEDIDO
+  ===================================================== */
+
+  useEffect(() => {
+    let ativo = true;
+
+    setChatId(null);
+    setNomeCliente(pedido?.cliente || "Cliente");
+    setChatAberto(false);
+    setErroChat(null);
+
+    if (!pedido?.id) {
+      setCarregandoChat(false);
+
+      return () => {
+        ativo = false;
+      };
+    }
+
+    async function carregarChat() {
+      const token = obterToken();
+
+      if (!token) {
+        if (ativo) {
+          setErroChat(
+            "Sessão não encontrada. Faça login novamente."
+          );
+          setCarregandoChat(false);
+        }
+
+        return;
+      }
+
+      const usuarioId = obterUsuarioLogadoId(token);
+
+      if (!usuarioId) {
+        if (ativo) {
+          setErroChat(
+            "Não foi possível identificar o usuário autenticado."
+          );
+          setCarregandoChat(false);
+        }
+
+        return;
+      }
+
+      try {
+        setCarregandoChat(true);
+
+        const dadosChat = await buscarOuCriarChatPedido(
+          pedido!.id,
+          token,
+          pedido!.cliente || "Cliente"
+        );
+
+        if (ativo) {
+          setChatId(dadosChat.chatId);
+          setNomeCliente(dadosChat.nomeCliente);
+          setErroChat(null);
+        }
+      } catch (erro) {
+        console.error(
+          "Erro ao carregar conversa do pedido:",
+          erro
+        );
+
+        if (ativo) {
+          setErroChat(
+            erro instanceof Error
+              ? erro.message
+              : "Não foi possível abrir o chat."
+          );
+        }
+      } finally {
+        if (ativo) {
+          setCarregandoChat(false);
+        }
+      }
+    }
+
+    carregarChat();
+
+    return () => {
+      ativo = false;
+    };
+  }, [pedido?.id]);
+
+  /* =====================================================
+     ABRIR CHAT
+  ===================================================== */
+
+  const abrirChat = () => {
+    if (!pedido) return;
+
+    if (!tokenChat) {
+      setErroChat("Sua sessão expirou. Faça login novamente.");
+      setChatAberto(true);
+      return;
+    }
+
+    if (usuarioLogadoId === null) {
+      setErroChat(
+        "Não foi possível identificar o usuário autenticado."
+      );
+      setChatAberto(true);
+      return;
+    }
+
+    setChatAberto(true);
+  };
+
+  /* =====================================================
+     FECHAR CHAT
+  ===================================================== */
+
+  const fecharChat = () => {
+    setChatAberto(false);
+  };
+
+  /* =====================================================
+     FECHAR CHAT COM ESC
+  ===================================================== */
+
+  useEffect(() => {
+    if (!chatAberto) return;
+
+    const tratarTecla = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape") {
+        fecharChat();
+      }
+    };
+
+    window.addEventListener("keydown", tratarTecla);
+
+    return () => {
+      window.removeEventListener("keydown", tratarTecla);
+    };
+  }, [chatAberto]);
 
   /* =====================================================
      CARREGAR FOTOS AO ABRIR OU TROCAR DE PEDIDO
@@ -325,7 +576,11 @@ export default function DetalhePedidos({
 
     if (!pedido?.id) {
       setFotosServidor([]);
-      return;
+      setCarregandoFotos(false);
+
+      return () => {
+        ativo = false;
+      };
     }
 
     setFotosServidor(
@@ -360,7 +615,6 @@ export default function DetalhePedidos({
           setFotosServidor(fotos);
           setErroFotos(null);
         }
-
       } catch (erro) {
         console.error(
           "Erro ao carregar fotos do pedido:",
@@ -374,7 +628,6 @@ export default function DetalhePedidos({
               : "Não foi possível carregar as fotografias."
           );
         }
-
       } finally {
         if (ativo) {
           setCarregandoFotos(false);
@@ -387,7 +640,6 @@ export default function DetalhePedidos({
     return () => {
       ativo = false;
     };
-
   }, [pedido?.id]);
 
   /* =====================================================
@@ -456,9 +708,7 @@ export default function DetalhePedidos({
   ) => {
     const input = evento.currentTarget;
 
-    const arquivos = Array.from(
-      input.files ?? []
-    );
+    const arquivos = Array.from(input.files ?? []);
 
     if (!arquivos.length || !pedido) return;
 
@@ -531,18 +781,14 @@ export default function DetalhePedidos({
         `${API_BASE_URL}/api/pedidos/${pedido.id}/fotos`,
         {
           method: "POST",
-
           headers: {
             Authorization: `Bearer ${token}`,
           },
-
           body: formulario,
         }
       );
 
       await lerRespostaAPI(resposta);
-
-      // Consulta novamente os dados definitivos do banco.
 
       const fotosAtualizadas =
         await buscarFotosPedidoAPI(
@@ -568,7 +814,6 @@ export default function DetalhePedidos({
       );
 
       setErroFotos(null);
-
     } catch (erro) {
       console.error(
         "Erro ao enviar fotografias:",
@@ -580,7 +825,6 @@ export default function DetalhePedidos({
           ? erro.message
           : "Não foi possível enviar as fotografias."
       );
-
     } finally {
       setEnviandoFotos(false);
       input.value = "";
@@ -616,11 +860,9 @@ export default function DetalhePedidos({
   return (
     <div className={styles.colunaDireitaFixa}>
       <section className={styles.detalhes}>
-
         {/* CABEÇALHO */}
 
         <header className={styles.detalhesTopo}>
-           
           <div>
             <span className={styles.eyebrow}>
               DETALHES DO PEDIDO
@@ -631,23 +873,31 @@ export default function DetalhePedidos({
                 ? `Pedido ${pedido.codigo}`
                 : "Detalhes do pedido"}
             </h3>
-            
           </div>
 
           <div className={styles.detalhesTopoAcoes}>
-    <Chat />
-          
+            {pedido && (
+              <button
+                type="button"
+                onClick={abrirChat}
+                title="Abrir conversa"
+                aria-label="Abrir conversa"
+              >
+                <span aria-hidden="true">💬</span>
+                <span>Chat</span>
+              </button>
+            )}
 
-          {onFechar && (
-            <button
-              type="button"
-              onClick={onFechar}
-              aria-label="Fechar detalhes do pedido"
-              title="Fechar"
-            >
-              ×
-            </button>
-          )}
+            {onFechar && (
+              <button
+                type="button"
+                onClick={onFechar}
+                aria-label="Fechar detalhes do pedido"
+                title="Fechar"
+              >
+                ×
+              </button>
+            )}
           </div>
         </header>
 
@@ -661,7 +911,6 @@ export default function DetalhePedidos({
         ) : (
           <>
             <div className={styles.detalhesCorpoScroll}>
-
               {/* CLIENTE E ENDEREÇO */}
 
               <div className={styles.detalheClienteEEndereco}>
@@ -897,8 +1146,6 @@ export default function DetalhePedidos({
                   as etapas do pedido.
                 </p>
 
-                {/* INPUT */}
-
                 <input
                   ref={inputFotosRef}
                   type="file"
@@ -908,8 +1155,6 @@ export default function DetalhePedidos({
                   onChange={selecionarFotos}
                   disabled={enviandoFotos}
                 />
-
-                {/* FEEDBACK */}
 
                 {carregandoFotos && (
                   <p>Carregando fotografias...</p>
@@ -927,8 +1172,6 @@ export default function DetalhePedidos({
                     {erroFotos}
                   </p>
                 )}
-
-                {/* GALERIA */}
 
                 <div className={styles.provaGaleria}>
                   {podeVoltar && (
@@ -979,18 +1222,13 @@ export default function DetalhePedidos({
                               className={styles.provaFotoDataHora}
                               title={formatarDataHora(foto.criadoEm)}
                             >
-                              <span aria-hidden="true">
-                                ◷{" "}
-                              </span>
-
+                              <span aria-hidden="true">◷ </span>
                               {formatarDataHora(foto.criadoEm)}
                             </span>
                           </div>
                         </div>
                       );
                     })}
-
-                    {/* ADICIONAR FOTOS */}
 
                     {todasFotos.length < LIMITE_FOTOS && (
                       <button
@@ -1036,8 +1274,6 @@ export default function DetalhePedidos({
                   )}
                 </div>
 
-                {/* RODAPÉ */}
-
                 <div className={styles.provaRodape}>
                   <span>
                     {todasFotos.length} de {LIMITE_FOTOS} fotografias
@@ -1053,8 +1289,6 @@ export default function DetalhePedidos({
                           : "Fotografias registradas no servidor"}
                   </span>
                 </div>
-
-                {/* EXPLICAÇÃO */}
 
                 <div className={styles.provaExplicacao}>
                   <div className={styles.provaExplicacaoIcone}>
@@ -1183,7 +1417,84 @@ export default function DetalhePedidos({
         )}
       </section>
 
-      {/* MODAL DE FOTOGRAFIA */}
+      {/* =====================================================
+          MODAL LATERAL DO CHAT
+      ===================================================== */}
+
+      {chatAberto && (
+        <div
+          className={styles.chatOverlay}
+          onMouseDown={(evento) => {
+            if (evento.target === evento.currentTarget) {
+              fecharChat();
+            }
+          }}
+        >
+          <section
+            className={styles.chatDrawer}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Conversa do pedido"
+          >
+            <header className={styles.chatDrawerTopo}>
+              <div>
+                <strong>Conversa com {nomeCliente}</strong>
+
+                <span>
+                  {pedido
+                    ? `Pedido ${pedido.codigo}`
+                    : "Atendimento"}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={fecharChat}
+                aria-label="Fechar conversa"
+                title="Fechar conversa"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className={styles.chatDrawerCorpo}>
+              {carregandoChat && (
+                <p className={styles.chatPedidoStatus}>
+                  Carregando conversa...
+                </p>
+              )}
+
+              {erroChat && (
+                <p
+                  className={styles.chatPedidoErro}
+                  role="alert"
+                >
+                  {erroChat}
+                </p>
+              )}
+
+              {!carregandoChat &&
+                !erroChat &&
+                chatId !== null &&
+                tokenChat &&
+                usuarioLogadoId !== null && (
+                  <Chat
+                    chatId={chatId}
+                    usuarioLogadoId={usuarioLogadoId}
+                    nomeExibido={nomeCliente}
+                    token={tokenChat}
+                    apiUrl={API_BASE_URL}
+                    modoIntegrado={true}
+                  />
+                )}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* =====================================================
+          MODAL DE FOTOGRAFIA
+      ===================================================== */}
 
       {fotoAmpliada && (
         <div
@@ -1207,10 +1518,7 @@ export default function DetalhePedidos({
             onClick={(evento) => evento.stopPropagation()}
           />
         </div>
-
       )}
-      
     </div>
-    
   );
 }

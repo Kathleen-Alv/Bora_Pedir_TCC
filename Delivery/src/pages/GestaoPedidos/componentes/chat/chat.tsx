@@ -14,10 +14,18 @@ import imgChat from "../../../../assets/chat/chat.png";
    TIPOS
 ===================================================== */
 
+type TipoRemetente =
+    | "CLIENTE"
+    | "COMERCIO"
+    | "ENTREGADOR"
+    | "ADMIN"
+    | "SISTEMA";
+
 type MensagemChat = {
     id: number;
     chat_id: number;
     remetente_usuario_id: number;
+    remetente_tipo: TipoRemetente;
     mensagem: string | null;
     tipo_mensagem: "TEXTO" | "IMAGEM" | "SISTEMA";
     arquivo_url?: string | null;
@@ -31,9 +39,6 @@ type ChatProps = {
     nomeExibido: string;
     token: string;
     apiUrl?: string;
-
-    // true: exibe o chat dentro da página Duvidas.
-    // false: utiliza o botão e a janela flutuante.
     modoIntegrado?: boolean;
 };
 
@@ -44,6 +49,18 @@ type ChatProps = {
 const API_URL =
     (import.meta as any).env?.VITE_API_URL ||
     "http://localhost:3000";
+
+/*
+ * Este componente é utilizado no portal do COMÉRCIO.
+ *
+ * COMERCIO = mensagem à direita.
+ * CLIENTE = mensagem à esquerda.
+ *
+ * Não utilizar somente o ID do usuário para identificar
+ * o remetente, pois os perfis podem compartilhar usuarios.id.
+ */
+
+const PAPEL_LOGADO: TipoRemetente = "COMERCIO";
 
 /* =====================================================
    COMPONENTE
@@ -57,24 +74,33 @@ export function Chat({
     apiUrl = API_URL,
     modoIntegrado = false,
 }: ChatProps) {
+    /* =================================================
+       ESTADOS
+    ================================================= */
 
     const [chatAberto, setChatAberto] = useState(false);
-
     const [mensagens, setMensagens] = useState<MensagemChat[]>([]);
-
     const [texto, setTexto] = useState("");
-
     const [carregando, setCarregando] = useState(true);
-
     const [enviando, setEnviando] = useState(false);
-
     const [erro, setErro] = useState("");
 
-    const mensagensRef = useRef<HTMLDivElement>(null);
+    /* =================================================
+       REFERÊNCIAS
+    ================================================= */
 
+    const mensagensRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // No modo integrado, o chat fica sempre visível.
+    /*
+     * Controla se o chat deve rolar até o final.
+     *
+     * true  = pode rolar para a última mensagem.
+     * false = usuário está lendo mensagens anteriores.
+     */
+
+    const deveRolarParaFinalRef = useRef(true);
+
     const chatVisivel = modoIntegrado || chatAberto;
 
     /* =================================================
@@ -92,7 +118,6 @@ export function Chat({
     ================================================= */
 
     async function lerResposta(resposta: Response) {
-
         const contentType =
             resposta.headers.get("content-type") || "";
 
@@ -100,13 +125,23 @@ export function Chat({
 
         let dados: any = {};
 
-        if (contentType.includes("application/json") && textoResposta) {
+        if (
+            contentType.includes("application/json") &&
+            textoResposta
+        ) {
             try {
                 dados = JSON.parse(textoResposta);
             } catch {
-                throw new Error("A API retornou um JSON inválido.");
+                throw new Error(
+                    "A API retornou um JSON inválido."
+                );
             }
         } else if (textoResposta) {
+            console.error(
+                "Resposta não JSON da API:",
+                textoResposta
+            );
+
             throw new Error(
                 "A API não retornou JSON. Verifique a URL e a rota do chat."
             );
@@ -128,7 +163,6 @@ export function Chat({
     ================================================= */
 
     function formatarHorario(data: string) {
-
         if (!data) return "";
 
         const dataFormatada = new Date(
@@ -150,6 +184,7 @@ export function Chat({
     ================================================= */
 
     function formatarData(data: string) {
+        if (!data) return "";
 
         const dataMensagem = new Date(
             data.replace(" ", "T")
@@ -181,28 +216,74 @@ export function Chat({
     }
 
     /* =================================================
+       IDENTIFICAR REMETENTE
+    ================================================= */
+
+    function mensagemEhMinha(
+        mensagem: MensagemChat
+    ): boolean {
+        const remetenteTipo = String(
+            mensagem.remetente_tipo || ""
+        ).trim().toUpperCase();
+
+        return remetenteTipo === PAPEL_LOGADO;
+    }
+
+    /* =================================================
+       IDENTIFICAR MENSAGEM DO SISTEMA
+    ================================================= */
+
+    function mensagemEhSistema(
+        mensagem: MensagemChat
+    ): boolean {
+        return (
+            mensagem.tipo_mensagem === "SISTEMA" ||
+            String(mensagem.remetente_tipo || "")
+                .trim()
+                .toUpperCase() === "SISTEMA"
+        );
+    }
+
+    /* =================================================
        CARREGAR MENSAGENS
     ================================================= */
 
     const carregarMensagens = useCallback(async (
         mostrarCarregamento = false
     ) => {
+        if (!chatId || !token) {
+            console.error(
+                "Dados ausentes para carregar o chat:",
+                {
+                    chatId,
+                    tokenExiste: Boolean(token),
+                }
+            );
 
-        if (!chatId || !token) return;
+            setErro(
+                !token
+                    ? "Sessão não encontrada. Faça login novamente."
+                    : "ID da conversa não encontrado."
+            );
+
+            setCarregando(false);
+            return;
+        }
 
         try {
-
             if (mostrarCarregamento) {
                 setCarregando(true);
             }
 
-            const resposta = await fetch(
-                `${apiUrl}/api/chat/${chatId}/mensagens`,
-                {
-                    method: "GET",
-                    headers: headers(),
-                }
-            );
+            setErro("");
+
+            const url =
+                `${apiUrl}/api/chat/${chatId}/mensagens`;
+
+            const resposta = await fetch(url, {
+                method: "GET",
+                headers: headers(),
+            });
 
             const dados = await lerResposta(resposta);
 
@@ -211,15 +292,63 @@ export function Chat({
                     ? dados.mensagens
                     : [];
 
+            /* =============================================
+               CONFERÊNCIA DAS MENSAGENS
+            ============================================= */
+
+            console.log(
+                "MENSAGENS DO CHAT:",
+                lista.length
+            );
+
+            lista.forEach((mensagem) => {
+                console.log(
+                    `MENSAGEM ${mensagem.id} | ` +
+                    `REMETENTE ID: ${mensagem.remetente_usuario_id} | ` +
+                    `REMETENTE TIPO: ${mensagem.remetente_tipo} | ` +
+                    `PERFIL ATUAL: ${PAPEL_LOGADO} | ` +
+                    `É MINHA: ${mensagemEhMinha(mensagem)}`
+                );
+            });
+
+            /* =============================================
+               VERIFICAR POSIÇÃO DO SCROLL
+            ============================================= */
+
+            const elemento = mensagensRef.current;
+
+            if (elemento) {
+                const distanciaDoFinal =
+                    elemento.scrollHeight -
+                    elemento.scrollTop -
+                    elemento.clientHeight;
+
+                /*
+                 * Se estiver a menos de 120px do final,
+                 * acompanha as mensagens novas.
+                 *
+                 * Se estiver lendo o histórico,
+                 * mantém a posição atual.
+                 */
+
+                deveRolarParaFinalRef.current =
+                    distanciaDoFinal < 120;
+            } else {
+                deveRolarParaFinalRef.current = true;
+            }
+
+            /* =============================================
+               ATUALIZAR MENSAGENS
+            ============================================= */
+
             setMensagens(lista);
-            setErro("");
 
-            // Marca mensagens recebidas como lidas.
-            // Uma falha nessa operação não deve apagar
-            // as mensagens que já foram carregadas.
+            /* =============================================
+               MARCAR MENSAGENS COMO LIDAS
+            ============================================= */
+
             try {
-
-                await fetch(
+                const respostaLida = await fetch(
                     `${apiUrl}/api/chat/${chatId}/lida`,
                     {
                         method: "PATCH",
@@ -227,36 +356,44 @@ export function Chat({
                     }
                 );
 
+                if (!respostaLida.ok) {
+                    console.warn(
+                        "Não foi possível marcar como lida:",
+                        respostaLida.status
+                    );
+                }
             } catch (error) {
-
                 console.warn(
-                    "Não foi possível marcar as mensagens como lidas:",
+                    "Erro ao marcar mensagens como lidas:",
                     error
                 );
-
             }
-
         } catch (error) {
-
-            console.error("Erro ao carregar chat:", error);
+            console.error(
+                "ERRO AO CARREGAR MENSAGENS:",
+                error
+            );
 
             setErro(
                 error instanceof Error
                     ? error.message
                     : "Erro ao carregar conversa."
             );
-
         } finally {
-
             if (mostrarCarregamento) {
                 setCarregando(false);
             }
         }
-
-    }, [chatId, token, apiUrl, headers]);
+    }, [
+        chatId,
+        token,
+        apiUrl,
+        headers,
+        usuarioLogadoId,
+    ]);
 
     /* =================================================
-       ABRIR CHAT FLUTUANTE
+       ABRIR CHAT
     ================================================= */
 
     function abrirChat() {
@@ -264,7 +401,7 @@ export function Chat({
     }
 
     /* =================================================
-       FECHAR CHAT FLUTUANTE
+       FECHAR CHAT
     ================================================= */
 
     function fecharChat() {
@@ -278,15 +415,20 @@ export function Chat({
     async function enviarMensagem(
         event: FormEvent<HTMLFormElement>
     ) {
-
         event.preventDefault();
 
         const mensagem = texto.trim();
 
-        if (!mensagem || enviando || !chatId) return;
+        if (
+            !mensagem ||
+            enviando ||
+            !chatId ||
+            !token
+        ) {
+            return;
+        }
 
         try {
-
             setEnviando(true);
             setErro("");
 
@@ -301,49 +443,83 @@ export function Chat({
                 }
             );
 
-            await lerResposta(resposta);
+            const dados = await lerResposta(resposta);
+
+            console.log(
+                "MENSAGEM ENVIADA:",
+                dados
+            );
 
             setTexto("");
 
-            await carregarMensagens();
+            /*
+             * Ao enviar uma mensagem, sempre acompanha
+             * a última mensagem da conversa.
+             */
+
+            deveRolarParaFinalRef.current = true;
+
+            await carregarMensagens(true);
+
+            /*
+             * Garante a rolagem após o envio,
+             * mesmo que o carregamento tenha acontecido
+             * antes de o DOM atualizar.
+             */
+
+            requestAnimationFrame(() => {
+                const elemento = mensagensRef.current;
+
+                if (elemento) {
+                    elemento.scrollTo({
+                        top: elemento.scrollHeight,
+                        behavior: "smooth",
+                    });
+                }
+            });
 
             inputRef.current?.focus();
-
         } catch (error) {
-
-            console.error("Erro ao enviar mensagem:", error);
+            console.error(
+                "ERRO AO ENVIAR MENSAGEM:",
+                error
+            );
 
             setErro(
                 error instanceof Error
                     ? error.message
                     : "Erro ao enviar mensagem."
             );
-
         } finally {
-
             setEnviando(false);
         }
     }
 
     /* =================================================
-       CARREGAMENTO E ATUALIZAÇÃO AUTOMÁTICA
+       CARREGAMENTO INICIAL E ATUALIZAÇÃO AUTOMÁTICA
     ================================================= */
 
     useEffect(() => {
+        if (!chatVisivel || !chatId || !token) {
+            return;
+        }
 
-        if (!chatVisivel || !token || !chatId) return;
+        deveRolarParaFinalRef.current = true;
 
         carregarMensagens(true);
 
-        // Recebe mensagens enviadas pelo Flutter.
+        /*
+         * Atualiza as mensagens automaticamente
+         * a cada 3 segundos.
+         */
+
         const intervalo = window.setInterval(() => {
-            carregarMensagens();
+            carregarMensagens(false);
         }, 3000);
 
         return () => {
             window.clearInterval(intervalo);
         };
-
     }, [
         chatVisivel,
         chatId,
@@ -356,8 +532,12 @@ export function Chat({
     ================================================= */
 
     useEffect(() => {
-
-        if (!chatVisivel) return;
+        if (
+            !chatVisivel ||
+            !deveRolarParaFinalRef.current
+        ) {
+            return;
+        }
 
         const elemento = mensagensRef.current;
 
@@ -368,7 +548,18 @@ export function Chat({
             behavior: "smooth",
         });
 
-    }, [mensagens, chatVisivel]);
+        deveRolarParaFinalRef.current = false;
+    }, [
+        mensagens,
+        chatVisivel,
+    ]);
+
+    /* =================================================
+       AVATAR
+    ================================================= */
+
+    const inicialNome =
+        nomeExibido?.trim().charAt(0).toUpperCase() || "C";
 
     /* =================================================
        RENDERIZAÇÃO
@@ -376,14 +567,9 @@ export function Chat({
 
     return (
         <>
-
-            {/* =========================================
-                BOTÃO DO CHAT FLUTUANTE
-                Não aparece no modo integrado.
-            ========================================= */}
+            {/* BOTÃO PARA ABRIR O CHAT */}
 
             {!modoIntegrado && !chatAberto && (
-
                 <button
                     type="button"
                     className={styles.chatButton}
@@ -395,15 +581,9 @@ export function Chat({
                         alt="Abrir chat"
                     />
                 </button>
-
             )}
 
-            {/* =========================================
-                JANELA DO CHAT
-            ========================================= */}
-
             {chatVisivel && (
-
                 <div
                     className={
                         modoIntegrado
@@ -411,22 +591,17 @@ export function Chat({
                             : styles.chat
                     }
                 >
-
-                    {/* HEADER */}
+                    {/* =====================================
+                       CABEÇALHO
+                    ===================================== */}
 
                     <header className={styles.header}>
-
                         <div className={styles.headerInfo}>
-
                             <div className={styles.avatar}>
-                                {nomeExibido
-                                    ?.trim()
-                                    .charAt(0)
-                                    .toUpperCase() || "C"}
+                                {inicialNome}
                             </div>
 
                             <div className={styles.userInfo}>
-
                                 <strong>
                                     {nomeExibido || "Cliente"}
                                 </strong>
@@ -435,13 +610,10 @@ export function Chat({
                                     <i className={styles.online} />
                                     Conversa
                                 </span>
-
                             </div>
-
                         </div>
 
                         {!modoIntegrado && (
-
                             <button
                                 type="button"
                                 className={styles.closeButton}
@@ -450,49 +622,43 @@ export function Chat({
                             >
                                 ×
                             </button>
-
                         )}
-
                     </header>
 
-                    {/* MENSAGENS */}
+                    {/* =====================================
+                       ÁREA DE MENSAGENS COM SCROLL
+                    ===================================== */}
 
                     <main
                         className={styles.messages}
                         ref={mensagensRef}
                     >
-
                         {carregando && mensagens.length === 0 && (
-
                             <div className={styles.date}>
                                 Carregando conversa...
                             </div>
-
                         )}
 
                         {!carregando &&
                             mensagens.length === 0 &&
                             !erro && (
-
                                 <div className={styles.date}>
                                     Nenhuma mensagem nesta conversa.
                                 </div>
-
                             )}
 
                         {erro && (
-
                             <div className={styles.chatErro}>
                                 {erro}
                             </div>
-
                         )}
 
                         {mensagens.map((mensagem, index) => {
-
                             const propriaMensagem =
-                                Number(mensagem.remetente_usuario_id) ===
-                                Number(usuarioLogadoId);
+                                mensagemEhMinha(mensagem);
+
+                            const sistema =
+                                mensagemEhSistema(mensagem);
 
                             const mensagemAnterior =
                                 mensagens[index - 1];
@@ -500,92 +666,118 @@ export function Chat({
                             const mostrarData =
                                 !mensagemAnterior ||
                                 formatarData(mensagem.criado_em) !==
-                                formatarData(mensagemAnterior.criado_em);
+                                formatarData(
+                                    mensagemAnterior.criado_em
+                                );
 
                             return (
-
-                                <div key={mensagem.id}>
+                                <div
+                                    key={mensagem.id}
+                                    className={styles.messageGroup}
+                                >
+                                    {/* DATA */}
 
                                     {mostrarData && (
-
                                         <div className={styles.date}>
-                                            {formatarData(mensagem.criado_em)}
+                                            {formatarData(
+                                                mensagem.criado_em
+                                            )}
                                         </div>
-
                                     )}
 
-                                    <div
-                                        className={`${styles.messageRow} ${
-                                            propriaMensagem
-                                                ? styles.sent
-                                                : styles.received
-                                        }`}
-                                    >
+                                    {/* MENSAGEM DO SISTEMA */}
 
-                                        {!propriaMensagem && (
-
-                                            <div className={styles.smallAvatar}>
-                                                {nomeExibido
-                                                    ?.trim()
-                                                    .charAt(0)
-                                                    .toUpperCase() || "C"}
-                                            </div>
-
-                                        )}
-
-                                        <div className={styles.messageContent}>
-
-                                            <div className={styles.messageBubble}>
-
-                                                {mensagem.tipo_mensagem === "IMAGEM" ? (
-
-                                                    mensagem.arquivo_url ? (
-
-                                                        <img
-                                                            src={
-                                                                mensagem.arquivo_url.startsWith("http")
-                                                                    ? mensagem.arquivo_url
-                                                                    : `${apiUrl}${mensagem.arquivo_url}`
-                                                            }
-                                                            alt="Imagem enviada no chat"
-                                                        />
-
-                                                    ) : (
-                                                        "Imagem indisponível"
-                                                    )
-
-                                                ) : (
-
-                                                    mensagem.mensagem || ""
-
-                                                )}
-
-                                            </div>
-
-                                            <span className={styles.messageTime}>
-                                                {formatarHorario(mensagem.criado_em)}
-                                            </span>
-
+                                    {sistema ? (
+                                        <div className={styles.date}>
+                                            {mensagem.mensagem || ""}
                                         </div>
+                                    ) : (
+                                        /* MENSAGEM NORMAL */
 
-                                    </div>
+                                        <div
+                                            className={`
+                                                ${styles.messageRow}
+                                                ${propriaMensagem
+                                                    ? styles.sent
+                                                    : styles.received
+                                                }
+                                            `}
+                                        >
+                                            {/* AVATAR DO REMETENTE */}
 
+                                            {!propriaMensagem && (
+                                                <div
+                                                    className={styles.smallAvatar}
+                                                    title={
+                                                        nomeExibido ||
+                                                        "Contato"
+                                                    }
+                                                >
+                                                    {inicialNome}
+                                                </div>
+                                            )}
+
+                                            {/* CONTEÚDO */}
+
+                                            <div
+                                                className={
+                                                    styles.messageContent
+                                                }
+                                            >
+                                                <div
+                                                    className={
+                                                        styles.messageBubble
+                                                    }
+                                                >
+                                                    {mensagem.tipo_mensagem ===
+                                                    "IMAGEM" ? (
+                                                        mensagem.arquivo_url ? (
+                                                            <img
+                                                                src={
+                                                                    mensagem.arquivo_url.startsWith(
+                                                                        "http"
+                                                                    )
+                                                                        ? mensagem.arquivo_url
+                                                                        : `${apiUrl}${mensagem.arquivo_url}`
+                                                                }
+                                                                alt="Imagem enviada no chat"
+                                                            />
+                                                        ) : (
+                                                            "Imagem indisponível"
+                                                        )
+                                                    ) : (
+                                                        mensagem.mensagem || ""
+                                                    )}
+                                                </div>
+
+                                                {/* HORÁRIO */}
+
+                                                <span
+                                                    className={
+                                                        styles.messageTime
+                                                    }
+                                                >
+                                                    {formatarHorario(
+                                                        mensagem.criado_em
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-
                             );
                         })}
-
                     </main>
 
-                    {/* ENVIO */}
+                    {/* =====================================
+                       RODAPÉ E ENVIO
+                    ===================================== */}
 
                     <footer className={styles.footer}>
-
                         <form
                             className={styles.inputArea}
                             onSubmit={enviarMensagem}
                         >
-
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -603,9 +795,12 @@ export function Chat({
                                 type="submit"
                                 className={styles.sendButton}
                                 aria-label="Enviar mensagem"
-                                disabled={!texto.trim() || enviando}
+                                disabled={
+                                    !texto.trim() ||
+                                    enviando ||
+                                    !token
+                                }
                             >
-
                                 <svg
                                     viewBox="0 0 24 24"
                                     aria-hidden="true"
@@ -615,17 +810,11 @@ export function Chat({
                                         fill="currentColor"
                                     />
                                 </svg>
-
                             </button>
-
                         </form>
-
                     </footer>
-
                 </div>
-
             )}
-
         </>
     );
 }
