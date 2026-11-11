@@ -101,6 +101,25 @@ export function autenticar(req, res, next) {
 
 
 
+ // ================================================================
+ // VERIFICAR SE É ENTREGADOR
+ // ================================================================
+
+export function somenteEntregador(req, res, next) {
+
+    if (req.usuario?.tipo !== 'entregador') {
+
+        return res.status(403).json({
+            message: 'Acesso permitido somente para entregadores.'
+        });
+
+    }
+
+    next();
+}
+
+
+
 
 
 

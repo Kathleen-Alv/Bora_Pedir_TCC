@@ -1,0 +1,44 @@
+
+name: bora_pedir_entregador
+description: "Aplicativo Bora Pedir para entregadores."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Ícones
+  cupertino_icons: ^1.0.9
+
+  # Requisições HTTP para comunicação com a API
+  http: ^1.5.0
+
+  # Armazenamento local da autenticação
+  shared_preferences: ^2.5.6
+
+  # Mapa real com OpenStreetMap
+  flutter_map: ^8.2.1
+
+  # Coordenadas geográficas
+  latlong2: ^0.9.1
+
+  # Localização GPS do entregador
+  geolocator: ^14.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Imagens e demais recursos
+  assets:
+    - assets/

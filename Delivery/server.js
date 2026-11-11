@@ -63,6 +63,11 @@ import pedidoRoutes
 import chatRoutes
     from './src/api/routes/chat.routes.js';
 
+
+import loginEntregadorRoutes
+    from './src/api/routes/loginEntregador.routes.js';
+
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -196,6 +201,15 @@ app.use(
     '/api/chat',
     chatRoutes
 );
+
+
+
+ // Login do entregador
+app.use(
+    '/api/login-entregador',
+    loginEntregadorRoutes
+);
+
 
 // ================================================================
 // TESTE DA API
