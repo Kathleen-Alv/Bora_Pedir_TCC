@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../models/endereco_model.dart';
 import '../../services/endereco_service.dart';
+import '../../services/cep_service.dart';
 
 class CadastroEnderecoPage extends StatefulWidget {
   final EnderecoModel? endereco;
@@ -34,7 +36,14 @@ class _CadastroEnderecoPageState
   final estadoController = TextEditingController();
   final referenciaController = TextEditingController();
 
+  // =========================================================
+  // ESTADOS
+  // =========================================================
+
   bool salvando = false;
+  bool consultandoCep = false;
+
+  String? ultimoCepConsultado;
 
   bool get editando => widget.endereco != null;
 
@@ -66,10 +75,120 @@ class _CadastroEnderecoPageState
   }
 
   // =========================================================
+  // CONSULTAR CEP
+  // =========================================================
+
+  Future<void> _consultarCep(String valor) async {
+
+    final cep = valor.replaceAll(RegExp(r'\D'), '');
+
+    // Aguarda os oito números.
+    if (cep.length != 8) {
+      ultimoCepConsultado = null;
+      return;
+    }
+
+    // Evita consultar o mesmo CEP várias vezes.
+    if (ultimoCepConsultado == cep) return;
+
+    ultimoCepConsultado = cep;
+
+    setState(() {
+      consultandoCep = true;
+    });
+
+    try {
+
+      final dados = await CepService.buscarCep(cep);
+
+      if (!mounted) return;
+
+      if (dados == null) {
+        throw Exception('Não foi possível localizar o CEP.');
+      }
+
+      // Confere se o CEP continua sendo o mesmo
+      // enquanto a consulta estava acontecendo.
+      final cepAtual = cepController.text.replaceAll(
+        RegExp(r'\D'),
+        '',
+      );
+
+      if (cepAtual != cep) return;
+
+      setState(() {
+
+        enderecoController.text =
+            dados['logradouro'] ?? '';
+
+        // Não apaga um complemento já preenchido
+        // quando o ViaCEP não retorna essa informação.
+        final complementoViaCep =
+            dados['complemento']?.toString() ?? '';
+
+        if (complementoViaCep.isNotEmpty) {
+          complementoController.text = complementoViaCep;
+        }
+
+        bairroController.text =
+            dados['bairro'] ?? '';
+
+        cidadeController.text =
+            dados['cidade'] ?? '';
+
+        estadoController.text =
+            dados['estado'] ?? '';
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('CEP localizado com sucesso!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+    } catch (erro) {
+
+      if (!mounted) return;
+
+      // Permite tentar novamente.
+      ultimoCepConsultado = null;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível consultar o CEP: $erro',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+    } finally {
+
+      if (mounted) {
+        setState(() {
+          consultandoCep = false;
+        });
+      }
+    }
+  }
+
+  // =========================================================
   // SALVAR ENDEREÇO
   // =========================================================
 
   Future<void> salvarEndereco() async {
+
+    if (consultandoCep) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aguarde a consulta do CEP.'),
+        ),
+      );
+
+      return;
+    }
 
     // Verifica os campos obrigatórios.
     if (nomeEnderecoController.text.trim().isEmpty ||
@@ -169,8 +288,6 @@ class _CadastroEnderecoPageState
         ),
       );
 
-      // Retorna para EnderecoPagamentoPage.
-      // Ela fará uma nova consulta ao banco.
       Navigator.pop(context, true);
 
     } catch (erro) {
@@ -207,6 +324,9 @@ class _CadastroEnderecoPageState
     TextInputType teclado = TextInputType.text,
     int maxLength = 100,
     bool obrigatorio = false,
+    ValueChanged<String>? onChanged,
+    Widget? sufixo,
+    List<TextInputFormatter>? formatadores,
   }) {
 
     return Column(
@@ -227,10 +347,13 @@ class _CadastroEnderecoPageState
           controller: controller,
           keyboardType: teclado,
           maxLength: maxLength,
+          onChanged: onChanged,
+          inputFormatters: formatadores,
 
           decoration: InputDecoration(
             hintText: dica,
             counterText: '',
+            suffixIcon: sufixo,
 
             filled: true,
             fillColor: const Color(0xFFFFF5E5),
@@ -296,10 +419,6 @@ class _CadastroEnderecoPageState
     return Scaffold(
       backgroundColor: Colors.white,
 
-      // =====================================================
-      // APP BAR
-      // =====================================================
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -327,10 +446,6 @@ class _CadastroEnderecoPageState
           ),
         ),
       ),
-
-      // =====================================================
-      // BODY
-      // =====================================================
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
@@ -378,6 +493,41 @@ class _CadastroEnderecoPageState
               teclado: TextInputType.number,
               maxLength: 8,
               obrigatorio: true,
+
+              formatadores: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(8),
+              ],
+
+              onChanged: _consultarCep,
+
+              sufixo: consultandoCep
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFFC8102E),
+                        ),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.location_searching,
+                      color: Color(0xFFC8102E),
+                    ),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'Digite os 8 números do CEP para preencher '
+              'o endereço automaticamente.',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.black54,
+              ),
             ),
 
             const SizedBox(height: 18),
@@ -481,7 +631,7 @@ class _CadastroEnderecoPageState
               height: 56,
 
               child: ElevatedButton(
-                onPressed: salvando
+                onPressed: salvando || consultandoCep
                     ? null
                     : salvarEndereco,
 

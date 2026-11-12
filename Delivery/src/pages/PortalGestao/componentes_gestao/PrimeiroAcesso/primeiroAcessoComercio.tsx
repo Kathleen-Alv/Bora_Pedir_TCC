@@ -1,7 +1,6 @@
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import styles from './primeiroAcessoComercio.module.css';
-
 
 /* =========================================================
    TIPOS
@@ -13,7 +12,6 @@ type Horario = {
     abertura: string;
     fechamento: string;
 };
-
 
 /* =========================================================
    COMPONENTE
@@ -27,14 +25,12 @@ export function PrimeiroAcessoComercio() {
 
     const [etapaAtual, setEtapaAtual] = useState(1);
 
-
     /* =========================================================
        DADOS DO COMÉRCIO
     ========================================================= */
 
     const [nomeComercio, setNomeComercio] = useState('');
     const [categoria, setCategoria] = useState('');
-
 
     /* =========================================================
        HORÁRIOS
@@ -49,7 +45,6 @@ export function PrimeiroAcessoComercio() {
         }
     ]);
 
-
     /* =========================================================
        DADOS BANCÁRIOS
     ========================================================= */
@@ -58,7 +53,6 @@ export function PrimeiroAcessoComercio() {
     const [agencia, setAgencia] = useState('');
     const [conta, setConta] = useState('');
     const [tipoConta, setTipoConta] = useState('');
-
 
     /* =========================================================
        ENDEREÇO
@@ -72,6 +66,15 @@ export function PrimeiroAcessoComercio() {
     const [cidade, setCidade] = useState('');
     const [estado, setEstado] = useState('');
 
+    /* =========================================================
+       CONSULTA DE CEP
+    ========================================================= */
+
+    const [consultandoCep, setConsultandoCep] = useState(false);
+    const [erroCep, setErroCep] = useState('');
+
+    // Controla a consulta mais recente.
+    const requisicaoCep = useRef(0);
 
     /* =========================================================
        IMAGENS
@@ -83,6 +86,91 @@ export function PrimeiroAcessoComercio() {
     const [logoPreview, setLogoPreview] = useState('');
     const [bannerPreview, setBannerPreview] = useState('');
 
+    /* =========================================================
+       CONSULTAR CEP
+    ========================================================= */
+
+    async function consultarCep(valor: string) {
+
+        const cepLimpo = valor
+            .replace(/\D/g, '')
+            .slice(0, 8);
+
+        // Invalida consultas anteriores.
+        requisicaoCep.current++;
+
+        const idRequisicao = requisicaoCep.current;
+
+        // Formata o CEP.
+        const cepFormatado = cepLimpo.length > 5
+            ? `${cepLimpo.slice(0, 5)}-${cepLimpo.slice(5)}`
+            : cepLimpo;
+
+        setCep(cepFormatado);
+        setErroCep('');
+
+        // Se o CEP estiver incompleto, não consulta.
+        if (cepLimpo.length !== 8) {
+
+            setConsultandoCep(false);
+
+            return;
+        }
+
+        setConsultandoCep(true);
+
+        try {
+
+            const resposta = await fetch(
+                `http://localhost:3000/api/cep/${cepLimpo}`
+            );
+
+            const dados = await resposta.json();
+
+            // Ignora respostas de consultas antigas.
+            if (idRequisicao !== requisicaoCep.current) {
+                return;
+            }
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    dados.message ||
+                    'Não foi possível localizar esse CEP.'
+                );
+            }
+
+            // Preenche os campos automaticamente.
+            setEndereco(dados.logradouro || '');
+            setComplemento(dados.complemento || '');
+            setBairro(dados.bairro || '');
+            setCidade(dados.cidade || '');
+            setEstado(dados.estado || '');
+
+        } catch (erro) {
+
+            if (idRequisicao !== requisicaoCep.current) {
+                return;
+            }
+
+            console.error(
+                'Erro ao consultar CEP:',
+                erro
+            );
+
+            setErroCep(
+                erro instanceof Error
+                    ? erro.message
+                    : 'Não foi possível consultar o CEP.'
+            );
+
+        } finally {
+
+            if (idRequisicao === requisicaoCep.current) {
+                setConsultandoCep(false);
+            }
+        }
+    }
 
     /* =========================================================
        ADICIONAR HORÁRIO
@@ -103,7 +191,6 @@ export function PrimeiroAcessoComercio() {
         ]);
     }
 
-
     /* =========================================================
        REMOVER HORÁRIO
     ========================================================= */
@@ -116,7 +203,6 @@ export function PrimeiroAcessoComercio() {
             )
         );
     }
-
 
     /* =========================================================
        ALTERAR HORÁRIO
@@ -143,7 +229,6 @@ export function PrimeiroAcessoComercio() {
         );
     }
 
-
     /* =========================================================
        SELECIONAR LOGO
     ========================================================= */
@@ -165,7 +250,6 @@ export function PrimeiroAcessoComercio() {
         );
     }
 
-
     /* =========================================================
        SELECIONAR BANNER
     ========================================================= */
@@ -186,7 +270,6 @@ export function PrimeiroAcessoComercio() {
             URL.createObjectURL(arquivo)
         );
     }
-
 
     /* =========================================================
        VALIDAR ETAPA 1
@@ -240,7 +323,6 @@ export function PrimeiroAcessoComercio() {
         return true;
     }
 
-
     /* =========================================================
        VALIDAR ETAPA 2
     ========================================================= */
@@ -286,17 +368,36 @@ export function PrimeiroAcessoComercio() {
         return true;
     }
 
-
     /* =========================================================
        VALIDAR ETAPA 3
     ========================================================= */
 
     function validarEtapa3() {
 
-        if (!cep.trim()) {
+        const cepLimpo = cep.replace(/\D/g, '');
+
+        if (cepLimpo.length !== 8) {
 
             alert(
-                'Informe o CEP.'
+                'Informe um CEP válido com 8 números.'
+            );
+
+            return false;
+        }
+
+        if (consultandoCep) {
+
+            alert(
+                'Aguarde a consulta do CEP terminar.'
+            );
+
+            return false;
+        }
+
+        if (erroCep) {
+
+            alert(
+                'Corrija o CEP antes de continuar.'
             );
 
             return false;
@@ -350,7 +451,6 @@ export function PrimeiroAcessoComercio() {
         return true;
     }
 
-
     /* =========================================================
        PRÓXIMA ETAPA
     ========================================================= */
@@ -391,7 +491,6 @@ export function PrimeiroAcessoComercio() {
         }
     }
 
-
     /* =========================================================
        VOLTAR ETAPA
     ========================================================= */
@@ -405,7 +504,6 @@ export function PrimeiroAcessoComercio() {
             );
         }
     }
-
 
     /* =========================================================
        FINALIZAR CADASTRO
@@ -431,7 +529,6 @@ export function PrimeiroAcessoComercio() {
             return;
         }
 
-
         /* =====================================================
            TOKEN
         ===================================================== */
@@ -451,14 +548,12 @@ export function PrimeiroAcessoComercio() {
             return;
         }
 
-
         /* =====================================================
            FORMDATA
         ===================================================== */
 
         const formData =
             new FormData();
-
 
         formData.append(
             'nomeComercio',
@@ -469,7 +564,6 @@ export function PrimeiroAcessoComercio() {
             'categoria',
             categoria
         );
-
 
         /* =====================================================
            BANCO
@@ -495,14 +589,13 @@ export function PrimeiroAcessoComercio() {
             tipoConta
         );
 
-
         /* =====================================================
            ENDEREÇO
         ===================================================== */
 
         formData.append(
             'cep',
-            cep
+            cep.replace(/\D/g, '')
         );
 
         formData.append(
@@ -535,7 +628,6 @@ export function PrimeiroAcessoComercio() {
             estado
         );
 
-
         /* =====================================================
            HORÁRIOS
         ===================================================== */
@@ -544,7 +636,6 @@ export function PrimeiroAcessoComercio() {
             'horarios',
             JSON.stringify(horarios)
         );
-
 
         /* =====================================================
            IMAGENS
@@ -559,7 +650,6 @@ export function PrimeiroAcessoComercio() {
             'banner',
             banner
         );
-
 
         /* =====================================================
            ENVIO PARA API
@@ -582,10 +672,8 @@ export function PrimeiroAcessoComercio() {
                     }
                 );
 
-
             const dados =
                 await resposta.json();
-
 
             /* =================================================
                ERRO
@@ -600,7 +688,6 @@ export function PrimeiroAcessoComercio() {
 
                 return;
             }
-
 
             /* =================================================
                SUCESSO
@@ -625,7 +712,6 @@ export function PrimeiroAcessoComercio() {
             );
         }
     }
-
 
     /* =========================================================
        RENDER
@@ -653,7 +739,6 @@ export function PrimeiroAcessoComercio() {
 
                 </div>
 
-
                 {/* =================================================
                     ETAPAS
                 ================================================= */}
@@ -670,15 +755,11 @@ export function PrimeiroAcessoComercio() {
 
                         <span>1</span>
 
-                        <p>
-                            Comércio
-                        </p>
+                        <p>Comércio</p>
 
                     </div>
 
-
                     <div className={styles.linha} />
-
 
                     <div
                         className={
@@ -690,15 +771,11 @@ export function PrimeiroAcessoComercio() {
 
                         <span>2</span>
 
-                        <p>
-                            Banco
-                        </p>
+                        <p>Banco</p>
 
                     </div>
 
-
                     <div className={styles.linha} />
-
 
                     <div
                         className={
@@ -710,15 +787,11 @@ export function PrimeiroAcessoComercio() {
 
                         <span>3</span>
 
-                        <p>
-                            Endereço
-                        </p>
+                        <p>Endereço</p>
 
                     </div>
 
-
                     <div className={styles.linha} />
-
 
                     <div
                         className={
@@ -730,21 +803,17 @@ export function PrimeiroAcessoComercio() {
 
                         <span>4</span>
 
-                        <p>
-                            Imagens
-                        </p>
+                        <p>Imagens</p>
 
                     </div>
 
                 </div>
-
 
                 {/* =================================================
                     CONTEÚDO
                 ================================================= */}
 
                 <div className={styles.conteudo}>
-
 
                     {/* =================================================
                         ETAPA 1
@@ -762,18 +831,13 @@ export function PrimeiroAcessoComercio() {
                             }}
                         >
 
-                            <div
-                                className={
-                                    styles.tituloConteudo
-                                }
-                            >
+                            <div className={styles.tituloConteudo}>
 
                                 <h2>
                                     Dados do comércio
                                 </h2>
 
                             </div>
-
 
                             {/* NOME */}
 
@@ -788,14 +852,11 @@ export function PrimeiroAcessoComercio() {
                                     placeholder="Digite o nome do comércio"
                                     value={nomeComercio}
                                     onChange={(e) =>
-                                        setNomeComercio(
-                                            e.target.value
-                                        )
+                                        setNomeComercio(e.target.value)
                                     }
                                 />
 
                             </div>
-
 
                             {/* CATEGORIA */}
 
@@ -808,9 +869,7 @@ export function PrimeiroAcessoComercio() {
                                 <select
                                     value={categoria}
                                     onChange={(e) =>
-                                        setCategoria(
-                                            e.target.value
-                                        )
+                                        setCategoria(e.target.value)
                                     }
                                 >
 
@@ -850,22 +909,11 @@ export function PrimeiroAcessoComercio() {
 
                             </div>
 
+                            {/* HORÁRIO DE ATENDIMENTO */}
 
-                            {/* =================================================
-                                HORÁRIO DE ATENDIMENTO
-                            ================================================= */}
+                            <div className={styles.horario}>
 
-                            <div
-                                className={
-                                    styles.horario
-                                }
-                            >
-
-                                <div
-                                    className={
-                                        styles.tituloHorario
-                                    }
-                                >
+                                <div className={styles.tituloHorario}>
 
                                     <h3>
                                         Horário de atendimento
@@ -878,204 +926,131 @@ export function PrimeiroAcessoComercio() {
 
                                 </div>
 
+                                <div className={styles.listaHorarios}>
 
-                                <div
-                                    className={
-                                        styles.listaHorarios
-                                    }
-                                >
+                                    {horarios.map((horario) => (
 
-                                    {horarios.map(
-                                        (horario) => (
+                                        <div
+                                            key={horario.id}
+                                            className={styles.linhaHorario}
+                                        >
 
-                                            <div
-                                                key={horario.id}
-                                                className={
-                                                    styles.linhaHorario
-                                                }
-                                            >
+                                            {/* DIA */}
 
-                                                {/* DIA */}
+                                            <div className={styles.campoDia}>
 
-                                                <div
-                                                    className={
-                                                        styles.campoDia
+                                                <label>
+                                                    Dia
+                                                </label>
+
+                                                <select
+                                                    value={horario.dia}
+                                                    onChange={(e) =>
+                                                        alterarHorario(
+                                                            horario.id,
+                                                            'dia',
+                                                            e.target.value
+                                                        )
                                                     }
                                                 >
 
-                                                    <label>
-                                                        Dia
-                                                    </label>
+                                                    <option value="segunda">Segunda</option>
+                                                    <option value="terca">Terça</option>
+                                                    <option value="quarta">Quarta</option>
+                                                    <option value="quinta">Quinta</option>
+                                                    <option value="sexta">Sexta</option>
+                                                    <option value="sabado">Sábado</option>
+                                                    <option value="domingo">Domingo</option>
 
-                                                    <select
-                                                        value={
-                                                            horario.dia
-                                                        }
-                                                        onChange={(e) =>
-                                                            alterarHorario(
-                                                                horario.id,
-                                                                'dia',
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                    >
-
-                                                        <option value="segunda">
-                                                            Segunda
-                                                        </option>
-
-                                                        <option value="terca">
-                                                            Terça
-                                                        </option>
-
-                                                        <option value="quarta">
-                                                            Quarta
-                                                        </option>
-
-                                                        <option value="quinta">
-                                                            Quinta
-                                                        </option>
-
-                                                        <option value="sexta">
-                                                            Sexta
-                                                        </option>
-
-                                                        <option value="sabado">
-                                                            Sábado
-                                                        </option>
-
-                                                        <option value="domingo">
-                                                            Domingo
-                                                        </option>
-
-                                                    </select>
-
-                                                </div>
-
-
-                                                {/* HORÁRIOS */}
-
-                                                <div
-                                                    className={
-                                                        styles.horarioLinha
-                                                    }
-                                                >
-
-                                                    <div
-                                                        className={
-                                                            styles.campoHorario
-                                                        }
-                                                    >
-
-                                                        <label>
-                                                            Abertura
-                                                        </label>
-
-                                                        <input
-                                                            type="time"
-                                                            value={
-                                                                horario.abertura
-                                                            }
-                                                            onChange={(e) =>
-                                                                alterarHorario(
-                                                                    horario.id,
-                                                                    'abertura',
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                        />
-
-                                                    </div>
-
-
-                                                    <span>
-                                                        até
-                                                    </span>
-
-
-                                                    <div
-                                                        className={
-                                                            styles.campoHorario
-                                                        }
-                                                    >
-
-                                                        <label>
-                                                            Fechamento
-                                                        </label>
-
-                                                        <input
-                                                            type="time"
-                                                            value={
-                                                                horario.fechamento
-                                                            }
-                                                            onChange={(e) =>
-                                                                alterarHorario(
-                                                                    horario.id,
-                                                                    'fechamento',
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                        />
-
-                                                    </div>
-
-
-                                                    {horarios.length > 1 && (
-
-                                                        <button
-                                                            type="button"
-                                                            className={
-                                                                styles.botaoRemover
-                                                            }
-                                                            onClick={() =>
-                                                                removerHorario(
-                                                                    horario.id
-                                                                )
-                                                            }
-                                                        >
-                                                            ×
-                                                        </button>
-
-                                                    )}
-
-                                                </div>
+                                                </select>
 
                                             </div>
 
-                                        )
-                                    )}
+                                            {/* HORÁRIOS */}
+
+                                            <div className={styles.horarioLinha}>
+
+                                                <div className={styles.campoHorario}>
+
+                                                    <label>
+                                                        Abertura
+                                                    </label>
+
+                                                    <input
+                                                        type="time"
+                                                        value={horario.abertura}
+                                                        onChange={(e) =>
+                                                            alterarHorario(
+                                                                horario.id,
+                                                                'abertura',
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+
+                                                </div>
+
+                                                <span>até</span>
+
+                                                <div className={styles.campoHorario}>
+
+                                                    <label>
+                                                        Fechamento
+                                                    </label>
+
+                                                    <input
+                                                        type="time"
+                                                        value={horario.fechamento}
+                                                        onChange={(e) =>
+                                                            alterarHorario(
+                                                                horario.id,
+                                                                'fechamento',
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+
+                                                </div>
+
+                                                {horarios.length > 1 && (
+
+                                                    <button
+                                                        type="button"
+                                                        className={styles.botaoRemover}
+                                                        onClick={() =>
+                                                            removerHorario(horario.id)
+                                                        }
+                                                    >
+                                                        ×
+                                                    </button>
+
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                    ))}
 
                                 </div>
 
-
                                 <button
                                     type="button"
-                                    className={
-                                        styles.botaoAdicionar
-                                    }
-                                    onClick={
-                                        adicionarHorario
-                                    }
+                                    className={styles.botaoAdicionar}
+                                    onClick={adicionarHorario}
                                 >
                                     + Adicionar horário
                                 </button>
 
                             </div>
 
-
                             {/* AÇÕES */}
 
-                            <div
-                                className={
-                                    styles.acoes
-                                }
-                            >
+                            <div className={styles.acoes}>
 
                                 <button
                                     type="submit"
-                                    className={
-                                        styles.botaoProximo
-                                    }
+                                    className={styles.botaoProximo}
                                 >
                                     Próximo
                                 </button>
@@ -1085,7 +1060,6 @@ export function PrimeiroAcessoComercio() {
                         </form>
 
                     )}
-
 
                     {/* =================================================
                         ETAPA 2 - DADOS BANCÁRIOS
@@ -1103,11 +1077,7 @@ export function PrimeiroAcessoComercio() {
                             }}
                         >
 
-                            <div
-                                className={
-                                    styles.tituloSecao
-                                }
-                            >
+                            <div className={styles.tituloSecao}>
 
                                 <h2>
                                     Dados bancários
@@ -1119,73 +1089,30 @@ export function PrimeiroAcessoComercio() {
 
                             </div>
 
+                            <div className={styles.linhaBancaria}>
 
-                            <div
-                                className={
-                                    styles.linhaBancaria
-                                }
-                            >
+                                <div className={styles.campoBanco}>
 
-                                <div
-                                    className={
-                                        styles.campoBanco
-                                    }
-                                >
+                                    <div className={styles.campo}>
 
-                                    <div
-                                        className={
-                                            styles.campo
-                                        }
-                                    >
-
-                                        <label>
-                                            Banco
-                                        </label>
+                                        <label>Banco</label>
 
                                         <select
                                             value={banco}
                                             onChange={(e) =>
-                                                setBanco(
-                                                    e.target.value
-                                                )
+                                                setBanco(e.target.value)
                                             }
                                         >
 
-                                            <option value="">
-                                                Selecione
-                                            </option>
-
-                                            <option value="001">
-                                                001 - Banco do Brasil
-                                            </option>
-
-                                            <option value="033">
-                                                033 - Santander
-                                            </option>
-
-                                            <option value="104">
-                                                104 - Caixa
-                                            </option>
-
-                                            <option value="237">
-                                                237 - Bradesco
-                                            </option>
-
-                                            <option value="341">
-                                                341 - Itaú
-                                            </option>
-
-                                            <option value="260">
-                                                260 - Nubank
-                                            </option>
-
-                                            <option value="077">
-                                                077 - Inter
-                                            </option>
-
-                                            <option value="outro">
-                                                Outro
-                                            </option>
+                                            <option value="">Selecione</option>
+                                            <option value="001">001 - Banco do Brasil</option>
+                                            <option value="033">033 - Santander</option>
+                                            <option value="104">104 - Caixa</option>
+                                            <option value="237">237 - Bradesco</option>
+                                            <option value="341">341 - Itaú</option>
+                                            <option value="260">260 - Nubank</option>
+                                            <option value="077">077 - Inter</option>
+                                            <option value="outro">Outro</option>
 
                                         </select>
 
@@ -1193,30 +1120,17 @@ export function PrimeiroAcessoComercio() {
 
                                 </div>
 
+                                <div className={styles.campoAgencia}>
 
-                                <div
-                                    className={
-                                        styles.campoAgencia
-                                    }
-                                >
+                                    <div className={styles.campo}>
 
-                                    <div
-                                        className={
-                                            styles.campo
-                                        }
-                                    >
-
-                                        <label>
-                                            Agência
-                                        </label>
+                                        <label>Agência</label>
 
                                         <input
                                             type="text"
                                             value={agencia}
                                             onChange={(e) =>
-                                                setAgencia(
-                                                    e.target.value
-                                                )
+                                                setAgencia(e.target.value)
                                             }
                                         />
 
@@ -1224,30 +1138,17 @@ export function PrimeiroAcessoComercio() {
 
                                 </div>
 
+                                <div className={styles.campoConta}>
 
-                                <div
-                                    className={
-                                        styles.campoConta
-                                    }
-                                >
+                                    <div className={styles.campo}>
 
-                                    <div
-                                        className={
-                                            styles.campo
-                                        }
-                                    >
-
-                                        <label>
-                                            Conta
-                                        </label>
+                                        <label>Conta</label>
 
                                         <input
                                             type="text"
                                             value={conta}
                                             onChange={(e) =>
-                                                setConta(
-                                                    e.target.value
-                                                )
+                                                setConta(e.target.value)
                                             }
                                         />
 
@@ -1255,43 +1156,22 @@ export function PrimeiroAcessoComercio() {
 
                                 </div>
 
+                                <div className={styles.campoTipoConta}>
 
-                                <div
-                                    className={
-                                        styles.campoTipoConta
-                                    }
-                                >
+                                    <div className={styles.campo}>
 
-                                    <div
-                                        className={
-                                            styles.campo
-                                        }
-                                    >
-
-                                        <label>
-                                            Tipo de conta
-                                        </label>
+                                        <label>Tipo de conta</label>
 
                                         <select
                                             value={tipoConta}
                                             onChange={(e) =>
-                                                setTipoConta(
-                                                    e.target.value
-                                                )
+                                                setTipoConta(e.target.value)
                                             }
                                         >
 
-                                            <option value="">
-                                                Selecione
-                                            </option>
-
-                                            <option value="corrente">
-                                                Corrente
-                                            </option>
-
-                                            <option value="poupanca">
-                                                Poupança
-                                            </option>
+                                            <option value="">Selecione</option>
+                                            <option value="corrente">Corrente</option>
+                                            <option value="poupanca">Poupança</option>
 
                                         </select>
 
@@ -1301,30 +1181,19 @@ export function PrimeiroAcessoComercio() {
 
                             </div>
 
-
-                            <div
-                                className={
-                                    styles.acoes
-                                }
-                            >
+                            <div className={styles.acoes}>
 
                                 <button
                                     type="button"
-                                    className={
-                                        styles.botaoVoltar
-                                    }
-                                    onClick={
-                                        etapaAnterior
-                                    }
+                                    className={styles.botaoVoltar}
+                                    onClick={etapaAnterior}
                                 >
                                     Voltar
                                 </button>
 
                                 <button
                                     type="submit"
-                                    className={
-                                        styles.botaoProximo
-                                    }
+                                    className={styles.botaoProximo}
                                 >
                                     Próximo
                                 </button>
@@ -1334,7 +1203,6 @@ export function PrimeiroAcessoComercio() {
                         </form>
 
                     )}
-
 
                     {/* =================================================
                         ETAPA 3 - ENDEREÇO
@@ -1352,11 +1220,7 @@ export function PrimeiroAcessoComercio() {
                             }}
                         >
 
-                            <div
-                                className={
-                                    styles.tituloConteudo
-                                }
-                            >
+                            <div className={styles.tituloConteudo}>
 
                                 <h2>
                                     Endereço
@@ -1364,37 +1228,20 @@ export function PrimeiroAcessoComercio() {
 
                             </div>
 
+                            <div className={styles.linhaEndereco}>
 
-                            <div
-                                className={
-                                    styles.linhaEndereco
-                                }
-                            >
+                                <div className={styles.campoCep}>
 
-                                <div
-                                    className={
-                                        styles.campoCep
-                                    }
-                                >
+                                    <div className={styles.campo}>
 
-                                    <div
-                                        className={
-                                            styles.campo
-                                        }
-                                    >
-
-                                        <label>
-                                            CEP
-                                        </label>
+                                        <label>CEP</label>
 
                                         <input
                                             type="text"
                                             placeholder="00000-000"
                                             value={cep}
                                             onChange={(e) =>
-                                                setCep(
-                                                    e.target.value
-                                                )
+                                                setCep(e.target.value)
                                             }
                                         />
 
@@ -1402,31 +1249,18 @@ export function PrimeiroAcessoComercio() {
 
                                 </div>
 
+                                <div className={styles.campoEndereco}>
 
-                                <div
-                                    className={
-                                        styles.campoEndereco
-                                    }
-                                >
+                                    <div className={styles.campo}>
 
-                                    <div
-                                        className={
-                                            styles.campo
-                                        }
-                                    >
-
-                                        <label>
-                                            Endereço
-                                        </label>
+                                        <label>Endereço</label>
 
                                         <input
                                             type="text"
                                             placeholder="Rua, Avenida..."
                                             value={endereco}
                                             onChange={(e) =>
-                                                setEndereco(
-                                                    e.target.value
-                                                )
+                                                setEndereco(e.target.value)
                                             }
                                         />
 
@@ -1434,31 +1268,18 @@ export function PrimeiroAcessoComercio() {
 
                                 </div>
 
+                                <div className={styles.campoNumero}>
 
-                                <div
-                                    className={
-                                        styles.campoNumero
-                                    }
-                                >
+                                    <div className={styles.campo}>
 
-                                    <div
-                                        className={
-                                            styles.campo
-                                        }
-                                    >
-
-                                        <label>
-                                            Número
-                                        </label>
+                                        <label>Número</label>
 
                                         <input
                                             type="text"
                                             placeholder="123"
                                             value={numero}
                                             onChange={(e) =>
-                                                setNumero(
-                                                    e.target.value
-                                                )
+                                                setNumero(e.target.value)
                                             }
                                         />
 
@@ -1468,217 +1289,105 @@ export function PrimeiroAcessoComercio() {
 
                             </div>
 
-
                             <div className={styles.campo}>
 
-                                <label>
-                                    Complemento
-                                </label>
+                                <label>Complemento</label>
 
                                 <input
                                     type="text"
                                     value={complemento}
                                     onChange={(e) =>
-                                        setComplemento(
-                                            e.target.value
-                                        )
+                                        setComplemento(e.target.value)
                                     }
                                 />
 
                             </div>
 
-
                             <div className={styles.campo}>
 
-                                <label>
-                                    Bairro
-                                </label>
+                                <label>Bairro</label>
 
                                 <input
                                     type="text"
                                     value={bairro}
                                     onChange={(e) =>
-                                        setBairro(
-                                            e.target.value
-                                        )
+                                        setBairro(e.target.value)
                                     }
                                 />
 
                             </div>
 
-
                             <div className={styles.campo}>
 
-                                <label>
-                                    Cidade
-                                </label>
+                                <label>Cidade</label>
 
                                 <input
                                     type="text"
                                     value={cidade}
                                     onChange={(e) =>
-                                        setCidade(
-                                            e.target.value
-                                        )
+                                        setCidade(e.target.value)
                                     }
                                 />
 
                             </div>
 
-
                             <div className={styles.campo}>
 
-                                <label>
-                                    Estado
-                                </label>
+                                <label>Estado</label>
 
-                                
-                            <select
-                                value={estado}
-                                onChange={(e) =>
-                                    setEstado(e.target.value)
-                                }
-                            >
-                                <option value="">
-                                    Selecione o estado
-                                </option>
+                                <select
+                                    value={estado}
+                                    onChange={(e) =>
+                                        setEstado(e.target.value)
+                                    }
+                                >
 
-                                <option value="AC">
-                                    Acre
-                                </option>
+                                    <option value="">Selecione o estado</option>
+                                    <option value="AC">Acre</option>
+                                    <option value="AL">Alagoas</option>
+                                    <option value="AP">Amapá</option>
+                                    <option value="AM">Amazonas</option>
+                                    <option value="BA">Bahia</option>
+                                    <option value="CE">Ceará</option>
+                                    <option value="DF">Distrito Federal</option>
+                                    <option value="ES">Espírito Santo</option>
+                                    <option value="GO">Goiás</option>
+                                    <option value="MA">Maranhão</option>
+                                    <option value="MT">Mato Grosso</option>
+                                    <option value="MS">Mato Grosso do Sul</option>
+                                    <option value="MG">Minas Gerais</option>
+                                    <option value="PA">Pará</option>
+                                    <option value="PB">Paraíba</option>
+                                    <option value="PR">Paraná</option>
+                                    <option value="PE">Pernambuco</option>
+                                    <option value="PI">Piauí</option>
+                                    <option value="RJ">Rio de Janeiro</option>
+                                    <option value="RN">Rio Grande do Norte</option>
+                                    <option value="RS">Rio Grande do Sul</option>
+                                    <option value="RO">Rondônia</option>
+                                    <option value="RR">Roraima</option>
+                                    <option value="SC">Santa Catarina</option>
+                                    <option value="SP">São Paulo</option>
+                                    <option value="SE">Sergipe</option>
+                                    <option value="TO">Tocantins</option>
 
-                                <option value="AL">
-                                    Alagoas
-                                </option>
-
-                                <option value="AP">
-                                    Amapá
-                                </option>
-
-                                <option value="AM">
-                                    Amazonas
-                                </option>
-
-                                <option value="BA">
-                                    Bahia
-                                </option>
-
-                                <option value="CE">
-                                    Ceará
-                                </option>
-
-                                <option value="DF">
-                                    Distrito Federal
-                                </option>
-
-                                <option value="ES">
-                                    Espírito Santo
-                                </option>
-
-                                <option value="GO">
-                                    Goiás
-                                </option>
-
-                                <option value="MA">
-                                    Maranhão
-                                </option>
-
-                                <option value="MT">
-                                    Mato Grosso
-                                </option>
-
-                                <option value="MS">
-                                    Mato Grosso do Sul
-                                </option>
-
-                                <option value="MG">
-                                    Minas Gerais
-                                </option>
-
-                                <option value="PA">
-                                    Pará
-                                </option>
-
-                                <option value="PB">
-                                    Paraíba
-                                </option>
-
-                                <option value="PR">
-                                    Paraná
-                                </option>
-
-                                <option value="PE">
-                                    Pernambuco
-                                </option>
-
-                                <option value="PI">
-                                    Piauí
-                                </option>
-
-                                <option value="RJ">
-                                    Rio de Janeiro
-                                </option>
-
-                                <option value="RN">
-                                    Rio Grande do Norte
-                                </option>
-
-                                <option value="RS">
-                                    Rio Grande do Sul
-                                </option>
-
-                                <option value="RO">
-                                    Rondônia
-                                </option>
-
-                                <option value="RR">
-                                    Roraima
-                                </option>
-
-                                <option value="SC">
-                                    Santa Catarina
-                                </option>
-
-                                <option value="SP">
-                                    São Paulo
-                                </option>
-
-                                <option value="SE">
-                                    Sergipe
-                                </option>
-
-                                <option value="TO">
-                                    Tocantins
-                                </option>
-                            </select>
-
+                                </select>
 
                             </div>
 
-
-                            <div
-                                className={
-                                    styles.acoes
-                                }
-                            >
+                            <div className={styles.acoes}>
 
                                 <button
                                     type="button"
-                                    className={
-                                        styles.botaoVoltar
-                                    }
-                                    onClick={
-                                        etapaAnterior
-                                    }
+                                    className={styles.botaoVoltar}
+                                    onClick={etapaAnterior}
                                 >
                                     Voltar
                                 </button>
 
                                 <button
                                     type="submit"
-                                    className={
-                                        styles.botaoProximo
-                                    }
+                                    className={styles.botaoProximo}
                                 >
                                     Próximo
                                 </button>
@@ -1689,24 +1398,15 @@ export function PrimeiroAcessoComercio() {
 
                     )}
 
-
                     {/* =================================================
                         ETAPA 4 - IMAGENS
                     ================================================= */}
 
                     {etapaAtual === 4 && (
 
-                        <div
-                            className={
-                                styles.form
-                            }
-                        >
+                        <div className={styles.form}>
 
-                            <div
-                                className={
-                                    styles.tituloConteudo
-                                }
-                            >
+                            <div className={styles.tituloConteudo}>
 
                                 <h2>
                                     Imagens do comércio
@@ -1719,40 +1419,23 @@ export function PrimeiroAcessoComercio() {
 
                             </div>
 
+                            <div className={styles.secaoImagens}>
 
-                            <div
-                                className={
-                                    styles.secaoImagens
-                                }
-                            >
+                                {/* BANNER */}
 
-                                {/* =================================================
-                                    BANNER
-                                ================================================= */}
-
-                                <div
-                                    className={
-                                        styles.bannerContainer
-                                    }
-                                >
+                                <div className={styles.bannerContainer}>
 
                                     <label
                                         htmlFor="banner"
-                                        className={
-                                            styles.bannerUpload
-                                        }
+                                        className={styles.bannerUpload}
                                     >
 
                                         {bannerPreview ? (
 
                                             <img
-                                                src={
-                                                    bannerPreview
-                                                }
+                                                src={bannerPreview}
                                                 alt="Preview do banner"
-                                                className={
-                                                    styles.imagemBanner
-                                                }
+                                                className={styles.imagemBanner}
                                             />
 
                                         ) : (
@@ -1767,38 +1450,25 @@ export function PrimeiroAcessoComercio() {
                                             id="banner"
                                             type="file"
                                             accept="image/*"
-                                            className={
-                                                styles.inputImagem
-                                            }
-                                            onChange={
-                                                selecionarBanner
-                                            }
+                                            className={styles.inputImagem}
+                                            onChange={selecionarBanner}
                                         />
 
                                     </label>
 
-
-                                    {/* =================================================
-                                        LOGO
-                                    ================================================= */}
+                                    {/* LOGO */}
 
                                     <label
                                         htmlFor="logo"
-                                        className={
-                                            styles.logoUpload
-                                        }
+                                        className={styles.logoUpload}
                                     >
 
                                         {logoPreview ? (
 
                                             <img
-                                                src={
-                                                    logoPreview
-                                                }
+                                                src={logoPreview}
                                                 alt="Preview da logo"
-                                                className={
-                                                    styles.imagemLogo
-                                                }
+                                                className={styles.imagemLogo}
                                             />
 
                                         ) : (
@@ -1813,12 +1483,8 @@ export function PrimeiroAcessoComercio() {
                                             id="logo"
                                             type="file"
                                             accept="image/*"
-                                            className={
-                                                styles.inputImagem
-                                            }
-                                            onChange={
-                                                selecionarLogo
-                                            }
+                                            className={styles.inputImagem}
+                                            onChange={selecionarLogo}
                                         />
 
                                     </label>
@@ -1827,37 +1493,22 @@ export function PrimeiroAcessoComercio() {
 
                             </div>
 
+                            {/* AÇÕES */}
 
-                            {/* =================================================
-                                AÇÕES
-                            ================================================= */}
-
-                            <div
-                                className={
-                                    styles.acoes
-                                }
-                            >
+                            <div className={styles.acoes}>
 
                                 <button
                                     type="button"
-                                    className={
-                                        styles.botaoVoltar
-                                    }
-                                    onClick={
-                                        etapaAnterior
-                                    }
+                                    className={styles.botaoVoltar}
+                                    onClick={etapaAnterior}
                                 >
                                     Voltar
                                 </button>
 
                                 <button
                                     type="button"
-                                    className={
-                                        styles.botaoProximo
-                                    }
-                                    onClick={
-                                        finalizarCadastro
-                                    }
+                                    className={styles.botaoProximo}
+                                    onClick={finalizarCadastro}
                                 >
                                     Finalizar cadastro
                                 </button>
@@ -1875,4 +1526,3 @@ export function PrimeiroAcessoComercio() {
         </div>
     );
 }
-

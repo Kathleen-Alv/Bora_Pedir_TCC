@@ -126,7 +126,7 @@ class _LoginState extends State<Login>
           // IMAGEM DE FUNDO
 
           Image.asset(
-            'assets/inicio.jpg',
+            'assets/inicio.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return const ColoredBox(
@@ -135,33 +135,34 @@ class _LoginState extends State<Login>
             },
           ),
 
-          // FRASES
+          // FRASES MAIS ABAIXO NA IMAGEM
 
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30,
-              ),
-              child: FadeTransition(
-                opacity: _animacaoOpacidade,
-                child: Text(
-                  _frases[_indiceFraseAtual],
-                  key: ValueKey(_indiceFraseAtual),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 23,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.4,
-                    height: 1.4,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black54,
-                        blurRadius: 12,
-                        offset: Offset(1, 3),
-                      ),
-                    ],
-                  ),
+          Positioned(
+            left: 25,
+            right: 25,
+
+            // ALTERE ESTE VALOR PARA SUBIR OU DESCER AS FRASES.
+            bottom: 100,
+
+            child: FadeTransition(
+              opacity: _animacaoOpacidade,
+              child: Text(
+                _frases[_indiceFraseAtual],
+                key: ValueKey(_indiceFraseAtual),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 23,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                  height: 1.4,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black54,
+                      blurRadius: 12,
+                      offset: Offset(1, 3),
+                    ),
+                  ],
                 ),
               ),
             ),

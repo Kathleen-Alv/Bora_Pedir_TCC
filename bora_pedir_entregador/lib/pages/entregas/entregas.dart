@@ -7,6 +7,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'componentes/receber_entrega.dart';
+
 class Entregas extends StatefulWidget {
   const Entregas({super.key});
 
@@ -22,20 +24,73 @@ class _EntregasState extends State<Entregas> {
   Position? _posicaoAtual;
   StreamSubscription<Position>? _assinaturaLocalizacao;
 
+  Timer? _timerSimulacaoEntrega;
+
   bool _carregando = true;
   bool _seguirLocalizacao = true;
+  bool _modalAberto = false;
+  bool _simulacaoExecutada = false;
+
   String? _erroLocalizacao;
 
   @override
   void initState() {
     super.initState();
+
     _iniciarLocalizacao();
+
+    // Simula o recebimento de uma entrega após 5 segundos.
+    _agendarSimulacaoEntrega();
   }
 
   @override
   void dispose() {
+    _timerSimulacaoEntrega?.cancel();
     _assinaturaLocalizacao?.cancel();
+
     super.dispose();
+  }
+
+  // =====================================================
+  // SIMULAÇÃO DE NOVA ENTREGA
+  // =====================================================
+
+  void _agendarSimulacaoEntrega() {
+    _timerSimulacaoEntrega?.cancel();
+
+    _timerSimulacaoEntrega = Timer(
+      const Duration(seconds: 5),
+      () {
+        if (!mounted) return;
+
+        _abrirModalEntrega();
+      },
+    );
+  }
+
+  // =====================================================
+  // ABRIR MODAL DE ENTREGA
+  // =====================================================
+
+  Future<void> _abrirModalEntrega() async {
+    if (!mounted || _modalAberto || _simulacaoExecutada) {
+      return;
+    }
+
+    setState(() {
+      _modalAberto = true;
+      _simulacaoExecutada = true;
+    });
+
+    try {
+      await ReceberEntrega.mostrar(context);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _modalAberto = false;
+        });
+      }
+    }
   }
 
   // =====================================================
@@ -68,7 +123,9 @@ class _EntregasState extends State<Entregas> {
       }
 
       if (permissao == LocationPermission.denied) {
-        throw Exception('Permissão de localização não concedida.');
+        throw Exception(
+          'Permissão de localização não concedida.',
+        );
       }
 
       if (permissao == LocationPermission.deniedForever) {
@@ -194,7 +251,7 @@ class _EntregasState extends State<Entregas> {
 
     return Stack(
       children: [
-        // MAPA
+        // MAPA OPENSTREETMAP HOT
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
@@ -209,9 +266,11 @@ class _EntregasState extends State<Entregas> {
           children: [
             TileLayer(
               urlTemplate:
-                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+              subdomains: const ['a', 'b', 'c'],
               userAgentPackageName:
                   'com.example.bora_pedir_entregador',
+              maxZoom: 19,
             ),
 
             // MARCADOR DA LOCALIZAÇÃO
@@ -251,10 +310,14 @@ class _EntregasState extends State<Entregas> {
               ],
             ),
 
+            // CRÉDITOS DO MAPA
             RichAttributionWidget(
               attributions: [
                 TextSourceAttribution(
-                  'OpenStreetMap contributors',
+                  '© OpenStreetMap contributors',
+                ),
+                TextSourceAttribution(
+                  'Tiles style © HOT',
                 ),
               ],
             ),

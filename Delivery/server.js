@@ -68,6 +68,12 @@ import loginEntregadorRoutes
     from './src/api/routes/loginEntregador.routes.js';
 
 
+
+
+import cepRoutes
+ from './src/api/routes/cep.routes.js';
+
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -209,6 +215,10 @@ app.use(
     '/api/login-entregador',
     loginEntregadorRoutes
 );
+
+
+//CONSULTAR CEP NO VIA CEO
+app.use('/api/cep', cepRoutes);
 
 
 // ================================================================
