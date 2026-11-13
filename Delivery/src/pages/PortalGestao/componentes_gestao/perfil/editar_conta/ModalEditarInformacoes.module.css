@@ -1,0 +1,653 @@
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: blur(3px);
+
+    box-sizing: border-box;
+
+    /* Permite rolar o modal em telas menores */
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal {
+    width: 100%;
+    max-width: 900px;
+
+    /* Limita a altura à área visível */
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
+
+    display: flex;
+    flex-direction: column;
+
+    /* O conteúdo interno será responsável pela rolagem */
+    overflow: hidden;
+    flex-shrink: 0;
+
+    margin: auto 0;
+
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.25);
+
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+}
+
+/* ========================================================
+   CABEÇALHO
+======================================================== */
+
+.cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 25px 30px;
+
+    border-bottom: 1px solid #eeeeee;
+
+    flex-shrink: 0;
+}
+
+.subtitulo {
+    color: #bd1221;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.cabecalho h2 {
+    margin: 7px 0;
+    color: #202020;
+    font-size: 23px;
+}
+
+.cabecalho p {
+    margin: 0;
+    color: #777777;
+    font-size: 13px;
+}
+
+.fechar {
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #f2f2f2;
+    color: #333333;
+
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.fechar:hover {
+    background: #ffe8e8;
+    color: #bd1221;
+}
+
+/* ========================================================
+   CONTEÚDO COM ROLAGEM
+======================================================== */
+
+.conteudo {
+    padding: 24px 30px;
+
+    /* ESSENCIAL: permite visualizar todos os campos */
+    flex: 1 1 auto;
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: thin;
+    scrollbar-color: #bd1221 #f1f1f1;
+}
+
+/* Barra de rolagem Chrome, Edge e Safari */
+
+.conteudo::-webkit-scrollbar {
+    width: 7px;
+}
+
+.conteudo::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.conteudo::-webkit-scrollbar-thumb {
+    background: #bd1221;
+    border-radius: 10px;
+}
+
+.conteudo::-webkit-scrollbar-thumb:hover {
+    background: #a20f1c;
+}
+
+/* ========================================================
+   SEÇÕES
+======================================================== */
+
+.secao {
+    margin-bottom: 27px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.secao:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.secao h3 {
+    margin: 0 0 17px;
+    color: #242424;
+    font-size: 16px;
+}
+
+/* ========================================================
+   GRADE DE CAMPOS
+======================================================== */
+
+.grade {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    min-width: 0;
+    margin-bottom: 14px;
+
+    color: #444444;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+    width: 100%;
+    min-height: 43px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d9d9d9;
+    border-radius: 7px;
+
+    outline: none;
+
+    background: #ffffff;
+    color: #252525;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+
+    box-sizing: border-box;
+
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.campo textarea {
+    resize: vertical;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    border-color: #bd1221;
+    box-shadow: 0 0 0 3px rgba(189, 18, 33, 0.09);
+}
+
+.campo input:disabled,
+.campo textarea:disabled {
+    background: #f1f1f1;
+    color: #888888;
+    cursor: not-allowed;
+}
+
+.campo small {
+    color: #888888;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+/* ========================================================
+   DESCRIÇÃO
+======================================================== */
+
+.descricaoSecao {
+    margin: -7px 0 16px;
+
+    color: #777777;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ========================================================
+   HORÁRIOS DE FUNCIONAMENTO
+======================================================== */
+
+.listaHorarios {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.linhaHorario {
+    min-height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 10px 14px;
+
+    background: #f8f8f8;
+    border: 1px solid #eeeeee;
+    border-radius: 8px;
+
+    box-sizing: border-box;
+}
+
+.diaHorario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 145px;
+
+    color: #333333;
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.diaHorario input {
+    width: 16px;
+    height: 16px;
+
+    accent-color: #bd1221;
+    cursor: pointer;
+}
+
+.camposHorario {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.camposHorario label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #777777;
+    font-size: 11px;
+}
+
+.camposHorario input {
+    width: 112px;
+    min-height: 35px;
+
+    padding: 6px 8px;
+
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #333333;
+
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.fechado {
+    color: #999999;
+    font-size: 12px;
+}
+
+/* ========================================================
+   AVISO
+======================================================== */
+
+.aviso {
+    padding: 13px 15px;
+
+    border-left: 3px solid #f8e267;
+    border-radius: 5px;
+
+    background: #fffbea;
+    color: #655b35;
+
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* ========================================================
+   MENSAGENS
+======================================================== */
+
+.erro,
+.sucesso {
+    margin: 16px 0 0;
+    padding: 12px 14px;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.erro {
+    background: #fff0f0;
+    color: #bd1221;
+}
+
+.sucesso {
+    background: #edf9f0;
+    color: #267647;
+}
+
+/* ========================================================
+   RODAPÉ
+======================================================== */
+
+.rodape {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    padding: 18px 30px;
+
+    border-top: 1px solid #eeeeee;
+    background: #ffffff;
+
+    /* Mantém os botões sempre visíveis */
+    flex-shrink: 0;
+}
+
+.botaoCancelar,
+.botaoSalvar {
+    min-height: 43px;
+
+    padding: 0 22px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: background 0.2s;
+}
+
+.botaoCancelar {
+    background: #eeeeee;
+    color: #444444;
+}
+
+.botaoCancelar:hover {
+    background: #dddddd;
+}
+
+.botaoSalvar {
+    background: #bd1221;
+    color: #ffffff;
+}
+
+.botaoSalvar:hover {
+    background: #a20f1c;
+}
+
+.botaoCancelar:disabled,
+.botaoSalvar:disabled,
+.fechar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========================================================
+   RESPONSIVIDADE
+======================================================== */
+
+@media (max-width: 650px) {
+    .overlay {
+        padding: 8px;
+    }
+
+    .modal {
+        max-height: calc(100vh - 16px);
+        max-height: calc(100dvh - 16px);
+
+        border-radius: 12px;
+    }
+
+    .cabecalho {
+        padding: 19px;
+    }
+
+    .cabecalho h2 {
+        font-size: 20px;
+    }
+
+    .conteudo {
+        padding: 20px 17px;
+    }
+
+    .grade {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .linhaHorario {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .camposHorario {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .camposHorario label {
+        flex: 1;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .camposHorario input {
+        width: 100%;
+    }
+
+    .rodape {
+        padding: 14px 17px;
+    }
+
+    .botaoCancelar,
+    .botaoSalvar {
+        flex: 1;
+        padding: 0 10px;
+    }
+}
+
+
+
+/* ========================================================
+   CORREÇÃO DA ESTRUTURA E ROLAGEM DO MODAL
+======================================================== */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+    box-sizing: border-box;
+
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: blur(3px);
+
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.modal {
+    width: 100%;
+    max-width: 900px;
+
+    height: auto;
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
+
+    display: flex;
+    flex-direction: column;
+
+    flex: 0 1 auto;
+    min-height: 0;
+
+    overflow: hidden;
+
+    margin: auto 0;
+
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.25);
+
+    box-sizing: border-box;
+}
+
+/* O FORMULÁRIO PRECISA SER FLEXÍVEL */
+
+.modal > form {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+
+    overflow: hidden;
+}
+
+/* CABEÇALHO FIXO */
+
+.cabecalho {
+    flex-shrink: 0;
+}
+
+/* ÁREA CENTRAL COM ROLAGEM */
+
+.conteudo {
+    flex: 1 1 auto;
+
+    min-height: 0;
+    min-width: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: thin;
+    scrollbar-color: #bd1221 #f1f1f1;
+}
+
+.conteudo::-webkit-scrollbar {
+    width: 7px;
+}
+
+.conteudo::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.conteudo::-webkit-scrollbar-thumb {
+    background: #bd1221;
+    border-radius: 10px;
+}
+
+/* RODAPÉ FIXO */
+
+.rodape {
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 650px) {
+    .overlay {
+        padding: 8px;
+        align-items: center;
+    }
+
+    .modal {
+        max-height: calc(100vh - 16px);
+        max-height: calc(100dvh - 16px);
+
+        border-radius: 12px;
+    }
+
+    .conteudo {
+        padding: 20px 17px;
+    }
+}
+
+
+.cnpjBloqueado {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.cnpjBloqueado input {
+    flex: 1;
+    min-width: 0;
+}
+
+.avisoCnpj {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #777;
+    font-size: 12px;
+    white-space: nowrap;
+}

@@ -1,7 +1,6 @@
 
 import { db } from '../../../configBancoDeDados/database.js';
 
-
 function converterBigIntParaString(valor) {
     if (typeof valor === 'bigint') {
         return valor.toString();
@@ -12,7 +11,6 @@ function converterBigIntParaString(valor) {
     }
 
     if (valor !== null && typeof valor === 'object') {
-        // Preserva datas para que o Express as serialize corretamente.
         if (valor instanceof Date) {
             return valor;
         }
@@ -28,14 +26,9 @@ function converterBigIntParaString(valor) {
     return valor;
 }
 
-// ================================================================
-// MOSTRAR DADOS DO PERFIL DO COMÉRCIO
 // GET /api/perfil
-// ================================================================
-
 export async function mostrarDadosDoPerfil(req, res) {
     try {
-        // O middleware autenticar deve disponibilizar o ID do comércio.
         const comercioId = req.usuario?.comercio_id;
 
         if (!comercioId) {
@@ -44,10 +37,6 @@ export async function mostrarDadosDoPerfil(req, res) {
                 mensagem: 'Comércio não identificado no token.'
             });
         }
-
-        // ============================================================
-        // BUSCAR DADOS DO COMÉRCIO
-        // ============================================================
 
         const resultado = await db.query(
             `
@@ -63,6 +52,7 @@ export async function mostrarDadosDoPerfil(req, res) {
 
                 dc.nome_comercio,
                 dc.categoria,
+                dc.descricao,
                 dc.logo,
                 dc.banner,
                 dc.cep,
@@ -86,15 +76,10 @@ export async function mostrarDadosDoPerfil(req, res) {
                 ON dc.comercio_id = c.id
 
             WHERE c.id = ?
-
             LIMIT 1
             `,
             [comercioId]
         );
-
-        // ============================================================
-        // VERIFICAR SE O COMÉRCIO EXISTE
-        // ============================================================
 
         if (!resultado || resultado.length === 0) {
             return res.status(404).json({
@@ -105,10 +90,33 @@ export async function mostrarDadosDoPerfil(req, res) {
 
         const perfil = resultado[0];
 
-        // ============================================================
-        // RETORNAR DADOS
-        // Converter BigInt antes de enviar o JSON.
-        // ============================================================
+        // Buscar horários cadastrados para este comércio.
+        const horarios = await db.query(
+            `
+            SELECT
+                dia_semana,
+                TIME_FORMAT(abertura, '%H:%i') AS abertura,
+                TIME_FORMAT(fechamento, '%H:%i') AS fechamento
+
+            FROM horarios_comercio
+
+            WHERE comercio_id = ?
+
+            ORDER BY FIELD(
+                dia_semana,
+                'SEGUNDA',
+                'TERCA',
+                'QUARTA',
+                'QUINTA',
+                'SEXTA',
+                'SABADO',
+                'DOMINGO'
+            )
+            `,
+            [comercioId]
+        );
+
+        perfil.horarios = horarios;
 
         return res.status(200).json(
             converterBigIntParaString({
