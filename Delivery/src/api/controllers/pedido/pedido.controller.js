@@ -656,6 +656,7 @@ export async function listarPedidosComercio(req, res) {
 
                 c.nome AS nome_cliente,
                 c.telefone AS telefone_cliente,
+                c.foto AS foto_cliente,
 
                 dc.nome_comercio,
                 dc.logo AS logo_comercio,
@@ -775,6 +776,7 @@ export async function listarPedidosComercio(req, res) {
 
                 nome_cliente: pedido.nome_cliente ?? 'Cliente',
                 telefone_cliente: pedido.telefone_cliente ?? '',
+                foto_cliente: pedido.foto_cliente ?? null,
 
                 nome_comercio: pedido.nome_comercio ?? 'Comércio',
                 logo_comercio: pedido.logo_comercio,

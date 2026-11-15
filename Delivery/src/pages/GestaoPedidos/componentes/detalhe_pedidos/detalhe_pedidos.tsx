@@ -38,7 +38,7 @@ export type PedidoDetalhe = {
   cliente: string;
   iniciais?: string;
   telefone?: string;
-  cpf?: string;
+  fotoCliente?: string;
   dataHorario?: string;
 
   endereco: {
@@ -153,13 +153,6 @@ function obterUsuarioLogadoId(token: string): number | null {
     return null;
   }
 }
-
-/* =====================================================
-   FOTO DO CLIENTE
-===================================================== */
-
-const FOTO_AVATAR_DEMONSTRACAO =
-  "https://randomuser.me/api/portraits/women/44.jpg";
 
 /* =====================================================
    FORMATAÇÃO
@@ -392,6 +385,13 @@ export default function DetalhePedidos({
     useState<string | null>(null);
 
   /* =====================================================
+     ESTADO DA FOTO DO CLIENTE
+  ===================================================== */
+
+  const [erroFotoCliente, setErroFotoCliente] =
+    useState(false);
+
+  /* =====================================================
      ESTADOS DO CHAT
   ===================================================== */
 
@@ -421,6 +421,14 @@ export default function DetalhePedidos({
   const usuarioLogadoId = tokenChat
     ? obterUsuarioLogadoId(tokenChat)
     : null;
+
+  /* =====================================================
+     ATUALIZAR FOTO AO TROCAR DE PEDIDO
+  ===================================================== */
+
+  useEffect(() => {
+    setErroFotoCliente(false);
+  }, [pedido?.id, pedido?.fotoCliente]);
 
   /* =====================================================
      CARREGAR CHAT DO PEDIDO
@@ -916,14 +924,43 @@ export default function DetalhePedidos({
               <div className={styles.detalheClienteEEndereco}>
                 <div className={styles.detalheCliente}>
                   <div className={styles.avatarGrande}>
-                    <img
-                      src={FOTO_AVATAR_DEMONSTRACAO}
-                      alt={`Foto de ${pedido.cliente}`}
-                      className={styles.fotoAvatar}
-                      onError={(evento) => {
-                        evento.currentTarget.style.display = "none";
-                      }}
-                    />
+                    {pedido.fotoCliente && !erroFotoCliente ? (
+                      <img
+                        src={resolverUrlFoto(pedido.fotoCliente)}
+                        alt={`Foto de ${pedido.cliente}`}
+                        className={styles.fotoAvatar}
+                        onError={() => {
+                          setErroFotoCliente(true);
+                        }}
+                      />
+                    ) : (
+                      <span
+                        aria-label={`Sem foto de perfil para ${pedido.cliente}`}
+                        title={pedido.cliente}
+                        style={{
+                          display: "flex",
+                          width: "100%",
+                          height: "100%",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "50%",
+                          background: "#f1e5e5",
+                          color: "#bd1221",
+                          fontSize: "22px",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {pedido.iniciais ||
+                          pedido.cliente
+                            .trim()
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((nome) => nome[0])
+                            .join("")
+                            .toUpperCase() ||
+                          "?"}
+                      </span>
+                    )}
                   </div>
 
                   <div className={styles.dadosCliente}>
@@ -936,12 +973,6 @@ export default function DetalhePedidos({
                     {pedido.dataHorario && (
                       <span className={styles.dataHorarioText}>
                         {pedido.dataHorario}
-                      </span>
-                    )}
-
-                    {pedido.cpf && (
-                      <span className={styles.badgeCpf}>
-                        CPF: {pedido.cpf}
                       </span>
                     )}
                   </div>

@@ -59,6 +59,7 @@ type PedidoAPI = {
 
   nome_cliente: string;
   telefone_cliente: string | null;
+  foto_cliente: string | null;
 
   nome_comercio: string | null;
   logo_comercio: string | null;
@@ -104,7 +105,7 @@ type PedidoReal = Pedido & {
     estado?: string;
   };
 
-  cpfNota?: string;
+  fotoCliente?: string | null;
 };
 
 /* =====================================================
@@ -198,6 +199,7 @@ function converterPedido(pedido: PedidoAPI): PedidoReal | null {
 
     cliente: pedido.nome_cliente,
     telefone: pedido.telefone_cliente ?? "",
+    fotoCliente: pedido.foto_cliente ?? null,
 
     dataHorario: formatarData(pedido.criado_em),
 
@@ -268,7 +270,7 @@ function converterParaDetalhe(
 
     cliente: pedido.cliente,
     telefone: pedido.telefone,
-    cpf: pedido.cpfNota,
+    fotoCliente: pedido.fotoCliente ?? undefined,
     dataHorario: pedido.dataHorario,
 
     endereco: {

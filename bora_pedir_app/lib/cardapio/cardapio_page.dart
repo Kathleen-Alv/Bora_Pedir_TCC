@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,6 +10,7 @@ import '../../services/carrinho_service.dart';
 import '../../widgets/bottom_navigation.dart';
 import '../carrinho_compras/carrinho_compras_modal.dart';
 import 'item_cardapio.dart';
+import '../cardapio/componentes/perfil_comercio.dart';
 import '../pages/perfil/chat/chat.dart';
 
 class CardapioPage extends StatefulWidget {
@@ -19,6 +19,7 @@ class CardapioPage extends StatefulWidget {
   final String categoriaComercio;
   final String logoComercio;
   final String bannerComercio;
+  final String descricaoComercio;
 
   const CardapioPage({
     super.key,
@@ -27,6 +28,7 @@ class CardapioPage extends StatefulWidget {
     required this.categoriaComercio,
     required this.logoComercio,
     required this.bannerComercio,
+    this.descricaoComercio = '',
   });
 
   @override
@@ -48,7 +50,6 @@ class _CardapioPageState extends State<CardapioPage> {
   double totalCarrinho = 0;
   bool carregandoCarrinho = false;
 
-  // Controle de abertura do chat.
   bool abrindoChat = false;
 
   final ScrollController _scrollController = ScrollController();
@@ -160,7 +161,6 @@ class _CardapioPageState extends State<CardapioPage> {
 
     try {
       final preferencias = await SharedPreferences.getInstance();
-
       final token = preferencias.getString('token') ?? '';
 
       if (token.isEmpty) {
@@ -523,227 +523,32 @@ class _CardapioPageState extends State<CardapioPage> {
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // CABEÇALHO DO COMÉRCIO
+            // =================================================
+            // PERFIL DO COMÉRCIO - COMPONENTE SEPARADO
+            // =================================================
             SliverToBoxAdapter(
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            height: 160,
-                            width: double.infinity,
-                            clipBehavior: Clip.hardEdge,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEFEFEF),
-                            ),
-                            child: bannerUrl.isEmpty
-                                ? _bannerPadrao()
-                                : Image.network(
-                                    bannerUrl,
-                                    width: double.infinity,
-                                    height: 160,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (
-                                      context,
-                                      error,
-                                      stackTrace,
-                                    ) {
-                                      return _bannerPadrao();
-                                    },
-                                  ),
-                          ),
-                          Positioned(
-                            top: 15,
-                            left: 15,
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundColor:
-                                  Colors.black.withOpacity(0.55),
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(
-                                  Icons.arrow_back,
-                                  color: Colors.white,
-                                  size: 21,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 15,
-                            right: 15,
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundColor:
-                                  Colors.black.withOpacity(0.55),
-                              child: const Icon(
-                                Icons.share,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+              child: PerfilComercio(
+                nomeComercio: widget.nomeComercio,
+                categoriaComercio: widget.categoriaComercio,
+                logoUrl: logoUrl,
+                bannerUrl: bannerUrl,
+                descricaoComercio: widget.descricaoComercio,
+                abrindoChat: abrindoChat,
+                onAbrirChat: _abrirChat,
+                onVoltar: () {
+                  Navigator.pop(context);
+                },
 
-                      // INFORMAÇÕES DO COMÉRCIO
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(
-                          20,
-                          65,
-                          20,
-                          20,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(25),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.nomeComercio,
-                              style: const TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF202622),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              widget.categoriaComercio,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF777777),
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-
-                            // INFORMAÇÕES E BOTÃO DO CHAT
-                            Row(
-                              children: [
-                                const Expanded(
-                                  child: _InformacaoComercio(
-                                    icone: Icons.delivery_dining,
-                                    titulo: 'Taxa de entrega',
-                                    valor: 'Consultar',
-                                  ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 45,
-                                  color: const Color(0xFFE5E5E5),
-                                ),
-                                const Expanded(
-                                  child: _InformacaoComercio(
-                                    icone: Icons.access_time,
-                                    titulo: 'Tempo de espera',
-                                    valor: '30 - 50 min',
-                                  ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 45,
-                                  color: const Color(0xFFE5E5E5),
-                                ),
-
-                                // TELEFONE
-                                const Expanded(
-                                  flex: 2,
-                                  child: _InformacaoComercio(
-                                    icone: Icons.phone,
-                                    titulo: 'Telefone',
-                                    valor: '(11) 98765-4321',
-                                  ),
-                                ),
-
-                                const SizedBox(width: 5),
-
-                                // BOTÃO PARA ABRIR O CHAT
-                                Tooltip(
-                                  message: 'Conversar com o comércio',
-                                  child: Material(
-                                    color: vermelho,
-                                    borderRadius: BorderRadius.circular(13),
-                                    child: InkWell(
-                                      onTap: abrindoChat ? null : _abrirChat,
-                                      borderRadius: BorderRadius.circular(13),
-                                      child: SizedBox(
-                                        width: 43,
-                                        height: 43,
-                                        child: Center(
-                                          child: abrindoChat
-                                              ? const SizedBox(
-                                                  width: 19,
-                                                  height: 19,
-                                                  child: CircularProgressIndicator(
-                                                    color: Colors.white,
-                                                    strokeWidth: 2,
-                                                  ),
-                                                )
-                                              : const Icon(
-                                                  Icons.chat_bubble_outline,
-                                                  color: Colors.white,
-                                                  size: 21,
-                                                ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // LOGO SOBRE O BANNER
-                  Positioned(
-                    left: 20,
-                    top: 110,
-                    child: Container(
-                      width: 95,
-                      height: 95,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: _LogoComercio(url: logoUrl),
-                      ),
-                    ),
-                  ),
-
-                  const Positioned(
-                    top: 185,
-                    right: 20,
-                    child: _StatusComercio(),
-                  ),
-                ],
+                // Altere este valor para subir ou descer
+                // nome, categoria e status Aberto juntos.
+                deslocamentoNomeCategoriaStatus: -10,
               ),
             ),
 
+            // =====================================================
             // MENU DE CATEGORIAS FIXO
+            // =====================================================
+
             SliverPersistentHeader(
               pinned: true,
               delegate: _CategoriasHeaderDelegate(
@@ -763,7 +568,10 @@ class _CardapioPageState extends State<CardapioPage> {
               ),
             ),
 
+            // =====================================================
             // BUSCA VISUAL
+            // =====================================================
+
             SliverToBoxAdapter(
               child: Container(
                 color: Colors.white,
@@ -800,7 +608,10 @@ class _CardapioPageState extends State<CardapioPage> {
               ),
             ),
 
+            // =====================================================
             // CARREGAMENTO E ERROS
+            // =====================================================
+
             if (carregando)
               const SliverToBoxAdapter(
                 child: Padding(
@@ -868,7 +679,10 @@ class _CardapioPageState extends State<CardapioPage> {
         ),
       ),
 
+      // =======================================================
       // CARRINHO E NAVEGAÇÃO INFERIOR
+      // =======================================================
+
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -883,21 +697,6 @@ class _CardapioPageState extends State<CardapioPage> {
             onItemSelecionado: (_) {},
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _bannerPadrao() {
-    return Container(
-      width: double.infinity,
-      height: 160,
-      color: const Color(0xFFEFEFEF),
-      child: const Center(
-        child: Icon(
-          Icons.storefront,
-          size: 55,
-          color: Color(0xFFBDBDBD),
-        ),
       ),
     );
   }
@@ -1051,148 +850,6 @@ class _CategoriasHeaderDelegate extends SliverPersistentHeaderDelegate {
     covariant _CategoriasHeaderDelegate oldDelegate,
   ) {
     return oldDelegate.child != child;
-  }
-}
-
-// ===========================================================
-// LOGO DO COMÉRCIO
-// ===========================================================
-
-class _LogoComercio extends StatelessWidget {
-  final String url;
-
-  const _LogoComercio({
-    required this.url,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (url.isEmpty) {
-      return const Icon(
-        Icons.store,
-        size: 45,
-        color: Colors.grey,
-      );
-    }
-
-    final bool isSvg =
-        url.toLowerCase().split('?').first.endsWith('.svg');
-
-    if (isSvg) {
-      return SvgPicture.network(
-        url,
-        fit: BoxFit.cover,
-        placeholderBuilder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
-          );
-        },
-      );
-    }
-
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return const Icon(
-          Icons.store,
-          size: 45,
-          color: Colors.grey,
-        );
-      },
-    );
-  }
-}
-
-// ===========================================================
-// STATUS DO COMÉRCIO
-// ===========================================================
-
-class _StatusComercio extends StatelessWidget {
-  const _StatusComercio();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 13,
-        vertical: 8,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0AA879),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.check_circle,
-            color: Colors.white,
-            size: 16,
-          ),
-          SizedBox(width: 5),
-          Text(
-            'Aberto',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ===========================================================
-// INFORMAÇÕES DO COMÉRCIO
-// ===========================================================
-
-class _InformacaoComercio extends StatelessWidget {
-  final IconData icone;
-  final String titulo;
-  final String valor;
-
-  const _InformacaoComercio({
-    required this.icone,
-    required this.titulo,
-    required this.valor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 7),
-      child: Column(
-        children: [
-          Icon(
-            icone,
-            size: 19,
-            color: const Color(0xFF555555),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            titulo,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 10,
-              color: Color(0xFF777777),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            valor,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF333333),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

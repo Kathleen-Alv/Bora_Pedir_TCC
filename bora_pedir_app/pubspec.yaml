@@ -39,6 +39,7 @@ flutter:
     - assets/cartao_bora_pedir.png
     - assets/money.png
     - assets/promo_inicio/
+    - assets/perfil_comercio/
 
 flutter_launcher_icons:
   android: true
