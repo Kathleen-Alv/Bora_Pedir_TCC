@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'componentes/receber_entrega.dart';
+import '../../../services/entrega_service.dart';
 
 class Entregas extends StatefulWidget {
   const Entregas({super.key});
@@ -22,16 +23,25 @@ class _EntregasState extends State<Entregas> {
   final MapController _mapController = MapController();
 
   Position? _posicaoAtual;
+
   StreamSubscription<Position>? _assinaturaLocalizacao;
 
-  Timer? _timerSimulacaoEntrega;
+  Timer? _timerEntregas;
+
+  // Entregas que já foram exibidas nesta sessão.
+  // Evita que uma entrega recusada apareça novamente
+  // a cada consulta enquanto não existe histórico de recusas.
+  final Set<int> _entregasExibidas = {};
 
   bool _carregando = true;
   bool _seguirLocalizacao = true;
   bool _modalAberto = false;
-  bool _simulacaoExecutada = false;
+  bool _buscandoEntregas = false;
 
   String? _erroLocalizacao;
+  String? _erroEntregas;
+
+  int _quantidadeEntregas = 0;
 
   @override
   void initState() {
@@ -39,51 +49,126 @@ class _EntregasState extends State<Entregas> {
 
     _iniciarLocalizacao();
 
-    // Simula o recebimento de uma entrega após 5 segundos.
-    _agendarSimulacaoEntrega();
+    // Busca entregas imediatamente.
+    _buscarEntregasDisponiveis();
+
+    // Atualiza a lista a cada 10 segundos.
+    _timerEntregas = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) {
+        _buscarEntregasDisponiveis();
+      },
+    );
   }
 
   @override
   void dispose() {
-    _timerSimulacaoEntrega?.cancel();
+    _timerEntregas?.cancel();
     _assinaturaLocalizacao?.cancel();
 
     super.dispose();
   }
 
   // =====================================================
-  // SIMULAÇÃO DE NOVA ENTREGA
+  // BUSCAR ENTREGAS DISPONÍVEIS
   // =====================================================
 
-  void _agendarSimulacaoEntrega() {
-    _timerSimulacaoEntrega?.cancel();
+  Future<void> _buscarEntregasDisponiveis() async {
+    if (!mounted || _buscandoEntregas || _modalAberto) {
+      return;
+    }
 
-    _timerSimulacaoEntrega = Timer(
-      const Duration(seconds: 5),
-      () {
-        if (!mounted) return;
+    _buscandoEntregas = true;
 
-        _abrirModalEntrega();
-      },
-    );
+    try {
+      final entregas = await EntregaService.buscarDisponiveis();
+
+      if (!mounted) return;
+
+      final disponiveis = entregas.where((entrega) {
+        final id = _obterEntregaId(entrega);
+
+        if (id == null) return false;
+
+        return !_entregasExibidas.contains(id);
+      }).toList();
+
+      setState(() {
+        _erroEntregas = null;
+        _quantidadeEntregas = disponiveis.length;
+      });
+
+      if (disponiveis.isNotEmpty) {
+        await _abrirModalEntrega(disponiveis.first);
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _erroEntregas = e
+            .toString()
+            .replaceFirst('Exception: ', '');
+      });
+    } finally {
+      _buscandoEntregas = false;
+    }
   }
 
   // =====================================================
-  // ABRIR MODAL DE ENTREGA
+  // OBTER ID DA ENTREGA
   // =====================================================
 
-  Future<void> _abrirModalEntrega() async {
-    if (!mounted || _modalAberto || _simulacaoExecutada) {
+  int? _obterEntregaId(Map<String, dynamic> entrega) {
+    final valor = entrega['entrega_id'] ?? entrega['id'];
+
+    if (valor == null) return null;
+
+    return int.tryParse(valor.toString());
+  }
+
+  // =====================================================
+  // ABRIR MODAL DE NOVA ENTREGA
+  // =====================================================
+
+  Future<void> _abrirModalEntrega(
+    Map<String, dynamic> entrega,
+  ) async {
+    if (!mounted || _modalAberto) return;
+
+    final id = _obterEntregaId(entrega);
+
+    if (id == null) {
       return;
     }
 
     setState(() {
       _modalAberto = true;
-      _simulacaoExecutada = true;
     });
 
     try {
-      await ReceberEntrega.mostrar(context);
+      await ReceberEntrega.mostrar(
+        context,
+        entrega: entrega,
+      );
+
+      if (!mounted) return;
+
+      // Evita repetir a mesma entrega nesta sessão.
+      // Inclui entregas aceitas e recusadas.
+      _entregasExibidas.add(id);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível abrir a entrega: '
+            '${e.toString().replaceFirst('Exception: ', '')}',
+          ),
+          backgroundColor: vermelho,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -149,29 +234,38 @@ class _EntregasState extends State<Entregas> {
 
       await _assinaturaLocalizacao?.cancel();
 
-      _assinaturaLocalizacao =
-          Geolocator.getPositionStream(
+      _assinaturaLocalizacao = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
           distanceFilter: 10,
         ),
-      ).listen((novaPosicao) {
-        if (!mounted) return;
+      ).listen(
+        (novaPosicao) {
+          if (!mounted) return;
 
-        setState(() {
-          _posicaoAtual = novaPosicao;
-        });
+          setState(() {
+            _posicaoAtual = novaPosicao;
+          });
 
-        if (_seguirLocalizacao) {
-          _mapController.move(
-            LatLng(
-              novaPosicao.latitude,
-              novaPosicao.longitude,
-            ),
-            16,
-          );
-        }
-      });
+          if (_seguirLocalizacao) {
+            _mapController.move(
+              LatLng(
+                novaPosicao.latitude,
+                novaPosicao.longitude,
+              ),
+              16,
+            );
+          }
+        },
+        onError: (erro) {
+          if (!mounted) return;
+
+          setState(() {
+            _erroLocalizacao =
+                'Não foi possível atualizar sua localização.';
+          });
+        },
+      );
     } catch (erro) {
       if (!mounted) return;
 
@@ -210,7 +304,9 @@ class _EntregasState extends State<Entregas> {
                 size: 55,
                 color: vermelho,
               ),
+
               const SizedBox(height: 16),
+
               const Text(
                 'Não foi possível acessar sua localização',
                 textAlign: TextAlign.center,
@@ -219,7 +315,9 @@ class _EntregasState extends State<Entregas> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 _erroLocalizacao ?? 'Verifique seu GPS.',
                 textAlign: TextAlign.center,
@@ -228,7 +326,9 @@ class _EntregasState extends State<Entregas> {
                   color: Colors.black54,
                 ),
               ),
+
               const SizedBox(height: 20),
+
               ElevatedButton.icon(
                 onPressed: _iniciarLocalizacao,
                 icon: const Icon(Icons.refresh),
@@ -251,7 +351,6 @@ class _EntregasState extends State<Entregas> {
 
     return Stack(
       children: [
-        // MAPA OPENSTREETMAP HOT
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
@@ -273,7 +372,6 @@ class _EntregasState extends State<Entregas> {
               maxZoom: 19,
             ),
 
-            // MARCADOR DA LOCALIZAÇÃO
             MarkerLayer(
               markers: [
                 Marker(
@@ -310,7 +408,6 @@ class _EntregasState extends State<Entregas> {
               ],
             ),
 
-            // CRÉDITOS DO MAPA
             RichAttributionWidget(
               attributions: [
                 TextSourceAttribution(
@@ -324,7 +421,7 @@ class _EntregasState extends State<Entregas> {
           ],
         ),
 
-        // MENSAGEM FLUTUANTE SOBRE O MAPA
+        // MENSAGEM SOBRE O MAPA
         Positioned(
           top: 16,
           left: 16,
@@ -343,7 +440,11 @@ class _EntregasState extends State<Entregas> {
             elevation: 4,
             onPressed: () {
               _seguirLocalizacao = true;
-              _mapController.move(localizacao, 16);
+
+              _mapController.move(
+                localizacao,
+                16,
+              );
             },
             child: const Icon(Icons.my_location),
           ),
@@ -357,106 +458,132 @@ class _EntregasState extends State<Entregas> {
   // =====================================================
 
   Widget _construirMensagem() {
+    final temErro = _erroEntregas != null;
+
+    final titulo = temErro
+        ? 'Problema ao buscar entregas'
+        : _quantidadeEntregas > 0
+            ? 'Nova entrega disponível'
+            : 'Aguardando entregas';
+
+    final subtitulo = temErro
+        ? 'Toque para tentar novamente.'
+        : _quantidadeEntregas > 0
+            ? 'Existem entregas aguardando você.'
+            : 'Novos pedidos aparecerão por aqui.';
+
     return Material(
       color: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 13,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.96),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white,
-            width: 1,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: temErro ? _buscarEntregasDisponiveis : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 15,
+            vertical: 13,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.16),
-              blurRadius: 18,
-              offset: const Offset(0, 5),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.96),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white,
+              width: 1,
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // ÍCONE
-            Container(
-              width: 43,
-              height: 43,
-              decoration: BoxDecoration(
-                color: vermelho.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.16),
+                blurRadius: 18,
+                offset: const Offset(0, 5),
               ),
-              child: const Icon(
-                Icons.delivery_dining_rounded,
-                color: vermelho,
-                size: 26,
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 43,
+                height: 43,
+                decoration: BoxDecoration(
+                  color: vermelho.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  temErro
+                      ? Icons.wifi_off_rounded
+                      : Icons.delivery_dining_rounded,
+                  color: vermelho,
+                  size: 26,
+                ),
               ),
-            ),
 
-            const SizedBox(width: 13),
+              const SizedBox(width: 13),
 
-            // TEXTOS
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Aguardando entregas',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF252525),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      titulo,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF252525),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Novos pedidos aparecerão por aqui.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF777777),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            const SizedBox(width: 8),
+                    const SizedBox(height: 4),
 
-            // STATUS VISUAL
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 9,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF6ED),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.circle,
-                    size: 7,
-                    color: Color(0xFF36A45B),
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    'Online',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF278347),
+                    Text(
+                      subtitulo,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF777777),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(width: 8),
+
+              if (temErro)
+                const Icon(
+                  Icons.refresh_rounded,
+                  color: vermelho,
+                  size: 22,
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF6ED),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 7,
+                        color: Color(0xFF36A45B),
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'Online',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF278347),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -494,7 +621,7 @@ class _EntregasState extends State<Entregas> {
               ),
             ),
 
-            // MAPA COM MENSAGEM FLUTUANTE
+            // MAPA
             Expanded(
               child: _construirMapa(),
             ),

@@ -28,6 +28,10 @@ export type Pedido = {
   total: number;
   preparo: number;
   observacao?: string;
+
+  // Código gerado pelo backend quando o pedido fica PRONTO.
+  // É o código que o comércio fornece ao entregador.
+  codigoRetirada?: string | null;
 };
 
 interface ColunaPedidosProps {
@@ -54,7 +58,7 @@ export function ColunaPedidos({
 
   const handleRecusar = (id: string) => {
     onRecusarPedido(id);
-    setAviso(`Pedido #${id} recusado na demonstração.`);
+    setAviso(`Pedido #${id} recusado.`);
   };
 
   const handleMarcarPronto = (id: string) => {
@@ -79,6 +83,10 @@ export function ColunaPedidos({
     preparo: styles.pontoPreparo,
     pronto: styles.pontoPronto,
   };
+
+  /* =====================================================
+     CARD — PEDIDO NOVO
+  ===================================================== */
 
   const renderPedidoNovo = (pedido: Pedido) => {
     const totalItens = pedido.itens.reduce(
@@ -138,6 +146,10 @@ export function ColunaPedidos({
     );
   };
 
+  /* =====================================================
+     CARD — PEDIDO EM PREPARO
+  ===================================================== */
+
   const renderPedidoPreparo = (pedido: Pedido) => {
     const totalItens = pedido.itens.reduce(
       (acc, item) => acc + item.quantidade,
@@ -186,6 +198,10 @@ export function ColunaPedidos({
     );
   };
 
+  /* =====================================================
+     CARD — PEDIDO PRONTO
+  ===================================================== */
+
   const renderPedidoPronto = (pedido: Pedido) => {
     const totalItens = pedido.itens.reduce(
       (acc, item) => acc + item.quantidade,
@@ -223,11 +239,32 @@ export function ColunaPedidos({
         </button>
 
         <div className={styles.pedidoProntoEtiqueta}>
-          ✓ Pedido pronto
+          <strong>✓ Pedido pronto</strong>
+          <span>Aguardando entregador</span>
         </div>
+
+        {pedido.codigoRetirada && (
+          <div className={styles.codigoRetirada}>
+            <span className={styles.codigoRetiradaTitulo}>
+              Código de retirada
+            </span>
+
+            <strong className={styles.codigoRetiradaNumero}>
+              {pedido.codigoRetirada}
+            </strong>
+
+            <small>
+              Informe este código ao entregador quando ele retirar o pedido.
+            </small>
+          </div>
+        )}
       </article>
     );
   };
+
+  /* =====================================================
+     IDENTIFICAR E RENDERIZAR O CARD
+  ===================================================== */
 
   const renderizarPedido = (pedido: Pedido) => {
     switch (pedido.status) {
@@ -244,6 +281,10 @@ export function ColunaPedidos({
         return null;
     }
   };
+
+  /* =====================================================
+     ESTRUTURA DAS COLUNAS
+  ===================================================== */
 
   return (
     <div className={styles.colunaEsquerdaScroll}>
@@ -298,7 +339,11 @@ export function ColunaPedidos({
                     </strong>
 
                     <small className={styles.vazioDescricao}>
-                      Os novos pedidos aparecerão nesta coluna.
+                      {status === "novo"
+                        ? "Os novos pedidos aparecerão nesta coluna."
+                        : status === "preparo"
+                          ? "Os pedidos em preparo aparecerão aqui."
+                          : "Os pedidos prontos aparecerão aqui."}
                     </small>
                   </div>
                 ) : (

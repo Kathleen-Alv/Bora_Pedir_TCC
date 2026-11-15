@@ -2,34 +2,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../services/entrega_service.dart';
+
 class ValidacaoEntrega {
   static const Color vermelho = Color(0xFFBD1221);
   static const Color verde = Color(0xFF70D44B);
   static const Color texto = Color(0xFF252525);
   static const Color cinza = Color(0xFF777777);
 
-  // =====================================================
-  // ABRIR MODAL
-  // =====================================================
-
-  static Future<bool> mostrar(BuildContext context) async {
+  static Future<bool> mostrar(
+    BuildContext context, {
+    required int entregaId,
+  }) async {
     final resultado = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black.withValues(alpha: 0.55),
-      builder: (_) => const _ModalValidacao(),
+      builder: (_) => _ModalValidacao(entregaId: entregaId),
     );
 
     return resultado ?? false;
   }
 }
 
-// =====================================================
-// MODAL DE VALIDAÇÃO
-// =====================================================
-
 class _ModalValidacao extends StatefulWidget {
-  const _ModalValidacao();
+  final int entregaId;
+
+  const _ModalValidacao({
+    required this.entregaId,
+  });
 
   @override
   State<_ModalValidacao> createState() => _ModalValidacaoState();
@@ -43,6 +44,9 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
 
   bool erro = false;
   bool concluido = false;
+  bool carregando = false;
+
+  String mensagemErro = '';
 
   @override
   void dispose() {
@@ -52,54 +56,87 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
   }
 
   // =====================================================
-  // VALIDAR CÓDIGO
-  // SIMULAÇÃO: ACEITA QUALQUER CÓDIGO COM 4 DÍGITOS
+  // VALIDAR CÓDIGO NO BACKEND
   // =====================================================
 
-  void _validarCodigo() {
+  Future<void> _validarCodigo() async {
+    if (carregando || concluido) return;
+
     final codigo = _controller.text.trim();
 
-    // Exige quatro números.
     if (codigo.length != 4) {
       setState(() {
         erro = true;
+        mensagemErro = 'Digite os 4 números do código.';
       });
       return;
     }
-
-    // =================================================
-    // ETAPA 1: RETIRADA NO COMÉRCIO
-    // =================================================
-
-    if (etapa == 1) {
-      setState(() {
-        etapa = 2;
-        erro = false;
-        _controller.clear();
-      });
-
-      return;
-    }
-
-    // =================================================
-    // ETAPA 2: ENTREGA AO CLIENTE
-    // =================================================
 
     setState(() {
-      concluido = true;
+      carregando = true;
       erro = false;
+      mensagemErro = '';
     });
 
-    // Aguarda a mensagem de sucesso e fecha o modal.
-    Future.delayed(const Duration(milliseconds: 1800), () {
+    try {
+      if (etapa == 1) {
+        // =============================================
+        // ETAPA 1: VALIDAR RETIRADA NO COMÉRCIO
+        // =============================================
+
+        await EntregaService.validarRetirada(
+          entregaId: widget.entregaId,
+          codigo: codigo,
+        );
+
+        if (!mounted) return;
+
+        setState(() {
+          etapa = 2;
+          carregando = false;
+          erro = false;
+          _controller.clear();
+        });
+
+        FocusScope.of(context).requestFocus(_focusNode);
+        return;
+      }
+
+      // =============================================
+      // ETAPA 2: VALIDAR ENTREGA AO CLIENTE
+      // =============================================
+
+      await EntregaService.validarEntrega(
+        entregaId: widget.entregaId,
+        codigo: codigo,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        carregando = false;
+        concluido = true;
+        erro = false;
+      });
+
+      await Future.delayed(const Duration(milliseconds: 1800));
+
       if (!mounted) return;
 
       Navigator.pop(context, true);
-    });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        carregando = false;
+        erro = true;
+        mensagemErro = e.toString().replaceFirst('Exception: ', '');
+      });
+    }
   }
 
   // =====================================================
-  // INTERFACE DO MODAL
+  // INTERFACE
   // =====================================================
 
   @override
@@ -130,10 +167,6 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // =====================================
-                  // ÍCONE
-                  // =====================================
-
                   Container(
                     width: 66,
                     height: 66,
@@ -153,10 +186,6 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
                   ),
 
                   const SizedBox(height: 19),
-
-                  // =====================================
-                  // TÍTULO
-                  // =====================================
 
                   Text(
                     retirada
@@ -186,10 +215,6 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
 
                   const SizedBox(height: 23),
 
-                  // =====================================
-                  // INDICADOR DE PROGRESSO
-                  // =====================================
-
                   Row(
                     children: [
                       _etapaIndicador(
@@ -197,7 +222,6 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
                         ativa: etapa == 1,
                         finalizada: etapa > 1,
                       ),
-
                       Expanded(
                         child: Container(
                           height: 2,
@@ -206,7 +230,6 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
                               : const Color(0xFFE8E8E8),
                         ),
                       ),
-
                       _etapaIndicador(
                         titulo: 'Cliente',
                         ativa: etapa == 2,
@@ -216,10 +239,6 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
                   ),
 
                   const SizedBox(height: 26),
-
-                  // =====================================
-                  // IDENTIFICAÇÃO DO CAMPO
-                  // =====================================
 
                   const Align(
                     alignment: Alignment.centerLeft,
@@ -235,14 +254,11 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
 
                   const SizedBox(height: 10),
 
-                  // =====================================
-                  // CAMPO DO CÓDIGO
-                  // =====================================
-
                   TextField(
                     controller: _controller,
                     focusNode: _focusNode,
                     autofocus: true,
+                    enabled: !carregando,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     maxLength: 4,
@@ -294,33 +310,32 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
                       if (erro) {
                         setState(() {
                           erro = false;
+                          mensagemErro = '';
                         });
                       }
                     },
                     onSubmitted: (_) => _validarCodigo(),
                   ),
 
-                  // =====================================
-                  // MENSAGEM DE ERRO
-                  // =====================================
-
                   if (erro) ...[
                     const SizedBox(height: 9),
-
-                    const Row(
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.error_outline_rounded,
                           color: ValidacaoEntrega.vermelho,
                           size: 17,
                         ),
-                        SizedBox(width: 6),
-                        Text(
-                          'Digite os 4 números para continuar.',
-                          style: TextStyle(
-                            color: ValidacaoEntrega.vermelho,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            mensagemErro,
+                            style: const TextStyle(
+                              color: ValidacaoEntrega.vermelho,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -329,51 +344,54 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
 
                   const SizedBox(height: 21),
 
-                  // =====================================
-                  // BOTÃO DE CONFIRMAÇÃO
-                  // =====================================
-
                   SizedBox(
                     width: double.infinity,
                     height: 53,
                     child: ElevatedButton(
-                      onPressed: _validarCodigo,
+                      onPressed: carregando ? null : _validarCodigo,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ValidacaoEntrega.vermelho,
                         foregroundColor: Colors.white,
+                        disabledBackgroundColor:
+                            ValidacaoEntrega.vermelho.withValues(alpha: 0.65),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            retirada
-                                ? 'CONFIRMAR RETIRADA'
-                                : 'FINALIZAR ENTREGA',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.4,
+                      child: carregando
+                          ? const SizedBox(
+                              width: 23,
+                              height: 23,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  retirada
+                                      ? 'CONFIRMAR RETIRADA'
+                                      : 'FINALIZAR ENTREGA',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.4,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 19,
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 19,
-                          ),
-                        ],
-                      ),
                     ),
                   ),
 
                   const SizedBox(height: 12),
-
-                  // =====================================
-                  // RODAPÉ
-                  // =====================================
 
                   Text(
                     retirada
@@ -421,9 +439,7 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
             size: finalizada ? 17 : 9,
           ),
         ),
-
         const SizedBox(width: 6),
-
         Text(
           titulo,
           style: TextStyle(
@@ -439,7 +455,7 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
   }
 
   // =====================================================
-  // TELA DE SUCESSO
+  // SUCESSO
   // =====================================================
 
   Widget _construirSucesso() {
@@ -450,9 +466,7 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
           width: 82,
           height: 82,
           decoration: BoxDecoration(
-            color: ValidacaoEntrega.verde.withValues(
-              alpha: 0.13,
-            ),
+            color: ValidacaoEntrega.verde.withValues(alpha: 0.13),
             shape: BoxShape.circle,
           ),
           child: const Icon(
@@ -494,9 +508,7 @@ class _ModalValidacaoState extends State<_ModalValidacao> {
             vertical: 9,
           ),
           decoration: BoxDecoration(
-            color: ValidacaoEntrega.verde.withValues(
-              alpha: 0.10,
-            ),
+            color: ValidacaoEntrega.verde.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(30),
           ),
           child: const Row(

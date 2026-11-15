@@ -89,25 +89,17 @@
   border-radius: 50%;
 }
 
-/* Indicador de novos pedidos */
-
 .pontoNovo {
   background: #d42b39;
 }
-
-/* Indicador de pedidos em preparo */
 
 .pontoPreparo {
   background: #e4a02a;
 }
 
-/* Indicador de pedidos prontos */
-
 .pontoPronto {
   background: #32a15b;
 }
-
-/* Texto NOVO no cabeçalho */
 
 .indicadorNovo {
   margin-left: auto;
@@ -120,7 +112,6 @@
 
 /* =====================================================
    SELEÇÃO DO PEDIDO
-   APLICÁVEL AOS TRÊS TIPOS DE CARD
 ===================================================== */
 
 .pedidoSelecionado {
@@ -130,7 +121,6 @@
 
 /* =====================================================
    STATUS 1 — PEDIDO NOVO
-   Card, conteúdo e ações independentes
 ===================================================== */
 
 .pedidoNovo {
@@ -146,8 +136,6 @@
   box-shadow: 0 2px 7px #bd12210b;
   box-sizing: border-box;
 }
-
-/* Área clicável do pedido novo */
 
 .pedidoNovoConteudo {
   display: block;
@@ -166,8 +154,6 @@
   outline-offset: -3px;
   border-radius: 8px;
 }
-
-/* Código e quantidade de itens */
 
 .pedidoNovoTopo {
   display: flex;
@@ -189,8 +175,6 @@
   white-space: nowrap;
 }
 
-/* Nome do cliente */
-
 .pedidoNovoCliente {
   display: flex;
   align-items: center;
@@ -202,7 +186,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Botões do pedido novo */
+/* AÇÕES DO PEDIDO NOVO */
 
 .pedidoNovoAcoes {
   display: flex;
@@ -241,8 +225,6 @@
   transform: scale(0.98);
 }
 
-/* Recusar pedido novo */
-
 .pedidoNovoRecusar {
   flex: 0.5 0.5 0;
   min-width: 0;
@@ -257,8 +239,6 @@
   border-color: #edc7cb;
   background: #fff8f8;
 }
-
-/* Aceitar pedido novo */
 
 .pedidoNovoAceitar {
   flex: 1 1 0;
@@ -280,7 +260,6 @@
 
 /* =====================================================
    STATUS 2 — PEDIDO EM PREPARO
-   Card e conteúdo independentes
 ===================================================== */
 
 .pedidoPreparo {
@@ -296,8 +275,6 @@
   box-shadow: 0 2px 4px #25382d05;
   box-sizing: border-box;
 }
-
-/* Área clicável do pedido em preparo */
 
 .pedidoPreparoConteudo {
   display: block;
@@ -316,8 +293,6 @@
   outline-offset: -3px;
   border-radius: 8px;
 }
-
-/* Código e quantidade de itens */
 
 .pedidoPreparoTopo {
   display: flex;
@@ -339,8 +314,6 @@
   white-space: nowrap;
 }
 
-/* Nome do cliente */
-
 .pedidoPreparoCliente {
   display: flex;
   align-items: center;
@@ -352,7 +325,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Botão de avançar para pronto */
+/* BOTÃO MARCAR COMO PRONTO */
 
 .pedidoPreparoBotao {
   width: calc(100% - 24px);
@@ -394,7 +367,6 @@
 
 /* =====================================================
    STATUS 3 — PEDIDO PRONTO
-   Card e conteúdo independentes
 ===================================================== */
 
 .pedidoPronto {
@@ -410,8 +382,6 @@
   box-shadow: 0 2px 4px #25382d05;
   box-sizing: border-box;
 }
-
-/* Área clicável do pedido pronto */
 
 .pedidoProntoConteudo {
   display: block;
@@ -430,8 +400,6 @@
   outline-offset: -3px;
   border-radius: 8px;
 }
-
-/* Código e quantidade de itens */
 
 .pedidoProntoTopo {
   display: flex;
@@ -453,8 +421,6 @@
   white-space: nowrap;
 }
 
-/* Nome do cliente */
-
 .pedidoProntoCliente {
   display: flex;
   align-items: center;
@@ -466,13 +432,14 @@
   overflow-wrap: anywhere;
 }
 
-/* Identificação de pedido pronto */
+/* ETIQUETA — AGUARDANDO ENTREGADOR */
 
 .pedidoProntoEtiqueta {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   margin-top: auto;
   padding: 10px;
   color: #26834a;
@@ -480,6 +447,17 @@
   text-align: center;
   font-size: 11px;
   font-weight: 750;
+}
+
+.pedidoProntoEtiqueta strong {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.pedidoProntoEtiqueta span {
+  color: #77857c;
+  font-size: 10px;
+  font-weight: 600;
 }
 
 /* =====================================================
@@ -585,4 +563,48 @@
     height: auto;
     max-height: 70vh;
   }
+}
+
+
+/* =====================================================
+   CÓDIGO DE RETIRADA — PEDIDO PRONTO
+===================================================== */
+
+.codigoRetirada {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 12px 12px;
+  padding: 12px 10px;
+  border: 1px dashed #b8d9c2;
+  border-radius: 8px;
+  background: #f6fbf7;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.codigoRetiradaTitulo {
+  color: #52745d;
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.codigoRetiradaNumero {
+  color: #168044;
+  font-size: 27px;
+  font-weight: 850;
+  letter-spacing: 5px;
+  line-height: 1.2;
+}
+
+.codigoRetirada small {
+  max-width: 230px;
+  color: #78877c;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
 }

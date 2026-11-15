@@ -74,6 +74,13 @@ import cepRoutes
  from './src/api/routes/cep.routes.js';
 
 
+
+
+ import entregaRoutes
+    from './src/api/routes/entrega.routes.js';
+
+
+
 // ================================================================
 // APLICAÇÃO
 // ================================================================
@@ -191,12 +198,12 @@ app.use(
 );
 
 // ================================================================
-// PEDIDOS
+// ENTREGAS DO ENTREGADOR
 // ================================================================
 
 app.use(
-    '/api/pedidos',
-    pedidoRoutes
+    '/api/entregas',
+    entregaRoutes
 );
 
 // ================================================================

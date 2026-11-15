@@ -52,6 +52,9 @@ class _CardapioPageState extends State<CardapioPage> {
 
   bool abrindoChat = false;
 
+  // Descrição carregada do banco de dados.
+  late String descricaoComercio;
+
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _chavesCategorias = {};
 
@@ -61,8 +64,11 @@ class _CardapioPageState extends State<CardapioPage> {
   void initState() {
     super.initState();
 
+    descricaoComercio = widget.descricaoComercio;
+
     _scrollController.addListener(_sincronizarCategoriaVisivel);
 
+    _buscarDescricaoComercio();
     _buscarCardapio();
     _carregarCarrinho();
   }
@@ -72,6 +78,46 @@ class _CardapioPageState extends State<CardapioPage> {
     _scrollController.removeListener(_sincronizarCategoriaVisivel);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  // =========================================================
+  // BUSCAR DESCRIÇÃO DO COMÉRCIO
+  // =========================================================
+
+  Future<void> _buscarDescricaoComercio() async {
+    // Se a descrição já veio preenchida pela tela anterior,
+    // não é necessário fazer outra requisição.
+    if (descricaoComercio.trim().isNotEmpty) {
+      return;
+    }
+
+    try {
+      final comercios = await ComercioService.buscarComercios();
+
+      final comercioEncontrado = comercios.firstWhere(
+        (comercio) {
+          final id = int.tryParse(
+            comercio['id']?.toString() ?? '',
+          );
+
+          return id == widget.comercioId;
+        },
+        orElse: () => <String, dynamic>{},
+      );
+
+      final descricao = comercioEncontrado['descricao']
+              ?.toString()
+              .trim() ??
+          '';
+
+      if (!mounted) return;
+
+      setState(() {
+        descricaoComercio = descricao;
+      });
+    } catch (e) {
+      debugPrint('ERRO AO BUSCAR DESCRIÇÃO DO COMÉRCIO: $e');
+    }
   }
 
   // =========================================================
@@ -524,23 +570,21 @@ class _CardapioPageState extends State<CardapioPage> {
           controller: _scrollController,
           slivers: [
             // =================================================
-            // PERFIL DO COMÉRCIO - COMPONENTE SEPARADO
+            // PERFIL DO COMÉRCIO
             // =================================================
+
             SliverToBoxAdapter(
               child: PerfilComercio(
                 nomeComercio: widget.nomeComercio,
                 categoriaComercio: widget.categoriaComercio,
                 logoUrl: logoUrl,
                 bannerUrl: bannerUrl,
-                descricaoComercio: widget.descricaoComercio,
+                descricaoComercio: descricaoComercio,
                 abrindoChat: abrindoChat,
                 onAbrirChat: _abrirChat,
                 onVoltar: () {
                   Navigator.pop(context);
                 },
-
-                // Altere este valor para subir ou descer
-                // nome, categoria e status Aberto juntos.
                 deslocamentoNomeCategoriaStatus: -10,
               ),
             ),

@@ -1,0 +1,212 @@
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cabecalho h2 {
+  margin: 0;
+  color: #202020;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.cabecalho p {
+  margin: 6px 0 0;
+  color: #858585;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.contador {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border-radius: 20px;
+  background: #f8eeee;
+  color: #bd1221;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #e9e9e9;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.card:hover {
+  border-color: #d7a4a8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.055);
+  transform: translateY(-1px);
+}
+
+.cardSelecionado {
+  border: 1.5px solid #bd1221;
+  box-shadow: 0 3px 14px rgba(189, 18, 33, 0.09);
+}
+
+.cardConteudo {
+  padding: 17px 18px;
+}
+
+.cardTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.numeroPedido {
+  color: #252525;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.quantidadeItens {
+  color: #888888;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cliente {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 39px;
+  height: 39px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f7e9e9;
+  color: #bd1221;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dadosCliente {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dadosCliente strong {
+  overflow: hidden;
+  color: #292929;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dadosCliente span {
+  color: #888888;
+  font-size: 11px;
+}
+
+.rodapeCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-top: 1px solid #e2eee5;
+  background: #f0f7f2;
+}
+
+.indicador {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #29965b;
+}
+
+.rodapeCard strong {
+  color: #267a4c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 230px;
+  padding: 25px 20px;
+  border: 1px dashed #dedede;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.iconeVazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: #f7eeee;
+  color: #bd1221;
+  font-size: 30px;
+}
+
+.vazio strong {
+  color: #333333;
+  font-size: 14px;
+}
+
+.vazio p {
+  max-width: 260px;
+  margin: 7px 0 0;
+  color: #888888;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .cabecalho {
+    align-items: flex-start;
+  }
+
+  .cardConteudo {
+    padding: 15px;
+  }
+}

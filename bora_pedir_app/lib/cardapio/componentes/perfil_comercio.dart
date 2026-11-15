@@ -30,6 +30,8 @@ class PerfilComercio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String descricao = descricaoComercio.trim();
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -38,6 +40,7 @@ class PerfilComercio extends StatelessWidget {
             // =================================================
             // BANNER
             // =================================================
+
             Stack(
               children: [
                 Container(
@@ -99,6 +102,7 @@ class PerfilComercio extends StatelessWidget {
             // =================================================
             // NOME, CATEGORIA E STATUS
             // =================================================
+
             Container(
               width: double.infinity,
               height: 50,
@@ -154,64 +158,67 @@ class PerfilComercio extends StatelessWidget {
             ),
 
             // =================================================
-            // DESCRIÇÃO
+            // DESCRIÇÃO DO COMÉRCIO
             // =================================================
+
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-              padding: const EdgeInsets.fromLTRB(18, 15, 18, 16),
-              constraints: const BoxConstraints(
-                minHeight: 90,
+              margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 9,
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: const Color(0xFFF0F0F0),
-                  width: 0.8,
+                  width: 0.7,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.07),
-                    blurRadius: 18,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 6),
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 7,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Descrição',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF202622),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: 'Descrição: ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF202622),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    descricaoComercio.isNotEmpty
-                        ? descricaoComercio
-                        : 'Conheça um pouco mais sobre este comércio.',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      height: 1.4,
-                      color: Color(0xFF777777),
+                    TextSpan(
+                      text: descricao.isNotEmpty
+                          ? descricao
+                          : 'Nenhuma descrição cadastrada.',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        height: 1.35,
+                        color: Color(0xFF777777),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
             // =================================================
             // TAXA, TEMPO, AVALIAÇÃO E CHAT
             // =================================================
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 5, 12, 18),
+
+            Container(
+              width: double.infinity,
+              height: 90,
+              margin: const EdgeInsets.fromLTRB(0, 2, 0, 0),
+              padding: const EdgeInsets.fromLTRB(10, 2, 12, 2),
+              color: const Color(0xFFF3F3F3),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -260,6 +267,7 @@ class PerfilComercio extends StatelessWidget {
         // =================================================
         // LOGO SOBREPOSTA AO BANNER
         // =================================================
+
         Positioned(
           left: 20,
           top: 95,
@@ -288,6 +296,10 @@ class PerfilComercio extends StatelessWidget {
     );
   }
 
+  // =================================================
+  // BANNER PADRÃO
+  // =================================================
+
   Widget _bannerPadrao() {
     return Container(
       width: double.infinity,
@@ -302,6 +314,10 @@ class PerfilComercio extends StatelessWidget {
       ),
     );
   }
+
+  // =================================================
+  // DIVISOR DAS INFORMAÇÕES
+  // =================================================
 
   Widget _divisorInformacoes() {
     return Container(
@@ -343,7 +359,9 @@ class _LogoComercio extends StatelessWidget {
         fit: BoxFit.cover,
         placeholderBuilder: (context) {
           return const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
           );
         },
       );
@@ -425,6 +443,7 @@ class _InformacaoComercio extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 3),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             icone,
@@ -469,46 +488,53 @@ class _AvaliacaoComercio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            'assets/perfil_comercio/avaliacao.png',
-            width: 64,
-            height: 20,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(
-                Icons.star,
-                size: 20,
-                color: Color(0xFFFFC83D),
-              );
-            },
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.star,
+          color: Color(0xFFFFC83D),
+          size: 21,
+        ),
+
+        const SizedBox(height: 3),
+
+        const Text(
+          'Confira as\navaliações.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 9,
+            height: 1.15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF777777),
           ),
-          const SizedBox(height: 4),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.star,
-                color: Color(0xFFFFC83D),
-                size: 17,
+        ),
+
+        const SizedBox(height: 3),
+
+        const Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.star,
+              color: Color(0xFFFFC83D),
+              size: 15,
+            ),
+            SizedBox(width: 3),
+            Text(
+              '4,9',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF333333),
               ),
-              SizedBox(width: 3),
-              Text(
-                '4,9',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF333333),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -543,7 +569,9 @@ class _ContatoComercio extends StatelessWidget {
             ),
           ),
         ),
+
         const SizedBox(width: 5),
+
         Tooltip(
           message: 'Conversar com o comércio',
           child: Material(

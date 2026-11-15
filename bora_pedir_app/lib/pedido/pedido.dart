@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -23,12 +24,10 @@ import '../pedido/componentes/acompanhar_pedido.dart';
 /// - Atualização das fotos a cada 3 segundos
 /// - Atualização imediata ao retornar ao aplicativo
 ///
-/// COMPONENTES:
-/// - PedidoHeader
-/// - CartaoRestaurante
-/// - AcompanhePedido
-/// - FotoPedido
-/// - SeuPedido
+/// CÓDIGO DE ENTREGA:
+/// - Só aparece quando o pedido está SAIU_PARA_ENTREGA.
+/// - O código é recebido da API.
+/// - O aplicativo não gera nem modifica códigos.
 /// ===============================================================
 
 class PedidoCores {
@@ -74,15 +73,16 @@ class PedidoPageState extends State<PedidoPage>
   // Celular físico: utilizar o IP do computador.
   static const String baseUrl = 'http://localhost:3000';
 
-  // Atualização do pedido.
-  Timer? _timerAtualizacao;
+  // =============================================================
+  // ATUALIZAÇÕES AUTOMÁTICAS
+  // =============================================================
 
-  // Atualização das fotos.
+  Timer? _timerAtualizacao;
   Timer? _timerFotos;
 
   bool _buscaEmAndamento = false;
 
-  // Mantém o estado do componente FotoPedido entre as atualizações.
+  // Mantém o estado do componente FotoPedido.
   final GlobalKey<FotoPedidoState> fotoPedidoKey =
       GlobalKey<FotoPedidoState>();
 
@@ -109,6 +109,14 @@ class PedidoPageState extends State<PedidoPage>
   bool pedidoEncerrado = false;
 
   // =============================================================
+  // CÓDIGO DE ENTREGA
+  // =============================================================
+
+  String? codigoEntrega;
+
+  bool exibirCodigoEntrega = false;
+
+  // =============================================================
   // CARREGAMENTO
   // =============================================================
 
@@ -121,17 +129,13 @@ class PedidoPageState extends State<PedidoPage>
   // =============================================================
 
   String nomeRestaurante = '';
-
   String nomeCliente = '';
-
   String numeroPedido = '';
 
   String? logoRestaurante;
 
   double subtotal = 0;
-
   double taxaEntrega = 0;
-
   double total = 0;
 
   // =============================================================
@@ -162,10 +166,8 @@ class PedidoPageState extends State<PedidoPage>
       upperBound: 1.06,
     )..repeat(reverse: true);
 
-    // Busca os dados do pedido imediatamente.
     buscarPedido();
 
-    // Inicia as atualizações automáticas.
     _iniciarAtualizacoes();
   }
 
@@ -175,26 +177,17 @@ class PedidoPageState extends State<PedidoPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-
     if (state == AppLifecycleState.resumed) {
-
-      // O aplicativo voltou para primeiro plano.
-      // Faz uma consulta imediata das fotos e do pedido.
-
       _iniciarAtualizacoes();
 
       buscarPedido(silencioso: true);
 
       _atualizarFotos();
-
     } else if (
-        state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.detached
+      state == AppLifecycleState.paused ||
+      state == AppLifecycleState.inactive ||
+      state == AppLifecycleState.detached
     ) {
-
-      // Evita consultas desnecessárias em segundo plano.
-
       _pararAtualizacoes();
     }
   }
@@ -204,10 +197,7 @@ class PedidoPageState extends State<PedidoPage>
   // =============================================================
 
   void _iniciarAtualizacoes() {
-
     if (!mounted) return;
-
-    // Atualização dos dados do pedido a cada 15 segundos.
 
     _timerAtualizacao?.cancel();
 
@@ -221,9 +211,6 @@ class PedidoPageState extends State<PedidoPage>
         },
       );
     }
-
-    // Atualização das fotos a cada 3 segundos.
-    // A GlobalKey mantém o componente e as imagens já carregadas.
 
     _timerFotos?.cancel();
 
@@ -242,7 +229,6 @@ class PedidoPageState extends State<PedidoPage>
   // =============================================================
 
   void _pararAtualizacoes() {
-
     _timerAtualizacao?.cancel();
     _timerFotos?.cancel();
 
@@ -254,26 +240,31 @@ class PedidoPageState extends State<PedidoPage>
   // ATUALIZAR FOTOS
   // =============================================================
 
-void _atualizarFotos() {
-  if (!mounted) return;
+  void _atualizarFotos() {
+    if (!mounted) return;
 
-  // Solicita atualização sem reconstruir o widget.
-  fotoPedidoKey.currentState?.atualizarFotos();
-}
+    fotoPedidoKey.currentState?.atualizarFotos();
+  }
+
+  // =============================================================
+  // NORMALIZAR STATUS
+  // =============================================================
+
+  String _normalizarStatus(String status) {
+    return status
+        .trim()
+        .toUpperCase()
+        .replaceAll(' ', '_');
+  }
 
   // =============================================================
   // ATUALIZAR STATUS VISUAL
   // =============================================================
 
   void _atualizarStatusVisual(String statusRecebido) {
-
-    final status = statusRecebido
-        .trim()
-        .toUpperCase()
-        .replaceAll(' ', '_');
+    final status = _normalizarStatus(statusRecebido);
 
     switch (status) {
-
       case 'PENDENTE':
       case 'AGUARDANDO_CONFIRMACAO':
 
@@ -307,6 +298,24 @@ void _atualizarFotos() {
 
         break;
 
+      // O pedido já está pronto, mas ainda aguarda
+      // um entregador retirar no restaurante.
+      case 'PRONTO':
+
+        statusTitulo = 'Pronto, aguardando entregador';
+
+        statusDescricao =
+            'Seu pedido está pronto e aguardando um entregador.';
+
+        statusIcone = Icons.inventory_2_rounded;
+
+        etapaAtual = 1;
+
+        pedidoEncerrado = false;
+
+        break;
+
+      // O entregador já validou o código de retirada.
       case 'SAIU_PARA_ENTREGA':
       case 'EM_ENTREGA':
       case 'A_CAMINHO':
@@ -393,7 +402,6 @@ void _atualizarFotos() {
   Future<void> buscarPedido({
     bool silencioso = false,
   }) async {
-
     if (!mounted || _buscaEmAndamento) return;
 
     _buscaEmAndamento = true;
@@ -406,7 +414,6 @@ void _atualizarFotos() {
     }
 
     try {
-
       final preferencias =
           await SharedPreferences.getInstance();
 
@@ -448,7 +455,6 @@ void _atualizarFotos() {
       );
 
       if (resposta.statusCode != 200) {
-
         final mensagem =
             dados is Map ? dados['message']?.toString() : null;
 
@@ -474,7 +480,6 @@ void _atualizarFotos() {
           pedido['itens'] is List ? pedido['itens'] : [];
 
       final itensCarregados = itensJson.map((itemJson) {
-
         final item = Map<String, dynamic>.from(itemJson);
 
         final quantidade =
@@ -492,24 +497,36 @@ void _atualizarFotos() {
               : _converterDouble(item['subtotal']),
           observacao: item['observacao']?.toString(),
         );
-
       }).toList();
 
       if (!mounted) return;
 
       // =========================================================
-      // STATUS
+      // STATUS E CÓDIGO
       // =========================================================
 
       final statusRecebido =
           pedido['status']?.toString() ?? '';
+
+      final statusNormalizado =
+          _normalizarStatus(statusRecebido);
+
+      final codigoRecebido =
+          pedido['codigo_entrega']?.toString().trim();
+
+      // O código só será mostrado quando o pedido
+      // estiver efetivamente a caminho.
+      final codigoDisponivel =
+          statusNormalizado == 'SAIU_PARA_ENTREGA' &&
+          codigoRecebido != null &&
+          codigoRecebido.isNotEmpty &&
+          codigoRecebido != 'null';
 
       // =========================================================
       // ATUALIZAR DADOS NA TELA
       // =========================================================
 
       setState(() {
-
         numeroPedido = pedido['id']?.toString() ?? '';
 
         nomeCliente =
@@ -532,6 +549,12 @@ void _atualizarFotos() {
 
         itens = itensCarregados;
 
+        codigoEntrega = codigoDisponivel
+            ? codigoRecebido
+            : null;
+
+        exibirCodigoEntrega = codigoDisponivel;
+
         _atualizarStatusVisual(statusRecebido);
 
         carregando = false;
@@ -544,19 +567,13 @@ void _atualizarFotos() {
       // =========================================================
 
       if (pedidoEncerrado) {
-
-        // Para apenas a atualização do status.
-        // A consulta de fotos continua funcionando.
-
         _timerAtualizacao?.cancel();
         _timerAtualizacao = null;
 
         movimentoController.stop();
 
         pulsoController.stop();
-
       } else {
-
         if (!movimentoController.isAnimating) {
           movimentoController.repeat();
         }
@@ -564,9 +581,6 @@ void _atualizarFotos() {
         if (!pulsoController.isAnimating) {
           pulsoController.repeat(reverse: true);
         }
-
-        // Caso o pedido tenha voltado a um status ativo,
-        // garante que a atualização de status seja retomada.
 
         if (_timerAtualizacao == null) {
           _timerAtualizacao = Timer.periodic(
@@ -579,9 +593,7 @@ void _atualizarFotos() {
           );
         }
       }
-
     } catch (e) {
-
       if (!mounted) return;
 
       if (!silencioso) {
@@ -594,12 +606,134 @@ void _atualizarFotos() {
           carregando = false;
         });
       }
-
     } finally {
-
       _buscaEmAndamento = false;
-
     }
+  }
+
+  // =============================================================
+  // CARTÃO DO CÓDIGO DE ENTREGA
+  // =============================================================
+
+  Widget _cartaoCodigoEntrega() {
+    if (!exibirCodigoEntrega ||
+        codigoEntrega == null ||
+        codigoEntrega!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: PedidoCores.vermelho.withOpacity(0.22),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: PedidoCores.vermelho.withOpacity(0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: PedidoCores.vermelho.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Icon(
+              Icons.lock_outline_rounded,
+              color: PedidoCores.vermelho,
+              size: 27,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const Text(
+            'Seu código de entrega',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: PedidoCores.texto,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          const Text(
+            'Informe este código ao entregador quando ele chegar.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: PedidoCores.textoSuave,
+              fontSize: 12,
+              height: 1.4,
+            ),
+          ),
+
+          const SizedBox(height: 17),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 15,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF5F2),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: PedidoCores.vermelho.withOpacity(0.15),
+              ),
+            ),
+            child: Text(
+              codigoEntrega!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: PedidoCores.vermelho,
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 9,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                color: PedidoCores.textoSuave,
+                size: 16,
+              ),
+              SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  'Compartilhe o código somente na entrega do pedido.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: PedidoCores.textoSuave,
+                    fontSize: 10,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   // =============================================================
@@ -607,7 +741,6 @@ void _atualizarFotos() {
   // =============================================================
 
   double _converterDouble(dynamic valor) {
-
     if (valor == null) return 0;
 
     if (valor is num) {
@@ -621,7 +754,6 @@ void _atualizarFotos() {
   }
 
   int _converterInt(dynamic valor) {
-
     if (valor == null) return 0;
 
     if (valor is int) return valor;
@@ -635,7 +767,6 @@ void _atualizarFotos() {
 
   @override
   void dispose() {
-
     WidgetsBinding.instance.removeObserver(this);
 
     _pararAtualizacoes();
@@ -653,7 +784,6 @@ void _atualizarFotos() {
 
   @override
   Widget build(BuildContext context) {
-
     final largura = MediaQuery.sizeOf(context).width;
 
     final compacto = largura < 390;
@@ -686,7 +816,6 @@ void _atualizarFotos() {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 const Icon(
                   Icons.error_outline_rounded,
                   color: PedidoCores.vermelho,
@@ -712,9 +841,7 @@ void _atualizarFotos() {
                     backgroundColor: PedidoCores.vermelho,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text(
-                    'Tentar novamente',
-                  ),
+                  child: const Text('Tentar novamente'),
                 ),
               ],
             ),
@@ -733,7 +860,6 @@ void _atualizarFotos() {
         top: false,
         child: Stack(
           children: [
-
             // ===================================================
             // CONTEÚDO PRINCIPAL
             // ===================================================
@@ -741,7 +867,6 @@ void _atualizarFotos() {
             Positioned.fill(
               child: CustomScrollView(
                 slivers: [
-
                   // CABEÇALHO
 
                   const SliverToBoxAdapter(
@@ -757,14 +882,8 @@ void _atualizarFotos() {
                         0,
                       ),
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
-                          // =====================================
-                          // CARTÃO DO RESTAURANTE
-                          // =====================================
-
                           // =====================================
                           // CARTÃO DO RESTAURANTE
                           // =====================================
@@ -795,6 +914,15 @@ void _atualizarFotos() {
                                 movimentoController,
                             compacto: compacto,
                           ),
+
+                          // =====================================
+                          // CÓDIGO DE ENTREGA
+                          // =====================================
+
+                          if (exibirCodigoEntrega) ...[
+                            const SizedBox(height: 16),
+                            _cartaoCodigoEntrega(),
+                          ],
 
                           const SizedBox(height: 24),
 
@@ -867,7 +995,6 @@ void _atualizarFotos() {
   // =============================================================
 
   Widget _ajudaCard() {
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -879,7 +1006,6 @@ void _atualizarFotos() {
       ),
       child: Row(
         children: [
-
           Container(
             width: 42,
             height: 42,
@@ -900,7 +1026,6 @@ void _atualizarFotos() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   'Precisa de ajuda?',
                   style: TextStyle(
@@ -919,7 +1044,6 @@ void _atualizarFotos() {
                     color: PedidoCores.textoSuave,
                   ),
                 ),
-
               ],
             ),
           ),
@@ -928,7 +1052,6 @@ void _atualizarFotos() {
             Icons.chevron_right_rounded,
             color: PedidoCores.textoSuave,
           ),
-
         ],
       ),
     );

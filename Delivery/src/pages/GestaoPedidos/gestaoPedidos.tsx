@@ -28,6 +28,8 @@ import DetalhePedidos, {
   type PedidoDetalhe,
 } from "./componentes/detalhe_pedidos/detalhe_pedidos";
 
+import { PedidosEmEntrega } from "./componentes/pedidos_em_entrega/pedidos_em_entrega";
+
 import { Duvidas } from "./duvidas/duvidas";
 
 /* =====================================================
@@ -43,9 +45,16 @@ type Pagina =
   | "configuracoes"
   | "portalGestao";
 
+type StatusPedidoReal =
+  | StatusPedido
+  | "entrega"
+  | "entregue";
+
 type PedidoAPI = {
   id: number;
   status: string;
+
+  codigo_retirada: string | null;
 
   forma_pagamento: string;
   troco_para: number | string | null;
@@ -87,7 +96,9 @@ type PedidoAPI = {
   }[];
 };
 
-type PedidoReal = Pedido & {
+type PedidoReal = Omit<Pedido, "status"> & {
+  status: StatusPedidoReal;
+
   pagamento: {
     metodo: string;
     bandeiraOuDetalhe?: string;
@@ -106,6 +117,8 @@ type PedidoReal = Pedido & {
   };
 
   fotoCliente?: string | null;
+
+  codigoRetirada?: string | null;
 };
 
 /* =====================================================
@@ -122,7 +135,9 @@ function obterToken(): string | null {
    CONVERSÃO DOS STATUS
 ===================================================== */
 
-function converterStatus(status: string): StatusPedido | null {
+function converterStatus(
+  status: string
+): StatusPedidoReal | null {
   switch (status) {
     case "PENDENTE":
       return "novo";
@@ -133,6 +148,12 @@ function converterStatus(status: string): StatusPedido | null {
 
     case "PRONTO":
       return "pronto";
+
+    case "SAIU_PARA_ENTREGA":
+      return "entrega";
+
+    case "CONCLUIDO":
+      return "entregue";
 
     default:
       return null;
@@ -165,23 +186,26 @@ function formatarData(data: string): string {
     return data;
   }
 
-  return dataConvertida.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).replace(",", " -");
+  return dataConvertida
+    .toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    .replace(",", " -");
 }
 
 /* =====================================================
-   CONVERTER RESPOSTA DA API PARA O COMPONENTE
+   CONVERTER RESPOSTA DA API
 ===================================================== */
 
-function converterPedido(pedido: PedidoAPI): PedidoReal | null {
+function converterPedido(
+  pedido: PedidoAPI
+): PedidoReal | null {
   const status = converterStatus(pedido.status);
 
-  // A coluna atual trabalha com novos, preparo e prontos.
   if (!status) {
     return null;
   }
@@ -191,7 +215,6 @@ function converterPedido(pedido: PedidoAPI): PedidoReal | null {
   );
 
   const endereco = pedido.endereco;
-
   const troco = Number(pedido.troco_para);
 
   return {
@@ -207,6 +230,12 @@ function converterPedido(pedido: PedidoAPI): PedidoReal | null {
 
     status,
 
+    // O código de retirada só aparece quando o pedido está PRONTO.
+    codigoRetirada:
+      pedido.status === "PRONTO"
+        ? pedido.codigo_retirada ?? null
+        : null,
+
     itens: pedido.itens.map((item) => ({
       quantidade: item.quantidade,
       nome: item.nome,
@@ -215,10 +244,10 @@ function converterPedido(pedido: PedidoAPI): PedidoReal | null {
       precoUnitario: item.preco,
     })),
 
-    subtotal: pedido.subtotal,
-    taxaEntrega: pedido.taxa_entrega,
+    subtotal: Number(pedido.subtotal),
+    taxaEntrega: Number(pedido.taxa_entrega),
     desconto: 0,
-    total: pedido.valor_total,
+    total: Number(pedido.valor_total),
 
     preparo: 0,
 
@@ -260,10 +289,9 @@ function converterPedido(pedido: PedidoAPI): PedidoReal | null {
 function converterParaDetalhe(
   pedido: PedidoReal
 ): PedidoDetalhe {
-  const enderecoRetirada = !pedido.endereco;
-
   return {
     id: Number(pedido.id),
+
     codigo: `#${pedido.id.padStart(5, "0")}`,
 
     status: pedido.status,
@@ -274,24 +302,13 @@ function converterParaDetalhe(
     dataHorario: pedido.dataHorario,
 
     endereco: {
-      rua:
-        pedido.endereco?.logradouro ??
-        (enderecoRetirada
-          ? "Endereço não informado"
-          : ""),
-
+      rua: pedido.endereco?.logradouro ?? "Endereço não informado",
       numero: pedido.endereco?.numero ?? "",
-
       complemento: pedido.endereco?.complemento,
-
       bairro: pedido.endereco?.bairro ?? "",
-
       cidade: pedido.endereco?.cidade ?? "",
-
       estado: pedido.endereco?.estado ?? "",
-
       cep: pedido.endereco?.cep,
-
       referencia: pedido.endereco?.pontoReferencia,
     },
 
@@ -357,17 +374,13 @@ export function GestaoPedidos() {
     }
 
     try {
-      const resposta = await fetch(
-        `${API_URL}/comercio`,
-        {
-          method: "GET",
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
+      const resposta = await fetch(`${API_URL}/comercio`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
 
       const contentType =
         resposta.headers.get("content-type") ?? "";
@@ -406,8 +419,6 @@ export function GestaoPedidos() {
         }
       }
 
-      // Se o pedido selecionado não existe mais na lista ativa,
-      // limpa a seleção.
       setPedidoSelecionado((selecionado) => {
         if (
           selecionado &&
@@ -420,7 +431,6 @@ export function GestaoPedidos() {
 
         return selecionado;
       });
-
     } catch (error) {
       console.error("Erro ao buscar pedidos:", error);
     }
@@ -509,22 +519,24 @@ export function GestaoPedidos() {
     }
 
     try {
-      const resposta = await fetch(
-        `${API_URL}/${id}/status`,
-        {
-          method: "PATCH",
+      const resposta = await fetch(`${API_URL}/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          status: statusBanco,
+        }),
+      });
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+      const contentType =
+        resposta.headers.get("content-type") ?? "";
 
-          body: JSON.stringify({
-            status: statusBanco,
-          }),
-        }
-      );
+      if (!contentType.includes("application/json")) {
+        throw new Error("O servidor retornou uma resposta inválida.");
+      }
 
       const dados = await resposta.json();
 
@@ -537,7 +549,6 @@ export function GestaoPedidos() {
       await buscarPedidos();
 
       return true;
-
     } catch (error) {
       console.error("Erro ao atualizar pedido:", error);
 
@@ -580,10 +591,7 @@ export function GestaoPedidos() {
   ===================================================== */
 
   const recusarPedido = async (id: string) => {
-    const sucesso = await enviarStatus(
-      id,
-      "RECUSADO"
-    );
+    const sucesso = await enviarStatus(id, "RECUSADO");
 
     if (sucesso && pedidoSelecionado === id) {
       setPedidoSelecionado(null);
@@ -591,27 +599,31 @@ export function GestaoPedidos() {
   };
 
   /* =====================================================
-     FILTRAR PEDIDOS POR PÁGINA
+     FILTRAR PEDIDOS DA PÁGINA PRINCIPAL
   ===================================================== */
 
-  const pedidosFiltrados = pedidosLista.filter((pedido) => {
-    if (paginaAtiva === "entrega") {
-      return (
-        pedido.status === "preparo" ||
-        pedido.status === "pronto"
-      );
-    }
+  const pedidosOperacionais: Pedido[] = pedidosLista.filter(
+    (pedido): pedido is PedidoReal & { status: StatusPedido } =>
+      pedido.status === "novo" ||
+      pedido.status === "preparo" ||
+      pedido.status === "pronto"
+  );
 
-    if (paginaAtiva === "pedidosConcluidos") {
-      return false;
-    }
+  /* =====================================================
+     FILTRAR PEDIDOS EM ENTREGA
+  ===================================================== */
 
-    if (pedido.status === "pronto") {
-      return false;
-    }
+  const pedidosEmEntrega = pedidosLista.filter(
+    (pedido) => pedido.status === "entrega"
+  );
 
-    return true;
-  });
+  /* =====================================================
+     FILTRAR PEDIDOS CONCLUÍDOS
+  ===================================================== */
+
+  const pedidosConcluidosLista = pedidosLista.filter(
+    (pedido) => pedido.status === "entregue"
+  );
 
   /* =====================================================
      CONTAGEM DE PEDIDOS NOVOS
@@ -640,76 +652,241 @@ export function GestaoPedidos() {
   };
 
   /* =====================================================
-     RENDERIZAR CONTEÚDO DA PÁGINA
+     PEDIDO SELECIONADO
   ===================================================== */
 
-
-const renderPedidos = () => {
   const selecionado = pedidosLista.find(
     (pedido) => pedido.id === pedidoSelecionado
   );
 
-  // CARDÁPIO
-  if (paginaAtiva === "cardapio") {
-    return <Cardapio />;
-  }
-
-  // PORTAL DE GESTÃO
-  if (paginaAtiva === "portalGestao") {
-    return <PortalGestao />;
-  }
-
-  // DÚVIDAS
-  if (paginaAtiva === "duvidas") {
-    return <Duvidas />;
-  }
-
-  // CONFIGURAÇÕES
-  if (paginaAtiva === "configuracoes") {
-    return (
-      <section className={styles.paginaInterna}>
-        <h2>Configurações</h2>
-      </section>
-    );
-  }
-
-  // PEDIDOS, ENTREGA E CONCLUÍDOS
   const pedidoDetalhe: PedidoDetalhe | null =
     selecionado
       ? converterParaDetalhe(selecionado)
       : null;
 
-  return (
+  /* =====================================================
+     RENDERIZAR PÁGINA DE PEDIDOS EM ENTREGA
+     UTILIZA O COMPONENTE SEPARADO
+  ===================================================== */
+
+  const renderPaginaEntrega = () => (
     <div className={styles.areaPedidos}>
-      <ColunaPedidos
-        pedidos={pedidosFiltrados}
+      <PedidosEmEntrega
+        pedidos={pedidosEmEntrega}
         pedidoSelecionadoId={pedidoSelecionado}
-        onSelecionarPedido={(id) =>
-          setPedidoSelecionado(id)
-        }
-        onAlterarStatus={alterarStatus}
-        onRecusarPedido={recusarPedido}
+        onSelecionarPedido={setPedidoSelecionado}
       />
 
       <DetalhePedidos
-        pedido={pedidoDetalhe}
+        pedido={
+          selecionado?.status === "entrega"
+            ? pedidoDetalhe
+            : null
+        }
         resumo={resumo}
         onFechar={() => setPedidoSelecionado(null)}
-        onAceitar={() => {
-          if (selecionado) {
-            alterarStatus(selecionado.id, "preparo");
-          }
-        }}
-        onMarcarPronto={() => {
-          if (selecionado) {
-            alterarStatus(selecionado.id, "pronto");
-          }
-        }}
       />
     </div>
   );
-};
 
+  /* =====================================================
+     RENDERIZAR LISTA DE PEDIDOS CONCLUÍDOS
+  ===================================================== */
+
+  const renderPaginaConcluidos = () => (
+    <div className={styles.areaPedidos}>
+      <section
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          minWidth: 0,
+        }}
+      >
+        <div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "18px",
+              color: "#202020",
+              fontWeight: 800,
+            }}
+          >
+            Pedidos concluídos
+          </h2>
+
+          <p
+            style={{
+              margin: "5px 0 0",
+              color: "#888",
+              fontSize: "12px",
+            }}
+          >
+            Consulte os pedidos que já foram entregues.
+          </p>
+        </div>
+
+        {pedidosConcluidosLista.length === 0 ? (
+          <div
+            style={{
+              padding: "35px 20px",
+              border: "1px dashed #dedede",
+              borderRadius: "14px",
+              background: "#fff",
+              textAlign: "center",
+            }}
+          >
+            <strong
+              style={{
+                display: "block",
+                color: "#333",
+                fontSize: "14px",
+              }}
+            >
+              Nenhum pedido concluído
+            </strong>
+
+            <span
+              style={{
+                display: "block",
+                marginTop: "6px",
+                color: "#888",
+                fontSize: "12px",
+              }}
+            >
+              Os pedidos entregues aparecerão aqui.
+            </span>
+          </div>
+        ) : (
+          pedidosConcluidosLista.map((pedido) => (
+            <button
+              key={pedido.id}
+              type="button"
+              onClick={() => setPedidoSelecionado(pedido.id)}
+              style={{
+                width: "100%",
+                padding: "17px",
+                borderRadius: "14px",
+                border:
+                  pedidoSelecionado === pedido.id
+                    ? "1.5px solid #29965b"
+                    : "1px solid #e7e7e7",
+                background: "#fff",
+                textAlign: "left",
+                cursor: "pointer",
+              }}
+            >
+              <strong style={{ color: "#222" }}>
+                #{pedido.id.padStart(5, "0")}
+              </strong>
+
+              <p
+                style={{
+                  margin: "8px 0",
+                  fontSize: "13px",
+                  color: "#555",
+                }}
+              >
+                {pedido.cliente}
+              </p>
+
+              <strong
+                style={{
+                  color: "#267a4c",
+                  fontSize: "12px",
+                }}
+              >
+                ✓ Pedido concluído
+              </strong>
+            </button>
+          ))
+        )}
+      </section>
+
+      <DetalhePedidos
+        pedido={
+          selecionado?.status === "entregue"
+            ? pedidoDetalhe
+            : null
+        }
+        resumo={resumo}
+        onFechar={() => setPedidoSelecionado(null)}
+      />
+    </div>
+  );
+
+  /* =====================================================
+     RENDERIZAR CONTEÚDO DA PÁGINA
+  ===================================================== */
+
+  const renderPedidos = () => {
+    if (paginaAtiva === "cardapio") {
+      return <Cardapio />;
+    }
+
+    if (paginaAtiva === "portalGestao") {
+      return <PortalGestao />;
+    }
+
+    if (paginaAtiva === "duvidas") {
+      return <Duvidas />;
+    }
+
+    if (paginaAtiva === "configuracoes") {
+      return (
+        <section className={styles.paginaInterna}>
+          <h2>Configurações</h2>
+        </section>
+      );
+    }
+
+    if (paginaAtiva === "entrega") {
+      return renderPaginaEntrega();
+    }
+
+    if (paginaAtiva === "pedidosConcluidos") {
+      return renderPaginaConcluidos();
+    }
+
+    return (
+      <div className={styles.areaPedidos}>
+        <ColunaPedidos
+          pedidos={pedidosOperacionais}
+          pedidoSelecionadoId={pedidoSelecionado}
+          onSelecionarPedido={(id) =>
+            setPedidoSelecionado(id)
+          }
+          onAlterarStatus={alterarStatus}
+          onRecusarPedido={recusarPedido}
+        />
+
+        <DetalhePedidos
+          pedido={
+            selecionado &&
+            (
+              selecionado.status === "novo" ||
+              selecionado.status === "preparo" ||
+              selecionado.status === "pronto"
+            )
+              ? pedidoDetalhe
+              : null
+          }
+          resumo={resumo}
+          onFechar={() => setPedidoSelecionado(null)}
+          onAceitar={() => {
+            if (selecionado) {
+              alterarStatus(selecionado.id, "preparo");
+            }
+          }}
+          onMarcarPronto={() => {
+            if (selecionado) {
+              alterarStatus(selecionado.id, "pronto");
+            }
+          }}
+        />
+      </div>
+    );
+  };
 
   /* =====================================================
      ESTRUTURA PRINCIPAL
@@ -720,12 +897,14 @@ const renderPedidos = () => {
       <Sidebar
         menus={menus}
         paginaAtiva={paginaAtiva}
-        onSelectMenu={(id) =>
-          setPaginaAtiva(id as Pagina)
-        }
-        onSelectConfiguracoes={() =>
-          setPaginaAtiva("configuracoes")
-        }
+        onSelectMenu={(id) => {
+          setPaginaAtiva(id as Pagina);
+          setPedidoSelecionado(null);
+        }}
+        onSelectConfiguracoes={() => {
+          setPaginaAtiva("configuracoes");
+          setPedidoSelecionado(null);
+        }}
       />
 
       <div className={styles.areaPrincipal}>

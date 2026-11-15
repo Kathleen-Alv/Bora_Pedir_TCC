@@ -493,24 +493,22 @@ export async function buscarDadosComercio(req, res) {
 
 }
 
-export const buscarTodosComercios = async (req, res) => {
-    try {
 
+
+
+export async function buscarTodosComercios(req, res) {
+    try {
         const comercios = await db.query(`
             SELECT
                 comercio_id,
                 nome_comercio,
                 categoria,
                 logo,
-                banner
+                banner,
+                descricao
             FROM dados_comercio
             ORDER BY nome_comercio ASC
         `);
-
-        console.log(
-            'COMÉRCIOS ENCONTRADOS:',
-            comercios
-        );
 
         return res.status(200).json({
             comercios: comercios.map((comercio) => ({
@@ -518,22 +516,23 @@ export const buscarTodosComercios = async (req, res) => {
                 nome_comercio: comercio.nome_comercio,
                 categoria: comercio.categoria,
                 logo: comercio.logo,
-                banner: comercio.banner
+                banner: comercio.banner,
+                descricao: comercio.descricao ?? ''
             }))
         });
 
     } catch (erro) {
-
-        console.error(
-            'Erro ao buscar todos os comércios:',
-            erro
-        );
+        console.error('Erro ao buscar todos os comércios:', erro);
 
         return res.status(500).json({
-            message: 'Erro ao buscar os comércios.'
+            message: 'Erro ao buscar os comércios.',
+            erro: erro.message
         });
     }
-};
+}
+
+
+
 
 export const listarCategoriasPublicas = async (req, res) => {
     try {

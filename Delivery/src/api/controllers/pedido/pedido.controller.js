@@ -1,5 +1,30 @@
 
 import { db } from '../../../configBancoDeDados/database.js';
+import { randomInt } from 'node:crypto';
+
+
+// ============================================================
+// GERAR CÓDIGOS DE 4 DÍGITOS
+// ============================================================
+
+function gerarCodigo() {
+    return randomInt(0, 10000).toString().padStart(4, '0');
+}
+
+function gerarCodigosEntrega() {
+    const codigoRetirada = gerarCodigo();
+    let codigoEntrega = gerarCodigo();
+
+    // Evita que os dois códigos sejam iguais.
+    while (codigoEntrega === codigoRetirada) {
+        codigoEntrega = gerarCodigo();
+    }
+
+    return {
+        codigoRetirada,
+        codigoEntrega
+    };
+}
 
 
 // ============================================================
@@ -240,7 +265,6 @@ export async function criarPedido(req, res) {
                 );
             }
 
-            // Trabalhar em centavos evita erros de arredondamento.
             const precoCentavos = Math.round(preco * 100);
             const itemSubtotalCentavos = precoCentavos * quantidade;
 
@@ -349,10 +373,6 @@ export async function criarPedido(req, res) {
         // 7. COPIAR ENDEREÇO PARA O PEDIDO
         // ====================================================
 
-        // A tabela enderecos_pedido não possui nome_endereco.
-        // Os dados são copiados para preservar o endereço
-        // utilizado no momento da realização do pedido.
-
         await conexao.query(
             `
             INSERT INTO enderecos_pedido (
@@ -449,11 +469,19 @@ export async function buscarPedidoPorId(req, res) {
         const pedidoId = Number(req.params.id);
         const clienteId = Number(req.usuario?.cliente_id);
 
+        // ====================================================
+        // 1. VALIDAR ID DO PEDIDO
+        // ====================================================
+
         if (!Number.isSafeInteger(pedidoId) || pedidoId <= 0) {
             return res.status(400).json({
                 message: 'ID do pedido inválido.'
             });
         }
+
+        // ====================================================
+        // 2. VALIDAR CLIENTE AUTENTICADO
+        // ====================================================
 
         if (!Number.isSafeInteger(clienteId) || clienteId <= 0) {
             return res.status(401).json({
@@ -464,7 +492,7 @@ export async function buscarPedidoPorId(req, res) {
         conexao = await db.getConnection();
 
         // ====================================================
-        // 1. DADOS PRINCIPAIS DO PEDIDO
+        // 3. DADOS PRINCIPAIS DO PEDIDO
         // ====================================================
 
         const pedidos = await conexao.query(
@@ -492,7 +520,20 @@ export async function buscarPedidoPorId(req, res) {
                 ep.bairro,
                 ep.cidade,
                 ep.estado,
-                ep.referencia
+                ep.referencia,
+
+                -- =========================================
+                -- CÓDIGO DE ENTREGA
+                -- =========================================
+                -- O cliente só recebe o código depois que
+                -- o entregador valida a retirada no comércio.
+                -- =========================================
+
+                CASE
+                    WHEN p.status = 'SAIU_PARA_ENTREGA'
+                    THEN e.codigo_entrega
+                    ELSE NULL
+                END AS codigo_entrega
 
             FROM pedidos p
 
@@ -505,6 +546,9 @@ export async function buscarPedidoPorId(req, res) {
             LEFT JOIN enderecos_pedido ep
                 ON ep.pedido_id = p.id
 
+            LEFT JOIN entregas e
+                ON e.pedido_id = p.id
+
             WHERE
                 p.id = ?
                 AND p.cliente_id = ?
@@ -513,6 +557,10 @@ export async function buscarPedidoPorId(req, res) {
             `,
             [pedidoId, clienteId]
         );
+
+        // ====================================================
+        // 4. VERIFICAR SE O PEDIDO EXISTE
+        // ====================================================
 
         if (pedidos.length === 0) {
             return res.status(404).json({
@@ -523,7 +571,7 @@ export async function buscarPedidoPorId(req, res) {
         const pedido = pedidos[0];
 
         // ====================================================
-        // 2. ITENS DO PEDIDO
+        // 5. BUSCAR ITENS DO PEDIDO
         // ====================================================
 
         const itens = await conexao.query(
@@ -547,7 +595,7 @@ export async function buscarPedidoPorId(req, res) {
         );
 
         // ====================================================
-        // 3. RESPOSTA
+        // 6. MONTAR RESPOSTA
         // ====================================================
 
         return res.status(200).json({
@@ -555,17 +603,23 @@ export async function buscarPedidoPorId(req, res) {
 
             pedido: {
                 id: Number(pedido.id),
+
                 status: pedido.status,
+
                 forma_pagamento: pedido.forma_pagamento,
+
                 troco_para: pedido.troco_para !== null
                     ? Number(pedido.troco_para)
                     : null,
 
                 subtotal: Number(pedido.subtotal),
+
                 taxa_entrega: Number(pedido.taxa_entrega),
+
                 valor_total: Number(pedido.valor_total),
 
                 observacao: pedido.observacao,
+
                 criado_em: pedido.criado_em,
 
                 nome_cliente: pedido.nome_cliente,
@@ -574,6 +628,19 @@ export async function buscarPedidoPorId(req, res) {
                     pedido.nome_restaurante ?? 'Restaurante',
 
                 logo_restaurante: pedido.logo_restaurante,
+
+                // =========================================
+                // CÓDIGO DE ENTREGA
+                // =========================================
+                // Será null enquanto o pedido não estiver
+                // com status SAIU_PARA_ENTREGA.
+                // =========================================
+
+                codigo_entrega: pedido.codigo_entrega ?? null,
+
+                // =========================================
+                // ENDEREÇO DO PEDIDO
+                // =========================================
 
                 endereco: pedido.endereco
                     ? {
@@ -588,13 +655,24 @@ export async function buscarPedidoPorId(req, res) {
                     }
                     : null,
 
+                // =========================================
+                // ITENS DO PEDIDO
+                // =========================================
+
                 itens: itens.map(item => ({
                     id: Number(item.id),
-                    item_cardapio_id: Number(item.item_cardapio_id),
+
+                    item_cardapio_id:
+                        Number(item.item_cardapio_id),
+
                     nome: item.nome_produto,
+
                     quantidade: Number(item.quantidade),
+
                     preco: Number(item.preco_unitario),
+
                     subtotal: Number(item.subtotal),
+
                     observacao: item.observacao
                 }))
             }
@@ -613,7 +691,6 @@ export async function buscarPedidoPorId(req, res) {
         }
     }
 }
-
 
 // ============================================================
 // LISTAR PEDIDOS DO COMÉRCIO
@@ -669,7 +746,9 @@ export async function listarPedidosComercio(req, res) {
                 ep.bairro,
                 ep.cidade,
                 ep.estado,
-                ep.referencia
+                ep.referencia,
+
+                e.codigo_retirada
 
             FROM pedidos p
 
@@ -681,6 +760,9 @@ export async function listarPedidosComercio(req, res) {
 
             LEFT JOIN enderecos_pedido ep
                 ON ep.pedido_id = p.id
+
+            LEFT JOIN entregas e
+                ON e.pedido_id = p.id
 
             WHERE p.comercio_id = ?
 
@@ -781,6 +863,10 @@ export async function listarPedidosComercio(req, res) {
                 nome_comercio: pedido.nome_comercio ?? 'Comércio',
                 logo_comercio: pedido.logo_comercio,
 
+                // O código de retirada é enviado somente
+                // para o comércio dono do pedido.
+                codigo_retirada: pedido.codigo_retirada ?? null,
+
                 endereco: possuiEndereco
                     ? {
                         nome_endereco: null,
@@ -849,15 +935,21 @@ export async function atualizarStatusPedido(req, res) {
             });
         }
 
+        // RECUSADO é aceito como compatibilidade com
+        // o painel antigo, mas será salvo como CANCELADO.
+        const statusSolicitado = status === 'RECUSADO'
+            ? 'CANCELADO'
+            : status;
+
         const transicoesPermitidas = {
             ACEITO: ['PENDENTE'],
-            RECUSADO: ['PENDENTE'],
+            CANCELADO: ['PENDENTE'],
             PRONTO: ['ACEITO', 'EM_PREPARO']
         };
 
         if (
-            typeof status !== 'string' ||
-            !Object.hasOwn(transicoesPermitidas, status)
+            typeof statusSolicitado !== 'string' ||
+            !Object.hasOwn(transicoesPermitidas, statusSolicitado)
         ) {
             return res.status(400).json({
                 message: 'Status solicitado inválido.'
@@ -877,6 +969,8 @@ export async function atualizarStatusPedido(req, res) {
             `
             SELECT
                 id,
+                cliente_id,
+                comercio_id,
                 status
 
             FROM pedidos
@@ -904,19 +998,175 @@ export async function atualizarStatusPedido(req, res) {
         // ====================================================
 
         const statusAtual = pedido.status;
-        const statusPermitidos = transicoesPermitidas[status];
+        const statusPermitidos = transicoesPermitidas[statusSolicitado];
 
         if (!statusPermitidos.includes(statusAtual)) {
             throw Object.assign(
                 new Error(
-                    `Não é possível alterar o pedido de ${statusAtual} para ${status}.`
+                    `Não é possível alterar o pedido de ${statusAtual} para ${statusSolicitado}.`
                 ),
                 { status: 409 }
             );
         }
 
+        let entregaCriada = null;
+
         // ====================================================
-        // 3. ATUALIZAR STATUS
+        // 3. SE O PEDIDO FICAR PRONTO, CRIAR ENTREGA
+        // ====================================================
+
+        if (statusSolicitado === 'PRONTO') {
+
+            // -----------------------------------------------
+            // 3.1. Buscar endereço do comércio
+            // -----------------------------------------------
+
+            const enderecosComercio = await conexao.query(
+                `
+                SELECT
+                    id
+
+                FROM dados_comercio
+
+                WHERE comercio_id = ?
+
+                LIMIT 1
+                FOR UPDATE
+                `,
+                [comercioId]
+            );
+
+            if (enderecosComercio.length === 0) {
+                throw Object.assign(
+                    new Error(
+                        'O comércio ainda não possui endereço cadastrado. Cadastre o endereço antes de disponibilizar a entrega.'
+                    ),
+                    { status: 400 }
+                );
+            }
+
+            const enderecoComercioId = Number(
+                enderecosComercio[0].id
+            );
+
+            // -----------------------------------------------
+            // 3.2. Buscar endereço copiado do cliente
+            // -----------------------------------------------
+
+            const enderecosCliente = await conexao.query(
+                `
+                SELECT
+                    id
+
+                FROM enderecos_pedido
+
+                WHERE pedido_id = ?
+
+                LIMIT 1
+                FOR UPDATE
+                `,
+                [pedidoId]
+            );
+
+            if (enderecosCliente.length === 0) {
+                throw Object.assign(
+                    new Error(
+                        'O endereço de entrega do cliente não foi encontrado no pedido.'
+                    ),
+                    { status: 400 }
+                );
+            }
+
+            const enderecoClienteId = Number(
+                enderecosCliente[0].id
+            );
+
+            // -----------------------------------------------
+            // 3.3. Verificar se já existe entrega
+            // -----------------------------------------------
+
+            const entregasExistentes = await conexao.query(
+                `
+                SELECT id
+
+                FROM entregas
+
+                WHERE pedido_id = ?
+
+                LIMIT 1
+                FOR UPDATE
+                `,
+                [pedidoId]
+            );
+
+            if (entregasExistentes.length > 0) {
+                throw Object.assign(
+                    new Error(
+                        'Já existe uma entrega cadastrada para este pedido.'
+                    ),
+                    { status: 409 }
+                );
+            }
+
+            // -----------------------------------------------
+            // 3.4. Gerar códigos de validação
+            // -----------------------------------------------
+
+            const {
+                codigoRetirada,
+                codigoEntrega
+            } = gerarCodigosEntrega();
+
+            // -----------------------------------------------
+            // 3.5. Criar entrega
+            // -----------------------------------------------
+
+            const resultadoEntrega = await conexao.query(
+                `
+                INSERT INTO entregas (
+                    pedido_id,
+                    comercio_id,
+                    cliente_id,
+                    entregador_id,
+
+                    endereco_comercio_id,
+                    endereco_cliente_id,
+
+                    status,
+
+                    codigo_retirada,
+                    codigo_entrega,
+
+                    disponibilizada_em
+                )
+
+                VALUES (
+                    ?, ?, ?, NULL,
+                    ?, ?,
+                    'AGUARDANDO_ENTREGADOR',
+                    ?, ?,
+                    NOW()
+                )
+                `,
+                [
+                    pedidoId,
+                    comercioId,
+                    Number(pedido.cliente_id),
+                    enderecoComercioId,
+                    enderecoClienteId,
+                    codigoRetirada,
+                    codigoEntrega
+                ]
+            );
+
+            entregaCriada = {
+                id: Number(resultadoEntrega.insertId),
+                status: 'AGUARDANDO_ENTREGADOR'
+            };
+        }
+
+        // ====================================================
+        // 4. ATUALIZAR STATUS DO PEDIDO
         // ====================================================
 
         await conexao.query(
@@ -928,21 +1178,35 @@ export async function atualizarStatusPedido(req, res) {
             WHERE id = ?
               AND comercio_id = ?
             `,
-            [status, pedidoId, comercioId]
+            [
+                statusSolicitado,
+                pedidoId,
+                comercioId
+            ]
         );
+
+        // ====================================================
+        // 5. CONFIRMAR TRANSAÇÃO
+        // ====================================================
 
         await conexao.commit();
         transacaoIniciada = false;
 
         return res.status(200).json({
             sucesso: true,
-            message: 'Status do pedido atualizado.',
+            message: statusSolicitado === 'PRONTO'
+                ? 'Pedido marcado como pronto e entrega disponibilizada.'
+                : statusSolicitado === 'CANCELADO'
+                    ? 'Pedido cancelado.'
+                    : 'Status do pedido atualizado.',
 
             pedido: {
                 id: pedidoId,
                 status_anterior: statusAtual,
-                status_atual: status
-            }
+                status_atual: statusSolicitado
+            },
+
+            entrega: entregaCriada
         });
 
     } catch (error) {
@@ -967,9 +1231,9 @@ export async function atualizarStatusPedido(req, res) {
 }
 
 
-//LISTAR HISTORICO DE PEDIDOS
-
-
+// ============================================================
+// LISTAR HISTÓRICO DE PEDIDOS
+// ============================================================
 
 export async function listarHistoricoPedidos(req, res) {
     try {
@@ -981,7 +1245,10 @@ export async function listarHistoricoPedidos(req, res) {
             });
         }
 
-        // 1. Busca os pedidos do cliente, com os dados do comércio e avaliação.
+        // ====================================================
+        // 1. BUSCAR PEDIDOS DO CLIENTE
+        // ====================================================
+
         const pedidos = await db.query(
             `
             SELECT
@@ -1023,8 +1290,13 @@ export async function listarHistoricoPedidos(req, res) {
             });
         }
 
-        // 2. Busca os itens de todos os pedidos de uma só vez.
-        const idsPedidos = pedidos.map(pedido => Number(pedido.id));
+        // ====================================================
+        // 2. BUSCAR ITENS DOS PEDIDOS
+        // ====================================================
+
+        const idsPedidos = pedidos.map(
+            pedido => Number(pedido.id)
+        );
 
         const placeholders = idsPedidos.map(() => '?').join(', ');
 
@@ -1049,19 +1321,37 @@ export async function listarHistoricoPedidos(req, res) {
             idsPedidos
         );
 
-        // 3. Agrupa os produtos pelo pedido correspondente.
+        // ====================================================
+        // 3. AGRUPAR PRODUTOS POR PEDIDO
+        // ====================================================
+
+        const itensPorPedido = new Map();
+
+        for (const item of itens) {
+            const pedidoId = Number(item.pedido_id);
+
+            if (!itensPorPedido.has(pedidoId)) {
+                itensPorPedido.set(pedidoId, []);
+            }
+
+            itensPorPedido.get(pedidoId).push({
+                id: Number(item.id),
+                item_cardapio_id: Number(item.item_cardapio_id),
+                nome: item.nome_produto,
+                quantidade: Number(item.quantidade),
+                preco: Number(item.preco_unitario),
+                subtotal: Number(item.subtotal),
+                observacao: item.observacao
+            });
+        }
+
+        // ====================================================
+        // 4. MONTAR HISTÓRICO
+        // ====================================================
+
         const historico = pedidos.map(pedido => {
-            const itensPedido = itens
-                .filter(item => Number(item.pedido_id) === Number(pedido.id))
-                .map(item => ({
-                    id: Number(item.id),
-                    item_cardapio_id: Number(item.item_cardapio_id),
-                    nome: item.nome_produto,
-                    quantidade: Number(item.quantidade),
-                    preco: Number(item.preco_unitario),
-                    subtotal: Number(item.subtotal),
-                    observacao: item.observacao
-                }));
+            const itensPedido =
+                itensPorPedido.get(Number(pedido.id)) ?? [];
 
             return {
                 id: Number(pedido.id),
