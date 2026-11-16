@@ -21,25 +21,46 @@ import {
   buscarFotosPedido
 } from '../controllers/pedido/fotoPedido.controller.js';
 
+import {
+  criarAvaliacaoPedido
+} from '../controllers/pedido/avaliacaoPedido.controller.js';
+
 const router = express.Router();
 
 // =====================================================
-// CAMINHO ABSOLUTO DA PASTA DE FOTOS
+// CAMINHOS ABSOLUTOS DAS PASTAS
 // =====================================================
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Fotos de prova da entrega
 const pastaFotos = path.resolve(
   __dirname,
   '../../../uploads/pedidos/provas'
 );
 
-// Cria a pasta caso ainda não exista.
+// Fotos das avaliações
+const pastaAvaliacoes = path.resolve(
+  __dirname,
+  '../../../uploads/pedidos/avaliacoes'
+);
+
 fs.mkdirSync(pastaFotos, { recursive: true });
+fs.mkdirSync(pastaAvaliacoes, { recursive: true });
 
 // =====================================================
-// CONFIGURAÇÃO DO MULTER
+// TIPOS DE IMAGEM PERMITIDOS
+// =====================================================
+
+const tiposPermitidos = [
+  'image/jpeg',
+  'image/png',
+  'image/webp'
+];
+
+// =====================================================
+// CONFIGURAÇÃO DO MULTER — FOTOS DE PROVA
 // =====================================================
 
 const storage = multer.diskStorage({
@@ -49,7 +70,9 @@ const storage = multer.diskStorage({
 
   filename: (req, file, cb) => {
     const extensao = path.extname(file.originalname).toLowerCase();
-    const nomeUnico = `prova-${Date.now()}-${crypto.randomUUID()}${extensao}`;
+
+    const nomeUnico =
+      `prova-${Date.now()}-${crypto.randomUUID()}${extensao}`;
 
     cb(null, nomeUnico);
   }
@@ -64,15 +87,11 @@ const upload = multer({
   },
 
   fileFilter: (req, file, cb) => {
-    const tiposPermitidos = [
-      'image/jpeg',
-      'image/png',
-      'image/webp'
-    ];
-
     if (!tiposPermitidos.includes(file.mimetype)) {
       return cb(
-        new Error('Formato inválido. Envie imagens JPEG, PNG ou WEBP.')
+        new Error(
+          'Formato inválido. Envie imagens JPEG, PNG ou WEBP.'
+        )
       );
     }
 
@@ -81,7 +100,7 @@ const upload = multer({
 });
 
 // =====================================================
-// MIDDLEWARE PARA CAPTURAR ERROS DO MULTER
+// MIDDLEWARE — RECEBER FOTOS DE PROVA
 // =====================================================
 
 function receberFotos(req, res, next) {
@@ -91,11 +110,83 @@ function receberFotos(req, res, next) {
 
       return res.status(400).json({
         sucesso: false,
-        message: erro.message || 'Não foi possível receber as fotos.'
+        message: erro.message ||
+          'Não foi possível receber as fotos.'
       });
     }
 
-    console.log('FOTOS RECEBIDAS PELO MULTER:', req.files?.length || 0);
+    console.log(
+      'FOTOS DE PROVA RECEBIDAS:',
+      req.files?.length || 0
+    );
+
+    next();
+  });
+}
+
+// =====================================================
+// CONFIGURAÇÃO DO MULTER — FOTOS DA AVALIAÇÃO
+// =====================================================
+
+const storageAvaliacao = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, pastaAvaliacoes);
+  },
+
+  filename: (req, file, cb) => {
+    const extensao = path.extname(file.originalname).toLowerCase();
+
+    const nomeUnico =
+      `avaliacao-${Date.now()}-${crypto.randomUUID()}${extensao}`;
+
+    cb(null, nomeUnico);
+  }
+});
+
+const uploadAvaliacao = multer({
+  storage: storageAvaliacao,
+
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 5
+  },
+
+  fileFilter: (req, file, cb) => {
+    if (!tiposPermitidos.includes(file.mimetype)) {
+      return cb(
+        new Error(
+          'Formato inválido. Envie imagens JPEG, PNG ou WEBP.'
+        )
+      );
+    }
+
+    cb(null, true);
+  }
+});
+
+// =====================================================
+// MIDDLEWARE — RECEBER ATÉ 5 FOTOS DA AVALIAÇÃO
+// =====================================================
+
+function receberFotosAvaliacao(req, res, next) {
+  uploadAvaliacao.array('fotos', 5)(req, res, (erro) => {
+    if (erro) {
+      console.error(
+        'ERRO NO UPLOAD DAS FOTOS DA AVALIAÇÃO:',
+        erro
+      );
+
+      return res.status(400).json({
+        sucesso: false,
+        message: erro.message ||
+          'Não foi possível receber as fotos da avaliação.'
+      });
+    }
+
+    console.log(
+      'FOTOS DA AVALIAÇÃO RECEBIDAS:',
+      req.files?.length || 0
+    );
 
     next();
   });
@@ -106,24 +197,36 @@ function receberFotos(req, res, next) {
 // POST /api/pedidos
 // =====================================================
 
-router.post('/', autenticar, criarPedido);
+router.post(
+  '/',
+  autenticar,
+  criarPedido
+);
 
 // =====================================================
 // LISTAR PEDIDOS DO COMÉRCIO
 // GET /api/pedidos/comercio
 // =====================================================
 
-router.get('/comercio', autenticar, listarPedidosComercio);
+router.get(
+  '/comercio',
+  autenticar,
+  listarPedidosComercio
+);
 
 // =====================================================
 // HISTÓRICO DE PEDIDOS
 // GET /api/pedidos/historico
 // =====================================================
 
-router.get('/historico', autenticar, listarHistoricoPedidos);
+router.get(
+  '/historico',
+  autenticar,
+  listarHistoricoPedidos
+);
 
 // =====================================================
-// ENVIAR FOTOS DE PROVA
+// ENVIAR FOTOS DE PROVA DA ENTREGA
 // POST /api/pedidos/:id/fotos
 // =====================================================
 
@@ -135,24 +238,48 @@ router.post(
 );
 
 // =====================================================
-// BUSCAR FOTOS DE PROVA
+// BUSCAR FOTOS DE PROVA DA ENTREGA
 // GET /api/pedidos/:id/fotos
 // =====================================================
 
-router.get('/:id/fotos', autenticar, buscarFotosPedido);
+router.get(
+  '/:id/fotos',
+  autenticar,
+  buscarFotosPedido
+);
 
 // =====================================================
-// ATUALIZAR STATUS
+// CRIAR AVALIAÇÃO DO PEDIDO
+// POST /api/pedidos/:id/avaliacao
+// =====================================================
+
+router.post(
+  '/:id/avaliacao',
+  autenticar,
+  receberFotosAvaliacao,
+  criarAvaliacaoPedido
+);
+
+// =====================================================
+// ATUALIZAR STATUS DO PEDIDO
 // PATCH /api/pedidos/:id/status
 // =====================================================
 
-router.patch('/:id/status', autenticar, atualizarStatusPedido);
+router.patch(
+  '/:id/status',
+  autenticar,
+  atualizarStatusPedido
+);
 
 // =====================================================
-// BUSCAR PEDIDO
+// BUSCAR PEDIDO POR ID
 // GET /api/pedidos/:id
 // =====================================================
 
-router.get('/:id', autenticar, buscarPedidoPorId);
+router.get(
+  '/:id',
+  autenticar,
+  buscarPedidoPorId
+);
 
 export default router;

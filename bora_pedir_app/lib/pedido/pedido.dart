@@ -24,6 +24,11 @@ import '../pedido/componentes/acompanhar_pedido.dart';
 /// - Atualização das fotos a cada 3 segundos
 /// - Atualização imediata ao retornar ao aplicativo
 ///
+/// AVALIAÇÃO:
+/// - Só aparece quando o pedido está CONCLUIDO.
+/// - Envia o ID do pedido para AcompanhePedido.
+/// - Não exibe novamente quando o pedido já foi avaliado.
+///
 /// CÓDIGO DE ENTREGA:
 /// - Só aparece quando o pedido está SAIU_PARA_ENTREGA.
 /// - O código é recebido da API.
@@ -107,6 +112,12 @@ class PedidoPageState extends State<PedidoPage>
   int etapaAtual = 0;
 
   bool pedidoEncerrado = false;
+
+  // =============================================================
+  // AVALIAÇÃO
+  // =============================================================
+
+  bool pedidoAvaliado = false;
 
   // =============================================================
   // CÓDIGO DE ENTREGA
@@ -298,8 +309,6 @@ class PedidoPageState extends State<PedidoPage>
 
         break;
 
-      // O pedido já está pronto, mas ainda aguarda
-      // um entregador retirar no restaurante.
       case 'PRONTO':
 
         statusTitulo = 'Pronto, aguardando entregador';
@@ -315,7 +324,6 @@ class PedidoPageState extends State<PedidoPage>
 
         break;
 
-      // O entregador já validou o código de retirada.
       case 'SAIU_PARA_ENTREGA':
       case 'EM_ENTREGA':
       case 'A_CAMINHO':
@@ -514,13 +522,22 @@ class PedidoPageState extends State<PedidoPage>
       final codigoRecebido =
           pedido['codigo_entrega']?.toString().trim();
 
-      // O código só será mostrado quando o pedido
-      // estiver efetivamente a caminho.
       final codigoDisponivel =
           statusNormalizado == 'SAIU_PARA_ENTREGA' &&
           codigoRecebido != null &&
           codigoRecebido.isNotEmpty &&
           codigoRecebido != 'null';
+
+      // =========================================================
+      // VERIFICAR SE JÁ FOI AVALIADO
+      // =========================================================
+
+      final avaliadoRecebido = pedido['avaliado'];
+
+      final bool avaliado = avaliadoRecebido == true ||
+          avaliadoRecebido == 1 ||
+          avaliadoRecebido?.toString() == '1' ||
+          avaliadoRecebido?.toString().toLowerCase() == 'true';
 
       // =========================================================
       // ATUALIZAR DADOS NA TELA
@@ -548,6 +565,8 @@ class PedidoPageState extends State<PedidoPage>
             _converterDouble(pedido['valor_total']);
 
         itens = itensCarregados;
+
+        pedidoAvaliado = avaliado;
 
         codigoEntrega = codigoDisponivel
             ? codigoRecebido
@@ -867,8 +886,6 @@ class PedidoPageState extends State<PedidoPage>
             Positioned.fill(
               child: CustomScrollView(
                 slivers: [
-                  // CABEÇALHO
-
                   const SliverToBoxAdapter(
                     child: PedidoHeader(),
                   ),
@@ -907,9 +924,16 @@ class PedidoPageState extends State<PedidoPage>
                           // =====================================
 
                           AcompanhePedido(
+                            pedidoId: widget.pedidoId,
+                            nomeComercio: nomeRestaurante,
+                            pedidoAvaliado: pedidoAvaliado,
                             statusTitulo: statusTitulo,
                             etapaAtual: etapaAtual,
-                            pedidoEncerrado: pedidoEncerrado,
+                            pedidoEncerrado: pedidoEncerrado &&
+                                _normalizarStatus(statusTitulo) !=
+                                    'PEDIDO_RECUSADO' &&
+                                _normalizarStatus(statusTitulo) !=
+                                    'PEDIDO_CANCELADO',
                             movimentoController:
                                 movimentoController,
                             compacto: compacto,

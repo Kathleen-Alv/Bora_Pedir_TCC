@@ -4,7 +4,7 @@ export const db = mariadb.createPool({
     host: 'localhost',
     port: 3306,
     user: 'root',
-    password: 'root',
+    password: 'senai2026',
     database: 'bora_pedir_delivery',
     connectionLimit: 10,
     bigIntAsNumber: true
