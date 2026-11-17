@@ -22,7 +22,8 @@ import {
 } from '../controllers/pedido/fotoPedido.controller.js';
 
 import {
-  criarAvaliacaoPedido
+  criarAvaliacaoPedido,
+  listarAvaliacoesComercio
 } from '../controllers/pedido/avaliacaoPedido.controller.js';
 
 const router = express.Router();
@@ -223,6 +224,17 @@ router.get(
   '/historico',
   autenticar,
   listarHistoricoPedidos
+);
+
+// =====================================================
+// LISTAR AVALIAÇÕES DO COMÉRCIO
+// GET /api/pedidos/avaliacoes
+// =====================================================
+
+router.get(
+  '/avaliacoes',
+  autenticar,
+  listarAvaliacoesComercio
 );
 
 // =====================================================

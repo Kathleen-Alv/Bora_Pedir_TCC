@@ -1,91 +1,253 @@
+
+import { useCallback, useEffect, useState } from "react";
+
 import styles from "./avaliacoes.module.css";
 
 import BannerAvaliacaoImg from "../../../../assets/avaliacao/avaliacao.svg";
 
 /* =====================================================
-   TIPO DA AVALIAÇÃO
+   CONFIGURAÇÃO DA API
 ===================================================== */
+
+const API_URL = "http://localhost:3000";
+const AVALIACOES_URL = `${API_URL}/api/pedidos/avaliacoes`;
+
+/* =====================================================
+   TIPOS
+===================================================== */
+
+type ItemPedidoAvaliacao = {
+  id?: number;
+  nome_produto: string;
+  quantidade: number;
+  observacao?: string | null;
+};
 
 type AvaliacaoItem = {
   id: number;
+  pedido_id: number;
+  cliente_id: number;
   nome: string;
-  fotoPerfil: string;
+  fotoCliente: string | null;
   comentario: string;
   nota: number;
-  data: string;
-  recomendacao: boolean;
+  data: string | null;
+  recomendacao: boolean | null;
   fotos: string[];
+  itens: ItemPedidoAvaliacao[];
+};
+
+type RespostaAvaliacoes = {
+  sucesso?: boolean;
+  quantidade?: number;
+  media?: number | string;
+  avaliacoes?: any[];
+  message?: string;
 };
 
 /* =====================================================
-   AVALIAÇÕES DE EXEMPLO
-   Dados fictícios para simular a página.
+   CONVERTER VALOR BOOLEANO
 ===================================================== */
 
-const avaliacoesExemplo: AvaliacaoItem[] = [
-  {
-    id: 1,
-    nome: "Mariana Silva",
-    fotoPerfil: "https://i.pravatar.cc/150?img=47",
-    comentario:
-      "O pedido chegou quentinho, muito bem embalado e estava delicioso. Recomendo! Com certeza pedirei novamente.",
-    nota: 5,
-    data: "15/10/2026",
-    recomendacao: true,
-    fotos: [
-      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-      "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500",
-      "https://images.unsplash.com/photo-1559847844-5315695dadae?w=500",
-    ],
-  },
-  {
-    id: 2,
-    nome: "Lucas Oliveira",
-    fotoPerfil: "https://i.pravatar.cc/150?img=12",
-    comentario:
-      "O pedido demorou muito para chegar e a comida estava fria. Fiquei decepcionado com a experiência.",
-    nota: 2,
-    data: "14/10/2026",
-    recomendacao: false,
-    fotos: [
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500",
-      "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=500",
-    ],
-  },
-  {
-    id: 3,
-    nome: "Ana Costa",
-    fotoPerfil: "https://i.pravatar.cc/150?img=44",
-    comentario:
-      "A embalagem veio danificada e faltou um item do pedido. Espero que melhorem o atendimento.",
-    nota: 1,
-    data: "12/10/2026",
-    recomendacao: false,
-    fotos: [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
-    ],
-  },
-  {
-    id: 4,
-    nome: "Pedro Santos",
-    fotoPerfil: "https://i.pravatar.cc/150?img=13",
-    comentario:
-      "Tudo perfeito! O pedido chegou dentro do prazo, estava saboroso e veio exatamente como solicitei.",
-    nota: 4,
-    data: "10/10/2026",
-    recomendacao: true,
-    fotos: [
-      "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=500",
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500",
-    ],
-  },
-];
+function converterBooleano(valor: any): boolean | null {
+  if (valor === null || valor === undefined || valor === "") {
+    return null;
+  }
+
+  if (
+    valor === true ||
+    valor === 1 ||
+    valor === "1" ||
+    valor === "true"
+  ) {
+    return true;
+  }
+
+  if (
+    valor === false ||
+    valor === 0 ||
+    valor === "0" ||
+    valor === "false"
+  ) {
+    return false;
+  }
+
+  return null;
+}
+
+/* =====================================================
+   FORMATAR DATA
+===================================================== */
+
+function formatarData(data: any): string | null {
+  if (!data) return null;
+
+  const dataObj = new Date(data);
+
+  if (Number.isNaN(dataObj.getTime())) {
+    return String(data);
+  }
+
+  return dataObj.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+/* =====================================================
+   URL DAS IMAGENS
+===================================================== */
+
+function obterUrlImagem(
+  caminho: string | null | undefined
+): string {
+  if (!caminho) return "";
+
+  const caminhoLimpo = caminho.trim();
+
+  if (
+    caminhoLimpo.startsWith("http://") ||
+    caminhoLimpo.startsWith("https://")
+  ) {
+    return caminhoLimpo;
+  }
+
+  return `${API_URL}/${caminhoLimpo.replace(/^\/+/, "")}`;
+}
+
+/* =====================================================
+   OBTER FOTOS DA AVALIAÇÃO
+===================================================== */
+
+function obterFotos(avaliacao: any): string[] {
+  const fotos: string[] = [];
+
+  if (Array.isArray(avaliacao.fotos)) {
+    avaliacao.fotos.forEach((foto: any) => {
+      const caminho =
+        typeof foto === "string"
+          ? foto
+          : foto?.caminho_foto || foto?.foto || foto?.url;
+
+      if (caminho) {
+        const url = obterUrlImagem(caminho);
+
+        if (url && !fotos.includes(url)) {
+          fotos.push(url);
+        }
+      }
+    });
+  }
+
+  if (avaliacao.foto_pedido) {
+    const fotoPrincipal = obterUrlImagem(
+      avaliacao.foto_pedido
+    );
+
+    if (
+      fotoPrincipal &&
+      !fotos.includes(fotoPrincipal)
+    ) {
+      fotos.unshift(fotoPrincipal);
+    }
+  }
+
+  return fotos;
+}
+
+/* =====================================================
+   OBTER ITENS DO PEDIDO
+===================================================== */
+
+function obterItensPedido(
+  avaliacao: any
+): ItemPedidoAvaliacao[] {
+  const itens = Array.isArray(avaliacao.itens)
+    ? avaliacao.itens
+    : Array.isArray(avaliacao.itens_pedido)
+      ? avaliacao.itens_pedido
+      : [];
+
+  return itens
+    .map((item: any) => ({
+      id: item.id ? Number(item.id) : undefined,
+      nome_produto:
+        item.nome_produto ||
+        item.nome ||
+        item.produto ||
+        "Produto",
+      quantidade: Math.max(1, Number(item.quantidade) || 1),
+      observacao: item.observacao || null,
+    }))
+    .filter(
+      (item: ItemPedidoAvaliacao) => item.nome_produto
+    );
+}
+
+/* =====================================================
+   CONVERTER DADOS DA API
+===================================================== */
+
+function converterAvaliacao(dados: any): AvaliacaoItem {
+  return {
+    id: Number(dados.id),
+
+    pedido_id: Number(dados.pedido_id || 0),
+
+    cliente_id: Number(dados.cliente_id || 0),
+
+    nome:
+      dados.nome_cliente ||
+      dados.nome ||
+      dados.cliente_nome ||
+      "Cliente",
+
+    fotoCliente: dados.foto_cliente
+      ? obterUrlImagem(dados.foto_cliente)
+      : null,
+
+    comentario: dados.comentario || "",
+
+    nota: Number(dados.nota || 0),
+
+    data: formatarData(
+      dados.data ||
+      dados.criado_em ||
+      dados.data_avaliacao ||
+      dados.created_at ||
+      dados.data_criacao ||
+      null
+    ),
+
+    recomendacao: converterBooleano(
+      dados.recomenda_comercio
+    ),
+
+    fotos: obterFotos(dados),
+
+    itens: obterItensPedido(dados),
+  };
+}
 
 /* =====================================================
    BANNER DE AVALIAÇÕES
 ===================================================== */
 
-function BannerAvaliacao() {
+function BannerAvaliacao({
+  media,
+  quantidade,
+}: {
+  media: number;
+  quantidade: number;
+}) {
+  const mediaFormatada = media.toFixed(1).replace(".", ",");
+
+  const notaEstrelas = Math.max(
+    0,
+    Math.min(5, Math.round(media))
+  );
+
   return (
     <section className={styles.bannerContainer}>
       <img
@@ -102,19 +264,22 @@ function BannerAvaliacao() {
         </span>
 
         <strong className={styles.nota}>
-          4,8
+          {mediaFormatada}
           <span className={styles.notaMaxima}> / 5,0</span>
         </strong>
 
         <div
           className={styles.estrelas}
-          aria-label="Cinco estrelas ilustrativas"
+          aria-label={`Média de ${media.toFixed(1)} de 5`}
         >
-          ★★★★★
+          {"★".repeat(notaEstrelas)}
+          {"☆".repeat(5 - notaEstrelas)}
         </div>
 
         <span className={styles.textoAvaliacao}>
-          Avaliação fictícia
+          {quantidade === 1
+            ? "1 avaliação recebida"
+            : `${quantidade} avaliações recebidas`}
         </span>
       </div>
     </section>
@@ -153,8 +318,52 @@ function EstrelasComentario({
 }
 
 /* =====================================================
-   IMAGENS ANEXADAS AO PEDIDO
-   MÁXIMO DE 3 IMAGENS
+   RESUMO DO PEDIDO
+===================================================== */
+
+function ResumoPedido({
+  pedidoId,
+  itens,
+}: {
+  pedidoId: number;
+  itens: ItemPedidoAvaliacao[];
+}) {
+  if (!itens || itens.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={styles.resumoPedido}>
+      <span className={styles.identificacaoPedido}>
+        <span className={styles.iconePedido} aria-hidden="true">
+          ▦
+        </span>
+
+        Pedido #{pedidoId}
+      </span>
+
+      <span className={styles.separadorPedido} aria-hidden="true">
+        ·
+      </span>
+
+      <span className={styles.produtosPedido}>
+        {itens.map((item, indice) => (
+          <span
+            className={styles.produtoPedido}
+            key={item.id || `${item.nome_produto}-${indice}`}
+          >
+            <strong>{item.quantidade}x</strong>{" "}
+            {item.nome_produto}
+            {indice < itens.length - 1 ? "," : ""}
+          </span>
+        ))}
+      </span>
+    </div>
+  );
+}
+
+/* =====================================================
+   FOTOS ANEXADAS AO PEDIDO
 ===================================================== */
 
 function FotosPedido({
@@ -175,7 +384,7 @@ function FotosPedido({
       {fotosExibidas.map((foto, indice) => (
         <div
           className={styles.fotoPedido}
-          key={`${nomeCliente}-${indice}`}
+          key={`${foto}-${indice}`}
         >
           <img
             src={foto}
@@ -196,8 +405,18 @@ function FotosPedido({
 function Recomendacao({
   recomendacao,
 }: {
-  recomendacao: boolean;
+  recomendacao: boolean | null;
 }) {
+  if (recomendacao === null) {
+    return (
+      <div
+        className={`${styles.recomendacao} ${styles.recomendacaoNeutra}`}
+      >
+        Sem recomendação
+      </div>
+    );
+  }
+
   return (
     <div
       className={`${styles.recomendacao} ${
@@ -212,14 +431,7 @@ function Recomendacao({
           : "Não recomenda"}
       </span>
 
-      <span
-        className={styles.iconeRecomendacao}
-        aria-label={
-          recomendacao
-            ? "Recomendação positiva"
-            : "Recomendação negativa"
-        }
-      >
+      <span className={styles.iconeRecomendacao}>
         {recomendacao ? "👍" : "👎"}
       </span>
     </div>
@@ -228,7 +440,6 @@ function Recomendacao({
 
 /* =====================================================
    BOTÃO RESPONDER À AVALIAÇÃO
-   POR ENQUANTO, APENAS VISUAL
 ===================================================== */
 
 function BotaoResponder() {
@@ -238,7 +449,7 @@ function BotaoResponder() {
         type="button"
         className={styles.botaoResponder}
         onClick={() => {
-          // A funcionalidade de resposta será implementada depois.
+          // A resposta à avaliação será implementada depois.
         }}
         aria-label="Responder à avaliação do cliente"
       >
@@ -256,6 +467,47 @@ function BotaoResponder() {
 }
 
 /* =====================================================
+   AVATAR DO CLIENTE
+===================================================== */
+
+function AvatarCliente({
+  nome,
+  foto,
+}: {
+  nome: string;
+  foto: string | null;
+}) {
+  const [erroImagem, setErroImagem] = useState(false);
+
+  const iniciais = nome
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((parte) => parte.charAt(0).toUpperCase())
+    .join("");
+
+  if (foto && !erroImagem) {
+    return (
+      <div className={styles.fotoCliente}>
+        <img
+          src={foto}
+          alt={`Foto de perfil de ${nome}`}
+          loading="lazy"
+          onError={() => setErroImagem(true)}
+          draggable={false}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.fotoCliente}>
+      {iniciais || "C"}
+    </div>
+  );
+}
+
+/* =====================================================
    CARD INDIVIDUAL DO COMENTÁRIO
 ===================================================== */
 
@@ -266,53 +518,66 @@ function Comentario({
 }) {
   return (
     <article className={styles.comentario}>
-      {/* CLIENTE E COMENTÁRIO */}
-
       <div className={styles.cabecalhoComentario}>
-        <div className={styles.fotoCliente}>
-          <img
-            src={avaliacao.fotoPerfil}
-            alt={`Foto de perfil de ${avaliacao.nome}`}
-            loading="lazy"
-            draggable={false}
-          />
-        </div>
+        <AvatarCliente
+          nome={avaliacao.nome}
+          foto={avaliacao.fotoCliente}
+        />
 
         <div className={styles.informacoesCliente}>
           <h3 className={styles.nomeCliente}>
             {avaliacao.nome}
           </h3>
 
-          <p className={styles.textoComentario}>
-            {avaliacao.comentario}
-          </p>
+          <ResumoPedido
+            pedidoId={avaliacao.pedido_id}
+            itens={avaliacao.itens}
+          />
         </div>
       </div>
 
-      {/* FOTOS DO PEDIDO CENTRALIZADAS */}
+      {avaliacao.comentario && (
+        <div className={styles.areaComentario}>
+          <span
+            className={styles.iconeAspas}
+            aria-hidden="true"
+          >
+            “
+          </span>
+
+          <p className={styles.textoComentario}>
+            {avaliacao.comentario}
+          </p>
+
+          <span
+            className={styles.iconeAspasFinal}
+            aria-hidden="true"
+          >
+            ”
+          </span>
+        </div>
+      )}
 
       <FotosPedido
         fotos={avaliacao.fotos}
         nomeCliente={avaliacao.nome}
       />
 
-      {/* NOTA, DATA E RECOMENDAÇÃO */}
-
       <div className={styles.rodapeComentario}>
         <EstrelasComentario nota={avaliacao.nota} />
 
-        <span className={styles.dataComentario}>
-          {avaliacao.data}
-        </span>
+        {avaliacao.data && (
+          <span className={styles.dataComentario}>
+            {avaliacao.data}
+          </span>
+        )}
 
         <Recomendacao
           recomendacao={avaliacao.recomendacao}
         />
+
+        <BotaoResponder />
       </div>
-
-      {/* BOTÃO DE RESPOSTA */}
-
-      <BotaoResponder />
     </article>
   );
 }
@@ -322,13 +587,129 @@ function Comentario({
 ===================================================== */
 
 export function Avaliacoes() {
+  const [avaliacoes, setAvaliacoes] = useState<AvaliacaoItem[]>([]);
+  const [media, setMedia] = useState(0);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  /* =====================================================
+     BUSCAR AVALIAÇÕES REAIS DO COMÉRCIO
+  ===================================================== */
+
+  const buscarAvaliacoes = useCallback(async () => {
+    try {
+      setCarregando(true);
+      setErro("");
+
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error(
+          "Sessão não encontrada. Faça login novamente no comércio."
+        );
+      }
+
+      const resposta = await fetch(AVALIACOES_URL, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      const tipoConteudo =
+        resposta.headers.get("content-type") || "";
+
+      if (!tipoConteudo.includes("application/json")) {
+        const texto = await resposta.text();
+
+        console.error(
+          "Resposta inesperada da API:",
+          texto
+        );
+
+        throw new Error(
+          "O servidor não retornou JSON. Verifique a rota da API."
+        );
+      }
+
+      const dados: RespostaAvaliacoes =
+        await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.message ||
+          "Não foi possível carregar as avaliações."
+        );
+      }
+
+      const lista = Array.isArray(dados.avaliacoes)
+        ? dados.avaliacoes
+        : [];
+
+      const avaliacoesConvertidas = lista
+        .map(converterAvaliacao)
+        .filter((item) => Number.isFinite(item.id));
+
+      setAvaliacoes(avaliacoesConvertidas);
+
+      const mediaRecebida = Number(dados.media);
+
+      if (
+        dados.media !== undefined &&
+        dados.media !== null &&
+        Number.isFinite(mediaRecebida)
+      ) {
+        setMedia(mediaRecebida);
+      } else if (avaliacoesConvertidas.length > 0) {
+        const soma = avaliacoesConvertidas.reduce(
+          (total, item) => total + item.nota,
+          0
+        );
+
+        setMedia(soma / avaliacoesConvertidas.length);
+      } else {
+        setMedia(0);
+      }
+
+      console.log(
+        "Avaliações carregadas:",
+        avaliacoesConvertidas
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao buscar avaliações:",
+        error
+      );
+
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Erro inesperado ao carregar avaliações."
+      );
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  /* =====================================================
+     CARREGAR AO ABRIR A PÁGINA
+  ===================================================== */
+
+  useEffect(() => {
+    buscarAvaliacoes();
+  }, [buscarAvaliacoes]);
+
+  /* =====================================================
+     EXIBIÇÃO
+  ===================================================== */
+
   return (
     <main className={styles.container}>
-      {/* BANNER SUPERIOR */}
-
-      <BannerAvaliacao />
-
-      {/* LISTA DE AVALIAÇÕES */}
+      <BannerAvaliacao
+        media={media}
+        quantidade={avaliacoes.length}
+      />
 
       <section className={styles.listaAvaliacoes}>
         <header className={styles.cabecalhoAvaliacoes}>
@@ -343,27 +724,67 @@ export function Avaliacoes() {
           </div>
 
           <span className={styles.quantidadeAvaliacoes}>
-            {avaliacoesExemplo.length} avaliações
+            {avaliacoes.length}{" "}
+            {avaliacoes.length === 1
+              ? "avaliação"
+              : "avaliações"}
           </span>
         </header>
 
-        {avaliacoesExemplo.length > 0 ? (
-          avaliacoesExemplo.map((avaliacao) => (
+        {/* CARREGANDO */}
+
+        {carregando && (
+          <div className={styles.estadoCarregamento}>
+            <div className={styles.spinner} />
+
+            <span>
+              Carregando avaliações...
+            </span>
+          </div>
+        )}
+
+        {/* ERRO */}
+
+        {!carregando && erro && (
+          <div className={styles.estadoErro}>
+            <p>{erro}</p>
+
+            <button
+              type="button"
+              className={styles.botaoTentarNovamente}
+              onClick={buscarAvaliacoes}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
+
+        {/* LISTA REAL */}
+
+        {!carregando &&
+          !erro &&
+          avaliacoes.length > 0 &&
+          avaliacoes.map((avaliacao) => (
             <Comentario
               key={avaliacao.id}
               avaliacao={avaliacao}
             />
-          ))
-        ) : (
-          <div className={styles.semAvaliacoes}>
-            <h3>Nenhuma avaliação ainda</h3>
+          ))}
 
-            <p>
-              Quando os clientes avaliarem seus pedidos,
-              os comentários aparecerão aqui.
-            </p>
-          </div>
-        )}
+        {/* NENHUMA AVALIAÇÃO */}
+
+        {!carregando &&
+          !erro &&
+          avaliacoes.length === 0 && (
+            <div className={styles.semAvaliacoes}>
+              <h3>Nenhuma avaliação ainda</h3>
+
+              <p>
+                Quando os clientes avaliarem seus pedidos,
+                os comentários aparecerão aqui.
+              </p>
+            </div>
+          )}
       </section>
     </main>
   );

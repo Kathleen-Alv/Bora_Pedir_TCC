@@ -1,0 +1,664 @@
+
+.container {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px 28px 35px;
+  box-sizing: border-box;
+  background: #f5f4f1;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #292929;
+}
+
+/* CABEÇALHO */
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+  padding: 25px 28px;
+  border-radius: 15px;
+  background: linear-gradient(115deg, #fff8ed 0%, #f8e9d9 100%);
+  border: 1px solid #f0dfcc;
+}
+
+.tituloArea {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #bd1221;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.tituloArea h1 {
+  margin: 0;
+  color: #252525;
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.tituloArea p {
+  margin: 8px 0 0;
+  color: #77716b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.iconeCabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 57px;
+  height: 57px;
+  border-radius: 15px;
+  background: #bd1221;
+  color: #fff;
+  box-shadow: 0 5px 13px rgba(189, 18, 33, 0.18);
+}
+
+.iconeCabecalho span {
+  font-size: 29px;
+}
+
+/* RESUMO */
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.cardResumo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+  padding: 20px;
+  border-radius: 13px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+
+.cardResumoPedidos {
+  background: #fcebed;
+  border-color: #f4d4d8;
+}
+
+.cardResumoValor {
+  background: #fff3dc;
+  border-color: #f1e1c2;
+}
+
+.cardResumoConcluidos {
+  background: #e9f2e9;
+  border-color: #d5e5d5;
+}
+
+.resumoIcone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  color: #bd1221;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.cardResumoValor .resumoIcone {
+  color: #a56b13;
+}
+
+.cardResumoConcluidos .resumoIcone {
+  color: #43804c;
+  font-size: 23px;
+}
+
+.resumoConteudo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+
+.resumoConteudo span {
+  color: #69645e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.resumoConteudo strong {
+  color: #292929;
+  font-size: 23px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.resumoConteudo small {
+  color: #89827a;
+  font-size: 10px;
+}
+
+/* FILTROS */
+
+.areaConsulta {
+  margin-bottom: 25px;
+  padding: 22px 24px;
+  border: 1px solid #e9e3da;
+  border-radius: 14px;
+  background: #fffdf9;
+  box-shadow: 0 3px 12px rgba(65, 48, 28, 0.035);
+}
+
+.tituloConsulta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.tituloConsulta h2,
+.cabecalhoLista h2 {
+  margin: 0;
+  color: #292929;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.tituloConsulta p,
+.cabecalhoLista p {
+  margin: 6px 0 0;
+  color: #89827a;
+  font-size: 12px;
+}
+
+.etiquetaHistorico {
+  padding: 7px 11px;
+  border-radius: 20px;
+  background: #fcebed;
+  color: #bd1221;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+}
+
+.areaFiltros {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.campoFiltro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 190px;
+}
+
+.campoFiltro label {
+  color: #514b45;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.campoFiltro input,
+.campoFiltro select {
+  width: 100%;
+  height: 43px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid #ded7ce;
+  border-radius: 8px;
+  outline: none;
+  background: #f8f6f2;
+  color: #393632;
+  font-family: inherit;
+  font-size: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.campoFiltro input:focus,
+.campoFiltro select:focus {
+  border-color: #bd1221;
+  box-shadow: 0 0 0 3px rgba(189, 18, 33, 0.08);
+}
+
+.botaoLimpar {
+  height: 43px;
+  padding: 0 17px;
+  border: 1px solid #e7c4c8;
+  border-radius: 8px;
+  background: #fff1f2;
+  color: #bd1221;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.botaoLimpar:hover {
+  background: #bd1221;
+  color: #fff;
+}
+
+/* LISTA */
+
+.listaPedidos {
+  width: 100%;
+}
+
+.cabecalhoLista {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.tabelaContainer {
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid #e5ddd3;
+  border-radius: 12px;
+  background: #fffdf9;
+  box-shadow: 0 3px 12px rgba(65, 48, 28, 0.035);
+}
+
+.cabecalhoTabela,
+.linhaPedido {
+  display: grid;
+  grid-template-columns: 0.7fr 1.65fr 0.9fr 0.65fr 1fr 1.2fr 1.5fr;
+  align-items: center;
+  column-gap: 10px;
+  padding: 15px 17px;
+}
+
+.cabecalhoTabela {
+  min-height: 44px;
+  box-sizing: border-box;
+  background: #000000;
+  border-bottom: 1px solid #e1d8cd;
+}
+
+.cabecalhoTabela span {
+  color: #faf8f5;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+}
+
+.linhaPedido {
+  min-height: 72px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #eee9e2;
+  transition: background 0.2s;
+}
+
+.linhaPedido:last-child {
+  border-bottom: none;
+}
+
+.linhaPedido:hover {
+  background: #fff6ef;
+}
+
+.colunaPedido,
+.colunaCliente,
+.colunaData,
+.colunaItens,
+.colunaValor,
+.colunaStatus,
+.colunaAcao {
+  min-width: 0;
+}
+
+.identificador {
+  color: #bd1221;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.colunaCliente {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.avatarCliente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f5e5dc;
+  color: #a94a38;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.colunaCliente strong {
+  overflow: hidden;
+  color: #393632;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.colunaData,
+.colunaItens {
+  color: #716a61;
+  font-size: 12px;
+}
+
+.colunaValor {
+  color: #34302b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.colunaStatus {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.statusAguardando {
+  background: #fff0d9;
+  color: #a66b12;
+}
+
+.statusEmPreparo {
+  background: #e9edff;
+  color: #4c5ca6;
+}
+
+.statusPronto {
+  background: #e5f2ed;
+  color: #34765b;
+}
+
+.statusSaiuParaEntrega {
+  background: #e7f0fb;
+  color: #376a9e;
+}
+
+.statusConcluido {
+  background: #e6f2e6;
+  color: #43804c;
+}
+
+.statusCancelado {
+  background: #fce8e8;
+  color: #bd1221;
+}
+
+/* BOTÃO DETALHES */
+
+.colunaAcao {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.colunaAcaoTitulo {
+  text-align: right;
+}
+
+.botaoDetalhes {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #bd1221;
+  border-radius: 7px;
+  background: #bd1221;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.botaoDetalhes:hover {
+  background: #990d19;
+  border-color: #990d19;
+  transform: translateY(-1px);
+}
+
+.botaoDetalhes:focus-visible {
+  outline: 3px solid rgba(189, 18, 33, 0.2);
+  outline-offset: 2px;
+}
+
+/* SEM PEDIDOS */
+
+.semPedidos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  border: 1px dashed #dfd5c9;
+  border-radius: 13px;
+  background: #fffdf9;
+  text-align: center;
+}
+
+.iconeSemPedidos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  margin-bottom: 15px;
+  border-radius: 50%;
+  background: #fcebed;
+  color: #bd1221;
+  font-size: 31px;
+}
+
+.semPedidos h3 {
+  margin: 0;
+  color: #393632;
+  font-size: 16px;
+}
+
+.semPedidos p {
+  max-width: 370px;
+  margin: 8px 0 18px;
+  color: #89827a;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.semPedidos button {
+  padding: 10px 17px;
+  border: none;
+  border-radius: 8px;
+  background: #bd1221;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.semPedidos button:hover {
+  background: #990d19;
+}
+
+/* AVISO */
+
+.avisoDados {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 13px 15px;
+  border: 1px solid #eadfc9;
+  border-radius: 9px;
+  background: #fff6e7;
+}
+
+.avisoDados > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #e8c982;
+  color: #73551b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.avisoDados p {
+  margin: 1px 0 0;
+  color: #796747;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 1100px) {
+  .container {
+    padding: 20px;
+  }
+
+  .resumo {
+    gap: 11px;
+  }
+
+  .cardResumo {
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .resumoConteudo strong {
+    font-size: 19px;
+  }
+
+  .tabelaContainer {
+    overflow-x: auto;
+  }
+
+  .cabecalhoTabela,
+  .linhaPedido {
+    min-width: 1050px;
+  }
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 14px;
+  }
+
+  .cabecalho {
+    padding: 19px;
+    margin-bottom: 17px;
+  }
+
+  .tituloArea h1 {
+    font-size: 23px;
+  }
+
+  .tituloArea p {
+    font-size: 11px;
+  }
+
+  .iconeCabecalho {
+    width: 45px;
+    height: 45px;
+  }
+
+  .iconeCabecalho span {
+    font-size: 24px;
+  }
+
+  .resumo {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .cardResumo {
+    padding: 14px;
+  }
+
+  .resumoIcone {
+    width: 40px;
+    height: 40px;
+  }
+
+  .resumoConteudo strong {
+    font-size: 20px;
+  }
+
+  .areaConsulta {
+    padding: 17px;
+    margin-bottom: 20px;
+  }
+
+  .tituloConsulta h2,
+  .cabecalhoLista h2 {
+    font-size: 15px;
+  }
+
+  .areaFiltros {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 13px;
+  }
+
+  .campoFiltro {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .botaoLimpar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .cabecalho {
+    padding: 15px;
+  }
+
+  .iconeCabecalho {
+    width: 39px;
+    height: 39px;
+  }
+}

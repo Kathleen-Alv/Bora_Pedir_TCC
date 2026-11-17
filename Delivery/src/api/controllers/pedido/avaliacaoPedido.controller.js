@@ -169,7 +169,7 @@ export async function criarAvaliacaoPedido(req, res) {
         }));
 
         // Mantém a primeira foto na coluna antiga para
-        // compatibilidade com consultas que já utilizam foto_pedido.
+        // compatibilidade com consultas que utilizam foto_pedido.
         const primeiraFoto = fotos.length > 0
             ? fotos[0].caminho
             : null;
@@ -237,6 +237,8 @@ export async function criarAvaliacaoPedido(req, res) {
             avaliacao: {
                 id: avaliacaoId,
                 pedido_id: pedidoId,
+                cliente_id: clienteId,
+                comercio_id: Number(pedido.comercio_id),
                 nota,
                 comentario: comentario || null,
                 foto_pedido: primeiraFoto,
@@ -298,5 +300,227 @@ export async function criarAvaliacaoPedido(req, res) {
                 }
             }
         }
+    }
+}
+
+// ============================================================
+// LISTAR AVALIAÇÕES DO COMÉRCIO
+// GET /api/pedidos/avaliacoes
+// ============================================================
+
+export async function listarAvaliacoesComercio(req, res) {
+    try {
+        const comercioId = Number(req.usuario?.comercio_id);
+
+        if (!Number.isSafeInteger(comercioId) || comercioId <= 0) {
+            return res.status(401).json({
+                message: 'Comércio não autenticado.'
+            });
+        }
+
+        // ====================================================
+        // 1. BUSCAR AVALIAÇÕES DO COMÉRCIO
+        // ====================================================
+
+        const avaliacoes = await db.query(
+            `
+            SELECT
+                a.*,
+                c.nome AS nome_cliente,
+                c.foto AS foto_cliente
+            FROM avaliacoes_pedido a
+            LEFT JOIN clientes c
+                ON c.id = a.cliente_id
+            WHERE a.comercio_id = ?
+            ORDER BY a.criado_em DESC
+            `,
+            [comercioId]
+        );
+
+        if (avaliacoes.length === 0) {
+            return res.status(200).json({
+                sucesso: true,
+                quantidade: 0,
+                media: 0,
+                avaliacoes: []
+            });
+        }
+
+        // ====================================================
+        // 2. BUSCAR FOTOS EXTRAS DAS AVALIAÇÕES
+        // ====================================================
+
+        const idsAvaliacoes = avaliacoes.map(
+            (avaliacao) => Number(avaliacao.id)
+        );
+
+        const placeholdersAvaliacoes = idsAvaliacoes
+            .map(() => '?')
+            .join(',');
+
+        const fotos = await db.query(
+            `
+            SELECT
+                avaliacao_id,
+                caminho_foto
+            FROM fotos_avaliacao_pedido
+            WHERE avaliacao_id IN (${placeholdersAvaliacoes})
+            ORDER BY id ASC
+            `,
+            idsAvaliacoes
+        );
+
+        // Organiza as fotos por avaliação.
+        const fotosPorAvaliacao = {};
+
+        for (const foto of fotos) {
+            const avaliacaoId = Number(foto.avaliacao_id);
+
+            if (!fotosPorAvaliacao[avaliacaoId]) {
+                fotosPorAvaliacao[avaliacaoId] = [];
+            }
+
+            fotosPorAvaliacao[avaliacaoId].push(
+                foto.caminho_foto
+            );
+        }
+
+        // ====================================================
+        // 3. BUSCAR OS ITENS DOS PEDIDOS AVALIADOS
+        // ====================================================
+
+        const pedidosIds = [
+            ...new Set(
+                avaliacoes.map(
+                    (avaliacao) => Number(avaliacao.pedido_id)
+                )
+            )
+        ];
+
+        const placeholdersPedidos = pedidosIds
+            .map(() => '?')
+            .join(',');
+
+        const itensPedido = await db.query(
+            `
+            SELECT
+                pedido_id,
+                nome_produto,
+                quantidade,
+                preco_unitario,
+                subtotal,
+                observacao
+            FROM itens_pedido
+            WHERE pedido_id IN (${placeholdersPedidos})
+            ORDER BY id ASC
+            `,
+            pedidosIds
+        );
+
+        // ====================================================
+        // 4. ORGANIZAR OS ITENS POR PEDIDO
+        // ====================================================
+
+        const itensPorPedido = {};
+
+        for (const item of itensPedido) {
+            const pedidoId = Number(item.pedido_id);
+
+            if (!itensPorPedido[pedidoId]) {
+                itensPorPedido[pedidoId] = [];
+            }
+
+            itensPorPedido[pedidoId].push({
+                nome: item.nome_produto || 'Produto',
+                quantidade: Number(item.quantidade || 0),
+                preco_unitario: Number(item.preco_unitario || 0),
+                subtotal: Number(item.subtotal || 0),
+                observacao: item.observacao || null
+            });
+        }
+
+        // ====================================================
+        // 5. MONTAR O RESULTADO FINAL
+        // ====================================================
+
+        const resultado = avaliacoes.map((avaliacao) => {
+            const avaliacaoId = Number(avaliacao.id);
+            const pedidoId = Number(avaliacao.pedido_id);
+
+            const fotosExtras =
+                fotosPorAvaliacao[avaliacaoId] || [];
+
+            // A foto principal também deve aparecer.
+            // O Set evita repetir a mesma foto.
+            const todasAsFotos = [
+                ...new Set([
+                    ...(avaliacao.foto_pedido
+                        ? [avaliacao.foto_pedido]
+                        : []),
+                    ...fotosExtras
+                ])
+            ];
+
+            return {
+                id: avaliacaoId,
+                pedido_id: pedidoId,
+                cliente_id: Number(avaliacao.cliente_id),
+
+                nome_cliente:
+                    avaliacao.nome_cliente || 'Cliente',
+
+                foto_cliente:
+                    avaliacao.foto_cliente || null,
+
+                nota: Number(avaliacao.nota),
+
+                comentario:
+                    avaliacao.comentario || '',
+
+                recomenda_comercio:
+                    avaliacao.recomenda_comercio === null
+                        ? null
+                        : Number(avaliacao.recomenda_comercio),
+
+                data: avaliacao.criado_em || null,
+
+                fotos: todasAsFotos,
+
+                // Itens históricos do pedido avaliado.
+                itens: itensPorPedido[pedidoId] || []
+            };
+        });
+
+        // ====================================================
+        // 6. CALCULAR A MÉDIA REAL
+        // ====================================================
+
+        const somaNotas = resultado.reduce(
+            (total, avaliacao) => total + avaliacao.nota,
+            0
+        );
+
+        const media = somaNotas / resultado.length;
+
+        // ====================================================
+        // 7. RETORNAR AVALIAÇÕES COMPLETAS
+        // ====================================================
+
+        return res.status(200).json({
+            sucesso: true,
+            quantidade: resultado.length,
+            media: Number(media.toFixed(1)),
+            avaliacoes: resultado
+        });
+
+    } catch (error) {
+        console.error(
+            'Erro ao listar avaliações:',
+            error
+        );
+
+        return res.status(500).json({
+            message: 'Erro ao buscar avaliações.'
+        });
     }
 }

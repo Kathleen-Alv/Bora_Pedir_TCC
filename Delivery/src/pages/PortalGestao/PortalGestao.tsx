@@ -1,11 +1,15 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import styles from "./PortalGestao.module.css";
 
 import { HeaderGestao } from "../../components/headerGestao/headerGestao";
 
-/* IMAGENS */
+/* =====================================================
+   IMAGENS
+===================================================== */
+
 import inicio from "../../assets/portalGestao/inicio.png";
 import cardapio from "../../assets/portalGestao/menu.png";
 import pedidos from "../../assets/portalGestao/pedidos.png";
@@ -19,12 +23,22 @@ import suporte from "../../assets/portalGestao/suporte.png";
 import precificacao from "../../assets/portalGestao/precificacao.png";
 import gestaoPedidos from "../../assets/portalGestao/gestaoPedidos.png";
 
-/* PÁGINAS E COMPONENTES */
+/* =====================================================
+   PÁGINAS E COMPONENTES
+===================================================== */
+
 import Perfil from "./componentes_gestao/perfil/perfil";
 import { Avaliacoes } from "./componentes_gestao/avaliacoes/avaliacoes";
 import { Inicio } from "./componentes_gestao/Inicio/inicio";
 import { Cardapio } from "./componentes_gestao/Cardapio/cardapio";
+
 import { Precificacao } from "./componentes_gestao/Cardapio/calculadoraDePrecificação/calculadoraDePrecificação";
+
+import { Pedidos } from "./componentes_gestao/pedidos_detalhes/pedidos_detalhes";
+
+/* =====================================================
+   TELAS DO PORTAL
+===================================================== */
 
 type Tela =
   | "inicio"
@@ -39,6 +53,10 @@ type Tela =
   | "horarios"
   | "suporte";
 
+/* =====================================================
+   PORTAL DE GESTÃO
+===================================================== */
+
 export function PortalGestao() {
   const [telaAtual, setTelaAtual] = useState<Tela>("inicio");
 
@@ -52,15 +70,24 @@ export function PortalGestao() {
     navigate("/gestao_pedidos");
   };
 
+  /* =====================================================
+     RENDERIZAÇÃO
+  ===================================================== */
+
   return (
     <>
       {/* HEADER */}
+
       <HeaderGestao />
 
       <div className={styles.portal}>
-        {/* SIDEBAR */}
+        {/* =====================================================
+            SIDEBAR
+        ===================================================== */}
+
         <aside className={styles.sidebar}>
           {/* INÍCIO */}
+
           <button
             type="button"
             className={`${styles.menuItem} ${
@@ -73,10 +100,15 @@ export function PortalGestao() {
               alt=""
               className={styles.menuIcon}
             />
+
             <span>Início</span>
           </button>
 
-          {/* GESTÃO DE PEDIDOS — ABRE OUTRA ROTA */}
+          {/* =====================================================
+              GESTÃO DE PEDIDOS
+              ABRE OUTRA ROTA
+          ===================================================== */}
+
           <button
             type="button"
             className={styles.menuItem}
@@ -87,16 +119,21 @@ export function PortalGestao() {
               alt=""
               className={styles.menuIcon}
             />
+
             <span>Gestão de Pedidos</span>
           </button>
 
-          {/* GESTÃO */}
+          {/* =====================================================
+              GESTÃO
+          ===================================================== */}
+
           <div className={styles.category}>
             <div className={styles.categoryTitle}>
               Gestão
             </div>
 
             {/* CARDÁPIO */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -109,10 +146,12 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Cardápio</span>
             </button>
 
             {/* PEDIDOS */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -125,10 +164,12 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Pedidos</span>
             </button>
 
             {/* AVALIAÇÕES */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -141,10 +182,12 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Avaliações</span>
             </button>
 
             {/* FINANCEIRO */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -157,11 +200,15 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Financeiro</span>
             </button>
           </div>
 
-          {/* PRECIFICAÇÃO */}
+          {/* =====================================================
+              PRECIFICAÇÃO
+          ===================================================== */}
+
           <button
             type="button"
             className={`${styles.menuItem} ${
@@ -174,16 +221,21 @@ export function PortalGestao() {
               alt=""
               className={styles.menuIcon}
             />
+
             <span>Precificação</span>
           </button>
 
-          {/* PROMOÇÕES */}
+          {/* =====================================================
+              PROMOÇÕES
+          ===================================================== */}
+
           <div className={styles.category}>
             <div className={styles.categoryTitle}>
               Promoções
             </div>
 
             {/* MINHAS PROMOÇÕES */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -198,10 +250,12 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Minhas Promoções</span>
             </button>
 
             {/* PARTICIPAR DE PROMOÇÕES */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -216,17 +270,22 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Participar de Promoções</span>
             </button>
           </div>
 
-          {/* MINHA LOJA */}
+          {/* =====================================================
+              MINHA LOJA
+          ===================================================== */}
+
           <div className={styles.category}>
             <div className={styles.categoryTitle}>
               Minha Loja
             </div>
 
             {/* PERFIL */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -239,10 +298,12 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Perfil</span>
             </button>
 
             {/* HORÁRIOS */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -255,10 +316,12 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Horários de Funcionamento</span>
             </button>
 
             {/* SUPORTE */}
+
             <button
               type="button"
               className={`${styles.menuItem} ${
@@ -271,34 +334,39 @@ export function PortalGestao() {
                 alt=""
                 className={styles.menuIcon}
               />
+
               <span>Suporte</span>
             </button>
           </div>
         </aside>
 
-        {/* CONTEÚDO DO PORTAL */}
+        {/* =====================================================
+            CONTEÚDO DO PORTAL
+        ===================================================== */}
+
         <main className={styles.content}>
           {/* INÍCIO */}
+
           {telaAtual === "inicio" && <Inicio />}
 
           {/* CARDÁPIO */}
+
           {telaAtual === "cardapio" && <Cardapio />}
 
           {/* PERFIL */}
+
           {telaAtual === "perfil" && <Perfil />}
 
           {/* PEDIDOS */}
-          {telaAtual === "pedidos" && (
-            <div>
-              <h1>Pedidos</h1>
-              <p>Aqui ficarão os pedidos do comércio.</p>
-            </div>
-          )}
+
+          {telaAtual === "pedidos" && <Pedidos />}
 
           {/* AVALIAÇÕES */}
+
           {telaAtual === "avaliacoes" && <Avaliacoes />}
 
           {/* FINANCEIRO */}
+
           {telaAtual === "financeiro" && (
             <div>
               <h1>Financeiro</h1>
@@ -307,6 +375,7 @@ export function PortalGestao() {
           )}
 
           {/* PRECIFICAÇÃO */}
+
           {telaAtual === "precificacao" && (
             <Precificacao
               onFechar={() => setTelaAtual("inicio")}
@@ -314,6 +383,7 @@ export function PortalGestao() {
           )}
 
           {/* MINHAS PROMOÇÕES */}
+
           {telaAtual === "minhasPromocoes" && (
             <div>
               <h1>Minhas Promoções</h1>
@@ -322,6 +392,7 @@ export function PortalGestao() {
           )}
 
           {/* PARTICIPAR DE PROMOÇÕES */}
+
           {telaAtual === "participarPromocoes" && (
             <div>
               <h1>Participar de Promoções</h1>
@@ -330,6 +401,7 @@ export function PortalGestao() {
           )}
 
           {/* HORÁRIOS */}
+
           {telaAtual === "horarios" && (
             <div>
               <h1>Horários de Funcionamento</h1>
@@ -338,6 +410,7 @@ export function PortalGestao() {
           )}
 
           {/* SUPORTE */}
+
           {telaAtual === "suporte" && (
             <div>
               <h1>Suporte</h1>
