@@ -60,7 +60,18 @@ type Tela =
 export function PortalGestao() {
   const [telaAtual, setTelaAtual] = useState<Tela>("inicio");
 
+  // Estado da sidebar
+  const [sidebarAberta, setSidebarAberta] = useState(true);
+
   const navigate = useNavigate();
+
+  /* =====================================================
+     ALTERNAR SIDEBAR
+  ===================================================== */
+
+  const alternarSidebar = () => {
+    setSidebarAberta((estadoAtual) => !estadoAtual);
+  };
 
   /* =====================================================
      NAVEGAÇÃO PARA GESTÃO DE PEDIDOS
@@ -69,6 +80,15 @@ export function PortalGestao() {
   const abrirGestaoPedidos = () => {
     navigate("/gestao_pedidos");
   };
+
+  /* =====================================================
+     CLASSE DOS ITENS
+  ===================================================== */
+
+  const classeMenu = (tela: Tela) =>
+    `${styles.menuItem} ${
+      telaAtual === tela ? styles.active : ""
+    }`;
 
   /* =====================================================
      RENDERIZAÇÃO
@@ -80,20 +100,26 @@ export function PortalGestao() {
 
       <HeaderGestao />
 
-      <div className={styles.portal}>
+      <div
+        className={`${styles.portal} ${
+          sidebarAberta
+            ? styles.sidebarAberta
+            : styles.sidebarFechada
+        }`}
+      >
         {/* =====================================================
             SIDEBAR
         ===================================================== */}
 
         <aside className={styles.sidebar}>
+
           {/* INÍCIO */}
 
           <button
             type="button"
-            className={`${styles.menuItem} ${
-              telaAtual === "inicio" ? styles.active : ""
-            }`}
+            className={classeMenu("inicio")}
             onClick={() => setTelaAtual("inicio")}
+            title={!sidebarAberta ? "Início" : ""}
           >
             <img
               src={inicio}
@@ -106,13 +132,13 @@ export function PortalGestao() {
 
           {/* =====================================================
               GESTÃO DE PEDIDOS
-              ABRE OUTRA ROTA
           ===================================================== */}
 
           <button
             type="button"
             className={styles.menuItem}
             onClick={abrirGestaoPedidos}
+            title={!sidebarAberta ? "Gestão de Pedidos" : ""}
           >
             <img
               src={gestaoPedidos}
@@ -136,10 +162,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "cardapio" ? styles.active : ""
-              }`}
+              className={classeMenu("cardapio")}
               onClick={() => setTelaAtual("cardapio")}
+              title={!sidebarAberta ? "Cardápio" : ""}
             >
               <img
                 src={cardapio}
@@ -154,10 +179,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "pedidos" ? styles.active : ""
-              }`}
+              className={classeMenu("pedidos")}
               onClick={() => setTelaAtual("pedidos")}
+              title={!sidebarAberta ? "Pedidos" : ""}
             >
               <img
                 src={pedidos}
@@ -172,10 +196,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "avaliacoes" ? styles.active : ""
-              }`}
+              className={classeMenu("avaliacoes")}
               onClick={() => setTelaAtual("avaliacoes")}
+              title={!sidebarAberta ? "Avaliações" : ""}
             >
               <img
                 src={avaliacao}
@@ -190,10 +213,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "financeiro" ? styles.active : ""
-              }`}
+              className={classeMenu("financeiro")}
               onClick={() => setTelaAtual("financeiro")}
+              title={!sidebarAberta ? "Financeiro" : ""}
             >
               <img
                 src={financeiro}
@@ -211,10 +233,9 @@ export function PortalGestao() {
 
           <button
             type="button"
-            className={`${styles.menuItem} ${
-              telaAtual === "precificacao" ? styles.active : ""
-            }`}
+            className={classeMenu("precificacao")}
             onClick={() => setTelaAtual("precificacao")}
+            title={!sidebarAberta ? "Precificação" : ""}
           >
             <img
               src={precificacao}
@@ -238,12 +259,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "minhasPromocoes"
-                  ? styles.active
-                  : ""
-              }`}
+              className={classeMenu("minhasPromocoes")}
               onClick={() => setTelaAtual("minhasPromocoes")}
+              title={!sidebarAberta ? "Minhas Promoções" : ""}
             >
               <img
                 src={minhasPromocoes}
@@ -258,12 +276,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "participarPromocoes"
-                  ? styles.active
-                  : ""
-              }`}
+              className={classeMenu("participarPromocoes")}
               onClick={() => setTelaAtual("participarPromocoes")}
+              title={!sidebarAberta ? "Participar de Promoções" : ""}
             >
               <img
                 src={participarPromocoes}
@@ -288,10 +303,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "perfil" ? styles.active : ""
-              }`}
+              className={classeMenu("perfil")}
               onClick={() => setTelaAtual("perfil")}
+              title={!sidebarAberta ? "Perfil" : ""}
             >
               <img
                 src={perfil}
@@ -306,10 +320,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "horarios" ? styles.active : ""
-              }`}
+              className={classeMenu("horarios")}
               onClick={() => setTelaAtual("horarios")}
+              title={!sidebarAberta ? "Horários de Funcionamento" : ""}
             >
               <img
                 src={horarios}
@@ -324,10 +337,9 @@ export function PortalGestao() {
 
             <button
               type="button"
-              className={`${styles.menuItem} ${
-                telaAtual === "suporte" ? styles.active : ""
-              }`}
+              className={classeMenu("suporte")}
               onClick={() => setTelaAtual("suporte")}
+              title={!sidebarAberta ? "Suporte" : ""}
             >
               <img
                 src={suporte}
@@ -341,10 +353,35 @@ export function PortalGestao() {
         </aside>
 
         {/* =====================================================
+            BOTÃO LATERAL ABRIR / FECHAR
+        ===================================================== */}
+
+        <button
+          type="button"
+          className={styles.sidebarToggle}
+          onClick={alternarSidebar}
+          aria-label={
+            sidebarAberta
+              ? "Recolher menu lateral"
+              : "Expandir menu lateral"
+          }
+          title={
+            sidebarAberta
+              ? "Recolher menu"
+              : "Expandir menu"
+          }
+        >
+          <span className={styles.toggleIcon}>
+            {sidebarAberta ? "‹" : "›"}
+          </span>
+        </button>
+
+        {/* =====================================================
             CONTEÚDO DO PORTAL
         ===================================================== */}
 
         <main className={styles.content}>
+
           {/* INÍCIO */}
 
           {telaAtual === "inicio" && <Inicio />}

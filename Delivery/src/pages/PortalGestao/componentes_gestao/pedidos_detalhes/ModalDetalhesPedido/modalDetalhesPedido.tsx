@@ -1,44 +1,109 @@
+
 import { useEffect } from "react";
 import styles from "../ModalDetalhesPedido/modalDetalhesPedido.module.css";
 
-interface PedidoModal {
-  id: number;
-  codigo: string;
-  cliente: string;
-  data: string;
-  quantidadeItens: number;
-  total: number;
-  status: string;
-}
+import type { Pedido } from "../pedidos_detalhes";
+
+import {
+  formatarMoeda,
+  formatarData,
+  traduzirStatus,
+} from "../pedidos_detalhes";
+
+/* =====================================================
+   PROPRIEDADES
+===================================================== */
 
 interface ModalDetalhesPedidoProps {
-  pedido: PedidoModal | null;
+  pedido: Pedido | null;
   aoFechar: () => void;
 }
 
 /* =====================================================
-   FORMATAÇÃO DE VALORES
+   URL DA FOTO DO CLIENTE
 ===================================================== */
 
-const formatarMoeda = (valor: number) => {
-  return Number(valor || 0).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-};
+const montarUrlFoto = (foto?: string | null): string | null => {
+  if (!foto || !foto.trim()) return null;
 
-const formatarData = (data: string) => {
-  if (!data) return "Data não informada";
+  const caminho = foto.trim();
 
-  const [ano, mes, dia] = data.split("-");
+  // Imagem já possui endereço completo.
+  if (/^https?:\/\//i.test(caminho)) {
+    return caminho;
+  }
 
-  if (!ano || !mes || !dia) return data;
-
-  return `${dia}/${mes}/${ano}`;
+  // Imagem armazenada como caminho relativo.
+  return `http://localhost:3000/${caminho.replace(/^\/+/, "")}`;
 };
 
 /* =====================================================
-   MODAL DE DETALHES DO PEDIDO
+   FORMA DE PAGAMENTO
+===================================================== */
+
+const formatarPagamento = (forma?: string | null) => {
+  if (!forma) return "Não informado";
+
+  const pagamento = forma.toUpperCase();
+
+  switch (pagamento) {
+    case "PIX":
+      return "Pix";
+
+    case "CARTAO":
+    case "CARTÃO":
+    case "CARTAO_CREDITO":
+    case "CARTAO_DEBITO":
+      return "Cartão";
+
+    case "DINHEIRO":
+      return "Dinheiro";
+
+    default:
+      return forma;
+  }
+};
+
+/* =====================================================
+   ENDEREÇO
+===================================================== */
+
+const montarEndereco = (pedido: Pedido) => {
+  const endereco = pedido.endereco;
+
+  if (!endereco) return null;
+
+  const rua = [
+    endereco.endereco,
+    endereco.numero,
+  ]
+    .filter((parte) => parte && String(parte).trim())
+    .join(", ");
+
+  const complemento = endereco.complemento?.trim();
+  const bairro = endereco.bairro?.trim();
+
+  const cidadeEstado = [
+    endereco.cidade,
+    endereco.estado,
+  ]
+    .filter((parte) => parte && String(parte).trim())
+    .join(" - ");
+
+  return {
+    rua: rua || "Endereço não informado",
+    complemento,
+    bairro,
+    cidadeEstado,
+    cep: endereco.cep?.trim(),
+    referencia: endereco.referencia?.trim(),
+    identificacao:
+      endereco.nome_endereco?.trim() || "Endereço de entrega",
+  };
+};
+
+/* =====================================================
+   MODAL DE DETALHES
 ===================================================== */
 
 export function ModalDetalhesPedido({
@@ -46,7 +111,7 @@ export function ModalDetalhesPedido({
   aoFechar,
 }: ModalDetalhesPedidoProps) {
   /* =====================================================
-     FECHAR COM A TECLA ESC
+     FECHAR COM ESC
   ===================================================== */
 
   useEffect(() => {
@@ -65,17 +130,29 @@ export function ModalDetalhesPedido({
     };
   }, [pedido, aoFechar]);
 
-  /* =====================================================
-     NÃO EXIBIR SE NÃO HOUVER PEDIDO SELECIONADO
-  ===================================================== */
-
   if (!pedido) return null;
 
-  const nomeCliente = pedido.cliente?.trim() || "Cliente não informado";
+  /* =====================================================
+     DADOS
+  ===================================================== */
 
-  const inicialCliente = nomeCliente
-    .charAt(0)
-    .toUpperCase();
+  const nomeCliente =
+    pedido.nome_cliente?.trim() || "Cliente não informado";
+
+  const inicialCliente = nomeCliente.charAt(0).toUpperCase();
+
+  const fotoCliente = montarUrlFoto(pedido.foto_cliente);
+
+  const itens = pedido.itens || [];
+
+  const quantidadeItens = itens.reduce(
+    (total, item) => total + Number(item.quantidade || 0),
+    0
+  );
+
+  const status = traduzirStatus(pedido.status);
+
+  const endereco = montarEndereco(pedido);
 
   /* =====================================================
      RENDERIZAÇÃO
@@ -104,7 +181,7 @@ export function ModalDetalhesPedido({
             </h2>
 
             <span id="identificacao-pedido">
-              Pedido #{pedido.codigo}
+              Pedido #{String(pedido.id).padStart(4, "0")}
             </span>
           </div>
 
@@ -130,16 +207,16 @@ export function ModalDetalhesPedido({
               </span>
 
               <strong>
-                {formatarData(pedido.data)}
+                {formatarData(pedido.criado_em)}
               </strong>
             </div>
 
             <span className={styles.status}>
-              {pedido.status}
+              {status}
             </span>
           </section>
 
-          {/* DADOS DO CLIENTE */}
+          {/* CLIENTE */}
 
           <section className={styles.secao}>
             <h3>Dados do cliente</h3>
@@ -147,40 +224,138 @@ export function ModalDetalhesPedido({
             <div className={styles.cliente}>
               <div className={styles.avatar}>
                 {inicialCliente}
+
+                {fotoCliente && (
+                  <img
+                    src={fotoCliente}
+                    alt={`Foto de ${nomeCliente}`}
+                    onError={(evento) => {
+                      evento.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
               </div>
 
               <div>
                 <strong>{nomeCliente}</strong>
 
                 <p>
-                  Dados de contato serão carregados posteriormente.
+                  {pedido.telefone_cliente || "Telefone não informado"}
                 </p>
               </div>
             </div>
           </section>
 
-          {/* ITENS DO PEDIDO */}
+          {/* ENDEREÇO */}
 
           <section className={styles.secao}>
-            <h3>Itens do pedido</h3>
+            <h3>Endereço de entrega</h3>
 
-            <div className={styles.item}>
+            {endereco ? (
+              <div className={styles.enderecoCard}>
+                <div className={styles.enderecoTopo}>
+                  <div className={styles.enderecoIcone}>
+                    <span>⌖</span>
+                  </div>
+
+                  <div className={styles.enderecoIdentificacao}>
+                    <span>Local de entrega</span>
+                    <strong>{endereco.identificacao}</strong>
+                  </div>
+                </div>
+
+                <div className={styles.enderecoConteudo}>
+                  <strong className={styles.enderecoRua}>
+                    {endereco.rua}
+                  </strong>
+
+                  {endereco.complemento && (
+                    <span>{endereco.complemento}</span>
+                  )}
+
+                  {endereco.bairro && (
+                    <span>{endereco.bairro}</span>
+                  )}
+
+                  {endereco.cidadeEstado && (
+                    <span>{endereco.cidadeEstado}</span>
+                  )}
+                </div>
+
+                {(endereco.cep || endereco.referencia) && (
+                  <div className={styles.enderecoRodape}>
+                    {endereco.cep && (
+                      <div className={styles.enderecoDetalhe}>
+                        <span>CEP</span>
+                        <strong>{endereco.cep}</strong>
+                      </div>
+                    )}
+
+                    {endereco.referencia && (
+                      <div className={styles.enderecoReferencia}>
+                        <span>Referência</span>
+                        <strong>{endereco.referencia}</strong>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className={styles.info}>
+                Endereço não informado para este pedido.
+              </p>
+            )}
+          </section>
+
+          {/* ITENS */}
+
+          <section className={styles.secao}>
+            <h3>
+              Itens do pedido ({quantidadeItens})
+            </h3>
+
+            {itens.length > 0 ? (
+              itens.map((item, indice) => (
+                <div
+                  className={styles.item}
+                  key={item.id || indice}
+                >
+                  <div>
+                    <strong>
+                      {item.quantidade}x {item.nome}
+                    </strong>
+
+                    <p>
+                      {formatarMoeda(item.preco)} cada
+                    </p>
+
+                    {item.observacao && (
+                      <p className={styles.info}>
+                        Observação: {item.observacao}
+                      </p>
+                    )}
+                  </div>
+
+                  <strong>
+                    {formatarMoeda(item.subtotal)}
+                  </strong>
+                </div>
+              ))
+            ) : (
+              <p className={styles.info}>
+                Nenhum item foi encontrado neste pedido.
+              </p>
+            )}
+
+            {pedido.observacao && (
               <div>
-                <strong>Resumo dos itens</strong>
+                <strong>Observação do pedido</strong>
 
-                <p>
-                  {pedido.quantidadeItens}{" "}
-                  {pedido.quantidadeItens === 1
-                    ? "item"
-                    : "itens"}
+                <p className={styles.info}>
+                  {pedido.observacao}
                 </p>
               </div>
-            </div>
-
-            <p className={styles.info}>
-              Os produtos, quantidades individuais e observações
-              serão carregados posteriormente.
-            </p>
+            )}
           </section>
 
           {/* PAGAMENTO */}
@@ -191,17 +366,62 @@ export function ModalDetalhesPedido({
             <div className={styles.linha}>
               <span>Forma de pagamento</span>
 
-              <strong>A carregar</strong>
+              <strong>
+                {formatarPagamento(pedido.forma_pagamento)}
+              </strong>
+            </div>
+
+            {pedido.forma_pagamento?.toUpperCase() === "DINHEIRO" &&
+              pedido.troco_para != null && (
+                <div className={styles.linha}>
+                  <span>Troco para</span>
+
+                  <strong>
+                    {formatarMoeda(pedido.troco_para)}
+                  </strong>
+                </div>
+              )}
+
+            <div className={styles.linha}>
+              <span>Subtotal</span>
+
+              <strong>
+                {formatarMoeda(pedido.subtotal)}
+              </strong>
+            </div>
+
+            <div className={styles.linha}>
+              <span>Taxa de entrega</span>
+
+              <strong>
+                {formatarMoeda(pedido.taxa_entrega)}
+              </strong>
             </div>
 
             <div className={styles.total}>
               <strong>Valor total</strong>
 
               <strong>
-                {formatarMoeda(pedido.total)}
+                {formatarMoeda(pedido.valor_total)}
               </strong>
             </div>
           </section>
+
+          {/* CÓDIGO DE RETIRADA */}
+
+          {pedido.codigo_retirada && (
+            <section className={styles.secao}>
+              <h3>Retirada</h3>
+
+              <div className={styles.linha}>
+                <span>Código de retirada</span>
+
+                <strong>
+                  {pedido.codigo_retirada}
+                </strong>
+              </div>
+            </section>
+          )}
         </div>
 
         {/* RODAPÉ */}

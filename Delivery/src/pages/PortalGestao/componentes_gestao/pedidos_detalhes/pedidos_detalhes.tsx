@@ -1,9 +1,19 @@
 
-import { useMemo, useState } from "react";
-import styles from "./pedidos_detalhes.module.css";
-import { ModalDetalhesPedido } from "./ModalDetalhesPedido/modalDetalhesPedido.tsx";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-type StatusPedido =
+import styles from "./pedidos_detalhes.module.css";
+import { ModalDetalhesPedido } from "./ModalDetalhesPedido/modalDetalhesPedido";
+
+/* =====================================================
+   TIPOS
+===================================================== */
+
+export type StatusPedido =
   | "Aguardando"
   | "Em preparo"
   | "Pronto"
@@ -11,39 +21,163 @@ type StatusPedido =
   | "Concluído"
   | "Cancelado";
 
-interface Pedido {
+export interface ItemPedido {
   id: number;
-  codigo: string;
-  cliente: string;
-  data: string;
-  quantidadeItens: number;
-  total: number;
-  status: StatusPedido;
+  item_cardapio_id: number;
+  nome: string;
+  quantidade: number;
+  preco: number | string;
+  subtotal: number | string;
+  observacao?: string | null;
 }
 
-const pedidosFicticios: Pedido[] = [
-  { id: 1, codigo: "1048", cliente: "Mariana Oliveira", data: "2026-11-17", quantidadeItens: 3, total: 68.90, status: "Concluído" },
-  { id: 2, codigo: "1047", cliente: "Carlos Henrique", data: "2026-11-17", quantidadeItens: 2, total: 42.50, status: "Em preparo" },
-  { id: 3, codigo: "1046", cliente: "Ana Paula Santos", data: "2026-11-17", quantidadeItens: 4, total: 89.90, status: "Aguardando" },
-  { id: 4, codigo: "1045", cliente: "Rafael Costa", data: "2026-11-16", quantidadeItens: 1, total: 29.90, status: "Saiu para entrega" },
-  { id: 5, codigo: "1044", cliente: "Juliana Martins", data: "2026-11-16", quantidadeItens: 3, total: 56.70, status: "Concluído" },
-  { id: 6, codigo: "1043", cliente: "Lucas Ferreira", data: "2026-11-16", quantidadeItens: 2, total: 38.00, status: "Cancelado" },
-  { id: 7, codigo: "1042", cliente: "Fernanda Lima", data: "2026-11-15", quantidadeItens: 5, total: 112.50, status: "Concluído" },
-  { id: 8, codigo: "1041", cliente: "Pedro Almeida", data: "2026-11-15", quantidadeItens: 2, total: 45.90, status: "Pronto" },
-  { id: 9, codigo: "1040", cliente: "Camila Rodrigues", data: "2026-11-14", quantidadeItens: 3, total: 72.00, status: "Concluído" },
-  { id: 10, codigo: "1039", cliente: "Bruno Souza", data: "2026-11-14", quantidadeItens: 1, total: 25.00, status: "Cancelado" },
-];
+export interface EnderecoPedido {
+  nome_endereco?: string | null;
+  cep?: string | null;
+  endereco?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  referencia?: string | null;
+}
 
-const formatarMoeda = (valor: number) =>
-  valor.toLocaleString("pt-BR", {
+export interface Pedido {
+  id: number;
+  status: string;
+
+  forma_pagamento?: string | null;
+  troco_para?: number | string | null;
+
+  subtotal: number | string;
+  taxa_entrega: number | string;
+  valor_total: number | string;
+
+  observacao?: string | null;
+  criado_em: string;
+
+  nome_cliente?: string | null;
+  telefone_cliente?: string | null;
+  foto_cliente?: string | null;
+
+  nome_comercio?: string | null;
+  logo_comercio?: string | null;
+
+  codigo_retirada?: string | null;
+
+  endereco?: EnderecoPedido | null;
+  itens: ItemPedido[];
+}
+
+/* =====================================================
+   CONFIGURAÇÃO DA API
+===================================================== */
+
+const API_URL = "http://localhost:3000";
+
+/* =====================================================
+   FORMATAÇÃO DE MOEDA
+===================================================== */
+
+export const formatarMoeda = (
+  valor: number | string | null | undefined
+) => {
+  const numero = Number(valor || 0);
+
+  return numero.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
+};
 
-const formatarData = (data: string) => {
-  const [ano, mes, dia] = data.split("-");
+/* =====================================================
+   FORMATAÇÃO DE DATA
+===================================================== */
+
+export const formatarData = (data: string) => {
+  if (!data) return "Data não informada";
+
+  const dataLimpa = data.replace("T", " ").split(" ")[0];
+
+  const [ano, mes, dia] = dataLimpa.split("-");
+
+  if (!ano || !mes || !dia) return data;
+
   return `${dia}/${mes}/${ano}`;
 };
+
+/* =====================================================
+   DATA PARA FILTRO
+===================================================== */
+
+const obterDataFiltro = (data: string) => {
+  if (!data) return "";
+
+  return data.replace("T", " ").split(" ")[0];
+};
+
+/* =====================================================
+   CONVERTER STATUS DO BANCO
+===================================================== */
+
+export const traduzirStatus = (
+  status: string
+): StatusPedido => {
+  const statusNormalizado = String(status || "")
+    .trim()
+    .toUpperCase();
+
+  switch (statusNormalizado) {
+    case "PENDENTE":
+    case "AGUARDANDO":
+      return "Aguardando";
+
+    case "ACEITO":
+    case "EM_PREPARO":
+    case "PREPARO":
+      return "Em preparo";
+
+    case "PRONTO":
+      return "Pronto";
+
+    case "SAIU_PARA_ENTREGA":
+    case "EM_ENTREGA":
+      return "Saiu para entrega";
+
+    case "CONCLUIDO":
+    case "CONCLUÍDO":
+    case "ENTREGUE":
+      return "Concluído";
+
+    case "CANCELADO":
+    case "RECUSADO":
+      return "Cancelado";
+
+    default:
+      return "Aguardando";
+  }
+};
+
+/* =====================================================
+   VERIFICAR PEDIDO CONCLUÍDO
+===================================================== */
+
+const pedidoConcluido = (status: string) => {
+  const normalizado = String(status || "")
+    .trim()
+    .toUpperCase();
+
+  return (
+    normalizado === "CONCLUIDO" ||
+    normalizado === "CONCLUÍDO" ||
+    normalizado === "ENTREGUE"
+  );
+};
+
+/* =====================================================
+   CLASSE VISUAL DO STATUS
+===================================================== */
 
 const obterClasseStatus = (status: StatusPedido) => {
   const classes: Record<StatusPedido, string> = {
@@ -58,46 +192,201 @@ const obterClasseStatus = (status: StatusPedido) => {
   return classes[status];
 };
 
+/* =====================================================
+   MONTAR URL DA FOTO
+===================================================== */
+
+const montarUrlFoto = (foto?: string | null) => {
+  if (!foto || !foto.trim()) return null;
+
+  const caminho = foto.trim();
+
+  if (/^https?:\/\//i.test(caminho)) {
+    return caminho;
+  }
+
+  return `${API_URL}/${caminho.replace(/^\/+/, "")}`;
+};
+
+/* =====================================================
+   PÁGINA DE PEDIDOS
+===================================================== */
+
 export function Pedidos() {
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+
   const [dataSelecionada, setDataSelecionada] = useState("");
   const [statusSelecionado, setStatusSelecionado] = useState("Todos");
 
-  // Pedido selecionado para exibir no modal
   const [pedidoSelecionado, setPedidoSelecionado] =
     useState<Pedido | null>(null);
 
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  /* =====================================================
+     BUSCAR PEDIDOS REAIS DA API
+  ===================================================== */
+
+  const carregarPedidos = useCallback(async () => {
+    try {
+      setCarregando(true);
+      setErro("");
+
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error(
+          "Sua sessão não foi encontrada. Faça login novamente."
+        );
+      }
+
+      const resposta = await fetch(
+        `${API_URL}/api/pedidos/comercio`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const contentType = resposta.headers.get("content-type");
+
+      if (!contentType?.includes("application/json")) {
+        const texto = await resposta.text();
+
+        console.error(
+          "Resposta inesperada da API:",
+          texto
+        );
+
+        throw new Error(
+          "O servidor retornou uma resposta inválida. Verifique a API."
+        );
+      }
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.message ||
+            dados.mensagem ||
+            "Não foi possível carregar os pedidos."
+        );
+      }
+
+      if (!Array.isArray(dados.pedidos)) {
+        throw new Error(
+          "A resposta da API não contém uma lista válida de pedidos."
+        );
+      }
+
+      setPedidos(dados.pedidos);
+    } catch (error) {
+      console.error("Erro ao buscar pedidos:", error);
+
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível carregar os pedidos."
+      );
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  /* =====================================================
+     CARREGAR AO ABRIR A PÁGINA
+  ===================================================== */
+
+  useEffect(() => {
+    carregarPedidos();
+  }, [carregarPedidos]);
+
+  /* =====================================================
+     APLICAR FILTROS
+  ===================================================== */
+
   const pedidosFiltrados = useMemo(() => {
-    return pedidosFicticios.filter((pedido) => {
+    return pedidos.filter((pedido) => {
+      const dataPedido = obterDataFiltro(pedido.criado_em);
+
       const correspondeData =
-        !dataSelecionada || pedido.data === dataSelecionada;
+        !dataSelecionada || dataPedido === dataSelecionada;
+
+      const statusPedido = traduzirStatus(pedido.status);
 
       const correspondeStatus =
         statusSelecionado === "Todos" ||
-        pedido.status === statusSelecionado;
+        statusPedido === statusSelecionado;
 
       return correspondeData && correspondeStatus;
     });
-  }, [dataSelecionada, statusSelecionado]);
+  }, [pedidos, dataSelecionada, statusSelecionado]);
 
-  const valorTotal = pedidosFiltrados
-    .filter((pedido) => pedido.status !== "Cancelado")
-    .reduce((total, pedido) => total + pedido.total, 0);
+  /* =====================================================
+     INDICADORES
+  ===================================================== */
 
   const quantidadeConcluidos = pedidosFiltrados.filter(
-    (pedido) => pedido.status === "Concluído"
+    (pedido) => pedidoConcluido(pedido.status)
   ).length;
+
+  /* =====================================================
+     QUANTIDADE DE ITENS
+  ===================================================== */
+
+  const contarItens = (pedido: Pedido) => {
+    return (pedido.itens || []).reduce(
+      (total, item) =>
+        total + Number(item.quantidade || 0),
+      0
+    );
+  };
+
+  /* =====================================================
+     CÓDIGO DO PEDIDO
+  ===================================================== */
+
+  const obterCodigoPedido = (pedido: Pedido) => {
+    return String(pedido.id).padStart(4, "0");
+  };
+
+  /* =====================================================
+     LIMPAR FILTROS
+  ===================================================== */
 
   const limparFiltros = () => {
     setDataSelecionada("");
     setStatusSelecionado("Todos");
   };
 
+  /* =====================================================
+     ABRIR DETALHES
+  ===================================================== */
+
+  const abrirDetalhes = (pedido: Pedido) => {
+    setPedidoSelecionado(pedido);
+  };
+
+  /* =====================================================
+     RENDERIZAÇÃO
+  ===================================================== */
+
   return (
     <main className={styles.container}>
+      {/* CABEÇALHO */}
+
       <header className={styles.cabecalho}>
         <div className={styles.tituloArea}>
-          <span className={styles.eyebrow}>GESTÃO DO COMÉRCIO</span>
+          <span className={styles.eyebrow}>
+            GESTÃO DO COMÉRCIO
+          </span>
+
           <h1>Pedidos</h1>
+
           <p>
             Consulte e acompanhe o histórico de pedidos realizados no seu
             estabelecimento.
@@ -110,69 +399,109 @@ export function Pedidos() {
       </header>
 
       {/* RESUMO */}
+
       <section className={styles.resumo}>
-        <article className={`${styles.cardResumo} ${styles.cardResumoPedidos}`}>
+        <article
+          className={`${styles.cardResumo} ${styles.cardResumoPedidos}`}
+        >
           <div className={styles.resumoIcone}>▤</div>
+
           <div className={styles.resumoConteudo}>
             <span>Pedidos encontrados</span>
+
             <strong>{pedidosFiltrados.length}</strong>
-            <small>Conforme os filtros aplicados</small>
+
+            <small>
+              Conforme os filtros aplicados
+            </small>
           </div>
         </article>
 
-        <article className={`${styles.cardResumo} ${styles.cardResumoValor}`}>
+        <article
+          className={`${styles.cardResumo} ${styles.cardResumoValor}`}
+        >
           <div className={styles.resumoIcone}>R$</div>
+
           <div className={styles.resumoConteudo}>
             <span>Valor dos pedidos</span>
-            <strong>{formatarMoeda(valorTotal)}</strong>
-            <small>Sem considerar pedidos cancelados</small>
+
+            <strong>Em breve</strong>
+
+            <small>
+              Funcionalidade em desenvolvimento
+            </small>
           </div>
         </article>
 
-        <article className={`${styles.cardResumo} ${styles.cardResumoConcluidos}`}>
+        <article
+          className={`${styles.cardResumo} ${styles.cardResumoConcluidos}`}
+        >
           <div className={styles.resumoIcone}>✓</div>
+
           <div className={styles.resumoConteudo}>
             <span>Pedidos concluídos</span>
+
             <strong>{quantidadeConcluidos}</strong>
-            <small>Pedidos finalizados</small>
+
+            <small>
+              Pedidos finalizados
+            </small>
           </div>
         </article>
       </section>
 
       {/* FILTROS */}
+
       <section className={styles.areaConsulta}>
         <div className={styles.tituloConsulta}>
           <div>
             <h2>Histórico de pedidos</h2>
-            <p>Encontre pedidos por data ou situação.</p>
+
+            <p>
+              Encontre pedidos por data ou situação.
+            </p>
           </div>
 
-          <span className={styles.etiquetaHistorico}>HISTÓRICO</span>
+          <span className={styles.etiquetaHistorico}>
+            HISTÓRICO
+          </span>
         </div>
 
         <div className={styles.areaFiltros}>
           <div className={styles.campoFiltro}>
-            <label htmlFor="filtroData">Consultar por data</label>
+            <label htmlFor="filtroData">
+              Consultar por data
+            </label>
+
             <input
               id="filtroData"
               type="date"
               value={dataSelecionada}
-              onChange={(e) => setDataSelecionada(e.target.value)}
+              onChange={(evento) =>
+                setDataSelecionada(evento.target.value)
+              }
             />
           </div>
 
           <div className={styles.campoFiltro}>
-            <label htmlFor="filtroStatus">Status do pedido</label>
+            <label htmlFor="filtroStatus">
+              Status do pedido
+            </label>
+
             <select
               id="filtroStatus"
               value={statusSelecionado}
-              onChange={(e) => setStatusSelecionado(e.target.value)}
+              onChange={(evento) =>
+                setStatusSelecionado(evento.target.value)
+              }
             >
               <option value="Todos">Todos os status</option>
               <option value="Aguardando">Aguardando</option>
               <option value="Em preparo">Em preparo</option>
               <option value="Pronto">Pronto</option>
-              <option value="Saiu para entrega">Saiu para entrega</option>
+              <option value="Saiu para entrega">
+                Saiu para entrega
+              </option>
               <option value="Concluído">Concluído</option>
               <option value="Cancelado">Cancelado</option>
             </select>
@@ -189,19 +518,63 @@ export function Pedidos() {
       </section>
 
       {/* LISTA DE PEDIDOS */}
+
       <section className={styles.listaPedidos}>
         <div className={styles.cabecalhoLista}>
           <div>
             <h2>Pedidos realizados</h2>
+
             <p>
               {pedidosFiltrados.length === 1
                 ? "1 pedido encontrado"
                 : `${pedidosFiltrados.length} pedidos encontrados`}
             </p>
           </div>
+
+          <button
+            type="button"
+            className={styles.botaoLimpar}
+            onClick={carregarPedidos}
+            disabled={carregando}
+          >
+            {carregando
+              ? "Atualizando..."
+              : "↻ Atualizar pedidos"}
+          </button>
         </div>
 
-        {pedidosFiltrados.length > 0 ? (
+        {/* CARREGAMENTO */}
+
+        {carregando ? (
+          <div className={styles.semPedidos}>
+            <h3>Carregando pedidos...</h3>
+
+            <p>
+              Estamos buscando os pedidos do seu estabelecimento.
+            </p>
+          </div>
+        ) : erro ? (
+          /* ERRO */
+
+          <div className={styles.semPedidos}>
+            <div className={styles.iconeSemPedidos}>!</div>
+
+            <h3>
+              Não foi possível carregar os pedidos
+            </h3>
+
+            <p>{erro}</p>
+
+            <button
+              type="button"
+              onClick={carregarPedidos}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        ) : pedidosFiltrados.length > 0 ? (
+          /* TABELA */
+
           <div className={styles.tabelaContainer}>
             <div className={styles.cabecalhoTabela}>
               <span>Pedido</span>
@@ -210,85 +583,150 @@ export function Pedidos() {
               <span>Itens</span>
               <span>Valor total</span>
               <span>Status</span>
-              <span className={styles.colunaAcaoTitulo}>Detalhes</span>
+
+              <span className={styles.colunaAcaoTitulo}>
+                Detalhes
+              </span>
             </div>
 
             <div className={styles.linhasPedidos}>
-              {pedidosFiltrados.map((pedido) => (
-                <div className={styles.linhaPedido} key={pedido.id}>
-                  <div className={styles.colunaPedido}>
-                    <span className={styles.identificador}>
-                      #{pedido.codigo}
-                    </span>
-                  </div>
+              {pedidosFiltrados.map((pedido) => {
+                const status = traduzirStatus(pedido.status);
 
-                  <div className={styles.colunaCliente}>
-                    <span className={styles.avatarCliente}>
-                      {pedido.cliente.charAt(0).toUpperCase()}
-                    </span>
-                    <strong>{pedido.cliente}</strong>
-                  </div>
+                const nomeCliente =
+                  pedido.nome_cliente?.trim() ||
+                  "Cliente não informado";
 
-                  <div className={styles.colunaData}>
-                    {formatarData(pedido.data)}
-                  </div>
+                const inicialCliente =
+                  nomeCliente.charAt(0).toUpperCase();
 
-                  <div className={styles.colunaItens}>
-                    {pedido.quantidadeItens}{" "}
-                    {pedido.quantidadeItens === 1 ? "item" : "itens"}
-                  </div>
+                const quantidade = contarItens(pedido);
 
-                  <div className={styles.colunaValor}>
-                    {formatarMoeda(pedido.total)}
-                  </div>
+                const fotoCliente = montarUrlFoto(
+                  pedido.foto_cliente
+                );
 
-                  <div className={styles.colunaStatus}>
-                    <span
-                      className={`${styles.status} ${obterClasseStatus(pedido.status)}`}
-                    >
-                      {pedido.status}
-                    </span>
-                  </div>
+                return (
+                  <div
+                    className={styles.linhaPedido}
+                    key={pedido.id}
+                  >
+                    {/* PEDIDO */}
 
-                  <div className={styles.colunaAcao}>
-                    <button
-                      type="button"
-                      className={styles.botaoDetalhes}
-                      aria-label={`Ver detalhes do pedido ${pedido.codigo}`}
-                      onClick={() => setPedidoSelecionado(pedido)}
-                    >
-                      Detalhes do pedido
-                    </button>
+                    <div className={styles.colunaPedido}>
+                      <span className={styles.identificador}>
+                        #{obterCodigoPedido(pedido)}
+                      </span>
+                    </div>
+
+                    {/* CLIENTE */}
+
+                    <div className={styles.colunaCliente}>
+                      <span className={styles.avatarCliente}>
+                        {inicialCliente}
+
+                        {fotoCliente && (
+                          <img
+                            src={fotoCliente}
+                            alt={`Foto de ${nomeCliente}`}
+                            onError={(evento) => {
+                              evento.currentTarget.style.display = "none";
+                            }}
+                          />
+                        )}
+                      </span>
+
+                      <strong>{nomeCliente}</strong>
+                    </div>
+
+                    {/* DATA */}
+
+                    <div className={styles.colunaData}>
+                      {formatarData(pedido.criado_em)}
+                    </div>
+
+                    {/* ITENS */}
+
+                    <div className={styles.colunaItens}>
+                      {quantidade}{" "}
+                      {quantidade === 1 ? "item" : "itens"}
+                    </div>
+
+                    {/* VALOR */}
+
+                    <div className={styles.colunaValor}>
+                      {formatarMoeda(pedido.valor_total)}
+                    </div>
+
+                    {/* STATUS */}
+
+                    <div className={styles.colunaStatus}>
+                      <span
+                        className={`${styles.status} ${obterClasseStatus(status)}`}
+                      >
+                        {status}
+                      </span>
+                    </div>
+
+                    {/* DETALHES */}
+
+                    <div className={styles.colunaAcao}>
+                      <button
+                        type="button"
+                        className={styles.botaoDetalhes}
+                        aria-label={`Ver detalhes do pedido ${obterCodigoPedido(pedido)}`}
+                        onClick={() => abrirDetalhes(pedido)}
+                      >
+                        Detalhes do pedido
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : (
+          /* NENHUM PEDIDO */
+
           <div className={styles.semPedidos}>
             <div className={styles.iconeSemPedidos}>⌕</div>
+
             <h3>Nenhum pedido encontrado</h3>
+
             <p>
-              Não encontramos pedidos com os filtros selecionados.
-              Experimente escolher outra data ou status.
+              {pedidos.length === 0
+                ? "Ainda não existem pedidos registrados para o seu estabelecimento."
+                : "Não encontramos pedidos com os filtros selecionados. Experimente escolher outra data ou status."}
             </p>
-            <button type="button" onClick={limparFiltros}>
-              Limpar filtros
-            </button>
+
+            {(dataSelecionada ||
+              statusSelecionado !== "Todos") && (
+              <button
+                type="button"
+                onClick={limparFiltros}
+              >
+                Limpar filtros
+              </button>
+            )}
           </div>
         )}
       </section>
 
-      <div className={styles.avisoDados}>
-        <span>i</span>
-        <p>
-          Os pedidos exibidos nesta página são dados fictícios para
-          demonstração. A integração com os pedidos reais será realizada
-          posteriormente.
-        </p>
-      </div>
+      {/* AVISO */}
 
-      {/* MODAL CENTRALIZADO DE DETALHES */}
+      {!erro && !carregando && (
+        <div className={styles.avisoDados}>
+          <span>i</span>
+
+          <p>
+            Os pedidos apresentados são carregados diretamente do banco de
+            dados do Bora Pedir.
+          </p>
+        </div>
+      )}
+
+      {/* MODAL DE DETALHES */}
+
       <ModalDetalhesPedido
         pedido={pedidoSelecionado}
         aoFechar={() => setPedidoSelecionado(null)}

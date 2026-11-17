@@ -524,3 +524,176 @@ export async function listarAvaliacoesComercio(req, res) {
         });
     }
 }
+
+
+
+
+/* =====================================================
+   LISTAR AVALIAÇÕES PÚBLICAS DE UM COMÉRCIO
+   GET /api/pedidos/comercio/:comercioId/avaliacoes
+
+   Usado pelo aplicativo Flutter do cliente.
+   Não exige autenticação.
+===================================================== */
+
+export const listarAvaliacoesPublicasComercio = async (req, res) => {
+  try {
+    const comercioId = Number(req.params.comercioId);
+
+    // Validar o ID do comércio.
+    if (
+      !Number.isInteger(comercioId) ||
+      comercioId <= 0
+    ) {
+      return res.status(400).json({
+        sucesso: false,
+        mensagem: "ID do comércio inválido.",
+      });
+    }
+
+    // Buscar avaliações e dados públicos dos clientes.
+    const avaliacoes = await db.query(
+      `
+        SELECT
+          a.id,
+          a.pedido_id,
+          a.cliente_id,
+          a.comercio_id,
+          a.nota,
+          a.comentario,
+          a.foto_pedido,
+          a.recomenda_comercio,
+          a.criado_em AS data,
+
+          c.nome AS nome_cliente,
+          c.foto AS foto_cliente
+
+        FROM avaliacoes_pedido a
+
+        LEFT JOIN clientes c
+          ON c.id = a.cliente_id
+
+        WHERE a.comercio_id = ?
+
+        ORDER BY a.criado_em DESC
+      `,
+      [comercioId]
+    );
+
+    // Quando não houver avaliações.
+    if (!avaliacoes.length) {
+      return res.status(200).json({
+        sucesso: true,
+        comercio_id: comercioId,
+        quantidade: 0,
+        media: 0,
+        avaliacoes: [],
+      });
+    }
+
+    // Buscar as fotos adicionais das avaliações.
+    const idsAvaliacoes = avaliacoes.map(
+      (avaliacao) => avaliacao.id
+    );
+
+    const placeholders = idsAvaliacoes
+      .map(() => "?")
+      .join(", ");
+
+    const fotosAdicionais = await db.query(
+      `
+        SELECT
+          id,
+          avaliacao_id,
+          caminho_foto
+
+        FROM fotos_avaliacao_pedido
+
+        WHERE avaliacao_id IN (${placeholders})
+
+        ORDER BY id ASC
+      `,
+      idsAvaliacoes
+    );
+
+    // Organizar fotos adicionais por avaliação.
+    const fotosPorAvaliacao = {};
+
+    for (const foto of fotosAdicionais) {
+      const avaliacaoId = String(foto.avaliacao_id);
+
+      if (!fotosPorAvaliacao[avaliacaoId]) {
+        fotosPorAvaliacao[avaliacaoId] = [];
+      }
+
+      fotosPorAvaliacao[avaliacaoId].push(
+        foto.caminho_foto
+      );
+    }
+
+    // Calcular a média das notas.
+    const somaNotas = avaliacoes.reduce(
+      (total, avaliacao) =>
+        total + Number(avaliacao.nota || 0),
+      0
+    );
+
+    const media =
+      somaNotas / avaliacoes.length;
+
+    // Montar o retorno com as fotos de cada avaliação.
+    const resultado = avaliacoes.map((avaliacao) => {
+      const fotos = [];
+
+      // A primeira foto fica na coluna foto_pedido.
+      if (avaliacao.foto_pedido) {
+        fotos.push(avaliacao.foto_pedido);
+      }
+
+      // Acrescentar as demais fotos.
+      const adicionais =
+        fotosPorAvaliacao[String(avaliacao.id)] || [];
+
+      for (const foto of adicionais) {
+        if (foto && !fotos.includes(foto)) {
+          fotos.push(foto);
+        }
+      }
+
+      return {
+        id: avaliacao.id,
+        pedido_id: avaliacao.pedido_id,
+        cliente_id: avaliacao.cliente_id,
+        nome_cliente:
+          avaliacao.nome_cliente || "Cliente",
+        foto_cliente:
+          avaliacao.foto_cliente || null,
+        nota: Number(avaliacao.nota),
+        comentario:
+          avaliacao.comentario || "",
+        recomenda_comercio:
+          avaliacao.recomenda_comercio,
+        data: avaliacao.data,
+        fotos,
+      };
+    });
+
+    return res.status(200).json({
+      sucesso: true,
+      comercio_id: comercioId,
+      quantidade: resultado.length,
+      media: Number(media.toFixed(1)),
+      avaliacoes: resultado,
+    });
+  } catch (erro) {
+    console.error(
+      "Erro ao listar avaliações públicas do comércio:",
+      erro
+    );
+
+    return res.status(500).json({
+      sucesso: false,
+      mensagem: "Erro ao buscar avaliações do comércio.",
+    });
+  }
+};

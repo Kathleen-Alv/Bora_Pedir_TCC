@@ -52,7 +52,6 @@ class _CardapioPageState extends State<CardapioPage> {
 
   bool abrindoChat = false;
 
-  // Descrição carregada do banco de dados.
   late String descricaoComercio;
 
   final ScrollController _scrollController = ScrollController();
@@ -85,8 +84,6 @@ class _CardapioPageState extends State<CardapioPage> {
   // =========================================================
 
   Future<void> _buscarDescricaoComercio() async {
-    // Se a descrição já veio preenchida pela tela anterior,
-    // não é necessário fazer outra requisição.
     if (descricaoComercio.trim().isNotEmpty) {
       return;
     }
@@ -96,19 +93,14 @@ class _CardapioPageState extends State<CardapioPage> {
 
       final comercioEncontrado = comercios.firstWhere(
         (comercio) {
-          final id = int.tryParse(
-            comercio['id']?.toString() ?? '',
-          );
-
+          final id = int.tryParse(comercio['id']?.toString() ?? '');
           return id == widget.comercioId;
         },
         orElse: () => <String, dynamic>{},
       );
 
-      final descricao = comercioEncontrado['descricao']
-              ?.toString()
-              .trim() ??
-          '';
+      final descricao =
+          comercioEncontrado['descricao']?.toString().trim() ?? '';
 
       if (!mounted) return;
 
@@ -569,12 +561,11 @@ class _CardapioPageState extends State<CardapioPage> {
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // =================================================
             // PERFIL DO COMÉRCIO
-            // =================================================
 
             SliverToBoxAdapter(
               child: PerfilComercio(
+                comercioId: widget.comercioId,
                 nomeComercio: widget.nomeComercio,
                 categoriaComercio: widget.categoriaComercio,
                 logoUrl: logoUrl,
@@ -589,9 +580,7 @@ class _CardapioPageState extends State<CardapioPage> {
               ),
             ),
 
-            // =====================================================
             // MENU DE CATEGORIAS FIXO
-            // =====================================================
 
             SliverPersistentHeader(
               pinned: true,
@@ -612,9 +601,7 @@ class _CardapioPageState extends State<CardapioPage> {
               ),
             ),
 
-            // =====================================================
             // BUSCA VISUAL
-            // =====================================================
 
             SliverToBoxAdapter(
               child: Container(
@@ -652,9 +639,7 @@ class _CardapioPageState extends State<CardapioPage> {
               ),
             ),
 
-            // =====================================================
             // CARREGAMENTO E ERROS
-            // =====================================================
 
             if (carregando)
               const SliverToBoxAdapter(
@@ -723,9 +708,7 @@ class _CardapioPageState extends State<CardapioPage> {
         ),
       ),
 
-      // =======================================================
       // CARRINHO E NAVEGAÇÃO INFERIOR
-      // =======================================================
 
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,

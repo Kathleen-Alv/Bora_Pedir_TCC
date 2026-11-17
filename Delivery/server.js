@@ -1,3 +1,4 @@
+
 // ================================================================
 // IMPORTS
 // ================================================================
@@ -18,68 +19,59 @@ import path from 'path';
 // ROTAS
 // ================================================================
 
-import perfilRoutes 
-    from './src/api/routes/perfil.routes.js';
+import perfilRoutes
+  from './src/api/routes/perfil.routes.js';
 
 import cadastroEntregadorRoutes
-    from './src/api/routes/cadastroEntregador.routes.js';
+  from './src/api/routes/cadastroEntregador.routes.js';
 
 import cadastroComercioRoutes
-    from './src/api/routes/cadastroComercio.routes.js';
+  from './src/api/routes/cadastroComercio.routes.js';
 
 import adminRoutes
-    from './src/api/routes/adminRoutes.routes.js';
+  from './src/api/routes/adminRoutes.routes.js';
 
 import emailRoutes
-    from './src/api/routes/email.routes.js';
+  from './src/api/routes/email.routes.js';
 
 import loginComercioRoutes
-    from './src/api/routes/loginComercio.routes.js';
+  from './src/api/routes/loginComercio.routes.js';
 
 import recuperacaoSenhaRoutes
-    from './src/api/routes/recuperacaoSenha.routes.js';
+  from './src/api/routes/recuperacaoSenha.routes.js';
 
 import comercioRoutes
-    from './src/api/routes/comercio.routes.js';
+  from './src/api/routes/comercio.routes.js';
 
 import cardapioRoutes
-    from './src/api/routes/cardapio.routes.js';
+  from './src/api/routes/cardapio.routes.js';
 
 import cadastroClienteRoutes
-    from './src/api/routes/cadastroCliente.routes.js';
+  from './src/api/routes/cadastroCliente.routes.js';
 
 import loginClienteRoutes
-    from './src/api/routes/loginCliente.routes.js';
+  from './src/api/routes/loginCliente.routes.js';
 
 import carrinhoRoutes
-    from './src/api/routes/carrinho.routes.js';
+  from './src/api/routes/carrinho.routes.js';
 
-import enderecosClientesRoutes 
-    from './src/api/routes/enderecosClientes.routes.js';
+import enderecosClientesRoutes
+  from './src/api/routes/enderecosClientes.routes.js';
 
 import pedidoRoutes
-    from './src/api/routes/pedido.routes.js';
+  from './src/api/routes/pedido.routes.js';
 
 import chatRoutes
-    from './src/api/routes/chat.routes.js';
-
+  from './src/api/routes/chat.routes.js';
 
 import loginEntregadorRoutes
-    from './src/api/routes/loginEntregador.routes.js';
-
-
-
+  from './src/api/routes/loginEntregador.routes.js';
 
 import cepRoutes
- from './src/api/routes/cep.routes.js';
+  from './src/api/routes/cep.routes.js';
 
-
-
-
- import entregaRoutes
-    from './src/api/routes/entrega.routes.js';
-
-
+import entregaRoutes
+  from './src/api/routes/entrega.routes.js';
 
 // ================================================================
 // APLICAÇÃO
@@ -87,155 +79,264 @@ import cepRoutes
 
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // ================================================================
-// MIDDLEWARES
+// MIDDLEWARES GERAIS
 // ================================================================
 
 app.use(cors());
 
 app.use(express.json());
 
+app.use(express.urlencoded({
+  extended: true
+}));
+
 // ================================================================
 // ARQUIVOS ESTÁTICOS
 // ================================================================
 
 // Permite acessar as imagens salvas dentro de /uploads
+// Exemplo:
+// http://localhost:3000/uploads/pedidos/avaliacoes/foto.jpg
+
 app.use(
-    '/uploads',
-    express.static(
-        path.join(process.cwd(), 'uploads')
-    )
+  '/uploads',
+  express.static(
+    path.join(process.cwd(), 'uploads')
+  )
 );
 
 // ================================================================
 // REGISTRO DE ROTAS
 // ================================================================
 
-// Cadastro e Gestão de entregadores
+// ------------------------------------------------
+// Cadastro e gestão de entregadores
+// ------------------------------------------------
+
 app.use(
-    '/api/entregadores',
-    cadastroEntregadorRoutes
+  '/api/entregadores',
+  cadastroEntregadorRoutes
 );
 
+// ------------------------------------------------
 // Cadastro de comércio
+// ------------------------------------------------
+
 app.use(
-    '/api/comercios',
-    cadastroComercioRoutes
+  '/api/comercios',
+  cadastroComercioRoutes
 );
 
+// ------------------------------------------------
 // Administração
+// ------------------------------------------------
+
 app.use(
-    '/api/admin',
-    adminRoutes
+  '/api/admin',
+  adminRoutes
 );
 
+// ------------------------------------------------
 // Emails
+// ------------------------------------------------
+
 app.use(
-    '/api/email',
-    emailRoutes
+  '/api/email',
+  emailRoutes
 );
 
+// ------------------------------------------------
 // Login de comércio
+// ------------------------------------------------
+
 app.use(
-    '/api/login-comercio',
-    loginComercioRoutes
+  '/api/login-comercio',
+  loginComercioRoutes
 );
 
+// ------------------------------------------------
 // Recuperação de senha
+// ------------------------------------------------
+
 app.use(
-    '/api/recuperacao-senha',
-    recuperacaoSenhaRoutes
+  '/api/recuperacao-senha',
+  recuperacaoSenhaRoutes
 );
 
-// Primeiro acesso / gerenciamento do comércio
+// ------------------------------------------------
+// Gerenciamento do comércio
+// ------------------------------------------------
+
 app.use(
-    '/api/comercios',
-    comercioRoutes
+  '/api/comercios',
+  comercioRoutes
 );
 
+// ------------------------------------------------
 // Cardápio
+// ------------------------------------------------
+
 app.use(
-    '/api/cardapio',
-    cardapioRoutes
+  '/api/cardapio',
+  cardapioRoutes
 );
 
-// Cadastro e gestão de Clientes (inclui upload da foto de perfil: PATCH /api/clientes/:id/foto)
+// ------------------------------------------------
+// Cadastro e gestão de clientes
+// ------------------------------------------------
+
 app.use(
-    '/api/clientes',
-    cadastroClienteRoutes
+  '/api/clientes',
+  cadastroClienteRoutes
 );
 
+// ------------------------------------------------
 // Login do cliente
+// ------------------------------------------------
+
 app.use(
-    '/api/login-cliente',
-    loginClienteRoutes
+  '/api/login-cliente',
+  loginClienteRoutes
 );
 
-// Mostrar dados do perfil
+// ------------------------------------------------
+// Perfil
+// ------------------------------------------------
+
 app.use(
-    '/api/perfil',
-    perfilRoutes
+  '/api/perfil',
+  perfilRoutes
 );
 
+// ------------------------------------------------
 // Carrinho de compras
+// ------------------------------------------------
+
 app.use(
-    '/api/carrinho',
-    carrinhoRoutes
+  '/api/carrinho',
+  carrinhoRoutes
 );
 
+// ------------------------------------------------
 // Endereços dos clientes
-app.use(
-    '/api/enderecos-clientes',
-    enderecosClientesRoutes
-);
+// ------------------------------------------------
 
-// Pedidos e detalhes dos itens
 app.use(
-    '/api/pedidos',
-    pedidoRoutes
+  '/api/enderecos-clientes',
+  enderecosClientesRoutes
 );
 
 // ================================================================
-// ENTREGAS DO ENTREGADOR
+// PEDIDOS, AVALIAÇÕES E FOTOS
 // ================================================================
 
+// Rotas disponíveis:
+//
+// POST   /api/pedidos
+// GET    /api/pedidos/comercio
+// GET    /api/pedidos/historico
+//
+// GET    /api/pedidos/avaliacoes
+//        Avaliações do comércio autenticado (Gestão)
+//
+// GET    /api/pedidos/comercio/:comercioId/avaliacoes
+//        Avaliações públicas do comércio (Flutter)
+//
+// POST   /api/pedidos/:id/avaliacao
+//        Criar avaliação do pedido
+//
+// POST   /api/pedidos/:id/fotos
+// GET    /api/pedidos/:id/fotos
+//
+// PATCH  /api/pedidos/:id/status
+// GET    /api/pedidos/:id
+
 app.use(
-    '/api/entregas',
-    entregaRoutes
+  '/api/pedidos',
+  pedidoRoutes
 );
 
-// ================================================================
-// CHAT ENTRE CLIENTES E COMÉRCIOS
-// ================================================================
+// ------------------------------------------------
+// Entregas do entregador
+// ------------------------------------------------
 
 app.use(
-    '/api/chat',
-    chatRoutes
+  '/api/entregas',
+  entregaRoutes
 );
 
+// ------------------------------------------------
+// Chat entre clientes e comércios
+// ------------------------------------------------
 
-
- // Login do entregador
 app.use(
-    '/api/login-entregador',
-    loginEntregadorRoutes
+  '/api/chat',
+  chatRoutes
 );
 
+// ------------------------------------------------
+// Login do entregador
+// ------------------------------------------------
 
-//CONSULTAR CEP NO VIA CEO
-app.use('/api/cep', cepRoutes);
+app.use(
+  '/api/login-entregador',
+  loginEntregadorRoutes
+);
 
+// ------------------------------------------------
+// Consulta de CEP
+// ------------------------------------------------
+
+app.use(
+  '/api/cep',
+  cepRoutes
+);
 
 // ================================================================
 // TESTE DA API
 // ================================================================
 
 app.get('/', (req, res) => {
-    res.json({
-        message: 'API funcionando!'
-    });
+  res.status(200).json({
+    sucesso: true,
+    message: 'API Bora Pedir funcionando!'
+  });
+});
+
+// ================================================================
+// ROTA NÃO ENCONTRADA
+// ================================================================
+
+app.use((req, res) => {
+  console.log(
+    `ROTA NÃO ENCONTRADA: ${req.method} ${req.originalUrl}`
+  );
+
+  res.status(404).json({
+    sucesso: false,
+    mensagem: 'Rota não encontrada.',
+    rota: req.originalUrl
+  });
+});
+
+// ================================================================
+// TRATAMENTO GLOBAL DE ERROS
+// ================================================================
+
+app.use((erro, req, res, next) => {
+  console.error('ERRO NA API:', erro);
+
+  if (res.headersSent) {
+    return next(erro);
+  }
+
+  res.status(500).json({
+    sucesso: false,
+    mensagem: 'Erro interno no servidor.'
+  });
 });
 
 // ================================================================
@@ -243,7 +344,15 @@ app.get('/', (req, res) => {
 // ================================================================
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(
-        `Servidor rodando em http://localhost:${PORT}`
-    );
+  console.log('');
+  console.log('==============================================');
+  console.log('       API BORA PEDIR INICIADA');
+  console.log('==============================================');
+  console.log(`Servidor: http://localhost:${PORT}`);
+  console.log(`Pedidos: http://localhost:${PORT}/api/pedidos`);
+  console.log(
+    `Avaliações públicas: http://localhost:${PORT}/api/pedidos/comercio/1/avaliacoes`
+  );
+  console.log('==============================================');
+  console.log('');
 });

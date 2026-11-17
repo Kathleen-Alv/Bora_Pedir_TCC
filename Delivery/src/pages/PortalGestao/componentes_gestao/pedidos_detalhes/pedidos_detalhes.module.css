@@ -1,4 +1,8 @@
 
+/* =====================================================
+   CONTAINER PRINCIPAL
+===================================================== */
+
 .container {
   width: 100%;
   min-height: 100%;
@@ -9,21 +13,38 @@
   color: #292929;
 }
 
-/* CABEÇALHO */
+/* =====================================================
+   CABEÇALHO
+===================================================== */
 
 .cabecalho {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 26px;
-  padding: 25px 28px;
-  border-radius: 15px;
-  background: linear-gradient(115deg, #fff8ed 0%, #f8e9d9 100%);
+  margin-bottom: 24px;
+  padding: 24px 28px;
+  overflow: hidden;
   border: 1px solid #f0dfcc;
+  border-radius: 15px;
+  background: linear-gradient(115deg, #fffaf2 0%, #f8e9d9 100%);
+}
+
+.cabecalho::before {
+  content: "";
+  position: absolute;
+  top: -65px;
+  right: 85px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(189, 18, 33, 0.035);
 }
 
 .tituloArea {
+  position: relative;
+  z-index: 1;
   min-width: 0;
 }
 
@@ -41,6 +62,7 @@
   color: #252525;
   font-size: 27px;
   font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .tituloArea p {
@@ -51,23 +73,27 @@
 }
 
 .iconeCabecalho {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 57px;
-  height: 57px;
-  border-radius: 15px;
+  width: 55px;
+  height: 55px;
+  border-radius: 14px;
   background: #bd1221;
   color: #fff;
   box-shadow: 0 5px 13px rgba(189, 18, 33, 0.18);
 }
 
 .iconeCabecalho span {
-  font-size: 29px;
+  font-size: 27px;
 }
 
-/* RESUMO */
+/* =====================================================
+   CARDS DE RESUMO
+===================================================== */
 
 .resumo {
   display: grid;
@@ -77,14 +103,21 @@
 }
 
 .cardResumo {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 15px;
   min-width: 0;
-  padding: 20px;
-  border-radius: 13px;
+  padding: 19px 20px;
   box-sizing: border-box;
   border: 1px solid transparent;
+  border-radius: 13px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cardResumo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(65, 48, 28, 0.055);
 }
 
 .cardResumoPedidos {
@@ -110,7 +143,7 @@
   width: 45px;
   height: 45px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.78);
   color: #bd1221;
   font-size: 19px;
   font-weight: 800;
@@ -148,9 +181,12 @@
 .resumoConteudo small {
   color: #89827a;
   font-size: 10px;
+  line-height: 1.4;
 }
 
-/* FILTROS */
+/* =====================================================
+   ÁREA DE CONSULTA E FILTROS
+===================================================== */
 
 .areaConsulta {
   margin-bottom: 25px;
@@ -182,9 +218,11 @@
   margin: 6px 0 0;
   color: #89827a;
   font-size: 12px;
+  line-height: 1.5;
 }
 
 .etiquetaHistorico {
+  flex-shrink: 0;
   padding: 7px 11px;
   border-radius: 20px;
   background: #fcebed;
@@ -203,9 +241,9 @@
 
 .campoFiltro {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
   min-width: 190px;
 }
 
@@ -228,12 +266,18 @@
   color: #393632;
   font-family: inherit;
   font-size: 12px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.campoFiltro input:hover,
+.campoFiltro select:hover {
+  border-color: #c9bdb0;
 }
 
 .campoFiltro input:focus,
 .campoFiltro select:focus {
   border-color: #bd1221;
+  background: #fff;
   box-shadow: 0 0 0 3px rgba(189, 18, 33, 0.08);
 }
 
@@ -248,34 +292,72 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
 }
 
 .botaoLimpar:hover {
   background: #bd1221;
   color: #fff;
+  transform: translateY(-1px);
 }
 
-/* LISTA */
+.botaoLimpar:focus-visible {
+  outline: 3px solid rgba(189, 18, 33, 0.2);
+  outline-offset: 2px;
+}
+
+/* =====================================================
+   LISTA DE PEDIDOS
+===================================================== */
 
 .listaPedidos {
   width: 100%;
+  min-width: 0;
 }
 
 .cabecalhoLista {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 15px;
   margin-bottom: 15px;
 }
 
+.cabecalhoLista h2 {
+  font-size: 17px;
+}
+
+.cabecalhoLista p {
+  margin-top: 5px;
+}
+
+/* =====================================================
+   TABELA
+===================================================== */
+
 .tabelaContainer {
-  overflow: hidden;
   width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid #e5ddd3;
   border-radius: 12px;
   background: #fffdf9;
   box-shadow: 0 3px 12px rgba(65, 48, 28, 0.035);
+  scrollbar-width: thin;
+  scrollbar-color: #d6c8bb #f7f2ec;
+}
+
+.tabelaContainer::-webkit-scrollbar {
+  height: 7px;
+}
+
+.tabelaContainer::-webkit-scrollbar-track {
+  background: #f7f2ec;
+}
+
+.tabelaContainer::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #d6c8bb;
 }
 
 .cabecalhoTabela,
@@ -290,7 +372,7 @@
 .cabecalhoTabela {
   min-height: 44px;
   box-sizing: border-box;
-  background: #000000;
+  background: #292929;
   border-bottom: 1px solid #e1d8cd;
 }
 
@@ -306,7 +388,7 @@
   min-height: 72px;
   box-sizing: border-box;
   border-bottom: 1px solid #eee9e2;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
 }
 
 .linhaPedido:last-child {
@@ -333,19 +415,27 @@
   font-weight: 800;
 }
 
+/* =====================================================
+   CLIENTE E FOTO
+===================================================== */
+
 .colunaCliente {
   display: flex;
   align-items: center;
   gap: 9px;
+  min-width: 0;
 }
 
 .avatarCliente {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   width: 34px;
   height: 34px;
+  overflow: hidden;
+  border: 1px solid #f1dfdd;
   border-radius: 50%;
   background: #f5e5dc;
   color: #a94a38;
@@ -353,7 +443,20 @@
   font-weight: 800;
 }
 
+.avatarCliente img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  object-position: center;
+}
+
 .colunaCliente strong {
+  min-width: 0;
   overflow: hidden;
   color: #393632;
   font-size: 12px;
@@ -372,17 +475,24 @@
   color: #34302b;
   font-size: 13px;
   font-weight: 800;
+  white-space: nowrap;
 }
+
+/* =====================================================
+   STATUS DOS PEDIDOS
+===================================================== */
 
 .colunaStatus {
   display: flex;
   justify-content: flex-start;
+  min-width: 0;
 }
 
 .status {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  max-width: 100%;
   padding: 7px 9px;
   border-radius: 20px;
   font-size: 10px;
@@ -421,12 +531,14 @@
   color: #bd1221;
 }
 
-/* BOTÃO DETALHES */
+/* =====================================================
+   BOTÃO DETALHES
+===================================================== */
 
 .colunaAcao {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .colunaAcaoTitulo {
@@ -439,19 +551,20 @@
   border: 1px solid #bd1221;
   border-radius: 7px;
   background: #bd1221;
-  color: #ffffff;
+  color: #fff;
   font-family: inherit;
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .botaoDetalhes:hover {
-  background: #990d19;
-  border-color: #990d19;
   transform: translateY(-1px);
+  border-color: #990d19;
+  background: #990d19;
+  box-shadow: 0 3px 8px rgba(189, 18, 33, 0.15);
 }
 
 .botaoDetalhes:focus-visible {
@@ -459,7 +572,9 @@
   outline-offset: 2px;
 }
 
-/* SEM PEDIDOS */
+/* =====================================================
+   SEM PEDIDOS
+===================================================== */
 
 .semPedidos {
   display: flex;
@@ -510,13 +625,43 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
 }
 
 .semPedidos button:hover {
+  transform: translateY(-1px);
   background: #990d19;
 }
 
-/* AVISO */
+/* =====================================================
+   CARREGAMENTO E ERROS
+===================================================== */
+
+.carregando,
+.erro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 130px;
+  padding: 25px;
+  border: 1px solid #e9e3da;
+  border-radius: 12px;
+  background: #fffdf9;
+  color: #716a61;
+  font-size: 13px;
+  text-align: center;
+}
+
+.erro {
+  border-color: #f0d0d2;
+  background: #fff5f5;
+  color: #bd1221;
+}
+
+/* =====================================================
+   AVISO DE DADOS
+===================================================== */
 
 .avisoDados {
   display: flex;
@@ -550,7 +695,9 @@
   line-height: 1.5;
 }
 
-/* RESPONSIVIDADE */
+/* =====================================================
+   RESPONSIVIDADE
+===================================================== */
 
 @media (max-width: 1100px) {
   .container {
@@ -562,16 +709,12 @@
   }
 
   .cardResumo {
-    padding: 15px;
     gap: 10px;
+    padding: 15px;
   }
 
   .resumoConteudo strong {
     font-size: 19px;
-  }
-
-  .tabelaContainer {
-    overflow-x: auto;
   }
 
   .cabecalhoTabela,
@@ -586,8 +729,8 @@
   }
 
   .cabecalho {
-    padding: 19px;
     margin-bottom: 17px;
+    padding: 19px;
   }
 
   .tituloArea h1 {
@@ -627,8 +770,14 @@
   }
 
   .areaConsulta {
-    padding: 17px;
     margin-bottom: 20px;
+    padding: 17px;
+  }
+
+  .tituloConsulta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .tituloConsulta h2,
@@ -637,8 +786,8 @@
   }
 
   .areaFiltros {
-    flex-direction: column;
     align-items: stretch;
+    flex-direction: column;
     gap: 13px;
   }
 
@@ -650,15 +799,52 @@
   .botaoLimpar {
     width: 100%;
   }
+
+  .cabecalhoLista {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 380px) {
+  .container {
+    padding: 11px;
+  }
+
   .cabecalho {
     padding: 15px;
+  }
+
+  .tituloArea h1 {
+    font-size: 20px;
   }
 
   .iconeCabecalho {
     width: 39px;
     height: 39px;
   }
+
+  .iconeCabecalho span {
+    font-size: 21px;
+  }
+
+  .areaConsulta {
+    padding: 14px;
+  }
 }
+
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .cardResumo,
+  .botaoLimpar,
+  .botaoDetalhes,
+  .semPedidos button {
+    transition: none;
+  }
+}
+
+
+

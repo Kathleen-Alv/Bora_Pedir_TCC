@@ -26,6 +26,8 @@
 ========================= */
 
 .portal {
+  position: relative;
+
   display: flex;
 
   width: 100%;
@@ -41,6 +43,8 @@
 ========================= */
 
 .sidebar {
+  position: relative;
+
   width: 250px;
 
   min-height: 100vh;
@@ -62,6 +66,10 @@
   scrollbar-width: thin;
 
   scrollbar-color: #dfc9a7 transparent;
+
+  transition:
+    width 0.25s ease,
+    padding 0.25s ease;
 }
 
 
@@ -73,11 +81,9 @@
   width: 5px;
 }
 
-
 .sidebar::-webkit-scrollbar-track {
   background: transparent;
 }
-
 
 .sidebar::-webkit-scrollbar-thumb {
   background-color: #dfc9a7;
@@ -85,9 +91,61 @@
   border-radius: 10px;
 }
 
-
 .sidebar::-webkit-scrollbar-thumb:hover {
   background-color: #cdb38c;
+}
+
+
+/* =========================
+   BOTÃO LATERAL
+========================= */
+
+.sidebarToggle {
+  position: fixed;
+
+  left: 250px;
+
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 100;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 24px;
+
+  height: 48px;
+
+  border: 1px solid var(--borda-sidebar);
+
+  border-radius: 0 8px 8px 0;
+
+  background-color: var(--creme-sidebar);
+
+  color: var(--vermelho);
+
+  cursor: pointer;
+
+  transition:
+    left 0.25s ease,
+    background-color 0.2s ease;
+}
+
+.sidebarToggle:hover {
+  background-color: var(--creme-hover);
+}
+
+.toggleIcon {
+  display: block;
+
+  font-size: 27px;
+
+  line-height: 1;
 }
 
 
@@ -171,7 +229,8 @@
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    padding 0.25s ease;
 }
 
 
@@ -222,7 +281,6 @@
 
   transform: translateX(2px);
 }
-
 
 .menuItem:hover .menuIcon {
   transform: scale(1.04);
@@ -290,6 +348,56 @@
 
 
 /* =========================
+   SIDEBAR FECHADA
+========================= */
+
+.sidebarFechada .sidebar {
+  width: 76px;
+
+  padding: 10px 8px;
+}
+
+
+/* =========================
+   BOTÃO COM SIDEBAR FECHADA
+========================= */
+
+.sidebarFechada .sidebarToggle {
+  left: 76px;
+}
+
+
+/* =========================
+   CATEGORIAS RECOLHIDAS
+========================= */
+
+.sidebarFechada .categoryTitle {
+  justify-content: center;
+
+  padding: 0;
+
+  font-size: 0;
+}
+
+
+/* =========================
+   ITENS RECOLHIDOS
+========================= */
+
+.sidebarFechada .menuItem {
+  justify-content: center;
+
+  padding: 0;
+
+  gap: 0;
+}
+
+.sidebarFechada .menuItem span {
+  display: none;
+}
+
+
+/* =========================
    CONTEÚDO
 ========================= */
 
@@ -313,24 +421,44 @@
 ========================= */
 
 @media (max-width: 900px) {
-
   .sidebar {
     width: 220px;
   }
 
+  .sidebarToggle {
+    left: 220px;
+  }
+
+  .sidebarFechada .sidebar {
+    width: 76px;
+  }
 }
 
 
-@media (max-width: 700px) {
+/* =========================
+   MOBILE
+========================= */
 
+@media (max-width: 700px) {
   .sidebar {
+    width: 220px;
+  }
+
+  .sidebarToggle {
+    left: 220px;
+  }
+
+  .sidebarFechada .sidebar {
     width: 72px;
 
     padding: 10px 8px;
   }
 
+  .sidebarFechada .sidebarToggle {
+    left: 72px;
+  }
 
-  .categoryTitle {
+  .sidebarFechada .categoryTitle {
     justify-content: center;
 
     padding: 0;
@@ -338,28 +466,17 @@
     font-size: 0;
   }
 
-
-  .menuItem {
+  .sidebarFechada .menuItem {
     justify-content: center;
 
     padding: 0;
   }
 
-
-  .menuItem span {
+  .sidebarFechada .menuItem span {
     display: none;
   }
-
-
-  .menuItem.active::before {
-    top: 8px;
-
-    bottom: 8px;
-  }
-
 
   .content {
     padding: 14px;
   }
-
 }

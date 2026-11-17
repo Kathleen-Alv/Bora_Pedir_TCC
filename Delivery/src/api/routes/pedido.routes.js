@@ -23,7 +23,8 @@ import {
 
 import {
   criarAvaliacaoPedido,
-  listarAvaliacoesComercio
+  listarAvaliacoesComercio,
+  listarAvaliacoesPublicasComercio
 } from '../controllers/pedido/avaliacaoPedido.controller.js';
 
 const router = express.Router();
@@ -227,8 +228,23 @@ router.get(
 );
 
 // =====================================================
-// LISTAR AVALIAÇÕES DO COMÉRCIO
+// AVALIAÇÕES PÚBLICAS DE UM COMÉRCIO
+// GET /api/pedidos/comercio/:comercioId/avaliacoes
+//
+// Aplicativo Flutter do cliente.
+// Não exige autenticação.
+// =====================================================
+
+router.get(
+  '/comercio/:comercioId/avaliacoes',
+  listarAvaliacoesPublicasComercio
+);
+
+// =====================================================
+// LISTAR AVALIAÇÕES DO COMÉRCIO AUTENTICADO
 // GET /api/pedidos/avaliacoes
+//
+// Painel Gestão do Comércio.
 // =====================================================
 
 router.get(

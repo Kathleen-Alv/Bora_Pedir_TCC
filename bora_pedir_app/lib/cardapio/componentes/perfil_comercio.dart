@@ -2,7 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import './avaliacao_comercio.dart';
+
 class PerfilComercio extends StatelessWidget {
+  final int comercioId;
+
   final String nomeComercio;
   final String categoriaComercio;
   final String logoUrl;
@@ -17,6 +21,7 @@ class PerfilComercio extends StatelessWidget {
 
   const PerfilComercio({
     super.key,
+    required this.comercioId,
     required this.nomeComercio,
     required this.categoriaComercio,
     required this.logoUrl,
@@ -27,6 +32,23 @@ class PerfilComercio extends StatelessWidget {
     required this.onVoltar,
     this.deslocamentoNomeCategoriaStatus = -10,
   });
+
+  // =========================================================
+  // ABRIR AVALIAÇÕES
+  // =========================================================
+
+  void _abrirAvaliacoes(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AvaliacaoComercioPage(
+          comercioId: comercioId,
+          nomeComercio: nomeComercio,
+          logoUrl: logoUrl,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +85,14 @@ class PerfilComercio extends StatelessWidget {
                         ),
                 ),
 
-                // Botão voltar
+                // BOTÃO VOLTAR
                 Positioned(
                   top: 15,
                   left: 15,
                   child: CircleAvatar(
                     radius: 20,
-                    backgroundColor: Colors.black.withOpacity(0.55),
+                    backgroundColor:
+                        Colors.black.withOpacity(0.55),
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: const Icon(
@@ -82,13 +105,14 @@ class PerfilComercio extends StatelessWidget {
                   ),
                 ),
 
-                // Compartilhar
+                // COMPARTILHAR
                 Positioned(
                   top: 15,
                   right: 15,
                   child: CircleAvatar(
                     radius: 20,
-                    backgroundColor: Colors.black.withOpacity(0.55),
+                    backgroundColor:
+                        Colors.black.withOpacity(0.55),
                     child: const Icon(
                       Icons.share,
                       color: Colors.white,
@@ -244,9 +268,11 @@ class PerfilComercio extends StatelessWidget {
 
                   _divisorInformacoes(),
 
-                  const Expanded(
+                  Expanded(
                     flex: 9,
-                    child: _AvaliacaoComercio(),
+                    child: _AvaliacaoComercio(
+                      onTap: () => _abrirAvaliacoes(context),
+                    ),
                   ),
 
                   _divisorInformacoes(),
@@ -484,57 +510,71 @@ class _InformacaoComercio extends StatelessWidget {
 // ===========================================================
 
 class _AvaliacaoComercio extends StatelessWidget {
-  const _AvaliacaoComercio();
+  final VoidCallback onTap;
+
+  const _AvaliacaoComercio({
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.star,
-          color: Color(0xFFFFC83D),
-          size: 21,
-        ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox(
+          width: double.infinity,
+          height: 82,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.star_rounded,
+                color: Color(0xFFFFC83D),
+                size: 21,
+              ),
 
-        const SizedBox(height: 3),
+              const SizedBox(height: 3),
 
-        const Text(
-          'Confira as\navaliações.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 9,
-            height: 1.15,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF777777),
+              const Text(
+                'Confira as\navaliações.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 9,
+                  height: 1.15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF777777),
+                ),
+              ),
+
+              const SizedBox(height: 3),
+
+              const Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: Color(0xFFFFC83D),
+                    size: 15,
+                  ),
+                  SizedBox(width: 3),
+                  Text(
+                    '4,9',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-
-        const SizedBox(height: 3),
-
-        const Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.star,
-              color: Color(0xFFFFC83D),
-              size: 15,
-            ),
-            SizedBox(width: 3),
-            Text(
-              '4,9',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF333333),
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }
