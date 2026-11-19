@@ -1,10 +1,6 @@
-
 /* =========================================================
    COLUNA DIREITA — RESUMO E DETALHES DO PEDIDO
-   Compatível com o GestaoPedidos.tsx
 ========================================================= */
-
-/* COLUNA PRINCIPAL */
 
 .colunaDireitaFixa {
   display: flex;
@@ -18,7 +14,7 @@
 }
 
 /* =========================================================
-   1. CARTÕES DE RESUMO
+   CARTÕES DE RESUMO
 ========================================================= */
 
 .resumo {
@@ -99,8 +95,40 @@
   color: var(--vermelho);
 }
 
+.resumoCardPreparo {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.resumoImagemPreparo {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #fff1d6;
+}
+
+.resumoInfoPreparo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.resumoInfoPreparo span {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.resumoInfoPreparo strong {
+  font-size: 20px;
+  font-weight: 800;
+}
+
 /* =========================================================
-   2. PAINEL DE DETALHES
+   PAINEL DE DETALHES
 ========================================================= */
 
 .detalhes {
@@ -116,17 +144,26 @@
   box-shadow: 0 5px 18px rgba(28, 48, 38, 0.08);
 }
 
-/* Cabeçalho */
-
 .detalhesTopo {
   display: flex;
   flex-shrink: 0;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 20px 24px 17px;
+  gap: 16px;
+  width: 100%;
+  min-height: 78px;
+  padding: 12px 20px;
   border-bottom: 2px solid #f0dfe1;
   background: #fffafa;
+  box-sizing: border-box;
+}
+
+.detalhesTopoTitulo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 
 .eyebrow {
@@ -147,26 +184,47 @@
   overflow-wrap: anywhere;
 }
 
-.detalhesTopo > button {
-  display: grid;
+.detalhesTopoAcoes {
+  display: flex;
   flex-shrink: 0;
-  place-items: center;
-  width: 29px;
-  height: 29px;
-  padding: 0;
-  border: 0;
-  border-radius: 6px;
-  color: #8c979a;
-  background: #f5f7f6;
-  font-size: 20px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.detalhesTopoAcoes > button {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 9px;
+  color: #555;
+  background: #f1f1f1;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.detalhesTopo > button:hover {
-  background: #edf0ee;
+.detalhesTopoAcoes > button:hover {
+  background: #e5e5e5;
 }
 
-/* Área rolável dos detalhes */
+.detalhesTopoAcoes > .chatButton {
+  color: #00704a;
+  background: #eaf4ed;
+}
+
+.detalhesTopoAcoes > .chatButton:hover {
+  background: #dceee1;
+}
+
+/* ÁREA ROLÁVEL */
 
 .detalhesCorpoScroll {
   display: flex;
@@ -191,7 +249,7 @@
 }
 
 /* =========================================================
-   3. CLIENTE E ENDEREÇO NA MESMA LINHA
+   CLIENTE E ENDEREÇO
 ========================================================= */
 
 .detalheClienteEEndereco {
@@ -223,8 +281,8 @@
   background: #fae9eb;
   font-size: 14px;
   font-weight: 850;
+  overflow: hidden;
 }
-
 
 .fotoAvatar {
   display: block;
@@ -234,8 +292,18 @@
   border-radius: 50%;
 }
 
-
-
+.avatarIniciais {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f1e5e5;
+  color: #bd1221;
+  font-size: 22px;
+  font-weight: 700;
+}
 
 .dadosCliente {
   display: flex;
@@ -260,8 +328,6 @@
   overflow-wrap: anywhere;
 }
 
-/* CPF na nota */
-
 .badgeCpf {
   align-self: flex-start;
   padding: 4px 8px;
@@ -276,8 +342,6 @@
   font-weight: 750;
 }
 
-/* Divisórias */
-
 .separador {
   flex-shrink: 0;
   height: 1px;
@@ -287,7 +351,7 @@
 }
 
 /* =========================================================
-   4. ENDEREÇO E PAGAMENTO
+   ENDEREÇO E PAGAMENTO
 ========================================================= */
 
 .secaoDetalheBloco {
@@ -355,8 +419,6 @@
   line-height: 1.55;
 }
 
-/* Informações do pagamento */
-
 .pagamentoLinha {
   display: flex;
   align-items: center;
@@ -399,7 +461,7 @@
 }
 
 /* =========================================================
-   5. TÍTULO E LISTA DOS ITENS
+   TÍTULO E LISTA DOS ITENS
 ========================================================= */
 
 .detalheSecaoTitulo {
@@ -431,8 +493,6 @@
   min-width: 0;
   padding: 5px 0 12px;
 }
-
-/* Cartão individual de item */
 
 .itemDetalhe {
   display: flex;
@@ -537,7 +597,7 @@
 }
 
 /* =========================================================
-   6. OBSERVAÇÃO DO CLIENTE
+   OBSERVAÇÃO DO CLIENTE
 ========================================================= */
 
 .observacao {
@@ -581,7 +641,7 @@
 }
 
 /* =========================================================
-   7. RESUMO FINANCEIRO
+   RESUMO DOS VALORES DO PEDIDO
 ========================================================= */
 
 .resumoValores {
@@ -615,6 +675,7 @@
   color: #27372f;
   font-size: 15px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .linhaDesconto {
@@ -637,7 +698,588 @@
 }
 
 /* =========================================================
-   8. TEMPO DE PREPARO
+   RESUMO FINANCEIRO COMPACTO (SEMPRE VISÍVEL)
+========================================================= */
+
+.financeiroCompacto {
+  margin-top: 6px;
+  border: 1px solid #e1e8e4;
+  border-radius: 9px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.financeiroCompactoTopo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px 8px;
+  background: #ffffff;
+}
+
+.financeiroCompactoTitulo {
+  color: #6b7871;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.financeiroCompactoLiquido {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.financeiroCompactoLiquido span {
+  color: #26352d;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.financeiroCompactoLiquido strong {
+  color: #087c3c;
+  font-size: 14px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.financeiroCompactoCorpo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 2px 12px 12px;
+  background: #ffffff;
+}
+
+.financeiroCompactoBarra {
+  display: flex;
+  width: 100%;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #edf0ed;
+}
+
+.financeiroCompactoBarraComercio {
+  display: block;
+  height: 100%;
+  background: #16a34a;
+  transition: width 0.3s ease;
+}
+
+.financeiroCompactoBarraTaxas {
+  display: block;
+  height: 100%;
+  background: #d97706;
+  transition: width 0.3s ease;
+}
+
+.financeiroCompactoLegenda {
+  margin: -2px 0 3px;
+  color: #6b7871;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.financeiroCompactoSecao {
+  color: #202b28;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 1px;
+}
+
+.financeiroCompactoLinha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.financeiroCompactoLinha > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: #36453d;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.financeiroCompactoLinha > strong {
+  flex-shrink: 0;
+  color: #202b28;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.pontoComercio,
+.pontoTaxa {
+  display: inline-block;
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.pontoComercio {
+  background: #16a34a;
+}
+
+.pontoTaxa {
+  background: #d97706;
+}
+
+.financeiroCompactoDivisor {
+  width: 100%;
+  height: 1px;
+  margin: 2px 0;
+  background: #edf2ef;
+}
+
+.financeiroCompactoTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.financeiroCompactoTotal span {
+  color: #202b28;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.financeiroCompactoTotal strong {
+  color: #202b28;
+  font-size: 13px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PROVA FOTOGRÁFICA
+========================================================= */
+
+.provaFotografica {
+  width: 100%;
+  min-width: 0;
+  margin: 18px 0 22px;
+  padding: 19px;
+  border: 1px solid #e1e9e4;
+  border-radius: 13px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.provaCabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.provaEyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #00704a;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1px;
+}
+
+.provaTitulo {
+  margin: 0;
+  color: #25352d;
+  font-size: 19px;
+  font-weight: 850;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  text-align: left;
+}
+
+.provaSelo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 9px;
+  border: 1px solid #dcebe1;
+  border-radius: 20px;
+  color: #287047;
+  background: #f0f7f2;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.provaSelo > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #29965a;
+}
+
+.provaSubtitulo {
+  max-width: 620px;
+  margin: 0 0 17px;
+  color: #64736b;
+  font-size: 13px;
+  font-weight: 450;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.provaInput {
+  display: none;
+}
+
+.provaGaleria {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-width: 0;
+}
+
+.provaLista {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+}
+
+.provaFotoCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid #e4ebe6;
+  border-radius: 10px;
+  background: #fff;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.provaFotoCard:hover {
+  transform: translateY(-2px);
+  border-color: #b8d5c3;
+  box-shadow: 0 4px 12px rgba(25, 65, 43, 0.08);
+}
+
+.provaFotoBotao {
+  display: block;
+  width: 100%;
+  height: 125px;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #dfe8e3;
+  border-radius: 10px;
+  background: #f0f4f1;
+  cursor: zoom-in;
+}
+
+.provaFoto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.provaFotoBotao:hover .provaFoto {
+  transform: scale(1.06);
+}
+
+.provaFotoInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.provaFotoLegenda {
+  display: block;
+  overflow: hidden;
+  padding: 2px 3px 3px;
+  color: #27372f;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.provaFotoDataHora {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: #68776e;
+  font-size: 10px;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.provaFotoDataHora span {
+  color: #a80f1c;
+  font-size: 13px;
+}
+
+.provaRemover {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(30, 30, 30, 0.75);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.provaRemover:hover {
+  background: #bd1221;
+}
+
+/* ADICIONAR FOTOGRAFIA */
+
+.provaAdicionar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 145px;
+  padding: 12px 6px;
+  border: 1.5px dashed #b8cfc0;
+  border-radius: 10px;
+  color: #426b52;
+  background: #f7faf8;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.provaAdicionar:hover {
+  border-color: #00704a;
+  background: #edf6ef;
+  box-shadow: 0 4px 12px rgba(0, 112, 74, 0.08);
+  transform: translateY(-2px);
+}
+
+.provaAdicionar:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.provaAdicionarIcone {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border: 1px solid #c9dfd0;
+  border-radius: 50%;
+  color: #fff;
+  background: #00704a;
+  font-size: 29px;
+  font-weight: 400;
+  line-height: 1;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.provaAdicionar:hover .provaAdicionarIcone {
+  background: #005236;
+  transform: scale(1.08);
+}
+
+.provaAdicionar strong {
+  color: #345b43;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.provaAdicionar small {
+  color: #89978e;
+  font-size: 10px;
+  text-align: center;
+}
+
+/* SETAS DA GALERIA */
+
+.provaSeta {
+  display: grid;
+  flex: 0 0 27px;
+  place-items: center;
+  width: 27px;
+  height: 35px;
+  padding: 0;
+  border: 1px solid #e2eae5;
+  border-radius: 7px;
+  color: #52675a;
+  background: #f5f8f6;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.provaSeta:hover {
+  border-color: #b8d5c3;
+  color: #00704a;
+  background: #eaf3ed;
+}
+
+.provaRodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1ee;
+}
+
+.provaRodape span {
+  color: #849188;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.erroFotos {
+  margin: 8px 0;
+  color: #bd1221;
+  font-size: 13px;
+}
+
+/* EXPLICAÇÃO ANTIFRAUDE */
+
+.provaExplicacao {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 12px;
+  border: 1px solid #e1ebe4;
+  border-radius: 9px;
+  background: #f6faf7;
+}
+
+.provaExplicacaoIcone {
+  display: grid;
+  flex: 0 0 25px;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  color: #fff;
+  background: #00704a;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.provaExplicacao > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.provaExplicacao strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #263a2e;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.provaExplicacao p {
+  margin: 0 0 7px;
+  color: #617067;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.provaExplicacao p:last-child {
+  margin-bottom: 0;
+}
+
+/* MODAL DE FOTOGRAFIA */
+
+.provaModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(12, 19, 15, 0.91);
+  cursor: zoom-out;
+}
+
+.provaModalImagem {
+  display: block;
+  max-width: 90%;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 9px;
+  cursor: default;
+  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.3);
+}
+
+.provaModalFechar {
+  position: absolute;
+  top: 19px;
+  right: 23px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 27px;
+  cursor: pointer;
+}
+
+.provaModalFechar:hover {
+  background: #bd1221;
+}
+
+/* =========================================================
+   TEMPO DE PREPARO
 ========================================================= */
 
 .tempoPreparo {
@@ -690,7 +1332,7 @@
 }
 
 /* =========================================================
-   9. BOTÕES DE AÇÃO
+   AÇÕES
 ========================================================= */
 
 .acoesDetalhes {
@@ -707,12 +1349,13 @@
   min-width: 0;
   min-height: 46px;
   padding: 10px 14px;
+  border: none;
   border-radius: 6px;
+  color: white;
+  background: #00704a;
   font-size: 13px;
   font-weight: 750;
   cursor: pointer;
-  background: #00704a;
-  color: white;
 }
 
 .aceitarGrande {
@@ -743,8 +1386,6 @@
   flex-shrink: 0;
 }
 
-/* Quando o pedido está pronto */
-
 .prontoTag {
   display: flex;
   align-items: center;
@@ -760,9 +1401,7 @@
   text-align: center;
 }
 
-/* =========================================================
-   10. NENHUM PEDIDO SELECIONADO
-========================================================= */
+/* NENHUM PEDIDO SELECIONADO */
 
 .detalheVazio {
   display: flex;
@@ -777,12 +1416,122 @@
   text-align: center;
 }
 
+/* =========================================================
+   MODAL LATERAL DO CHAT
+========================================================= */
 
+.chatOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 0 35px 25px 0;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: none;
+}
 
+.chatDrawer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, calc(100vw - 70px));
+  height: 500px;
+  max-height: calc(100vh - 50px);
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.18);
+  animation: abrirChatBaixo 0.25s ease-out;
+}
 
+.chatDrawerTopo {
+  display: flex;
+  flex: 0 0 68px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  padding: 0 22px;
+  color: #ffffff;
+  background: #bd1221;
+}
+
+.chatDrawerTopo > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chatDrawerTopo strong {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.chatDrawerTopo span {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.chatDrawerTopo button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 25px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.chatDrawerTopo button:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.chatDrawerCorpo {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.chatDrawerCorpo > * {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.chatPedidoStatus,
+.chatPedidoErro {
+  padding: 16px;
+  font-size: 13px;
+}
+
+.chatPedidoErro {
+  color: #bd1221;
+}
+
+@keyframes abrirChatBaixo {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* =========================================================
-   11. RESPONSIVIDADE DA COLUNA DIREITA
+   RESPONSIVIDADE
 ========================================================= */
 
 @media (max-width: 1280px) {
@@ -827,8 +1576,8 @@
   }
 
   .detalhesCorpoScroll {
-    padding: 12px 14px;
     gap: 10px;
+    padding: 12px 14px;
   }
 
   .detalheClienteEEndereco {
@@ -921,475 +1670,7 @@
   .detalhes {
     min-height: 500px;
   }
-}
 
-
-
-/* CARD EM PREPARO COM IMAGEM */
-
-.resumoCardPreparo {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.resumoImagemPreparo {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  object-fit: cover;
-  border-radius: 10px;
-  background: #fff1d6;
-}
-
-.resumoInfoPreparo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.resumoInfoPreparo span {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.resumoInfoPreparo strong {
-  font-size: 20px;
-  font-weight: 800;
-}
-
-/* Em telas menores */
-
-@media (max-width: 480px) {
-  .resumoImagemPreparo {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
-  }
-
-  .resumoInfoPreparo span {
-    font-size: 11px;
-  }
-
-  .resumoInfoPreparo strong {
-    font-size: 18px;
-  }
-}
-
-
-
-
-/* =====================================================
-   PROVA FOTOGRÁFICA — BORA PEDIR
-===================================================== */
-
-.provaFotografica {
-  width: 100%;
-  min-width: 0;
-  margin: 18px 0 22px;
-  padding: 19px;
-  border: 1px solid #e1e9e4;
-  border-radius: 13px;
-  background: #fff;
-  box-sizing: border-box;
-}
-
-/* CABEÇALHO */
-
-.provaCabecalho {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 9px;
-}
-
-.provaEyebrow {
-  display: block;
-  margin-bottom: 4px;
-  color: #00704a;
-  font-size: 10px;
-  font-weight: 850;
-  letter-spacing: 1px;
-}
-
-.provaTitulo {
-  margin: 0;
-  color: #25352d;
-  font-size: 19px;
-  font-weight: 850;
-  line-height: 1.3;
-  letter-spacing: -0.4px;
-  text-align: left;
-}
-
-.provaSelo {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  padding: 6px 9px;
-  border: 1px solid #dcebe1;
-  border-radius: 20px;
-  color: #287047;
-  background: #f0f7f2;
-  font-size: 10px;
-  font-weight: 750;
-}
-
-.provaSelo > span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #29965a;
-}
-
-/* SUBTÍTULO */
-
-.provaSubtitulo {
-  max-width: 620px;
-  margin: 0 0 17px;
-  color: #64736b;
-  font-size: 13px;
-  font-weight: 450;
-  line-height: 1.6;
-  text-align: left;
-}
-
-/* INPUT OCULTO */
-
-.provaInput {
-  display: none;
-}
-
-/* GALERIA */
-
-.provaGaleria {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  min-width: 0;
-}
-
-.provaLista {
-  display: grid;
-  flex: 1;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: stretch;
-  gap: 10px;
-  min-width: 0;
-}
-
-/* CARTÃO DA FOTOGRAFIA */
-
-.provaFotoCard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-  padding: 5px;
-  border: 1px solid #e4ebe6;
-  border-radius: 10px;
-  background: #fff;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-}
-
-.provaFotoCard:hover {
-  transform: translateY(-2px);
-  border-color: #b8d5c3;
-  box-shadow: 0 4px 12px rgba(25, 65, 43, 0.08);
-}
-
-/* IMAGEM */
-
-.provaFotoBotao {
-  display: block;
-  width: 100%;
-  height: 112px;
-  min-width: 0;
-  padding: 0;
-  overflow: hidden;
-  border: none;
-  border-radius: 7px;
-  background: #f0f4f1;
-  cursor: zoom-in;
-}
-
-.provaFoto {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.provaFotoBotao:hover .provaFoto {
-  transform: scale(1.06);
-}
-
-/* LEGENDA */
-
-.provaFotoLegenda {
-  display: block;
-  overflow: hidden;
-  padding: 2px 3px 3px;
-  color: #65746b;
-  font-size: 10px;
-  font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* REMOVER FOTOGRAFIA */
-
-.provaRemover {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: grid;
-  place-items: center;
-  width: 25px;
-  height: 25px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  color: #fff;
-  background: rgba(30, 35, 32, 0.72);
-  font-size: 19px;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.provaRemover:hover {
-  background: #bd1221;
-}
-
-/* =====================================================
-   CARTÃO DE ADICIONAR FOTOGRAFIA
-===================================================== */
-
-.provaAdicionar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-width: 0;
-  min-height: 145px;
-  padding: 12px 6px;
-  border: 1.5px dashed #b8cfc0;
-  border-radius: 10px;
-  color: #426b52;
-  background: #f7faf8;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.provaAdicionar:hover {
-  border-color: #00704a;
-  background: #edf6ef;
-  box-shadow: 0 4px 12px rgba(0, 112, 74, 0.08);
-  transform: translateY(-2px);
-}
-
-/* ÍCONE DE MAIS */
-
-.provaAdicionarIcone {
-  display: grid;
-  place-items: center;
-  width: 39px;
-  height: 39px;
-  border: 1px solid #c9dfd0;
-  border-radius: 50%;
-  color: #fff;
-  background: #00704a;
-  font-size: 29px;
-  font-weight: 400;
-  line-height: 1;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.provaAdicionar:hover .provaAdicionarIcone {
-  background: #005236;
-  transform: scale(1.08);
-}
-
-.provaAdicionar strong {
-  color: #345b43;
-  font-size: 11px;
-  font-weight: 800;
-  text-align: center;
-}
-
-.provaAdicionar small {
-  color: #89978e;
-  font-size: 10px;
-  text-align: center;
-}
-
-/* SETAS DA GALERIA */
-
-.provaSeta {
-  display: grid;
-  flex: 0 0 27px;
-  place-items: center;
-  width: 27px;
-  height: 35px;
-  padding: 0;
-  border: 1px solid #e2eae5;
-  border-radius: 7px;
-  color: #52675a;
-  background: #f5f8f6;
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.provaSeta:hover {
-  border-color: #b8d5c3;
-  color: #00704a;
-  background: #eaf3ed;
-}
-
-/* RODAPÉ */
-
-.provaRodape {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #edf1ee;
-}
-
-.provaRodape span {
-  color: #849188;
-  font-size: 10px;
-  font-weight: 650;
-}
-
-/* =====================================================
-   EXPLICAÇÃO ANTIFRAUDE
-===================================================== */
-
-.provaExplicacao {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 15px;
-  padding: 12px;
-  border: 1px solid #e1ebe4;
-  border-radius: 9px;
-  background: #f6faf7;
-}
-
-.provaExplicacaoIcone {
-  display: grid;
-  flex: 0 0 25px;
-  place-items: center;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  color: #fff;
-  background: #00704a;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.provaExplicacao > div:last-child {
-  flex: 1;
-  min-width: 0;
-}
-
-.provaExplicacao strong {
-  display: block;
-  margin-bottom: 5px;
-  color: #263a2e;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.5;
-}
-
-.provaExplicacao p {
-  margin: 0 0 7px;
-  color: #617067;
-  font-size: 11px;
-  line-height: 1.65;
-}
-
-.provaExplicacao p:last-child {
-  margin-bottom: 0;
-}
-
-/* =====================================================
-   MODAL DE FOTOGRAFIA
-===================================================== */
-
-.provaModal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-  background: rgba(12, 19, 15, 0.91);
-  cursor: zoom-out;
-}
-
-.provaModalImagem {
-  display: block;
-  max-width: 90%;
-  max-height: 88vh;
-  object-fit: contain;
-  border-radius: 9px;
-  cursor: default;
-  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.3);
-}
-
-.provaModalFechar {
-  position: absolute;
-  top: 19px;
-  right: 23px;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 27px;
-  cursor: pointer;
-}
-
-.provaModalFechar:hover {
-  background: #bd1221;
-}
-
-/* =====================================================
-   RESPONSIVIDADE
-===================================================== */
-
-@media (max-width: 900px) {
   .provaFotografica {
     padding: 16px;
   }
@@ -1422,7 +1703,7 @@
   }
 
   .provaFotoBotao {
-    height: 115px;
+    height: 110px;
   }
 
   .provaAdicionar {
@@ -1438,12 +1719,75 @@
     flex-direction: column;
   }
 
+  .provaFotoInfo {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .provaFotoDataHora {
+    justify-content: flex-start;
+    font-size: 9px;
+  }
+
   .provaModal {
     padding: 15px;
   }
 
   .provaModalImagem {
     max-width: 100%;
+  }
+
+  .detalhesTopo {
+    gap: 8px;
+    padding: 10px 14px;
+  }
+
+  .detalhesTopoAcoes {
+    gap: 6px;
+  }
+
+  .financeiroCompactoTopo {
+    padding: 8px 10px 6px;
+  }
+
+  .financeiroCompactoCorpo {
+    padding: 2px 10px 10px;
+  }
+
+  .financeiroCompactoLinha > span,
+  .financeiroCompactoLinha > strong {
+    font-size: 11px;
+  }
+
+  .chatOverlay {
+    padding: 0 12px 12px;
+  }
+
+  .chatDrawer {
+    width: 100%;
+    height: min(500px, calc(100vh - 24px));
+    max-height: calc(100vh - 24px);
+  }
+}
+
+@media (max-width: 480px) {
+  .resumoImagemPreparo {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .resumoInfoPreparo span {
+    font-size: 11px;
+  }
+
+  .resumoInfoPreparo strong {
+    font-size: 18px;
+  }
+
+  .detalhesTopoAcoes > button {
+    padding: 0 8px;
   }
 }
 
@@ -1465,350 +1809,13 @@
     height: 34px;
     font-size: 25px;
   }
-}
 
-
-
-/* CARD DA FOTOGRAFIA */
-
-.provaFotoCard {
-  position: relative;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.provaFotoBotao {
-  width: 100%;
-  height: 125px;
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid #dfe8e3;
-  border-radius: 10px;
-  background: #fff;
-  cursor: pointer;
-}
-
-.provaFoto {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.2s ease;
-}
-
-.provaFotoBotao:hover .provaFoto {
-  transform: scale(1.04);
-}
-
-/* IDENTIFICAÇÃO E DATA/HORÁRIO */
-
-.provaFotoInfo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  min-width: 0;
-  flex-wrap: wrap;
-}
-
-.provaFotoLegenda {
-  color: #27372f;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.provaFotoDataHora {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  color: #68776e;
-  font-size: 10px;
-  font-weight: 500;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.provaFotoDataHora span {
-  color: #a80f1c;
-  font-size: 13px;
-}
-
-/* REMOVER FOTO LOCAL */
-
-.provaRemover {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  display: grid;
-  place-items: center;
-  width: 25px;
-  height: 25px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: rgba(30, 30, 30, 0.75);
-  color: #fff;
-  font-size: 19px;
-  line-height: 1;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.provaRemover:hover {
-  background: #bd1221;
-}
-
-
-
-/* =====================================================
-   CABEÇALHO DOS DETALHES DO PEDIDO
-===================================================== */
-
-.detalhesTopo {
-    width: 100%;
-    min-height: 78px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 16px;
-    padding: 12px 20px;
-
-    box-sizing: border-box;
-}
-
-.detalhesTopoTitulo {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    flex: 1;
-    min-width: 0;
-}
-
-.detalhesTopoAcoes {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    gap: 39px;
-    flex-shrink: 0;
-}
-
-/* Botão de fechar */
-
-.detalhesTopoAcoes > button:not(.chatButton) {
-    width: 34px;
-    height: 34px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    flex-shrink: 0;
-
-    border: none;
-    border-radius: 10px;
-
-    background: #f1f1f1;
-    color: #555;
-
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.detalhesTopoAcoes > button:not(.chatButton):hover {
-    background: #e5e5e5;
-}
-
-/* Responsividade */
-
-@media (max-width: 520px) {
-    .detalhesTopo {
-        padding: 10px 14px;
-        gap: 8px;
-    }
-
-    .detalhesTopoAcoes {
-        gap: 6px;
-    }
-}
-
-
-
-
-
-/* RESPONSIVIDADE */
-
-@media (max-width: 600px) {
-  .provaFotoBotao {
-    height: 110px;
-  }
-
-  .provaFotoInfo {
+  .financeiroCompactoLinha {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 3px;
   }
 
-  .provaFotoDataHora {
-    justify-content: flex-start;
-    font-size: 9px;
+  .financeiroCompactoLinha > span,
+  .financeiroCompactoLinha > strong {
+    font-size: 10.5px;
   }
 }
-
-
-
-
-
-
-/* =====================================================
-   MODAL LATERAL DO CHAT
-===================================================== */
-
-
-.chatOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-
-  padding: 0 35px 25px 0;
-  box-sizing: border-box;
-
-  background: rgba(0, 0, 0, 0.18);
-  backdrop-filter: none;
-}
-
-.chatDrawer {
-  position: relative;
-
-  display: flex;
-  flex-direction: column;
-
-  width: min(420px, calc(100vw - 70px));
-  height: 500px;
-  max-height: calc(100vh - 50px);
-  min-height: 0;
-
-  background: #ffffff;
-  border-radius: 14px;
-
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.18);
-
-  overflow: hidden;
-
-  animation: abrirChatBaixo 0.25s ease-out;
-}
-
-.chatDrawerTopo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  flex: 0 0 68px;
-  min-height: 68px;
-
-  padding: 0 22px;
-
-  background: #bd1221;
-  color: #ffffff;
-}
-
-.chatDrawerTopo > div {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.chatDrawerTopo strong {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.chatDrawerTopo span {
-  font-size: 12px;
-  opacity: 0.85;
-}
-
-.chatDrawerTopo button {
-  width: 36px;
-  height: 36px;
-
-  border: 0;
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-
-  font-size: 25px;
-  cursor: pointer;
-
-  transition: background 0.2s ease;
-}
-
-.chatDrawerTopo button:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-
-.chatDrawerCorpo {
-  display: flex;
-  flex-direction: column;
-
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 0;
-
-  overflow: hidden;
-  background: #ffffff;
-}
-
-.chatDrawerCorpo > * {
-  flex: 1 1 0;
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-}
-
-.chatPedidoStatus,
-.chatPedidoErro {
-  padding: 16px;
-  font-size: 13px;
-}
-
-.chatPedidoErro {
-  color: #bd1221;
-}
-
-@keyframes abrirChatBaixo {
-  from {
-    opacity: 0;
-    transform: translateY(35px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 600px) {
-  .chatOverlay {
-    padding: 0 12px 12px;
-  }
-
-  .chatDrawer {
-    width: 100%;
-    height: min(500px, calc(100vh - 24px));
-    max-height: calc(100vh - 24px);
-  }
-}
-

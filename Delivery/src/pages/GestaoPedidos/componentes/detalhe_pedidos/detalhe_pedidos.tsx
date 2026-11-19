@@ -1,4 +1,3 @@
-
 import { Chat } from "../chat/chat.tsx";
 
 import {
@@ -66,6 +65,24 @@ export type PedidoDetalhe = {
   total: number;
   tempoPreparo?: number;
 
+  /* =====================================================
+     DADOS FINANCEIROS RECEBIDOS DO GESTAOPEDIDOS
+  ===================================================== */
+
+  taxaPlataformaPercentual?: number;
+  taxaPlataformaValor?: number;
+
+  taxaOperacaoPercentual?: number;
+  taxaOperacaoValor?: number;
+
+  taxaEntregadorPercentual?: number;
+  taxaEntregadorValor?: number;
+
+  taxaPagamentoPercentual?: number;
+  taxaPagamentoValor?: number;
+
+  valorLiquidoComercio?: number;
+
   fotosProva?: (string | FotoProvaPedido)[];
 };
 
@@ -97,6 +114,21 @@ type FotoGaleria = {
 type DadosChatPedido = {
   chatId: number;
   nomeCliente: string;
+};
+
+type ResumoFinanceiro = {
+  subtotal: number;
+  taxaPlataformaPercentual: number;
+  taxaPlataforma: number;
+  taxaOperacaoPercentual: number;
+  taxaOperacao: number;
+  taxaEntregadorPercentual: number;
+  taxaEntregador: number;
+  taxaPagamentoPercentual: number;
+  taxaPagamento: number;
+  taxaEntrega: number;
+  valorLiquido: number;
+  percentualComercio: number;
 };
 
 /* =====================================================
@@ -159,7 +191,7 @@ function obterUsuarioLogadoId(token: string): number | null {
 ===================================================== */
 
 const formatarMoeda = (valor: number) =>
-  valor.toLocaleString("pt-BR", {
+  Number(valor || 0).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
@@ -197,6 +229,160 @@ const formatarDataHora = (valor?: string) => {
 
   return `${dataFormatada} às ${horaFormatada}`;
 };
+
+/* =====================================================
+   CÁLCULOS FINANCEIROS
+===================================================== */
+
+function numeroFinanceiro(valor: unknown): number {
+  if (valor === null || valor === undefined || valor === "") {
+    return 0;
+  }
+
+  const numero = Number(valor);
+
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function arredondarMoeda(valor: number): number {
+  return Math.round((valor + Number.EPSILON) * 100) / 100;
+}
+
+/* =====================================================
+   IDENTIFICAR PAGAMENTO COM CARTÃO
+===================================================== */
+
+function pagamentoComCartao(metodo: string): boolean {
+  const normalizado = String(metodo ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+  return (
+    normalizado.includes("credito") ||
+    normalizado.includes("debito") ||
+    normalizado.includes("credit") ||
+    normalizado.includes("debit") ||
+    normalizado.includes("cartao") ||
+    normalizado.includes("card")
+  );
+}
+
+/* =====================================================
+   CALCULAR RESUMO FINANCEIRO DO COMÉRCIO
+===================================================== */
+
+function calcularFinanceiro(
+  pedido: PedidoDetalhe
+): ResumoFinanceiro {
+  const subtotal = numeroFinanceiro(pedido.subtotal);
+  const totalPedido = numeroFinanceiro(pedido.total);
+
+  const metodoPagamento = pedido.pagamento.metodo;
+  const usaCartao = pagamentoComCartao(metodoPagamento);
+
+  /* COMISSÃO TOTAL */
+
+  const taxaPlataformaPercentual =
+    pedido.taxaPlataformaPercentual !== undefined
+      ? numeroFinanceiro(pedido.taxaPlataformaPercentual)
+      : 23;
+
+  const taxaOperacaoPercentual =
+    pedido.taxaOperacaoPercentual !== undefined
+      ? numeroFinanceiro(pedido.taxaOperacaoPercentual)
+      : 15;
+
+  const taxaEntregadorPercentual =
+    pedido.taxaEntregadorPercentual !== undefined
+      ? numeroFinanceiro(pedido.taxaEntregadorPercentual)
+      : 8;
+
+  const taxaOperacao =
+    pedido.taxaOperacaoValor !== undefined
+      ? numeroFinanceiro(pedido.taxaOperacaoValor)
+      : arredondarMoeda(
+          subtotal * (taxaOperacaoPercentual / 100)
+        );
+
+  const taxaEntregador =
+    pedido.taxaEntregadorValor !== undefined
+      ? numeroFinanceiro(pedido.taxaEntregadorValor)
+      : arredondarMoeda(
+          subtotal * (taxaEntregadorPercentual / 100)
+        );
+
+  const taxaPlataforma =
+    pedido.taxaPlataformaValor !== undefined
+      ? numeroFinanceiro(pedido.taxaPlataformaValor)
+      : arredondarMoeda(
+          taxaOperacao + taxaEntregador
+        );
+
+  /* TAXA DO MEIO DE PAGAMENTO */
+
+  const taxaPagamentoPercentual =
+    pedido.taxaPagamentoPercentual !== undefined
+      ? numeroFinanceiro(pedido.taxaPagamentoPercentual)
+      : usaCartao
+        ? 3.2
+        : 0;
+
+  const taxaPagamento =
+    pedido.taxaPagamentoValor !== undefined
+      ? numeroFinanceiro(pedido.taxaPagamentoValor)
+      : arredondarMoeda(
+          subtotal * (taxaPagamentoPercentual / 100)
+        );
+
+  /* TAXA DE ENTREGA */
+
+  const taxaEntrega = numeroFinanceiro(
+    pedido.taxaEntrega
+  );
+
+  /* VALOR LÍQUIDO */
+
+  const valorLiquidoCalculado = arredondarMoeda(
+    subtotal - taxaPlataforma - taxaPagamento
+  );
+
+  const valorLiquido =
+    pedido.valorLiquidoComercio !== undefined
+      ? numeroFinanceiro(pedido.valorLiquidoComercio)
+      : valorLiquidoCalculado;
+
+  const basePercentual = totalPedido > 0 ? totalPedido : subtotal;
+  const percentualComercio =
+    basePercentual > 0
+      ? Math.max(
+          0,
+          Math.min(100, Math.round((valorLiquido / basePercentual) * 100))
+        )
+      : 0;
+
+  return {
+    subtotal,
+
+    taxaPlataformaPercentual,
+    taxaPlataforma,
+
+    taxaOperacaoPercentual,
+    taxaOperacao,
+
+    taxaEntregadorPercentual,
+    taxaEntregador,
+
+    taxaPagamentoPercentual,
+    taxaPagamento,
+
+    taxaEntrega,
+
+    valorLiquido,
+    percentualComercio,
+  };
+}
 
 /* =====================================================
    RESOLVER URL DA FOTOGRAFIA
@@ -251,9 +437,6 @@ async function lerRespostaAPI(
 
 /* =====================================================
    CRIAR OU RECUPERAR CHAT DO PEDIDO
-
-   O nome do cliente vem do backend:
-   pedidos.cliente_id -> clientes.id -> clientes.nome
 ===================================================== */
 
 async function buscarOuCriarChatPedido(
@@ -273,8 +456,6 @@ async function buscarOuCriarChatPedido(
   );
 
   const dados = await lerRespostaAPI(resposta);
-
-  console.log("DADOS RECEBIDOS DO CHAT:", dados);
 
   const chatId = Number(dados.chat_id);
 
@@ -420,6 +601,14 @@ export default function DetalhePedidos({
 
   const usuarioLogadoId = tokenChat
     ? obterUsuarioLogadoId(tokenChat)
+    : null;
+
+  /* =====================================================
+     RESUMO FINANCEIRO DO PEDIDO ATUAL
+  ===================================================== */
+
+  const financeiro = pedido
+    ? calcularFinanceiro(pedido)
     : null;
 
   /* =====================================================
@@ -871,7 +1060,7 @@ export default function DetalhePedidos({
         {/* CABEÇALHO */}
 
         <header className={styles.detalhesTopo}>
-          <div>
+          <div className={styles.detalhesTopoTitulo}>
             <span className={styles.eyebrow}>
               DETALHES DO PEDIDO
             </span>
@@ -887,6 +1076,7 @@ export default function DetalhePedidos({
             {pedido && (
               <button
                 type="button"
+                className={styles.chatButton}
                 onClick={abrirChat}
                 title="Abrir conversa"
                 aria-label="Abrir conversa"
@@ -935,20 +1125,9 @@ export default function DetalhePedidos({
                       />
                     ) : (
                       <span
+                        className={styles.avatarIniciais}
                         aria-label={`Sem foto de perfil para ${pedido.cliente}`}
                         title={pedido.cliente}
-                        style={{
-                          display: "flex",
-                          width: "100%",
-                          height: "100%",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderRadius: "50%",
-                          background: "#f1e5e5",
-                          color: "#bd1221",
-                          fontSize: "22px",
-                          fontWeight: 700,
-                        }}
                       >
                         {pedido.iniciais ||
                           pedido.cliente
@@ -1099,7 +1278,9 @@ export default function DetalhePedidos({
                 </div>
               )}
 
-              {/* VALORES */}
+              {/* =====================================================
+                  VALORES DO PEDIDO + RESUMO FINANCEIRO COMPACTO
+              ===================================================== */}
 
               <div className={styles.resumoValores}>
                 <div className={styles.linhaTotal}>
@@ -1143,9 +1324,110 @@ export default function DetalhePedidos({
                     {formatarMoeda(pedido.total)}
                   </strong>
                 </div>
+
+                {/* RESUMO FINANCEIRO DO COMÉRCIO (SEMPRE VISÍVEL) */}
+                {financeiro && (
+                  <div className={styles.financeiroCompacto}>
+                    <div className={styles.financeiroCompactoTopo}>
+                      -
+
+                      <div className={styles.financeiroCompactoLiquido}>
+                        <span>Valor recebido pelo comércio:</span>
+                        <strong>
+                          {formatarMoeda(financeiro.valorLiquido)}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className={styles.financeiroCompactoCorpo}>
+                      {/* BARRA DE DISTRIBUIÇÃO */}
+                      <div className={styles.financeiroCompactoBarra}>
+                        <span
+                          className={styles.financeiroCompactoBarraComercio}
+                          style={{
+                            width: `${financeiro.percentualComercio}%`,
+                          }}
+                        />
+                        <span
+                          className={styles.financeiroCompactoBarraTaxas}
+                          style={{
+                            width: `${100 - financeiro.percentualComercio}%`,
+                          }}
+                        />
+                      </div>
+
+                      <p className={styles.financeiroCompactoLegenda}>
+                        {financeiro.percentualComercio}% do valor total ficou com o comércio.
+                      </p>
+
+                      <strong className={styles.financeiroCompactoSecao}>
+                        Detalhamento dos valores
+                      </strong>
+
+                      {/* COMÉRCIO */}
+                      <div className={styles.financeiroCompactoLinha}>
+                        <span>
+                          <i className={styles.pontoComercio} />
+                          Comércio
+                        </span>
+                        <strong>
+                          {formatarMoeda(financeiro.valorLiquido)}
+                        </strong>
+                      </div>
+
+                      {/* ENTREGA / MOTOBOY */}
+                      <div className={styles.financeiroCompactoLinha}>
+                        <span>
+                          <i className={styles.pontoTaxa} />
+                          Entrega / motoboy (Taxa: {formatarMoeda(financeiro.taxaEntrega)} + Repasse: {formatarMoeda(financeiro.taxaEntregador)})
+                        </span>
+                        <strong>
+                          {formatarMoeda(
+                            arredondarMoeda(
+                              financeiro.taxaEntrega +
+                                financeiro.taxaEntregador
+                            )
+                          )}
+                        </strong>
+                      </div>
+
+                      {/* MEIO DE PAGAMENTO */}
+                      <div className={styles.financeiroCompactoLinha}>
+                        <span>
+                          <i className={styles.pontoTaxa} />
+                          Meio de pagamento ({pedido.pagamento.metodo})
+                        </span>
+                        <strong>
+                          {formatarMoeda(financeiro.taxaPagamento)}
+                        </strong>
+                      </div>
+
+                      {/* TAXA DA PLATAFORMA */}
+                      <div className={styles.financeiroCompactoLinha}>
+                        <span>
+                          <i className={styles.pontoTaxa} />
+                          Taxa da plataforma ({financeiro.taxaOperacaoPercentual}%)
+                        </span>
+                        <strong>
+                          {formatarMoeda(financeiro.taxaOperacao)}
+                        </strong>
+                      </div>
+
+                      <div className={styles.financeiroCompactoDivisor} />
+
+                      {/* TOTAL */}
+                      <div className={styles.financeiroCompactoTotal}>
+                        <span>Total pago pelo cliente</span>
+                        <strong>{formatarMoeda(pedido.total)}</strong>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* PROVA FOTOGRÁFICA */}
+              {/* =====================================================
+                  PROVA FOTOGRÁFICA
+              ===================================================== */}
 
               <section className={styles.provaFotografica}>
                 <div className={styles.provaCabecalho}>
@@ -1194,11 +1476,7 @@ export default function DetalhePedidos({
                 {erroFotos && (
                   <p
                     role="alert"
-                    style={{
-                      color: "#bd1221",
-                      fontSize: "13px",
-                      margin: "8px 0",
-                    }}
+                    className={styles.erroFotos}
                   >
                     {erroFotos}
                   </p>

@@ -50,6 +50,36 @@ type StatusPedidoReal =
   | "entrega"
   | "entregue";
 
+/* =====================================================
+   DADOS FINANCEIROS
+
+   Comissão total: 23%
+   Operação/plataforma: 15%
+   Entregador: 8%
+   Cartão: 3,2%
+   Pix e dinheiro: 0%
+===================================================== */
+
+type DadosFinanceiros = {
+  taxaPlataformaPercentual: number;
+  taxaPlataformaValor: number;
+
+  taxaOperacaoPercentual: number;
+  taxaOperacaoValor: number;
+
+  taxaEntregadorPercentual: number;
+  taxaEntregadorValor: number;
+
+  taxaPagamentoPercentual: number;
+  taxaPagamentoValor: number;
+
+  valorLiquidoComercio: number;
+};
+
+/* =====================================================
+   RESPOSTA DA API
+===================================================== */
+
 type PedidoAPI = {
   id: number;
   status: string;
@@ -59,9 +89,9 @@ type PedidoAPI = {
   forma_pagamento: string;
   troco_para: number | string | null;
 
-  subtotal: number;
-  taxa_entrega: number;
-  valor_total: number;
+  subtotal: number | string;
+  taxa_entrega: number | string;
+  valor_total: number | string;
 
   observacao: string | null;
   criado_em: string;
@@ -72,6 +102,22 @@ type PedidoAPI = {
 
   nome_comercio: string | null;
   logo_comercio: string | null;
+
+  /* CAMPOS FINANCEIROS VINDOS DO BANCO */
+
+  taxa_plataforma_percentual?: number | string | null;
+  taxa_plataforma_valor?: number | string | null;
+
+  taxa_operacao_percentual?: number | string | null;
+  taxa_operacao_valor?: number | string | null;
+
+  taxa_entregador_percentual?: number | string | null;
+  taxa_entregador_valor?: number | string | null;
+
+  taxa_pagamento_percentual?: number | string | null;
+  taxa_pagamento_valor?: number | string | null;
+
+  valor_liquido_comercio?: number | string | null;
 
   endereco: {
     nome_endereco?: string;
@@ -96,6 +142,10 @@ type PedidoAPI = {
   }[];
 };
 
+/* =====================================================
+   PEDIDO CONVERTIDO PARA A INTERFACE
+===================================================== */
+
 type PedidoReal = Omit<Pedido, "status"> & {
   status: StatusPedidoReal;
 
@@ -119,7 +169,16 @@ type PedidoReal = Omit<Pedido, "status"> & {
   fotoCliente?: string | null;
 
   codigoRetirada?: string | null;
-};
+} & DadosFinanceiros;
+
+/* =====================================================
+   TIPO ESTENDIDO DO DETALHE
+
+   Os campos adicionais são encaminhados ao componente
+   DetalhePedidos sem alterar os demais dados do pedido.
+===================================================== */
+
+type PedidoDetalheFinanceiro = PedidoDetalhe & DadosFinanceiros;
 
 /* =====================================================
    CONFIGURAÇÃO DA API
@@ -129,6 +188,155 @@ const API_URL = "http://localhost:3000/api/pedidos";
 
 function obterToken(): string | null {
   return localStorage.getItem("token");
+}
+
+/* =====================================================
+   CONVERSÃO SEGURA DE NÚMEROS
+===================================================== */
+
+function converterNumero(
+  valor: number | string | null | undefined,
+  valorPadrao = 0
+): number {
+  if (valor === null || valor === undefined || valor === "") {
+    return valorPadrao;
+  }
+
+  const numero = Number(valor);
+
+  return Number.isFinite(numero) ? numero : valorPadrao;
+}
+
+/* =====================================================
+   ARREDONDAMENTO FINANCEIRO
+===================================================== */
+
+function arredondarMoeda(valor: number): number {
+  return Math.round((valor + Number.EPSILON) * 100) / 100;
+}
+
+/* =====================================================
+   IDENTIFICAR PAGAMENTO COM CARTÃO
+===================================================== */
+
+function pagamentoComCartao(formaPagamento: string): boolean {
+  const forma = String(formaPagamento ?? "")
+    .trim()
+    .toUpperCase();
+
+  return (
+    forma.includes("CARTAO_CREDITO") ||
+    forma.includes("CARTAO_DEBITO") ||
+    forma.includes("CARTÃO DE CRÉDITO") ||
+    forma.includes("CARTÃO DE DÉBITO") ||
+    forma.includes("CARTAO DE CREDITO") ||
+    forma.includes("CARTAO DE DEBITO")
+  );
+}
+
+/* =====================================================
+   CALCULAR DADOS FINANCEIROS DO PEDIDO
+
+   Valores persistidos no banco têm prioridade.
+   Os cálculos abaixo são utilizados como fallback.
+
+   Não somamos as taxas ao total do cliente.
+===================================================== */
+
+function calcularDadosFinanceiros(
+  pedido: PedidoAPI
+): DadosFinanceiros {
+  const subtotal = converterNumero(pedido.subtotal);
+
+  const percentualPlataforma = converterNumero(
+    pedido.taxa_plataforma_percentual,
+    23
+  );
+
+  const percentualOperacao = converterNumero(
+    pedido.taxa_operacao_percentual,
+    15
+  );
+
+  const percentualEntregador = converterNumero(
+    pedido.taxa_entregador_percentual,
+    8
+  );
+
+  const possuiCartao = pagamentoComCartao(
+    pedido.forma_pagamento
+  );
+
+  const percentualPagamento = converterNumero(
+    pedido.taxa_pagamento_percentual,
+    possuiCartao ? 3.2 : 0
+  );
+
+  const taxaPlataformaCalculada = arredondarMoeda(
+    subtotal * (percentualPlataforma / 100)
+  );
+
+  const taxaOperacaoCalculada = arredondarMoeda(
+    subtotal * (percentualOperacao / 100)
+  );
+
+  const taxaEntregadorCalculada = arredondarMoeda(
+    subtotal * (percentualEntregador / 100)
+  );
+
+  const taxaPagamentoCalculada = arredondarMoeda(
+    subtotal * (percentualPagamento / 100)
+  );
+
+  const taxaPlataformaValor =
+    pedido.taxa_plataforma_valor !== null &&
+    pedido.taxa_plataforma_valor !== undefined
+      ? converterNumero(pedido.taxa_plataforma_valor)
+      : taxaPlataformaCalculada;
+
+  const taxaOperacaoValor =
+    pedido.taxa_operacao_valor !== null &&
+    pedido.taxa_operacao_valor !== undefined
+      ? converterNumero(pedido.taxa_operacao_valor)
+      : taxaOperacaoCalculada;
+
+  const taxaEntregadorValor =
+    pedido.taxa_entregador_valor !== null &&
+    pedido.taxa_entregador_valor !== undefined
+      ? converterNumero(pedido.taxa_entregador_valor)
+      : taxaEntregadorCalculada;
+
+  const taxaPagamentoValor =
+    pedido.taxa_pagamento_valor !== null &&
+    pedido.taxa_pagamento_valor !== undefined
+      ? converterNumero(pedido.taxa_pagamento_valor)
+      : taxaPagamentoCalculada;
+
+  const liquidoCalculado = arredondarMoeda(
+    subtotal - taxaPlataformaValor - taxaPagamentoValor
+  );
+
+  const valorLiquidoComercio =
+    pedido.valor_liquido_comercio !== null &&
+    pedido.valor_liquido_comercio !== undefined
+      ? converterNumero(pedido.valor_liquido_comercio)
+      : liquidoCalculado;
+
+  return {
+    taxaPlataformaPercentual: percentualPlataforma,
+    taxaPlataformaValor,
+
+    taxaOperacaoPercentual: percentualOperacao,
+    taxaOperacaoValor,
+
+    taxaEntregadorPercentual: percentualEntregador,
+    taxaEntregadorValor,
+
+    taxaPagamentoPercentual: percentualPagamento,
+    taxaPagamentoValor,
+
+    valorLiquidoComercio,
+  };
 }
 
 /* =====================================================
@@ -215,7 +423,9 @@ function converterPedido(
   );
 
   const endereco = pedido.endereco;
-  const troco = Number(pedido.troco_para);
+  const troco = converterNumero(pedido.troco_para);
+
+  const financeiro = calcularDadosFinanceiros(pedido);
 
   return {
     id: String(pedido.id),
@@ -230,7 +440,6 @@ function converterPedido(
 
     status,
 
-    // O código de retirada só aparece quando o pedido está PRONTO.
     codigoRetirada:
       pedido.status === "PRONTO"
         ? pedido.codigo_retirada ?? null
@@ -241,13 +450,13 @@ function converterPedido(
       nome: item.nome,
       detalhe: item.observacao ?? undefined,
       descricao: undefined,
-      precoUnitario: item.preco,
+      precoUnitario: converterNumero(item.preco),
     })),
 
-    subtotal: Number(pedido.subtotal),
-    taxaEntrega: Number(pedido.taxa_entrega),
+    subtotal: converterNumero(pedido.subtotal),
+    taxaEntrega: converterNumero(pedido.taxa_entrega),
     desconto: 0,
-    total: Number(pedido.valor_total),
+    total: converterNumero(pedido.valor_total),
 
     preparo: 0,
 
@@ -279,6 +488,8 @@ function converterPedido(
           estado: endereco.estado,
         }
       : undefined,
+
+    ...financeiro,
   };
 }
 
@@ -288,7 +499,7 @@ function converterPedido(
 
 function converterParaDetalhe(
   pedido: PedidoReal
-): PedidoDetalhe {
+): PedidoDetalheFinanceiro {
   return {
     id: Number(pedido.id),
 
@@ -341,6 +552,35 @@ function converterParaDetalhe(
     total: pedido.total,
 
     tempoPreparo: pedido.preparo,
+
+    /* DADOS FINANCEIROS ENCAMINHADOS AO DETALHE */
+
+    taxaPlataformaPercentual:
+      pedido.taxaPlataformaPercentual,
+
+    taxaPlataformaValor:
+      pedido.taxaPlataformaValor,
+
+    taxaOperacaoPercentual:
+      pedido.taxaOperacaoPercentual,
+
+    taxaOperacaoValor:
+      pedido.taxaOperacaoValor,
+
+    taxaEntregadorPercentual:
+      pedido.taxaEntregadorPercentual,
+
+    taxaEntregadorValor:
+      pedido.taxaEntregadorValor,
+
+    taxaPagamentoPercentual:
+      pedido.taxaPagamentoPercentual,
+
+    taxaPagamentoValor:
+      pedido.taxaPagamentoValor,
+
+    valorLiquidoComercio:
+      pedido.valorLiquidoComercio,
   };
 }
 
@@ -564,7 +804,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      ALTERAR STATUS
-  ===================================================== */
+===================================================== */
 
   const alterarStatus = async (
     id: string,
@@ -588,7 +828,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      RECUSAR PEDIDO
-  ===================================================== */
+===================================================== */
 
   const recusarPedido = async (id: string) => {
     const sucesso = await enviarStatus(id, "RECUSADO");
@@ -600,7 +840,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      FILTRAR PEDIDOS DA PÁGINA PRINCIPAL
-  ===================================================== */
+===================================================== */
 
   const pedidosOperacionais: Pedido[] = pedidosLista.filter(
     (pedido): pedido is PedidoReal & { status: StatusPedido } =>
@@ -611,7 +851,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      FILTRAR PEDIDOS EM ENTREGA
-  ===================================================== */
+===================================================== */
 
   const pedidosEmEntrega = pedidosLista.filter(
     (pedido) => pedido.status === "entrega"
@@ -619,7 +859,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      FILTRAR PEDIDOS CONCLUÍDOS
-  ===================================================== */
+===================================================== */
 
   const pedidosConcluidosLista = pedidosLista.filter(
     (pedido) => pedido.status === "entregue"
@@ -627,7 +867,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      CONTAGEM DE PEDIDOS NOVOS
-  ===================================================== */
+===================================================== */
 
   const novosPedidosCount = pedidosLista.filter(
     (pedido) => pedido.status === "novo"
@@ -635,7 +875,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      RESUMO DOS PEDIDOS
-  ===================================================== */
+===================================================== */
 
   const resumo = {
     novos: pedidosLista.filter(
@@ -653,21 +893,20 @@ export function GestaoPedidos() {
 
   /* =====================================================
      PEDIDO SELECIONADO
-  ===================================================== */
+===================================================== */
 
   const selecionado = pedidosLista.find(
     (pedido) => pedido.id === pedidoSelecionado
   );
 
-  const pedidoDetalhe: PedidoDetalhe | null =
+  const pedidoDetalhe: PedidoDetalheFinanceiro | null =
     selecionado
       ? converterParaDetalhe(selecionado)
       : null;
 
   /* =====================================================
      RENDERIZAR PÁGINA DE PEDIDOS EM ENTREGA
-     UTILIZA O COMPONENTE SEPARADO
-  ===================================================== */
+===================================================== */
 
   const renderPaginaEntrega = () => (
     <div className={styles.areaPedidos}>
@@ -691,7 +930,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      RENDERIZAR LISTA DE PEDIDOS CONCLUÍDOS
-  ===================================================== */
+===================================================== */
 
   const renderPaginaConcluidos = () => (
     <div className={styles.areaPedidos}>
@@ -817,7 +1056,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      RENDERIZAR CONTEÚDO DA PÁGINA
-  ===================================================== */
+===================================================== */
 
   const renderPedidos = () => {
     if (paginaAtiva === "cardapio") {
@@ -890,7 +1129,7 @@ export function GestaoPedidos() {
 
   /* =====================================================
      ESTRUTURA PRINCIPAL
-  ===================================================== */
+===================================================== */
 
   return (
     <main className={styles.container}>

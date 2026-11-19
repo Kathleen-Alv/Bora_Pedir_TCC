@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import styles from "./perfil.module.css";
 
@@ -40,6 +39,12 @@ interface RespostaPerfil {
     perfil?: PerfilComercio;
     logo?: string;
     banner?: string;
+}
+
+interface RespostaAvaliacoes {
+    sucesso?: boolean;
+    quantidade?: number;
+    media?: number;
 }
 
 // ========================================================
@@ -196,6 +201,10 @@ export function Perfil() {
     const [erro, setErro] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
 
+    // Resumo de Avaliações
+    const [mediaAvaliacoes, setMediaAvaliacoes] = useState<number>(0);
+    const [totalAvaliacoes, setTotalAvaliacoes] = useState<number>(0);
+
     // Referências dos campos de imagem.
     const inputLogoRef = useRef<HTMLInputElement>(null);
     const inputBannerRef = useRef<HTMLInputElement>(null);
@@ -209,13 +218,13 @@ export function Perfil() {
     const [versaoBanner, setVersaoBanner] = useState(Date.now());
 
     // ======================================================
-    // BUSCAR DADOS DO PERFIL
+    // BUSCAR DADOS DO PERFIL E RESUMO DAS AVALIAÇÕES
     // ======================================================
 
     useEffect(() => {
         const controller = new AbortController();
 
-        async function buscarPerfil() {
+        async function buscarDados() {
             try {
                 setCarregando(true);
                 setErro("");
@@ -227,16 +236,26 @@ export function Perfil() {
                     return;
                 }
 
-                const resposta = await fetch(`${API_URL}/api/perfil`, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: "application/json",
-                    },
-                    signal: controller.signal,
-                });
+                const [respostaPerfil, respostaAvaliacoes] = await Promise.all([
+                    fetch(`${API_URL}/api/perfil`, {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: "application/json",
+                        },
+                        signal: controller.signal,
+                    }),
+                    fetch(`${API_URL}/api/pedidos/avaliacoes`, {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: "application/json",
+                        },
+                        signal: controller.signal,
+                    }).catch(() => null),
+                ]);
 
-                const tipoConteudo = resposta.headers.get("content-type");
+                const tipoConteudo = respostaPerfil.headers.get("content-type");
 
                 if (!tipoConteudo?.includes("application/json")) {
                     throw new Error(
@@ -244,9 +263,9 @@ export function Perfil() {
                     );
                 }
 
-                const dados = await resposta.json() as RespostaPerfil;
+                const dados = (await respostaPerfil.json()) as RespostaPerfil;
 
-                if (!resposta.ok) {
+                if (!respostaPerfil.ok) {
                     throw new Error(
                         dados.mensagem ||
                         dados.message ||
@@ -277,6 +296,13 @@ export function Perfil() {
 
                 setPerfil(perfilRecebido);
 
+                if (respostaAvaliacoes && respostaAvaliacoes.ok) {
+                    const dadosAvaliacoes =
+                        (await respostaAvaliacoes.json()) as RespostaAvaliacoes;
+
+                    setMediaAvaliacoes(Number(dadosAvaliacoes.media || 0));
+                    setTotalAvaliacoes(Number(dadosAvaliacoes.quantidade || 0));
+                }
             } catch (erro: unknown) {
                 if (
                     erro instanceof Error &&
@@ -297,7 +323,7 @@ export function Perfil() {
             }
         }
 
-        void buscarPerfil();
+        void buscarDados();
 
         return () => controller.abort();
     }, []);
@@ -379,7 +405,7 @@ export function Perfil() {
                 );
             }
 
-            const dados = await resposta.json() as RespostaPerfil;
+            const dados = (await resposta.json()) as RespostaPerfil;
 
             if (!resposta.ok) {
                 throw new Error(
@@ -399,7 +425,6 @@ export function Perfil() {
                 );
             }
 
-            // Atualiza somente a imagem selecionada.
             setPerfil((atual) => {
                 if (!atual) {
                     return atual;
@@ -411,7 +436,6 @@ export function Perfil() {
                 };
             });
 
-            // Atualiza o endereço visual para evitar cache antigo.
             if (tipo === "logo") {
                 setVersaoLogo(Date.now());
             } else {
@@ -423,7 +447,6 @@ export function Perfil() {
                     ? "Logo atualizada com sucesso!"
                     : "Banner atualizado com sucesso!"
             );
-
         } catch (erro: unknown) {
             window.alert(
                 erro instanceof Error
@@ -561,9 +584,6 @@ export function Perfil() {
                 {/* BANNER E LOGO DO COMÉRCIO */}
 
                 <section className={styles.header}>
-
-                    {/* INPUT INVISÍVEL DA LOGO */}
-
                     <input
                         ref={inputLogoRef}
                         type="file"
@@ -579,8 +599,6 @@ export function Perfil() {
                             evento.target.value = "";
                         }}
                     />
-
-                    {/* INPUT INVISÍVEL DO BANNER */}
 
                     <input
                         ref={inputBannerRef}
@@ -598,8 +616,6 @@ export function Perfil() {
                         }}
                     />
 
-                    {/* BANNER DO COMÉRCIO */}
-
                     {bannerUrlAtualizado ? (
                         <img
                             src={bannerUrlAtualizado}
@@ -611,8 +627,6 @@ export function Perfil() {
                             }}
                         />
                     ) : null}
-
-                    {/* LOGO DO COMÉRCIO */}
 
                     <div className={styles.profileCircle}>
                         {logoUrlAtualizada ? (
@@ -640,8 +654,6 @@ export function Perfil() {
                                 : <EditarFotoIcon />}
                         </button>
                     </div>
-
-                    {/* ÍCONE SOBRE O BANNER */}
 
                     <button
                         type="button"
@@ -722,7 +734,19 @@ export function Perfil() {
                                     Avaliação
                                 </span>
 
-                                <strong>—</strong>
+                                <div className={styles.ratingNotaLinha}>
+                                    <strong>
+                                        {totalAvaliacoes > 0
+                                            ? mediaAvaliacoes.toFixed(1).replace(".", ",")
+                                            : "—"}
+                                    </strong>
+
+                                    {totalAvaliacoes > 0 && (
+                                        <span className={styles.ratingQtd}>
+                                            ({totalAvaliacoes})
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

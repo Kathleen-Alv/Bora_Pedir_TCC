@@ -2,7 +2,6 @@
 import { db } from '../../../configBancoDeDados/database.js';
 import { randomInt } from 'node:crypto';
 
-
 // ============================================================
 // GERAR CÓDIGOS DE 4 DÍGITOS
 // ============================================================
@@ -15,7 +14,6 @@ function gerarCodigosEntrega() {
     const codigoRetirada = gerarCodigo();
     let codigoEntrega = gerarCodigo();
 
-    // Evita que os dois códigos sejam iguais.
     while (codigoEntrega === codigoRetirada) {
         codigoEntrega = gerarCodigo();
     }
@@ -26,6 +24,87 @@ function gerarCodigosEntrega() {
     };
 }
 
+// ============================================================
+// CÁLCULO FINANCEIRO
+// ============================================================
+
+function calcularFinanceiro(subtotalCentavos, formaPagamento, config) {
+    const percentualPlataforma = Number(config.percentual_plataforma);
+    const percentualCartao = Number(config.percentual_cartao);
+
+    if (
+        !Number.isFinite(percentualPlataforma) ||
+        !Number.isFinite(percentualCartao) ||
+        percentualPlataforma < 0 ||
+        percentualCartao < 0
+    ) {
+        throw new Error('Configuração financeira inválida.');
+    }
+
+    // Taxa da plataforma: 23% por padrão.
+    const taxaPlataformaCentavos = Math.round(
+        subtotalCentavos * percentualPlataforma / 100
+    );
+
+    // Taxa de pagamento: somente para cartão.
+    const pagamentoComCartao = [
+        'CARTAO_CREDITO',
+        'CARTAO_DEBITO'
+    ].includes(formaPagamento);
+
+    const percentualPagamento = pagamentoComCartao
+        ? percentualCartao
+        : 0;
+
+    const taxaPagamentoCentavos = Math.round(
+        subtotalCentavos * percentualPagamento / 100
+    );
+
+    const valorLiquidoComercioCentavos =
+        subtotalCentavos -
+        taxaPlataformaCentavos -
+        taxaPagamentoCentavos;
+
+    if (valorLiquidoComercioCentavos < 0) {
+        throw new Error(
+            'As taxas configuradas ultrapassam o subtotal do pedido.'
+        );
+    }
+
+    return {
+        taxa_plataforma_percentual: percentualPlataforma,
+        taxa_plataforma_valor: taxaPlataformaCentavos / 100,
+
+        taxa_pagamento_percentual: percentualPagamento,
+        taxa_pagamento_valor: taxaPagamentoCentavos / 100,
+
+        valor_liquido_comercio:
+            valorLiquidoComercioCentavos / 100
+    };
+}
+
+// ============================================================
+// FORMATAR DADOS FINANCEIROS DO PEDIDO
+// ============================================================
+
+function mapearFinanceiro(pedido) {
+    return {
+        taxa_plataforma_percentual:
+            Number(pedido.taxa_plataforma_percentual ?? 23),
+
+        taxa_plataforma_valor:
+            Number(pedido.taxa_plataforma_valor ?? 0),
+
+        taxa_pagamento_percentual:
+            Number(pedido.taxa_pagamento_percentual ?? 0),
+
+        taxa_pagamento_valor:
+            Number(pedido.taxa_pagamento_valor ?? 0),
+
+        valor_liquido_comercio:
+            Number(pedido.valor_liquido_comercio ?? 0)
+    };
+}
 
 // ============================================================
 // CRIAR PEDIDO
@@ -148,7 +227,9 @@ export async function criarPedido(req, res) {
 
         if (enderecos.length === 0) {
             throw Object.assign(
-                new Error('Endereço não encontrado ou não pertence ao cliente.'),
+                new Error(
+                    'Endereço não encontrado ou não pertence ao cliente.'
+                ),
                 { status: 404 }
             );
         }
@@ -241,14 +322,18 @@ export async function criarPedido(req, res) {
 
             if (itemComercioId !== comercioId) {
                 throw Object.assign(
-                    new Error('Existem produtos de outro comércio no carrinho.'),
+                    new Error(
+                        'Existem produtos de outro comércio no carrinho.'
+                    ),
                     { status: 400 }
                 );
             }
 
             if (Number(item.disponivel) !== 1) {
                 throw Object.assign(
-                    new Error(`O produto "${item.nome}" não está disponível.`),
+                    new Error(
+                        `O produto "${item.nome}" não está disponível.`
+                    ),
                     { status: 400 }
                 );
             }
@@ -260,7 +345,9 @@ export async function criarPedido(req, res) {
                 preco < 0
             ) {
                 throw Object.assign(
-                    new Error('Um dos produtos do carrinho possui dados inválidos.'),
+                    new Error(
+                        'Um dos produtos do carrinho possui dados inválidos.'
+                    ),
                     { status: 400 }
                 );
             }
@@ -280,28 +367,78 @@ export async function criarPedido(req, res) {
         }
 
         // ====================================================
-        // 4. CALCULAR VALORES
+        // 4. BUSCAR CONFIGURAÇÃO FINANCEIRA ATIVA
+        // ====================================================
+
+        const configuracoes = await conexao.query(
+            `
+            SELECT
+                percentual_plataforma,
+                percentual_cartao
+
+            FROM configuracao_financeira
+
+            WHERE ativo = 1
+
+            ORDER BY id DESC
+
+            LIMIT 1
+            FOR UPDATE
+            `,
+            []
+        );
+
+        if (configuracoes.length === 0) {
+            throw Object.assign(
+                new Error(
+                    'Nenhuma configuração financeira ativa foi encontrada.'
+                ),
+                { status: 500 }
+            );
+        }
+
+        const configuracao = configuracoes[0];
+
+        // ====================================================
+        // 5. CALCULAR VALORES
         // ====================================================
 
         const subtotal = subtotalCentavos / 100;
 
-        // Taxa de entrega gratuita temporariamente.
-        const taxaEntrega = 0;
+        // Entrega permanece separada.
+        // Valor temporário: gratuita.
+        const taxaEntregaCentavos = 0;
+        const taxaEntrega = taxaEntregaCentavos / 100;
 
-        const valorTotal = subtotal + taxaEntrega;
+        const valorTotalCentavos =
+            subtotalCentavos + taxaEntregaCentavos;
+
+        const valorTotal = valorTotalCentavos / 100;
+
+        const financeiro = calcularFinanceiro(
+            subtotalCentavos,
+            forma_pagamento,
+            configuracao
+        );
+
+        // ====================================================
+        // 6. VALIDAR TROCO
+        // ====================================================
 
         if (
             trocoFinal !== null &&
-            Math.round(trocoFinal * 100) < subtotalCentavos
+            Math.round(trocoFinal * 100) < valorTotalCentavos
         ) {
             throw Object.assign(
-                new Error('O valor informado para troco é menor que o total do pedido.'),
+                new Error(
+                    'O valor informado para troco é menor que o total do pedido.'
+                ),
                 { status: 400 }
             );
         }
 
         // ====================================================
-        // 5. CRIAR PEDIDO
+        // 7. CRIAR PEDIDO
         // ====================================================
 
         const resultadoPedido = await conexao.query(
@@ -313,13 +450,30 @@ export async function criarPedido(req, res) {
                 status,
                 forma_pagamento,
                 troco_para,
+
                 subtotal,
                 taxa_entrega,
                 valor_total,
+
+                taxa_plataforma_percentual,
+                taxa_plataforma_valor,
+
+                taxa_pagamento_percentual,
+                taxa_pagamento_valor,
+
+                valor_liquido_comercio,
+
                 observacao
             )
 
-            VALUES (?, ?, ?, 'PENDENTE', ?, ?, ?, ?, ?, ?)
+            VALUES (
+                ?, ?, ?, 'PENDENTE', ?, ?,
+                ?, ?, ?,
+                ?, ?,
+                ?, ?,
+                ?,
+                ?
+            )
             `,
             [
                 clienteId,
@@ -327,9 +481,19 @@ export async function criarPedido(req, res) {
                 enderecoId,
                 forma_pagamento,
                 trocoFinal,
+
                 subtotal,
                 taxaEntrega,
                 valorTotal,
+
+                financeiro.taxa_plataforma_percentual,
+                financeiro.taxa_plataforma_valor,
+
+                financeiro.taxa_pagamento_percentual,
+                financeiro.taxa_pagamento_valor,
+
+                financeiro.valor_liquido_comercio,
+
                 observacaoFinal
             ]
         );
@@ -337,11 +501,13 @@ export async function criarPedido(req, res) {
         const pedidoId = Number(resultadoPedido.insertId);
 
         if (!Number.isSafeInteger(pedidoId) || pedidoId <= 0) {
-            throw new Error('Não foi possível identificar o pedido criado.');
+            throw new Error(
+                'Não foi possível identificar o pedido criado.'
+            );
         }
 
         // ====================================================
-        // 6. GRAVAR ITENS DO PEDIDO
+        // 8. GRAVAR ITENS DO PEDIDO
         // ====================================================
 
         for (const item of itensValidados) {
@@ -370,7 +536,7 @@ export async function criarPedido(req, res) {
         }
 
         // ====================================================
-        // 7. COPIAR ENDEREÇO PARA O PEDIDO
+        // 9. COPIAR ENDEREÇO PARA O PEDIDO
         // ====================================================
 
         await conexao.query(
@@ -403,7 +569,7 @@ export async function criarPedido(req, res) {
         );
 
         // ====================================================
-        // 8. LIMPAR CARRINHO
+        // 10. LIMPAR CARRINHO
         // ====================================================
 
         await conexao.query(
@@ -416,7 +582,7 @@ export async function criarPedido(req, res) {
         );
 
         // ====================================================
-        // 9. CONFIRMAR TRANSAÇÃO
+        // 11. CONFIRMAR TRANSAÇÃO
         // ====================================================
 
         await conexao.commit();
@@ -430,9 +596,12 @@ export async function criarPedido(req, res) {
                 id: pedidoId,
                 status: 'PENDENTE',
                 forma_pagamento,
+
                 subtotal,
                 taxa_entrega: taxaEntrega,
-                valor_total: valorTotal
+                valor_total: valorTotal,
+
+                ...financeiro
             }
         });
 
@@ -457,7 +626,6 @@ export async function criarPedido(req, res) {
     }
 }
 
-
 // ============================================================
 // BUSCAR PEDIDO POR ID - CLIENTE
 // ============================================================
@@ -469,19 +637,11 @@ export async function buscarPedidoPorId(req, res) {
         const pedidoId = Number(req.params.id);
         const clienteId = Number(req.usuario?.cliente_id);
 
-        // ====================================================
-        // 1. VALIDAR ID DO PEDIDO
-        // ====================================================
-
         if (!Number.isSafeInteger(pedidoId) || pedidoId <= 0) {
             return res.status(400).json({
                 message: 'ID do pedido inválido.'
             });
         }
-
-        // ====================================================
-        // 2. VALIDAR CLIENTE AUTENTICADO
-        // ====================================================
 
         if (!Number.isSafeInteger(clienteId) || clienteId <= 0) {
             return res.status(401).json({
@@ -492,7 +652,7 @@ export async function buscarPedidoPorId(req, res) {
         conexao = await db.getConnection();
 
         // ====================================================
-        // 3. DADOS PRINCIPAIS DO PEDIDO
+        // 1. BUSCAR DADOS PRINCIPAIS
         // ====================================================
 
         const pedidos = await conexao.query(
@@ -502,9 +662,17 @@ export async function buscarPedidoPorId(req, res) {
                 p.status,
                 p.forma_pagamento,
                 p.troco_para,
+
                 p.subtotal,
                 p.taxa_entrega,
                 p.valor_total,
+
+                p.taxa_plataforma_percentual,
+                p.taxa_plataforma_valor,
+                p.taxa_pagamento_percentual,
+                p.taxa_pagamento_valor,
+                p.valor_liquido_comercio,
+
                 p.observacao,
                 p.criado_em,
 
@@ -521,13 +689,6 @@ export async function buscarPedidoPorId(req, res) {
                 ep.cidade,
                 ep.estado,
                 ep.referencia,
-
-                -- =========================================
-                -- CÓDIGO DE ENTREGA
-                -- =========================================
-                -- O cliente só recebe o código depois que
-                -- o entregador valida a retirada no comércio.
-                -- =========================================
 
                 CASE
                     WHEN p.status = 'SAIU_PARA_ENTREGA'
@@ -549,18 +710,13 @@ export async function buscarPedidoPorId(req, res) {
             LEFT JOIN entregas e
                 ON e.pedido_id = p.id
 
-            WHERE
-                p.id = ?
-                AND p.cliente_id = ?
+            WHERE p.id = ?
+              AND p.cliente_id = ?
 
             LIMIT 1
             `,
             [pedidoId, clienteId]
         );
-
-        // ====================================================
-        // 4. VERIFICAR SE O PEDIDO EXISTE
-        // ====================================================
 
         if (pedidos.length === 0) {
             return res.status(404).json({
@@ -571,7 +727,7 @@ export async function buscarPedidoPorId(req, res) {
         const pedido = pedidos[0];
 
         // ====================================================
-        // 5. BUSCAR ITENS DO PEDIDO
+        // 2. BUSCAR ITENS
         // ====================================================
 
         const itens = await conexao.query(
@@ -595,7 +751,7 @@ export async function buscarPedidoPorId(req, res) {
         );
 
         // ====================================================
-        // 6. MONTAR RESPOSTA
+        // 3. MONTAR RESPOSTA
         // ====================================================
 
         return res.status(200).json({
@@ -603,9 +759,7 @@ export async function buscarPedidoPorId(req, res) {
 
             pedido: {
                 id: Number(pedido.id),
-
                 status: pedido.status,
-
                 forma_pagamento: pedido.forma_pagamento,
 
                 troco_para: pedido.troco_para !== null
@@ -613,13 +767,12 @@ export async function buscarPedidoPorId(req, res) {
                     : null,
 
                 subtotal: Number(pedido.subtotal),
-
                 taxa_entrega: Number(pedido.taxa_entrega),
-
                 valor_total: Number(pedido.valor_total),
 
-                observacao: pedido.observacao,
+                ...mapearFinanceiro(pedido),
 
+                observacao: pedido.observacao,
                 criado_em: pedido.criado_em,
 
                 nome_cliente: pedido.nome_cliente,
@@ -629,18 +782,7 @@ export async function buscarPedidoPorId(req, res) {
 
                 logo_restaurante: pedido.logo_restaurante,
 
-                // =========================================
-                // CÓDIGO DE ENTREGA
-                // =========================================
-                // Será null enquanto o pedido não estiver
-                // com status SAIU_PARA_ENTREGA.
-                // =========================================
-
                 codigo_entrega: pedido.codigo_entrega ?? null,
-
-                // =========================================
-                // ENDEREÇO DO PEDIDO
-                // =========================================
 
                 endereco: pedido.endereco
                     ? {
@@ -655,24 +797,13 @@ export async function buscarPedidoPorId(req, res) {
                     }
                     : null,
 
-                // =========================================
-                // ITENS DO PEDIDO
-                // =========================================
-
                 itens: itens.map(item => ({
                     id: Number(item.id),
-
-                    item_cardapio_id:
-                        Number(item.item_cardapio_id),
-
+                    item_cardapio_id: Number(item.item_cardapio_id),
                     nome: item.nome_produto,
-
                     quantidade: Number(item.quantidade),
-
                     preco: Number(item.preco_unitario),
-
                     subtotal: Number(item.subtotal),
-
                     observacao: item.observacao
                 }))
             }
@@ -715,7 +846,7 @@ export async function listarPedidosComercio(req, res) {
         conexao = await db.getConnection();
 
         // ====================================================
-        // 1. BUSCAR PEDIDOS DO COMÉRCIO
+        // 1. BUSCAR PEDIDOS
         // ====================================================
 
         const pedidos = await conexao.query(
@@ -725,9 +856,17 @@ export async function listarPedidosComercio(req, res) {
                 p.status,
                 p.forma_pagamento,
                 p.troco_para,
+
                 p.subtotal,
                 p.taxa_entrega,
                 p.valor_total,
+
+                p.taxa_plataforma_percentual,
+                p.taxa_plataforma_valor,
+                p.taxa_pagamento_percentual,
+                p.taxa_pagamento_valor,
+                p.valor_liquido_comercio,
+
                 p.observacao,
                 p.criado_em,
 
@@ -739,6 +878,7 @@ export async function listarPedidosComercio(req, res) {
                 dc.logo AS logo_comercio,
 
                 NULL AS nome_endereco,
+
                 ep.cep,
                 ep.endereco,
                 ep.numero,
@@ -853,6 +993,8 @@ export async function listarPedidosComercio(req, res) {
                 taxa_entrega: Number(pedido.taxa_entrega),
                 valor_total: Number(pedido.valor_total),
 
+                ...mapearFinanceiro(pedido),
+
                 observacao: pedido.observacao,
                 criado_em: pedido.criado_em,
 
@@ -863,8 +1005,6 @@ export async function listarPedidosComercio(req, res) {
                 nome_comercio: pedido.nome_comercio ?? 'Comércio',
                 logo_comercio: pedido.logo_comercio,
 
-                // O código de retirada é enviado somente
-                // para o comércio dono do pedido.
                 codigo_retirada: pedido.codigo_retirada ?? null,
 
                 endereco: possuiEndereco
@@ -891,7 +1031,10 @@ export async function listarPedidosComercio(req, res) {
         });
 
     } catch (error) {
-        console.error('Erro ao listar pedidos do comércio:', error);
+        console.error(
+            'Erro ao listar pedidos do comércio:',
+            error
+        );
 
         return res.status(500).json({
             message: 'Erro interno ao consultar os pedidos.'
@@ -903,7 +1046,6 @@ export async function listarPedidosComercio(req, res) {
         }
     }
 }
-
 
 // ============================================================
 // ATUALIZAR STATUS DO PEDIDO
@@ -935,8 +1077,6 @@ export async function atualizarStatusPedido(req, res) {
             });
         }
 
-        // RECUSADO é aceito como compatibilidade com
-        // o painel antigo, mas será salvo como CANCELADO.
         const statusSolicitado = status === 'RECUSADO'
             ? 'CANCELADO'
             : status;
@@ -1017,14 +1157,11 @@ export async function atualizarStatusPedido(req, res) {
 
         if (statusSolicitado === 'PRONTO') {
 
-            // -----------------------------------------------
             // 3.1. Buscar endereço do comércio
-            // -----------------------------------------------
 
             const enderecosComercio = await conexao.query(
                 `
-                SELECT
-                    id
+                SELECT id
 
                 FROM dados_comercio
 
@@ -1049,14 +1186,11 @@ export async function atualizarStatusPedido(req, res) {
                 enderecosComercio[0].id
             );
 
-            // -----------------------------------------------
             // 3.2. Buscar endereço copiado do cliente
-            // -----------------------------------------------
 
             const enderecosCliente = await conexao.query(
                 `
-                SELECT
-                    id
+                SELECT id
 
                 FROM enderecos_pedido
 
@@ -1081,9 +1215,7 @@ export async function atualizarStatusPedido(req, res) {
                 enderecosCliente[0].id
             );
 
-            // -----------------------------------------------
-            // 3.3. Verificar se já existe entrega
-            // -----------------------------------------------
+            // 3.3. Verificar entrega existente
 
             const entregasExistentes = await conexao.query(
                 `
@@ -1108,18 +1240,14 @@ export async function atualizarStatusPedido(req, res) {
                 );
             }
 
-            // -----------------------------------------------
-            // 3.4. Gerar códigos de validação
-            // -----------------------------------------------
+            // 3.4. Gerar códigos
 
             const {
                 codigoRetirada,
                 codigoEntrega
             } = gerarCodigosEntrega();
 
-            // -----------------------------------------------
             // 3.5. Criar entrega
-            // -----------------------------------------------
 
             const resultadoEntrega = await conexao.query(
                 `
@@ -1194,6 +1322,7 @@ export async function atualizarStatusPedido(req, res) {
 
         return res.status(200).json({
             sucesso: true,
+
             message: statusSolicitado === 'PRONTO'
                 ? 'Pedido marcado como pronto e entrega disponibilizada.'
                 : statusSolicitado === 'CANCELADO'
@@ -1215,7 +1344,10 @@ export async function atualizarStatusPedido(req, res) {
             transacaoIniciada = false;
         }
 
-        console.error('Erro ao atualizar status do pedido:', error);
+        console.error(
+            'Erro ao atualizar status do pedido:',
+            error
+        );
 
         return res.status(error.status || 500).json({
             message: error.status
@@ -1230,7 +1362,6 @@ export async function atualizarStatusPedido(req, res) {
     }
 }
 
-
 // ============================================================
 // LISTAR HISTÓRICO DE PEDIDOS
 // ============================================================
@@ -1239,7 +1370,7 @@ export async function listarHistoricoPedidos(req, res) {
     try {
         const clienteId = Number(req.usuario?.cliente_id);
 
-        if (!Number.isInteger(clienteId) || clienteId <= 0) {
+        if (!Number.isSafeInteger(clienteId) || clienteId <= 0) {
             return res.status(401).json({
                 message: 'Cliente não autenticado.'
             });
@@ -1255,9 +1386,17 @@ export async function listarHistoricoPedidos(req, res) {
                 p.id,
                 p.status,
                 p.forma_pagamento,
+
                 p.subtotal,
                 p.taxa_entrega,
                 p.valor_total,
+
+                p.taxa_plataforma_percentual,
+                p.taxa_plataforma_valor,
+                p.taxa_pagamento_percentual,
+                p.taxa_pagamento_valor,
+                p.valor_liquido_comercio,
+
                 p.criado_em,
 
                 dc.nome_comercio,
@@ -1362,6 +1501,8 @@ export async function listarHistoricoPedidos(req, res) {
                 taxa_entrega: Number(pedido.taxa_entrega),
                 valor_total: Number(pedido.valor_total),
 
+                ...mapearFinanceiro(pedido),
+
                 criado_em: pedido.criado_em,
 
                 nome_comercio: pedido.nome_comercio,
@@ -1385,11 +1526,13 @@ export async function listarHistoricoPedidos(req, res) {
         });
 
     } catch (error) {
-        console.error('Erro ao listar histórico de pedidos:', error);
+        console.error(
+            'Erro ao listar histórico de pedidos:',
+            error
+        );
 
         return res.status(500).json({
-            message: 'Erro ao buscar histórico de pedidos.',
-            error: error.message
+            message: 'Erro ao buscar histórico de pedidos.'
         });
     }
 }
