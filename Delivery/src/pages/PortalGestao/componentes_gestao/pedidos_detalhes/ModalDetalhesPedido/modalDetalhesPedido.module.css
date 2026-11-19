@@ -1,4 +1,3 @@
-
 /* =====================================================
    FUNDO DO MODAL
 ===================================================== */
@@ -10,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 12px;
   box-sizing: border-box;
   background: rgba(30, 25, 25, 0.42);
   backdrop-filter: blur(3px);
@@ -23,13 +22,13 @@
 
 .modal {
   width: 100%;
-  max-width: 610px;
-  max-height: 86vh;
+  max-width: 620px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   background: #ffffff;
   border: 1px solid #eee9e6;
-  border-radius: 15px;
+  border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(35, 25, 25, 0.13);
   animation: aparecer 0.22s ease;
@@ -53,12 +52,12 @@
 
 .header {
   position: relative;
-  min-height: 70px;
+  min-height: 58px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 21px;
+  padding: 11px 18px;
   background: #fffafa;
   border-bottom: 1px solid #f1e9e7;
 }
@@ -67,38 +66,38 @@
   content: "";
   position: absolute;
   left: 0;
-  top: 17px;
-  bottom: 17px;
+  top: 13px;
+  bottom: 13px;
   width: 3px;
   background: #bd1221;
   border-radius: 0 4px 4px 0;
 }
 
 .header h2 {
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   color: #352e2c;
   font-size: 18px;
   font-weight: 700;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.3px;
 }
 
 .header span {
   display: inline-flex;
   align-items: center;
   color: #9a8984;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
 }
 
 .fechar {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid #eee5e2;
-  border-radius: 9px;
+  border-radius: 8px;
   background: #ffffff;
   color: #8b7772;
   font-size: 22px;
@@ -118,12 +117,12 @@
 ===================================================== */
 
 .conteudo {
-  padding: 17px 21px 19px;
+  padding: 13px 18px 15px;
   overflow-y: auto;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 9px;
   background: #ffffff;
   scrollbar-width: thin;
   scrollbar-color: #ded5d1 transparent;
@@ -150,30 +149,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 15px;
+  gap: 10px;
+  padding: 9px 13px;
   background: #faf7f4;
   border: 1px solid #f0eae5;
-  border-radius: 10px;
+  border-radius: 9px;
 }
 
 .statusPedido div {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .label {
   color: #a09189;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
 .statusPedido div strong {
   color: #403734;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
 }
 
@@ -181,12 +180,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 11px;
+  padding: 5px 11px;
   background: #fff5e4;
   border: 1px solid #f3e5c9;
   border-radius: 20px;
   color: #98702e;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -196,10 +195,10 @@
 ===================================================== */
 
 .secao {
-  padding: 14px 15px;
+  padding: 11px 13px;
   background: #ffffff;
   border: 1px solid #f0ebe8;
-  border-radius: 11px;
+  border-radius: 10px;
   transition: border-color 0.2s ease;
 }
 
@@ -210,19 +209,19 @@
 .secao h3 {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 12px;
-  padding-bottom: 9px;
+  gap: 7px;
+  margin: 0 0 9px;
+  padding-bottom: 6px;
   border-bottom: 1px solid #f3eeeb;
   color: #443936;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .secao h3::before {
   content: "";
   width: 3px;
-  height: 14px;
+  height: 13px;
   flex-shrink: 0;
   background: #bd1221;
   border-radius: 4px;
@@ -236,13 +235,13 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 1px 0;
+  padding: 0;
 }
 
 .avatar {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -250,7 +249,7 @@
   overflow: hidden;
   background: #fbf0ef;
   border: 1px solid #f1dfdd;
-  border-radius: 11px;
+  border-radius: 10px;
   color: #bd1221;
   font-size: 16px;
   font-weight: 700;
@@ -269,130 +268,154 @@
 
 .cliente strong {
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
   color: #403633;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 700;
 }
 
 .cliente p {
   margin: 0;
   color: #978984;
-  font-size: 11px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 /* =====================================================
-   ENDEREÇO DE ENTREGA
+   ENDEREÇO DE ENTREGA (HORIZONTAL / LADO A LADO)
 ===================================================== */
 
 .enderecoCard {
-  padding: 12px 13px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  column-gap: 12px;
+  row-gap: 7px;
+  padding: 11px 13px;
   background: #faf8f6;
   border: 1px solid #f0eae6;
-  border-radius: 10px;
+  border-radius: 9px;
 }
 
 .enderecoTopo {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 10px;
+  gap: 9px;
+  padding-bottom: 7px;
   border-bottom: 1px solid #eee8e4;
 }
 
 .enderecoIcone {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f9eeee;
-  border-radius: 9px;
+  border-radius: 8px;
   color: #bd1221;
 }
 
 .enderecoIcone span {
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1;
 }
 
 .enderecoIdentificacao {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
 }
 
 .enderecoIdentificacao span {
   color: #a09189;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: uppercase;
 }
 
 .enderecoIdentificacao strong {
   color: #493b37;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
+/* Linha de rua, complemento, bairro e cidade fluindo lado a lado */
 .enderecoConteudo {
+  grid-column: 1 / -1;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 11px 0 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 10px;
+  padding: 3px 0;
 }
 
 .enderecoRua {
   color: #403633;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.5;
-}
-
-.enderecoConteudo span {
-  color: #897c75;
-  font-size: 11px;
   line-height: 1.45;
 }
 
+.enderecoConteudo span {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #685c56;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.enderecoConteudo span::before {
+  content: "•";
+  color: #c8bcb6;
+  font-size: 12px;
+}
+
+/* CEP e Referência lado a lado com destaque maior */
 .enderecoRodape {
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  padding-top: 9px;
+  align-items: center;
+  gap: 8px 22px;
+  padding-top: 8px;
   border-top: 1px solid #eee8e4;
 }
 
 .enderecoDetalhe,
 .enderecoReferencia {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 7px;
 }
 
 .enderecoDetalhe span,
 .enderecoReferencia span {
-  color: #a09189;
-  font-size: 9px;
-  font-weight: 650;
+  color: #9e8f87;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
 
 .enderecoDetalhe strong,
 .enderecoReferencia strong {
-  color: #62534d;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.45;
+  color: #443935;
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.4;
 }
 
 .enderecoReferencia {
   flex: 1;
-  min-width: 130px;
+  min-width: 160px;
 }
 
 /* =====================================================
@@ -403,39 +426,39 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 8px 11px;
   background: #faf8f6;
   border: 1px solid #f0ebe7;
   border-radius: 8px;
 }
 
 .item + .item {
-  margin-top: 7px;
+  margin-top: 6px;
 }
 
 .item strong {
   color: #403633;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 650;
 }
 
 .item p {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: #9a8980;
-  font-size: 10px;
+  font-size: 11.5px;
   font-weight: 500;
 }
 
 .info {
-  margin: 9px 0 0;
-  padding: 9px 11px;
+  margin: 6px 0 0;
+  padding: 7px 10px;
   background: #faf7f4;
   border: 1px solid #f0e9e4;
   border-radius: 7px;
   color: #92827b;
-  font-size: 10px;
-  line-height: 1.55;
+  font-size: 11.5px;
+  line-height: 1.45;
 }
 
 /* =====================================================
@@ -446,10 +469,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   margin: 0;
-  padding: 8px 1px;
-  font-size: 11px;
+  padding: 6px 1px;
+  font-size: 12.5px;
 }
 
 .linha + .linha {
@@ -463,7 +486,7 @@
 
 .linha strong {
   color: #463b37;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 650;
   text-align: right;
 }
@@ -476,19 +499,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 10px;
-  padding: 12px 14px;
+  gap: 10px;
+  margin-top: 7px;
+  padding: 9px 12px;
   background: #fcf4f3;
   border: 1px solid #f2e3e1;
-  border-radius: 9px;
+  border-radius: 8px;
   color: #bd1221;
 }
 
 .total strong:first-child {
   color: #79585a;
-  font-size: 12px;
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .total strong:last-child {
@@ -499,6 +522,175 @@
 }
 
 /* =====================================================
+   RESUMO FINANCEIRO COMPACTO (VALOR RECEBIDO PELO COMÉRCIO)
+===================================================== */
+
+.financeiroCompacto {
+  margin-top: 8px;
+  border: 1px solid #e1e8e4;
+  border-radius: 9px;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(20, 40, 30, 0.03);
+}
+
+.financeiroCompactoTopo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px 7px;
+  background: #f8fbf9;
+  border-bottom: 1px solid #edf2ef;
+}
+
+.financeiroCompactoTitulo {
+  color: #6b7871;
+  font-size: 10.5px;
+  font-weight: 650;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.financeiroCompactoLiquido {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.financeiroCompactoLiquido span {
+  color: #26352d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.financeiroCompactoLiquido strong {
+  color: #087c3c;
+  font-size: 15.5px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.financeiroCompactoCorpo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px 12px 11px;
+  background: #ffffff;
+}
+
+/* Barra de proporção Comércio vs Taxas */
+.financeiroCompactoBarra {
+  display: flex;
+  width: 100%;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #edf0ed;
+}
+
+.financeiroCompactoBarraComercio {
+  display: block;
+  height: 100%;
+  background: #16a34a;
+  transition: width 0.35s ease;
+}
+
+.financeiroCompactoBarraTaxas {
+  display: block;
+  height: 100%;
+  background: #d97706;
+  transition: width 0.35s ease;
+}
+
+.financeiroCompactoLegenda {
+  margin: -1px 0 2px;
+  color: #6b7871;
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+.financeiroCompactoSecao {
+  color: #202b28;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 1px;
+}
+
+.financeiroCompactoLinha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.financeiroCompactoLinha > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: #36453d;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.financeiroCompactoLinha > strong {
+  flex-shrink: 0;
+  color: #202b28;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.pontoComercio,
+.pontoTaxa {
+  display: inline-block;
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.pontoComercio {
+  background: #16a34a;
+}
+
+.pontoTaxa {
+  background: #d97706;
+}
+
+.financeiroCompactoDivisor {
+  width: 100%;
+  height: 1px;
+  margin: 2px 0;
+  background: #edf2ef;
+}
+
+.financeiroCompactoTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.financeiroCompactoTotal span {
+  color: #202b28;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.financeiroCompactoTotal strong {
+  color: #202b28;
+  font-size: 13px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+/* =====================================================
    RODAPÉ
 ===================================================== */
 
@@ -506,19 +698,19 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 11px 21px;
+  padding: 9px 18px;
   background: #ffffff;
   border-top: 1px solid #f0ebe8;
 }
 
 .footer button {
-  min-width: 95px;
-  padding: 9px 18px;
+  min-width: 90px;
+  padding: 8px 16px;
   background: #bd1221;
   border: 1px solid #bd1221;
   border-radius: 8px;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 650;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
@@ -549,17 +741,17 @@
 
 @media (max-width: 600px) {
   .overlay {
-    padding: 10px;
+    padding: 8px;
   }
 
   .modal {
-    max-height: 93vh;
-    border-radius: 13px;
+    max-height: 94vh;
+    border-radius: 12px;
   }
 
   .header {
-    min-height: 64px;
-    padding: 12px 17px;
+    min-height: 52px;
+    padding: 9px 14px;
   }
 
   .header h2 {
@@ -567,20 +759,33 @@
   }
 
   .conteudo {
-    padding: 13px 13px 15px;
-    gap: 10px;
+    padding: 10px 12px 12px;
+    gap: 8px;
   }
 
   .secao {
-    padding: 12px;
+    padding: 10px 11px;
   }
 
   .statusPedido {
-    padding: 10px 12px;
+    padding: 8px 10px;
+  }
+
+  .financeiroCompactoTopo {
+    padding: 7px 10px 6px;
+  }
+
+  .financeiroCompactoCorpo {
+    padding: 8px 10px 9px;
+  }
+
+  .financeiroCompactoLinha > span,
+  .financeiroCompactoLinha > strong {
+    font-size: 11.5px;
   }
 
   .footer {
-    padding: 10px 15px;
+    padding: 8px 14px;
   }
 }
 
@@ -593,11 +798,11 @@
   .total {
     align-items: flex-start;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
   }
 
   .header {
-    padding: 11px 14px;
+    padding: 9px 12px;
   }
 
   .header h2 {
@@ -610,7 +815,7 @@
 
   .enderecoRodape {
     flex-direction: column;
-    gap: 9px;
+    gap: 5px;
   }
 }
 

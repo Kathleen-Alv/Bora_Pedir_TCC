@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import styles from "../ModalDetalhesPedido/modalDetalhesPedido.module.css";
 
@@ -18,6 +17,21 @@ interface ModalDetalhesPedidoProps {
   pedido: Pedido | null;
   aoFechar: () => void;
 }
+
+type ResumoFinanceiro = {
+  subtotal: number;
+  taxaPlataformaPercentual: number;
+  taxaPlataforma: number;
+  taxaOperacaoPercentual: number;
+  taxaOperacao: number;
+  taxaEntregadorPercentual: number;
+  taxaEntregador: number;
+  taxaPagamentoPercentual: number;
+  taxaPagamento: number;
+  taxaEntrega: number;
+  valorLiquido: number;
+  percentualComercio: number;
+};
 
 /* =====================================================
    URL DA FOTO DO CLIENTE
@@ -63,6 +77,140 @@ const formatarPagamento = (forma?: string | null) => {
       return forma;
   }
 };
+
+/* =====================================================
+   CÁLCULOS FINANCEIROS
+===================================================== */
+
+function numeroFinanceiro(valor: unknown): number {
+  if (valor === null || valor === undefined || valor === "") {
+    return 0;
+  }
+
+  const numero = Number(valor);
+
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function arredondarMoeda(valor: number): number {
+  return Math.round((valor + Number.EPSILON) * 100) / 100;
+}
+
+function pagamentoComCartao(metodo?: string | null): boolean {
+  const normalizado = String(metodo ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+  return (
+    normalizado.includes("credito") ||
+    normalizado.includes("debito") ||
+    normalizado.includes("credit") ||
+    normalizado.includes("debit") ||
+    normalizado.includes("cartao") ||
+    normalizado.includes("card")
+  );
+}
+
+function calcularFinanceiro(pedido: Pedido): ResumoFinanceiro {
+  const dadosExtras = pedido as Pedido & {
+    taxa_plataforma_percentual?: number;
+    taxa_plataforma_valor?: number;
+    taxa_operacao_percentual?: number;
+    taxa_operacao_valor?: number;
+    taxa_entregador_percentual?: number;
+    taxa_entregador_valor?: number;
+    taxa_pagamento_percentual?: number;
+    taxa_pagamento_valor?: number;
+    valor_liquido_comercio?: number;
+  };
+
+  const subtotal = numeroFinanceiro(pedido.subtotal);
+  const totalPedido = numeroFinanceiro(pedido.valor_total);
+  const usaCartao = pagamentoComCartao(pedido.forma_pagamento);
+
+  /* COMISSÃO TOTAL */
+  const taxaPlataformaPercentual =
+    dadosExtras.taxa_plataforma_percentual !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_plataforma_percentual)
+      : 23;
+
+  const taxaOperacaoPercentual =
+    dadosExtras.taxa_operacao_percentual !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_operacao_percentual)
+      : 15;
+
+  const taxaEntregadorPercentual =
+    dadosExtras.taxa_entregador_percentual !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_entregador_percentual)
+      : 8;
+
+  const taxaOperacao =
+    dadosExtras.taxa_operacao_valor !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_operacao_valor)
+      : arredondarMoeda(subtotal * (taxaOperacaoPercentual / 100));
+
+  const taxaEntregador =
+    dadosExtras.taxa_entregador_valor !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_entregador_valor)
+      : arredondarMoeda(subtotal * (taxaEntregadorPercentual / 100));
+
+  const taxaPlataforma =
+    dadosExtras.taxa_plataforma_valor !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_plataforma_valor)
+      : arredondarMoeda(taxaOperacao + taxaEntregador);
+
+  /* TAXA DO MEIO DE PAGAMENTO */
+  const taxaPagamentoPercentual =
+    dadosExtras.taxa_pagamento_percentual !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_pagamento_percentual)
+      : usaCartao
+        ? 3.2
+        : 0;
+
+  const taxaPagamento =
+    dadosExtras.taxa_pagamento_valor !== undefined
+      ? numeroFinanceiro(dadosExtras.taxa_pagamento_valor)
+      : arredondarMoeda(subtotal * (taxaPagamentoPercentual / 100));
+
+  /* TAXA DE ENTREGA */
+  const taxaEntrega = numeroFinanceiro(pedido.taxa_entrega);
+
+  /* VALOR LÍQUIDO */
+  const valorLiquidoCalculado = arredondarMoeda(
+    subtotal - taxaPlataforma - taxaPagamento
+  );
+
+  const valorLiquido =
+    dadosExtras.valor_liquido_comercio !== undefined
+      ? numeroFinanceiro(dadosExtras.valor_liquido_comercio)
+      : valorLiquidoCalculado;
+
+  const basePercentual = totalPedido > 0 ? totalPedido : subtotal;
+  const percentualComercio =
+    basePercentual > 0
+      ? Math.max(
+          0,
+          Math.min(100, Math.round((valorLiquido / basePercentual) * 100))
+        )
+      : 0;
+
+  return {
+    subtotal,
+    taxaPlataformaPercentual,
+    taxaPlataforma,
+    taxaOperacaoPercentual,
+    taxaOperacao,
+    taxaEntregadorPercentual,
+    taxaEntregador,
+    taxaPagamentoPercentual,
+    taxaPagamento,
+    taxaEntrega,
+    valorLiquido,
+    percentualComercio,
+  };
+}
 
 /* =====================================================
    ENDEREÇO
@@ -153,6 +301,12 @@ export function ModalDetalhesPedido({
   const status = traduzirStatus(pedido.status);
 
   const endereco = montarEndereco(pedido);
+
+  const financeiro = calcularFinanceiro(pedido);
+
+  const metodoPagamentoFormatado = formatarPagamento(
+    pedido.forma_pagamento
+  );
 
   /* =====================================================
      RENDERIZAÇÃO
@@ -367,7 +521,7 @@ export function ModalDetalhesPedido({
               <span>Forma de pagamento</span>
 
               <strong>
-                {formatarPagamento(pedido.forma_pagamento)}
+                {metodoPagamentoFormatado}
               </strong>
             </div>
 
@@ -404,6 +558,108 @@ export function ModalDetalhesPedido({
               <strong>
                 {formatarMoeda(pedido.valor_total)}
               </strong>
+            </div>
+
+            {/* RESUMO FINANCEIRO DO COMÉRCIO */}
+            <div className={styles.financeiroCompacto}>
+              <div className={styles.financeiroCompactoTopo}>
+                <span className={styles.financeiroCompactoTitulo}>
+                  Repasse líquido estimado
+                </span>
+
+                <div className={styles.financeiroCompactoLiquido}>
+                  <span>Valor recebido pelo comércio:</span>
+                  <strong>
+                    {formatarMoeda(financeiro.valorLiquido)}
+                  </strong>
+                </div>
+              </div>
+
+              <div className={styles.financeiroCompactoCorpo}>
+                {/* BARRA DE DISTRIBUIÇÃO */}
+                <div
+                  className={styles.financeiroCompactoBarra}
+                  role="img"
+                  aria-label={`${financeiro.percentualComercio}% para o comércio e ${100 - financeiro.percentualComercio}% em taxas e entrega`}
+                >
+                  <span
+                    className={styles.financeiroCompactoBarraComercio}
+                    style={{
+                      width: `${financeiro.percentualComercio}%`,
+                    }}
+                  />
+                  <span
+                    className={styles.financeiroCompactoBarraTaxas}
+                    style={{
+                      width: `${100 - financeiro.percentualComercio}%`,
+                    }}
+                  />
+                </div>
+
+                <p className={styles.financeiroCompactoLegenda}>
+                  {financeiro.percentualComercio}% do valor total ficou com o comércio.
+                </p>
+
+                <strong className={styles.financeiroCompactoSecao}>
+                  Detalhamento dos valores
+                </strong>
+
+                {/* COMÉRCIO */}
+                <div className={styles.financeiroCompactoLinha}>
+                  <span>
+                    <i className={styles.pontoComercio} />
+                    Comércio
+                  </span>
+                  <strong>
+                    {formatarMoeda(financeiro.valorLiquido)}
+                  </strong>
+                </div>
+
+                {/* ENTREGA / MOTOBOY */}
+                <div className={styles.financeiroCompactoLinha}>
+                  <span>
+                    <i className={styles.pontoTaxa} />
+                    Entrega / motoboy (Taxa: {formatarMoeda(financeiro.taxaEntrega)} + Repasse: {formatarMoeda(financeiro.taxaEntregador)})
+                  </span>
+                  <strong>
+                    {formatarMoeda(
+                      arredondarMoeda(
+                        financeiro.taxaEntrega + financeiro.taxaEntregador
+                      )
+                    )}
+                  </strong>
+                </div>
+
+                {/* MEIO DE PAGAMENTO */}
+                <div className={styles.financeiroCompactoLinha}>
+                  <span>
+                    <i className={styles.pontoTaxa} />
+                    Meio de pagamento ({metodoPagamentoFormatado})
+                  </span>
+                  <strong>
+                    {formatarMoeda(financeiro.taxaPagamento)}
+                  </strong>
+                </div>
+
+                {/* TAXA DA PLATAFORMA */}
+                <div className={styles.financeiroCompactoLinha}>
+                  <span>
+                    <i className={styles.pontoTaxa} />
+                    Taxa da plataforma ({financeiro.taxaOperacaoPercentual}%)
+                  </span>
+                  <strong>
+                    {formatarMoeda(financeiro.taxaOperacao)}
+                  </strong>
+                </div>
+
+                <div className={styles.financeiroCompactoDivisor} />
+
+                {/* TOTAL */}
+                <div className={styles.financeiroCompactoTotal}>
+                  <span>Total pago pelo cliente</span>
+                  <strong>{formatarMoeda(pedido.valor_total)}</strong>
+                </div>
+              </div>
             </div>
           </section>
 
