@@ -1,0 +1,533 @@
+.inicioFeedContainer {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 32px 60px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+}
+
+/* =====================================================
+   CARD DE BOAS-VINDAS (HERO - COMPACTO E RENTE AO TOPO)
+===================================================== */
+
+.boasVindasCard {
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    125deg,
+    #fff1f2 0%,
+    #ffedd5 48%,
+    #ecfdf5 100%
+  );
+  border-radius: 18px;
+  padding: 20px 28px;
+  margin-bottom: 24px;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.07);
+  border: 1px solid #ffe4e6;
+}
+
+.boasVindasGlow {
+  position: absolute;
+  top: -80px;
+  right: 12%;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(253, 186, 116, 0.35) 0%,
+    rgba(253, 164, 175, 0.15) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.boasVindasInfo {
+  position: relative;
+  z-index: 1;
+  max-width: 660px;
+}
+
+.statusOperacaoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+}
+
+.statusPonto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.boasVindasInfo h1 {
+  font-size: 1.42rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 4px;
+  color: #111827;
+  letter-spacing: -0.3px;
+}
+
+.boasVindasInfo p {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #4b5563;
+  margin: 0;
+}
+
+.btnGestaoPedidos {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #bd1221 0%, #e11d48 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(189, 18, 33, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btnGestaoPedidos:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(189, 18, 33, 0.32);
+}
+
+.btnGestaoPedidos:active {
+  transform: translateY(0);
+}
+
+/* =====================================================
+   CABEÇALHO DO FEED E FILTROS
+===================================================== */
+
+.inicioFeedHeader {
+  max-width: 740px;
+  margin: 0 auto 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inicioFeedTituloRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inicioFeedTituloRow h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.inicioFeedTituloRow span {
+  font-size: 0.84rem;
+  color: #6b7280;
+}
+
+.inicioFiltros {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filtroChip {
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #4b5563;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filtroChip:hover {
+  border-color: #bd1221;
+  color: #bd1221;
+  background-color: #fff5f5;
+}
+
+.ativo {
+  background-color: #bd1221;
+  border-color: #bd1221;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(189, 18, 33, 0.22);
+}
+
+.ativo:hover {
+  background-color: #9e0e1b;
+  color: #ffffff;
+}
+
+/* =====================================================
+   LISTA DE POSTS (FEED CENTRALIZADO)
+===================================================== */
+
+.inicioFeedLista {
+  max-width: 740px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.feedCard {
+  background-color: #ffffff;
+  border: 1px solid #eceef2;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedCard:hover {
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+}
+
+/* Topo do Card */
+.feedCardTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+}
+
+.feedAutor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.feedAvatarAnel {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  padding: 2.5px;
+  background: linear-gradient(45deg, #bd1221, #f97316, #0aa879);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #bd1221;
+  border: 2.5px solid #ffffff;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+}
+
+.feedAutorInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feedAutorNome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.98rem;
+  color: #111827;
+}
+
+.seloVerificado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background-color: #0ea5e9;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.feedSubtitulo {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.feedBadgeDica {
+  background-color: #fef2f2;
+  color: #bd1221;
+  border: 1px solid #fecdd3;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+/* =====================================================
+   BANNER / FOTO DO POST (TAMANHO AMPLIADO)
+===================================================== */
+
+.feedBanner {
+  width: 100%;
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  user-select: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.feedBannerDecoracao1 {
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.feedBannerDecoracao2 {
+  position: absolute;
+  bottom: -70px;
+  right: -40px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.14);
+  pointer-events: none;
+}
+
+.feedBannerImg {
+  width: 100%;
+  height: 410px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.feedBanner:hover .feedBannerImg {
+  transform: scale(1.015);
+}
+
+.feedBannerConteudo {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 540px;
+  padding: 40px 28px;
+}
+
+.feedBannerIconeBox {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.3rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+.feedBannerTag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.feedBannerConteudo h3 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 12px;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.feedBannerConteudo p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Coração animado no duplo clique */
+.coracaoDuploClique {
+  position: absolute;
+  z-index: 3;
+  font-size: 4.5rem;
+  animation: pulsarCoracao 0.65s ease forwards;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+}
+
+@keyframes pulsarCoracao {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+/* =====================================================
+   BARRA DE AÇÕES E LEGENDA
+===================================================== */
+
+.feedAcoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px 6px;
+}
+
+.feedAcoesEsquerda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnAcao {
+  background: none;
+  border: none;
+  font-size: 1.35rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.btnAcao:hover {
+  transform: scale(1.18);
+}
+
+.curtido,
+.salvo {
+  transform: scale(1.06);
+}
+
+.feedCurtidasTexto {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.feedLegenda {
+  padding: 6px 18px 20px;
+}
+
+.feedLegenda p {
+  font-size: 0.94rem;
+  line-height: 1.58;
+  color: #1f2937;
+  margin: 0 0 10px;
+}
+
+.feedLegenda strong {
+  color: #111827;
+  margin-right: 6px;
+}
+
+.feedData {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .inicioFeedContainer {
+    padding: 10px 16px 48px;
+  }
+
+  .boasVindasCard {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 20px;
+  }
+
+  .boasVindasInfo h1 {
+    font-size: 1.28rem;
+  }
+
+  .btnGestaoPedidos {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .feedBanner {
+    min-height: 300px;
+  }
+
+  .feedBannerImg {
+    height: 320px;
+  }
+
+  .feedBannerConteudo h3 {
+    font-size: 1.35rem;
+  }
+}

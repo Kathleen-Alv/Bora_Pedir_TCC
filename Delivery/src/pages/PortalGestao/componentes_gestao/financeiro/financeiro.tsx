@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from 'recharts';
 
-import styles from './inicio.module.css';
+import styles from './financeiro.module.css';
 
 /* ================================================================
    DADOS DOS CARDS
@@ -82,7 +82,7 @@ const restaurantes = [
    COMPONENTE INÍCIO
 ================================================================ */
 
-export function Inicio() {
+export function Financeiro() {
   return (
     <main className={styles.inicio}>
 

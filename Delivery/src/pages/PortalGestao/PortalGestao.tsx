@@ -26,9 +26,9 @@ import gestaoPedidos from "../../assets/portalGestao/gestaoPedidos.png";
    PÁGINAS E COMPONENTES
 ===================================================== */
 
-import {Perfil} from "./componentes_gestao/perfil/perfil";
+import { InicioComerciante } from "./componentes_gestao/Inicio/InicioComerciante";
+import { Perfil } from "./componentes_gestao/perfil/perfil";
 import { Avaliacoes } from "./componentes_gestao/avaliacoes/avaliacoes";
-import { Inicio } from "./componentes_gestao/Inicio/inicio";
 import { Cardapio } from "./componentes_gestao/Cardapio/cardapio";
 import { Precificacao } from "./componentes_gestao/Cardapio/calculadoraDePrecificação/calculadoraDePrecificação";
 import { Pedidos } from "./componentes_gestao/pedidos_detalhes/pedidos_detalhes";
@@ -110,7 +110,6 @@ export function PortalGestao() {
         ===================================================== */}
 
         <aside className={styles.sidebar}>
-
           {/* INÍCIO */}
 
           <button
@@ -379,10 +378,9 @@ export function PortalGestao() {
         ===================================================== */}
 
         <main className={styles.content}>
-
           {/* INÍCIO */}
 
-          {telaAtual === "inicio" && <Inicio />}
+          {telaAtual === "inicio" && <InicioComerciante />}
 
           {/* CARDÁPIO */}
 
