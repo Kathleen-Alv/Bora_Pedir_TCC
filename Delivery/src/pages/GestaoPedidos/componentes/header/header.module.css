@@ -16,6 +16,10 @@
   min-width: 0;
 }
 
+.headerEsquerda {
+  gap: 14px;
+}
+
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -198,7 +202,6 @@
   background: #f6f8f7;
 }
 
-
 .portalButton {
   background-color: rgb(252, 239, 239);
   width: 145px;
@@ -215,7 +218,3 @@
   background-color: rgb(240, 235, 235);
   border-color: rgb(236, 3, 3);
 }
-
-
-
-/**/

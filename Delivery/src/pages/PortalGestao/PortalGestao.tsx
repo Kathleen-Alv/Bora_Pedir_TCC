@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -27,14 +26,13 @@ import gestaoPedidos from "../../assets/portalGestao/gestaoPedidos.png";
    PÁGINAS E COMPONENTES
 ===================================================== */
 
-import Perfil from "./componentes_gestao/perfil/perfil";
+import {Perfil} from "./componentes_gestao/perfil/perfil";
 import { Avaliacoes } from "./componentes_gestao/avaliacoes/avaliacoes";
 import { Inicio } from "./componentes_gestao/Inicio/inicio";
 import { Cardapio } from "./componentes_gestao/Cardapio/cardapio";
-
 import { Precificacao } from "./componentes_gestao/Cardapio/calculadoraDePrecificação/calculadoraDePrecificação";
-
 import { Pedidos } from "./componentes_gestao/pedidos_detalhes/pedidos_detalhes";
+import { Horarios } from "./componentes_gestao/horarios/horarios";
 
 /* =====================================================
    TELAS DO PORTAL
@@ -439,12 +437,7 @@ export function PortalGestao() {
 
           {/* HORÁRIOS */}
 
-          {telaAtual === "horarios" && (
-            <div>
-              <h1>Horários de Funcionamento</h1>
-              <p>Configure os horários do comércio.</p>
-            </div>
-          )}
+          {telaAtual === "horarios" && <Horarios />}
 
           {/* SUPORTE */}
 

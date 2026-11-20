@@ -1,10 +1,8 @@
-
- // ================================================================
- // IMPORTS
- // ================================================================
+// ================================================================
+// IMPORTS
+// ================================================================
 
 import express from 'express';
-
 
 // ================================================================
 // CONTROLLER
@@ -12,27 +10,24 @@ import express from 'express';
 
 import {
     salvarPrimeiroAcesso,
-    verEmail
+    verEmail,
+    buscarHorariosComercio,
+    salvarHorariosComercio,
+    alterarStatusComercio,
+    verificarStatusPublicoComercio,
 } from '../controllers/comercio.controller.js';
-
 
 // ================================================================
 // MIDDLEWARE DE AUTENTICAÇÃO
 // ================================================================
 
-import {
-    autenticar
-} from '../middlewares/autenticacao.js';
-
+import { autenticar } from '../middlewares/autenticacao.js';
 
 // ================================================================
 // MIDDLEWARE DE UPLOAD
 // ================================================================
 
-import {
-    uploadComercio
-} from '../middlewares/uploadComercio.js';
-
+import { uploadComercio } from '../middlewares/uploadComercio.js';
 
 // ================================================================
 // ROUTER
@@ -40,17 +35,11 @@ import {
 
 const router = express.Router();
 
-
 // ================================================================
 // MOSTRAR E-MAIL DO COMÉRCIO LOGADO
 // ================================================================
 
-router.get(
-    '/ver-email',
-    autenticar,
-    verEmail
-);
-
+router.get('/ver-email', autenticar, verEmail);
 
 // ================================================================
 // PRIMEIRO ACESSO DO COMÉRCIO
@@ -58,26 +47,27 @@ router.get(
 
 router.post(
     '/primeiro-acesso',
-
-    // Verifica o JWT
     autenticar,
-
-    // Recebe logo e banner
     uploadComercio.fields([
-        {
-            name: 'logo',
-            maxCount: 1
-        },
-        {
-            name: 'banner',
-            maxCount: 1
-        }
+        { name: 'logo', maxCount: 1 },
+        { name: 'banner', maxCount: 1 },
     ]),
-
-    // Salva os dados no banco
     salvarPrimeiroAcesso
 );
 
+// ================================================================
+// HORÁRIOS DE FUNCIONAMENTO E STATUS (PAINEL WEB)
+// ================================================================
+
+router.get('/horarios', autenticar, buscarHorariosComercio);
+router.put('/horarios', autenticar, salvarHorariosComercio);
+router.patch('/status', autenticar, alterarStatusComercio);
+
+// ================================================================
+// STATUS ABERTO / FECHADO PÚBLICO (APP FLUTTER)
+// ================================================================
+
+router.get('/:id/status', verificarStatusPublicoComercio);
 
 // ================================================================
 // EXPORT

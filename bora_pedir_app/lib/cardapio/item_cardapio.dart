@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../services/carrinho_service.dart';
@@ -9,6 +8,8 @@ class ItemCardapioPage extends StatefulWidget {
   final String descricao;
   final String imagem;
   final double preco;
+  final bool lojaAberta;
+  final String mensagemFechado;
 
   const ItemCardapioPage({
     super.key,
@@ -17,6 +18,8 @@ class ItemCardapioPage extends StatefulWidget {
     required this.descricao,
     required this.imagem,
     required this.preco,
+    this.lojaAberta = true,
+    this.mensagemFechado = '',
   });
 
   @override
@@ -28,6 +31,21 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
   bool _adicionando = false;
 
   Future<void> _adicionarAoCarrinho() async {
+    if (!widget.lojaAberta) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.mensagemFechado.isNotEmpty
+                ? widget.mensagemFechado
+                : 'Este comércio está fechado no momento.',
+          ),
+          backgroundColor: const Color(0xFFBD1221),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     if (_adicionando) return;
 
     setState(() {
@@ -152,6 +170,17 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                             ),
                           ),
 
+                          const SizedBox(height: 8),
+
+                          Text(
+                            _formatarPreco(widget.preco),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF009E7A),
+                            ),
+                          ),
+
                           const SizedBox(height: 20),
 
                           const Text(
@@ -204,101 +233,152 @@ class _ItemCardapioPageState extends State<ItemCardapioPage> {
                   ),
                 ],
               ),
-              child: Row(
-                children: [
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xFFE1E1E1),
+              child: !widget.lojaAberta
+                  ? Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 13,
                       ),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: Row(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF1F2),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: const Color(0xFFFECDD3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.lock_clock_rounded,
+                            color: Color(0xFFBD1221),
+                            size: 22,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Comércio fechado para pedidos',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF9F1239),
+                                  ),
+                                ),
+                                if (widget.mensagemFechado.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    widget.mensagemFechado,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFFBE123C),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Row(
                       children: [
-                        IconButton(
-                          onPressed: _adicionando
-                              ? null
-                              : () {
-                                  if (quantidade > 1) {
-                                    setState(() {
-                                      quantidade--;
-                                    });
-                                  }
-                                },
-                          icon: const Icon(
-                            Icons.remove,
-                            size: 18,
-                          ),
-                          color: const Color(0xFF555555),
-                        ),
-
-                        Text(
-                          '$quantidade',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-
-                        IconButton(
-                          onPressed: _adicionando
-                              ? null
-                              : () {
-                                  setState(() {
-                                    quantidade++;
-                                  });
-                                },
-                          icon: const Icon(
-                            Icons.add,
-                            size: 18,
-                          ),
-                          color: const Color(0xFF555555),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed:
-                            _adicionando ? null : _adicionarAoCarrinho,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFBD1221),
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor:
-                              const Color(0xFFBD1221).withValues(alpha: 0.7),
-                          disabledForegroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
+                        Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xFFE1E1E1),
+                            ),
                             borderRadius: BorderRadius.circular(25),
                           ),
-                        ),
-                        child: _adicionando
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: _adicionando
+                                    ? null
+                                    : () {
+                                        if (quantidade > 1) {
+                                          setState(() {
+                                            quantidade--;
+                                          });
+                                        }
+                                      },
+                                icon: const Icon(
+                                  Icons.remove,
+                                  size: 18,
                                 ),
-                              )
-                            : Text(
-                                'Adicionar  •  ${_formatarPreco(total)}',
+                                color: const Color(0xFF555555),
+                              ),
+
+                              Text(
+                                '$quantidade',
                                 style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                      ),
+
+                              IconButton(
+                                onPressed: _adicionando
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          quantidade++;
+                                        });
+                                      },
+                                icon: const Icon(
+                                  Icons.add,
+                                  size: 18,
+                                ),
+                                color: const Color(0xFF555555),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: SizedBox(
+                            height: 48,
+                            child: ElevatedButton(
+                              onPressed:
+                                  _adicionando ? null : _adicionarAoCarrinho,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFBD1221),
+                                foregroundColor: Colors.white,
+                                disabledBackgroundColor:
+                                    const Color(0xFFBD1221).withValues(alpha: 0.7),
+                                disabledForegroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              child: _adicionando
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Adicionar  •  ${_formatarPreco(total)}',
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),

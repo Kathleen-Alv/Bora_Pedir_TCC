@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./header.module.css";
 
@@ -17,18 +17,71 @@ export function Header({
   cargoUsuario = "Administrador",
   iniciaisAvatar = "RN",
   qtdNotificacoes = 0,
-  paginaAtual = "Central de pedidos",
   onToggleLoja,
   onNavigatePortal,
 }: HeaderProps) {
   const navigate = useNavigate();
   const [lojaAberta, setLojaAberta] = useState(true);
 
-  const handleToggleLoja = () => {
+  /* =========================================================
+     CARREGAR STATUS ATUAL DA LOJA AO MONTAR
+  ========================================================= */
+  useEffect(() => {
+    async function buscarStatusInicial() {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const resposta = await fetch(
+          "http://localhost:3000/api/comercios/horarios",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!resposta.ok) return;
+
+        const dados = await resposta.json();
+        if (typeof dados.aberto !== "undefined") {
+          setLojaAberta(Boolean(dados.aberto));
+        }
+      } catch (erro) {
+        console.error("Erro ao buscar status da loja:", erro);
+      }
+    }
+
+    buscarStatusInicial();
+  }, []);
+
+  /* =========================================================
+     ALTERNAR STATUS (ABRIR / FECHAR COMÉRCIO)
+  ========================================================= */
+  const handleToggleLoja = async () => {
     const novoStatus = !lojaAberta;
+
+    // Atualiza o visual imediatamente
     setLojaAberta(novoStatus);
+
     if (onToggleLoja) {
       onToggleLoja(novoStatus);
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      await fetch("http://localhost:3000/api/comercios/status", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ aberto: novoStatus }),
+      });
+    } catch (erro) {
+      console.error("Erro ao sincronizar status da loja com o servidor:", erro);
     }
   };
 
@@ -42,28 +95,28 @@ export function Header({
 
   return (
     <header className={styles.header}>
-      {/* LADO ESQUERDO: BOTÃO PORTAL DO COMERCIANTE E BREADCRUMB */}
+      {/* LADO ESQUERDO: PORTAL DO COMERCIANTE + BOTÃO ABRIR/FECHAR */}
       <div className={styles.headerEsquerda}>
-        <div>
-          <button
-            type="button"
-            className={styles.portalButton}
-            onClick={handlePortalClick}
-          >
-            Portal Do Comerciante
-          </button>
-        </div>
-      </div>
+        <button
+          type="button"
+          className={styles.portalButton}
+          onClick={handlePortalClick}
+        >
+          Portal Do Comerciante
+        </button>
 
-      {/* LADO DIREITO: STATUS, NOTIFICAÇÃO E USUÁRIO */}
-      <div className={styles.headerDireita}>
-        {/* BOTÃO STATUS DA LOJA */}
+        {/* BOTÃO STATUS DA LOJA AO LADO DIREITO DO PORTAL */}
         <button
           type="button"
           className={`${styles.statusLoja} ${
             lojaAberta ? styles.lojaAberta : styles.lojaFechada
           }`}
           onClick={handleToggleLoja}
+          title={
+            lojaAberta
+              ? "Clique para fechar o comércio manualmente"
+              : "Clique para abrir o comércio"
+          }
         >
           <span className={styles.chave}>
             <span className={styles.bolinha} />
@@ -72,10 +125,10 @@ export function Header({
             {lojaAberta ? "Loja aberta" : "Loja fechada"}
           </span>
         </button>
+      </div>
 
-        {/* DIVISOR */}
-        <span className={styles.divisorHeader} />
-
+      {/* LADO DIREITO: NOTIFICAÇÃO E USUÁRIO */}
+      <div className={styles.headerDireita}>
         {/* BOTÃO NOTIFICAÇÃO */}
         <button
           type="button"

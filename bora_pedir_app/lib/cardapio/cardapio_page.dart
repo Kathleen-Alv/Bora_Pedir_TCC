@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -52,6 +51,9 @@ class _CardapioPageState extends State<CardapioPage> {
 
   bool abrindoChat = false;
 
+  bool lojaAberta = true;
+  String mensagemStatusLoja = '';
+
   late String descricaoComercio;
 
   final ScrollController _scrollController = ScrollController();
@@ -67,6 +69,7 @@ class _CardapioPageState extends State<CardapioPage> {
 
     _scrollController.addListener(_sincronizarCategoriaVisivel);
 
+    _verificarStatusLoja();
     _buscarDescricaoComercio();
     _buscarCardapio();
     _carregarCarrinho();
@@ -77,6 +80,37 @@ class _CardapioPageState extends State<CardapioPage> {
     _scrollController.removeListener(_sincronizarCategoriaVisivel);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  // =========================================================
+  // VERIFICAR SE A LOJA ESTÁ ABERTA OU FECHADA
+  // =========================================================
+
+  Future<void> _verificarStatusLoja() async {
+    try {
+      final baseUrl = ComercioService.baseUrl.replaceFirst(
+        RegExp(r'/$'),
+        '',
+      );
+
+      final resposta = await http.get(
+        Uri.parse('$baseUrl/api/comercios/${widget.comercioId}/status'),
+      );
+
+      if (resposta.statusCode != 200) return;
+
+      final dados = jsonDecode(resposta.body);
+
+      if (!mounted) return;
+
+      setState(() {
+        lojaAberta = dados['aberto'] == true;
+        mensagemStatusLoja = dados['mensagem']?.toString() ??
+            'Comércio fechado no momento.';
+      });
+    } catch (e) {
+      debugPrint('ERRO AO VERIFICAR STATUS DA LOJA: $e');
+    }
   }
 
   // =========================================================
@@ -534,6 +568,8 @@ class _CardapioPageState extends State<CardapioPage> {
             descricao: descricao,
             imagem: imagemUrl,
             preco: preco,
+            lojaAberta: lojaAberta,
+            mensagemFechado: mensagemStatusLoja,
           );
         },
       ),
@@ -579,6 +615,61 @@ class _CardapioPageState extends State<CardapioPage> {
                 deslocamentoNomeCategoriaStatus: -10,
               ),
             ),
+
+            // AVISO DE COMÉRCIO FECHADO
+
+            if (!lojaAberta)
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(15, 10, 15, 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF1F2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFFECDD3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time_filled_rounded,
+                        color: vermelho,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Este comércio está fechado no momento',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF9F1239),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              mensagemStatusLoja.isNotEmpty
+                                  ? '$mensagemStatusLoja (apenas visualização do cardápio)'
+                                  : 'Você pode ver o cardápio, mas não é possível fazer pedidos agora.',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFFBE123C),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             // MENU DE CATEGORIAS FIXO
 
@@ -713,7 +804,7 @@ class _CardapioPageState extends State<CardapioPage> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (carrinhoVisivel)
+          if (carrinhoVisivel && lojaAberta)
             CarrinhoComprasModal(
               total: totalCarrinho,
               onFechar: _fecharCarrinho,
