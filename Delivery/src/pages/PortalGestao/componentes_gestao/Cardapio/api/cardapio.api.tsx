@@ -515,3 +515,51 @@ export async function alterarCategoria(
     return dados.categoria;
 
 }
+
+// ================================================================
+// SALVAR PROMOÇÃO DE UM ITEM
+// ================================================================
+
+export interface PayloadPromocaoItem {
+    itemId: number;
+    precoPromocional: number | null;
+}
+
+export async function salvarPromocaoItem(
+    id: number,
+    precoPromocional: number | null
+) {
+    const token = obterToken();
+
+    if (!token) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+    }
+
+    const resposta = await fetch(`${API_URL}/itens/${id}/promocao`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            preco_promocional: precoPromocional,
+        }),
+    });
+
+    const texto = await resposta.text();
+    let dados: any = {};
+
+    try {
+        dados = texto ? JSON.parse(texto) : {};
+    } catch {
+        throw new Error('O servidor não retornou uma resposta JSON válida.');
+    }
+
+    if (!resposta.ok) {
+        throw new Error(
+            dados.message || 'Não foi possível salvar a promoção do item.'
+        );
+    }
+
+    return dados;
+}

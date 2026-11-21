@@ -8,6 +8,7 @@ export type Item = {
     id: number;
     nome: string;
     preco: number;
+    precoPromocional?: number | null;
     imagem: string;
     descricao: string;
     disponivel: boolean;
@@ -21,6 +22,7 @@ export type ItemCriadoAPI = {
     nome: string;
     foto: string | null;
     preco: number;
+    preco_promocional?: number | null;
     descricao: string | null;
     disponivel: boolean;
 };
@@ -31,6 +33,7 @@ export type ItemRecebidoAPI = {
     nome: string;
     foto: string | null;
     preco: number;
+    preco_promocional?: number | null;
     descricao: string | null;
     disponivel: boolean;
 };

@@ -274,6 +274,10 @@ export function useCardapio() {
     // CARREGAR ITENS
     // ================================================================
 
+    // ================================================================
+    // CARREGAR ITENS
+    // ================================================================
+
     async function carregarItens() {
 
         try {
@@ -295,6 +299,12 @@ export function useCardapio() {
                                 item.disponivel
                             );
 
+                        const precoPromocional =
+                            item.preco_promocional !== null &&
+                            item.preco_promocional !== undefined
+                                ? Number(item.preco_promocional)
+                                : null;
+
                         return {
 
                             id:
@@ -309,6 +319,8 @@ export function useCardapio() {
                                 Number(
                                     item.preco
                                 ),
+
+                            precoPromocional,
 
                             imagem:
                                 item.foto || '',
@@ -360,7 +372,6 @@ export function useCardapio() {
             setCarregandoItens(false);
         }
     }
-
 
     // ================================================================
     // CARREGAR DADOS DO COMÉRCIO

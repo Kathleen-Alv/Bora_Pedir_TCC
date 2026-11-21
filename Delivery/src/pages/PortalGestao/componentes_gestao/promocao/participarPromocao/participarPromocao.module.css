@@ -1,0 +1,1214 @@
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+}
+
+/* =====================================================
+   3 CARDS DE AUTOMAÇÃO NO TOPO
+===================================================== */
+.pacotesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.pacoteCard {
+  background-color: #ffffff;
+  border: 1px solid #eceef2;
+  border-radius: 18px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pacoteCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+}
+
+.pacoteCardDestaque {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffedd5 100%);
+  border: 1px solid #fecdd3;
+}
+
+.pacoteTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pacoteBadge {
+  background-color: #f3f4f6;
+  color: #374151;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.pacoteBadgeDestaque {
+  background-color: #bd1221;
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.pacoteDestaque {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #bd1221;
+}
+
+.pacoteCard h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0;
+}
+
+.pacoteCard p {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #4b5563;
+  margin: 0;
+}
+
+.btnPacote {
+  margin-top: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #bd1221;
+  background-color: #ffffff;
+  color: #bd1221;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnPacote:hover:not(:disabled) {
+  background-color: #bd1221;
+  color: #ffffff;
+}
+
+.btnPacoteDestaque {
+  margin-top: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #bd1221 0%, #e11d48 100%);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(189, 18, 33, 0.22);
+  transition: transform 0.2s ease;
+}
+
+.btnPacoteDestaque:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.pacoteCategoriaAcoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.selectPercentual {
+  padding: 9px 10px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #bd1221;
+  cursor: pointer;
+}
+
+.pacoteCategoriaAcoes .btnPacote {
+  margin-top: 0;
+}
+
+/* =====================================================
+   BARRA DE BUSCA E BOTÃO PUBLICAR
+===================================================== */
+.barraControle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.campoBusca {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+
+.campoBusca:focus-within {
+  border-color: #bd1221;
+  box-shadow: 0 0 0 3px rgba(189, 18, 33, 0.08);
+}
+
+.campoBusca input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  color: #111827;
+}
+
+.btnLimparBusca {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.acoesSalvar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnLimparSelecao {
+  padding: 11px 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #4b5563;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnLimparSelecao:hover {
+  background-color: #f9fafb;
+}
+
+.btnPublicar {
+  padding: 11px 22px;
+  border-radius: 12px;
+  border: none;
+  background-color: #bd1221;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(189, 18, 33, 0.22);
+  transition: background-color 0.2s ease;
+}
+
+.btnPublicar:hover:not(:disabled) {
+  background-color: #9e0e1b;
+}
+
+.btnPublicar:disabled {
+  background-color: #d1d5db;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   CONTEÚDO (CATEGORIAS À ESQUERDA + ITENS À DIREITA)
+===================================================== */
+.conteudo {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.categoriasSidebar {
+  background-color: #ffffff;
+  border: 1px solid #eceef2;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.tituloCategorias h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 12px;
+}
+
+.listaCategorias {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.botaoCategoria {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: #374151;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.botaoCategoria:hover {
+  background-color: #fff5f5;
+  color: #bd1221;
+}
+
+.categoriaSelecionada {
+  background-color: #fef2f2;
+  border-color: #fecdd3;
+  color: #bd1221;
+  font-weight: 700;
+}
+
+.badgesCategoria {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badgePromoCat {
+  background-color: #bd1221;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.badgesCategoria small {
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
+/* =====================================================
+   ÁREA DOS ITENS
+===================================================== */
+.areaItens {
+  background-color: #ffffff;
+  border: 1px solid #eceef2;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.barraItensTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.barraItensTopo strong {
+  font-size: 1.02rem;
+  color: #111827;
+}
+
+.barraItensTopo span {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.btnSelecionarCategoriaInteira {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid #fecdd3;
+  background-color: #fff5f5;
+  color: #bd1221;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnSelecionarCategoriaInteira:hover {
+  background-color: #bd1221;
+  color: #ffffff;
+}
+
+.cabecalhoTabela {
+  display: grid;
+  grid-template-columns: 1.8fr 0.8fr 1.2fr;
+  padding: 12px 20px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #eceef2;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.listaItens {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemRow {
+  display: grid;
+  grid-template-columns: 1.8fr 0.8fr 1.2fr;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.15s ease;
+}
+
+.itemRow:last-child {
+  border-bottom: none;
+}
+
+.itemRowAtivo {
+  background-color: #fffafa;
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.itemInfo input[type='checkbox'] {
+  width: 17px;
+  height: 17px;
+  accent-color: #bd1221;
+  cursor: pointer;
+}
+
+.itemImg {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+}
+
+.itemImgVazia {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: #fff5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.itemTextos {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.itemNome {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tagSelecionado {
+  display: inline-block;
+  width: fit-content;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #047857;
+  background-color: #ecfdf5;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.precoOriginal {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.precoRiscado {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* =====================================================
+   CAMPO DE NOVO PREÇO + BADGE DE PORCENTAGEM
+===================================================== */
+.precoPromoBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inputMoedaWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 7px 10px;
+  background-color: #ffffff;
+  width: 115px;
+}
+
+.inputMoedaWrapper:focus-within {
+  border-color: #bd1221;
+  box-shadow: 0 0 0 3px rgba(189, 18, 33, 0.1);
+}
+
+.inputMoedaWrapper span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.inputMoedaWrapper input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.badgeDesconto {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.avisoMenorPreco {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.mensagemVazia {
+  padding: 32px 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* =====================================================
+   RESPONSIVIDADE
+===================================================== */
+@media (max-width: 960px) {
+  .pacotesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .conteudo {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .cabecalhoTabela {
+    display: none;
+  }
+
+  .itemRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+/* ================================================================
+   MENSAGENS DE FEEDBACK
+================================================================ */
+.mensagemErro {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.mensagemSucesso {
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ================================================================
+   3 CARDS DE AUTOMAÇÃO NO TOPO
+================================================================ */
+.pacotesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.pacoteCard {
+  background-color: #ffffff;
+  border: 1px solid #f0e6e4;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pacoteCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(189, 18, 33, 0.07);
+}
+
+.pacoteCardDestaque {
+  background: linear-gradient(135deg, #fff8f6 0%, #ffefec 100%);
+  border: 1.5px solid #f6c2c7;
+}
+
+.pacoteTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pacoteBadge {
+  background-color: #fdf2f2;
+  color: #bd1221;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.pacoteBadgeDestaque {
+  background-color: #bd1221;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.pacoteDestaque {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #bd1221;
+}
+
+.pacoteCard h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.pacoteCard p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.btnPacote {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #bd1221;
+  background-color: #ffffff;
+  color: #bd1221;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btnPacote:hover:not(:disabled) {
+  background-color: #bd1221;
+  color: #ffffff;
+}
+
+.btnPacote:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnPacoteDestaque {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background-color: #bd1221;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.btnPacoteDestaque:hover:not(:disabled) {
+  background-color: #9e0f1c;
+}
+
+.btnPacoteDestaque:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pacoteCategoriaAcoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.selectPercentual {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background-color: #ffffff;
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.selectPercentual:focus {
+  outline: none;
+  border-color: #bd1221;
+}
+
+/* ================================================================
+   BARRA DE BUSCA E SALVAMENTO
+================================================================ */
+.barraControle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background-color: #ffffff;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #f0e6e4;
+}
+
+.campoBusca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 440px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.campoBusca input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.campoBusca input:focus {
+  outline: none;
+}
+
+.btnLimparBusca {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.acoesSalvar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnLimparSelecao {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btnLimparSelecao:hover {
+  background-color: #f3f4f6;
+}
+
+.btnPublicar {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background-color: #bd1221;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btnPublicar:hover:not(:disabled) {
+  background-color: #9e0f1c;
+}
+
+.btnPublicar:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ================================================================
+   CONTEÚDO PRINCIPAL: SIDEBAR CATEGORIAS + TABELA DE ITENS
+================================================================ */
+.conteudo {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.categoriasSidebar {
+  background-color: #ffffff;
+  border: 1px solid #f0e6e4;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tituloCategorias h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.listaCategorias {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.botaoCategoria {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.botaoCategoria:hover {
+  background-color: #fdf6f5;
+}
+
+.categoriaSelecionada {
+  background-color: #fdf2f2;
+  border-color: #f6c2c7;
+  color: #bd1221;
+  font-weight: 700;
+}
+
+.nomeCategoria {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badgesCategoria {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badgePromoCat {
+  background-color: #bd1221;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.badgesCategoria small {
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+/* ================================================================
+   ÁREA DE ITENS
+================================================================ */
+.areaItens {
+  background-color: #ffffff;
+  border: 1px solid #f0e6e4;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.barraItensTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.barraItensTopo strong {
+  font-size: 1.05rem;
+  color: #1f2937;
+}
+
+.barraItensTopo span {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.acoesBarraItens {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btnRemoverTodasPromocoes {
+  background-color: #fef2f2;
+  color: #bd1221;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnRemoverTodasPromocoes:hover:not(:disabled) {
+  background-color: #bd1221;
+  color: #ffffff;
+  border-color: #bd1221;
+}
+
+.btnRemoverTodasPromocoes:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnSelecionarCategoriaInteira {
+  background-color: #fff5f5;
+  color: #bd1221;
+  border: 1px solid #f6c2c7;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnSelecionarCategoriaInteira:hover:not(:disabled) {
+  background-color: #bd1221;
+  color: #ffffff;
+}
+
+.btnSelecionarCategoriaInteira:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cabecalhoTabela {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  padding: 10px 14px;
+  background-color: #fdf8f7;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.listaItens {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itemRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #f3f4f6;
+  background-color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.itemRow:hover {
+  border-color: #f6c2c7;
+}
+
+.itemRowAtivo {
+  background-color: #fffafa;
+  border-color: #f6c2c7;
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.itemInfo input[type='checkbox'] {
+  width: 17px;
+  height: 17px;
+  accent-color: #bd1221;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.itemImg {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.itemImgVazia {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  background-color: #fdf2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.itemTextos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.itemNome {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tagSelecionado {
+  align-self: flex-start;
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.precoOriginal {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #374151;
+}
+
+.precoRiscado {
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.precoPromoBox {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inputMoedaWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 7px 10px;
+  width: 120px;
+}
+
+.inputMoedaWrapper:focus-within {
+  border-color: #bd1221;
+}
+
+.inputMoedaWrapper span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.inputMoedaWrapper input {
+  border: none;
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2937;
+  background: transparent;
+}
+
+.inputMoedaWrapper input:focus {
+  outline: none;
+}
+
+.badgeDesconto {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.btnRemoverPromocao {
+  background-color: #fef2f2;
+  color: #bd1221;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btnRemoverPromocao:hover:not(:disabled) {
+  background-color: #bd1221;
+  color: #ffffff;
+  border-color: #bd1221;
+}
+
+.btnRemoverPromocao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.avisoMenorPreco {
+  width: 100%;
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.mensagemVazia {
+  padding: 24px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* ================================================================
+   RESPONSIVIDADE
+================================================================ */
+@media (max-width: 1024px) {
+  .pacotesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .conteudo {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .barraControle {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .campoBusca {
+    max-width: 100%;
+  }
+
+  .cabecalhoTabela {
+    display: none;
+  }
+
+  .itemRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

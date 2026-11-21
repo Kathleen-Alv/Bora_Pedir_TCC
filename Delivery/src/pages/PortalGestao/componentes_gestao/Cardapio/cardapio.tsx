@@ -316,34 +316,25 @@ export function Cardapio() {
     // ============================================================
     // CONFIRMAR EXCLUSÃO
     // ============================================================
-    //
-    // POR ENQUANTO NÃO EXCLUI DO BANCO.
-    //
-    // O próximo passo será ligar esta função ao:
-    //
-    // DELETE /api/cardapio/categorias/:id
-    //
-    // e excluir também todos os itens da categoria.
-    //
-    // ============================================================
 
-async function confirmarExclusaoCategoria() {
-    if (!categoriaParaExcluir) {
-        return;
+    async function confirmarExclusaoCategoria() {
+        if (!categoriaParaExcluir) {
+            return;
+        }
+
+        setExcluindoCategoria(true);
+
+        const sucesso = await handleExcluirCategoria(
+            categoriaParaExcluir.id
+        );
+
+        setExcluindoCategoria(false);
+
+        if (sucesso) {
+            setCategoriaParaExcluir(null);
+        }
     }
 
-    setExcluindoCategoria(true);
-
-    const sucesso = await handleExcluirCategoria(
-        categoriaParaExcluir.id
-    );
-
-    setExcluindoCategoria(false);
-
-    if (sucesso) {
-        setCategoriaParaExcluir(null);
-    }
-}
 
     // ============================================================
     // RENDER
@@ -402,11 +393,6 @@ async function confirmarExclusaoCategoria() {
                         styles.acoesTopo
                     }
                 >
-
-                    
-
-
-                    
 
                 </div>
 
@@ -1014,175 +1000,253 @@ async function confirmarExclusaoCategoria() {
                         ) : (
 
                             itensFiltrados.map(
-                                (item) => (
+                                (item) => {
 
-                                    <div
-                                        key={
-                                            item.id
-                                        }
-                                        className={
-                                            styles.item
-                                        }
-                                    >
+                                    const emPromocao =
+                                        item.precoPromocional !== null &&
+                                        item.precoPromocional !== undefined &&
+                                        item.precoPromocional > 0 &&
+                                        item.precoPromocional < item.preco;
+
+                                    const percentualDesconto = emPromocao
+                                        ? Math.round(
+                                              ((item.preco - item.precoPromocional!) /
+                                                  item.preco) *
+                                                  100
+                                          )
+                                        : 0;
+
+                                    return (
 
                                         <div
+                                            key={
+                                                item.id
+                                            }
                                             className={
-                                                styles.itemNome
+                                                styles.item
                                             }
                                         >
 
-                                            <input
-                                                type="checkbox"
-                                                checked={
-                                                    itensSelecionados.includes(
-                                                        item.id
-                                                    )
+                                            <div
+                                                className={
+                                                    styles.itemNome
                                                 }
-                                                onChange={() =>
-                                                    alternarItem(
-                                                        item.id
-                                                    )
-                                                }
-                                            />
+                                            >
 
-
-                                            {item.imagem ? (
-
-                                                <img
-                                                    src={
-                                                        montarUrlImagem(
-                                                            item.imagem
-                                                        ) || ''
+                                                <input
+                                                    type="checkbox"
+                                                    checked={
+                                                        itensSelecionados.includes(
+                                                            item.id
+                                                        )
                                                     }
-                                                    alt={
-                                                        item.nome
+                                                    onChange={() =>
+                                                        alternarItem(
+                                                            item.id
+                                                        )
                                                     }
                                                 />
 
-                                            ) : (
+
+                                                {item.imagem ? (
+
+                                                    <img
+                                                        src={
+                                                            montarUrlImagem(
+                                                                item.imagem
+                                                            ) || ''
+                                                        }
+                                                        alt={
+                                                            item.nome
+                                                        }
+                                                    />
+
+                                                ) : (
+
+                                                    <div
+                                                        className={
+                                                            styles.imagemVazia
+                                                        }
+                                                    />
+
+                                                )}
+
 
                                                 <div
                                                     className={
-                                                        styles.imagemVazia
+                                                        styles.infoItem
                                                     }
-                                                />
+                                                >
 
-                                            )}
+                                                    <span
+                                                        className={
+                                                            styles.nomeItem
+                                                        }
+                                                    >
+                                                        {
+                                                            item.nome
+                                                        }
+                                                    </span>
+
+
+                                                    <button
+                                                        type="button"
+                                                        className={
+                                                            styles.grupoItens
+                                                        }
+                                                    >
+
+                                                        <span>
+                                                            ≡
+                                                        </span>
+
+                                                        1 grupo
+
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
 
 
                                             <div
                                                 className={
-                                                    styles.infoItem
+                                                    styles.preco
                                                 }
                                             >
 
-                                                <span
-                                                    className={
-                                                        styles.nomeItem
-                                                    }
-                                                >
-                                                    {
-                                                        item.nome
-                                                    }
-                                                </span>
+                                                {emPromocao ? (
 
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            gap: '2px',
+                                                        }}
+                                                    >
+
+                                                        <span
+                                                            style={{
+                                                                fontSize: '0.78rem',
+                                                                color: '#9ca3af',
+                                                                textDecoration: 'line-through',
+                                                            }}
+                                                        >
+                                                            R$ {item.preco.toFixed(2).replace('.', ',')}
+                                                        </span>
+
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px',
+                                                            }}
+                                                        >
+
+                                                            <strong
+                                                                style={{
+                                                                    color: '#15803d',
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            >
+                                                                R$ {item.precoPromocional!.toFixed(2).replace('.', ',')}
+                                                            </strong>
+
+                                                            <span
+                                                                style={{
+                                                                    backgroundColor: '#dcfce7',
+                                                                    color: '#15803d',
+                                                                    fontSize: '0.72rem',
+                                                                    fontWeight: 700,
+                                                                    padding: '1px 6px',
+                                                                    borderRadius: '999px',
+                                                                }}
+                                                            >
+                                                                -{percentualDesconto}%
+                                                            </span>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                ) : (
+
+                                                    <>
+                                                        R$ {
+                                                            item.preco
+                                                                .toFixed(2)
+                                                                .replace(
+                                                                    '.',
+                                                                    ','
+                                                                )
+                                                        }
+                                                    </>
+
+                                                )}
+
+                                            </div>
+
+
+                                            <div
+                                                className={
+                                                    styles.statusArea
+                                                }
+                                            >
 
                                                 <button
                                                     type="button"
-                                                    className={
-                                                        styles.grupoItens
+                                                    className={`
+                                                        ${styles.status}
+                                                        ${
+                                                            item.disponivel
+                                                                ? styles.disponivel
+                                                                : styles.indisponivel
+                                                        }
+                                                    `}
+                                                    onClick={() =>
+                                                        handleAlterarDisponibilidade(
+                                                            !item.disponivel,
+                                                            item.id
+                                                        )
                                                     }
                                                 >
+                                                    <span className={styles.ponto} />
 
-                                                    <span>
-                                                        ≡
-                                                    </span>
-
-                                                    1 grupo
-
+                                                    {item.disponivel
+                                                        ? 'Disponível'
+                                                        : 'Indisponível'}
                                                 </button>
+
+
+                                                <MenuItem
+
+                                                    onVerItem={() =>
+                                                        handleVerItem(
+                                                            item
+                                                        )
+                                                    }
+
+                                                    onAlterar={() =>
+                                                        handleAlterarItem(
+                                                            item
+                                                        )
+                                                    }
+
+                                                    onExcluir={() =>
+                                                        handleExcluirItem(
+                                                            item
+                                                        )
+                                                    }
+
+                                                />
 
                                             </div>
 
                                         </div>
 
+                                    );
 
-                                        <div
-                                            className={
-                                                styles.preco
-                                            }
-                                        >
-
-                                            R$ {
-                                                item.preco
-                                                    .toFixed(2)
-                                                    .replace(
-                                                        '.',
-                                                        ','
-                                                    )
-                                            }
-
-                                        </div>
-
-
-                                        <div
-                                            className={
-                                                styles.statusArea
-                                            }
-                                        >
-
-                                            <button
-    type="button"
-    className={`
-        ${styles.status}
-        ${
-            item.disponivel
-                ? styles.disponivel
-                : styles.indisponivel
-        }
-    `}
-    onClick={() =>
-        handleAlterarDisponibilidade(
-            !item.disponivel,
-            item.id
-        )
-    }
->
-    <span className={styles.ponto} />
-
-    {item.disponivel
-        ? 'Disponível'
-        : 'Indisponível'}
-</button>
-
-
-                                            <MenuItem
-
-                                                onVerItem={() =>
-                                                    handleVerItem(
-                                                        item
-                                                    )
-                                                }
-
-                                                onAlterar={() =>
-                                                    handleAlterarItem(
-                                                        item
-                                                    )
-                                                }
-
-                                                onExcluir={() =>
-                                                    handleExcluirItem(
-                                                        item
-                                                    )
-                                                }
-
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-                                )
+                                }
                             )
 
                         )}
@@ -1444,4 +1508,3 @@ async function confirmarExclusaoCategoria() {
     );
 
 }
-

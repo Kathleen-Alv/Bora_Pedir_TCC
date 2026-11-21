@@ -592,6 +592,7 @@ export const listarItensPublicos = async (req, res) => {
                 i.nome,
                 i.foto,
                 i.preco,
+                i.preco_promocional,
                 i.descricao,
                 i.disponivel
             FROM itens_cardapio i
@@ -605,15 +606,40 @@ export const listarItensPublicos = async (req, res) => {
         `, [comercioId]);
 
         return res.status(200).json({
-            itens: itens.map((item) => ({
-                id: Number(item.id),
-                categoria_id: Number(item.categoria_id),
-                nome: item.nome,
-                foto: item.foto,
-                preco: Number(item.preco),
-                descricao: item.descricao,
-                disponivel: Boolean(item.disponivel)
-            }))
+            itens: itens.map((item) => {
+                const precoOriginal = Number(item.preco);
+                const precoPromo =
+                    item.preco_promocional !== null &&
+                    item.preco_promocional !== undefined
+                        ? Number(item.preco_promocional)
+                        : null;
+
+                const emPromocao =
+                    precoPromo !== null &&
+                    precoPromo > 0 &&
+                    precoPromo < precoOriginal;
+
+                const percentualDesconto =
+                    emPromocao && precoOriginal > 0
+                        ? Math.round(
+                              ((precoOriginal - precoPromo) / precoOriginal) * 100
+                          )
+                        : 0;
+
+                return {
+                    id: Number(item.id),
+                    categoria_id: Number(item.categoria_id),
+                    nome: item.nome,
+                    foto: item.foto,
+                    preco: precoOriginal,
+                    preco_promocional: emPromocao ? precoPromo : null,
+                    preco_final: emPromocao ? precoPromo : precoOriginal,
+                    em_promocao: emPromocao,
+                    percentual_desconto: percentualDesconto,
+                    descricao: item.descricao,
+                    disponivel: Boolean(item.disponivel)
+                };
+            })
         });
 
     } catch (erro) {
@@ -999,6 +1025,7 @@ export async function listarItens(req, res) {
                     ic.nome,
                     ic.foto,
                     ic.preco,
+                    ic.preco_promocional,
                     ic.descricao,
                     ic.disponivel
                 FROM itens_cardapio ic
@@ -1043,6 +1070,9 @@ export async function listarItens(req, res) {
                         Number(
                             item.preco
                         ),
+                        preco_promocional:
+                         item.preco_promocional !== null ?
+                          Number(item.preco_promocional) : null,
 
                     descricao:
                         item.descricao || null,
@@ -1899,6 +1929,300 @@ export async function alterarDisponibilidadeItem(req, res) {
 
 
 }
+
+
+// ================================================================
+// ALTERAR PROMOÇÃO DO ITEM
+// ================================================================
+
+export async function alterarPromocaoItem(req, res) {
+
+    let conexao;
+
+    try {
+
+        // ========================================================
+        // COMÉRCIO DO TOKEN
+        // ========================================================
+
+        const comercioId =
+            req.usuario.comercio_id;
+
+        if (!comercioId) {
+
+            return res.status(403).json({
+
+                message:
+                    'Comércio não identificado no token.'
+
+            });
+
+        }
+
+
+        // ========================================================
+        // ID DO ITEM
+        // ========================================================
+
+        const itemId =
+            Number(req.params.id);
+
+        if (
+            !itemId ||
+            Number.isNaN(itemId)
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    'ID do item inválido.'
+
+            });
+
+        }
+
+
+        // ========================================================
+        // PREÇO PROMOCIONAL RECEBIDO
+        // ========================================================
+
+        const {
+            preco_promocional
+        } = req.body || {};
+
+        let novoPrecoPromocional = null;
+
+        if (
+            preco_promocional !== null &&
+            preco_promocional !== undefined &&
+            preco_promocional !== ''
+        ) {
+
+            novoPrecoPromocional =
+                Number(preco_promocional);
+
+            if (
+                Number.isNaN(novoPrecoPromocional) ||
+                novoPrecoPromocional <= 0
+            ) {
+
+                return res.status(400).json({
+
+                    message:
+                        'O preço promocional deve ser um valor válido maior que zero.'
+
+                });
+
+            }
+
+            novoPrecoPromocional =
+                Number(novoPrecoPromocional.toFixed(2));
+
+        }
+
+
+        // ========================================================
+        // CONEXÃO
+        // ========================================================
+
+        conexao =
+            await db.getConnection();
+
+
+        // ========================================================
+        // CONSULTA O ITEM E VALIDA SE PERTENCE AO COMÉRCIO
+        // ========================================================
+
+        const itens =
+            await conexao.query(
+                `
+                SELECT
+                    ic.id,
+                    ic.categoria_id,
+                    ic.nome,
+                    ic.foto,
+                    ic.preco,
+                    ic.preco_promocional,
+                    ic.descricao,
+                    ic.disponivel
+                FROM itens_cardapio ic
+                INNER JOIN categorias_cardapio cc
+                    ON cc.id = ic.categoria_id
+                INNER JOIN cardapios c
+                    ON c.id = cc.cardapio_id
+                WHERE
+                    ic.id = ?
+                    AND c.comercio_id = ?
+                LIMIT 1
+                `,
+                [
+                    itemId,
+                    comercioId
+                ]
+            );
+
+        if (
+            !itens ||
+            itens.length === 0
+        ) {
+
+            return res.status(404).json({
+
+                message:
+                    'Item não encontrado para este comércio.'
+
+            });
+
+        }
+
+        const itemAtual =
+            itens[0];
+
+        const precoOriginal =
+            Number(itemAtual.preco);
+
+
+        // ========================================================
+        // TRAVA DE SEGURANÇA: NÃO PERMITE AUMENTAR O PREÇO
+        // ========================================================
+
+        if (
+            novoPrecoPromocional !== null &&
+            novoPrecoPromocional >= precoOriginal
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    'O preço promocional deve ser menor que o preço atual do item.'
+
+            });
+
+        }
+
+
+        // ========================================================
+        // ATUALIZA NO BANCO
+        // ========================================================
+
+        await conexao.query(
+            `
+            UPDATE itens_cardapio
+            SET
+                preco_promocional = ?
+            WHERE
+                id = ?
+            `,
+            [
+                novoPrecoPromocional,
+                itemId
+            ]
+        );
+
+
+        // ========================================================
+        // BUSCA O ITEM ATUALIZADO
+        // ========================================================
+
+        const itemAtualizado =
+            await conexao.query(
+                `
+                SELECT
+                    id,
+                    categoria_id,
+                    nome,
+                    foto,
+                    preco,
+                    preco_promocional,
+                    descricao,
+                    disponivel
+                FROM itens_cardapio
+                WHERE
+                    id = ?
+                LIMIT 1
+                `,
+                [
+                    itemId
+                ]
+            );
+
+        const precoPromoSalvo =
+            itemAtualizado[0].preco_promocional !== null
+                ? Number(itemAtualizado[0].preco_promocional)
+                : null;
+
+        const percentualDesconto =
+            precoPromoSalvo !== null && precoOriginal > 0
+                ? Math.round(((precoOriginal - precoPromoSalvo) / precoOriginal) * 100)
+                : 0;
+
+        const itemFormatado = {
+
+            id:
+                Number(itemAtualizado[0].id),
+
+            categoria_id:
+                Number(itemAtualizado[0].categoria_id),
+
+            nome:
+                itemAtualizado[0].nome,
+
+            foto:
+                itemAtualizado[0].foto || null,
+
+            preco:
+                Number(itemAtualizado[0].preco),
+
+            preco_promocional:
+                precoPromoSalvo,
+
+            percentual_desconto:
+                percentualDesconto,
+
+            descricao:
+                itemAtualizado[0].descricao || null,
+
+            disponivel:
+                Boolean(itemAtualizado[0].disponivel)
+
+        };
+
+        return res.status(200).json({
+
+            message:
+                precoPromoSalvo !== null
+                    ? 'Promoção aplicada ao item com sucesso.'
+                    : 'Promoção removida do item.',
+
+            item:
+                itemFormatado
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            'Erro ao alterar promoção do item:',
+            error
+        );
+
+        return res.status(500).json({
+
+            message:
+                'Erro interno ao alterar promoção do item.'
+
+        });
+
+    } finally {
+
+        if (conexao) {
+            conexao.release();
+        }
+
+    }
+
+}
+
 
 
 export async function excluirItem(req, res) {

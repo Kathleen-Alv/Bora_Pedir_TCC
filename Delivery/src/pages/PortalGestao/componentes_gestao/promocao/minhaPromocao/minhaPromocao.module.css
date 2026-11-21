@@ -1,0 +1,328 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+/* ================================================================
+   MENSAGENS DE FEEDBACK
+================================================================ */
+.mensagemErro {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.mensagemSucesso {
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ================================================================
+   BARRA SUPERIOR
+================================================================ */
+.barraTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  background-color: #ffffff;
+  border: 1px solid #f0e6e4;
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+
+.resumoTopo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resumoTopo h2 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.contadorBadge {
+  background-color: #fdf2f2;
+  color: #bd1221;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.acoesTopo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.campoBusca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-width: 250px;
+}
+
+.campoBusca input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.88rem;
+  color: #1f2937;
+}
+
+.campoBusca input:focus {
+  outline: none;
+}
+
+.btnLimparBusca {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btnRemoverTodos {
+  background-color: #fef2f2;
+  color: #bd1221;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnRemoverTodos:hover:not(:disabled) {
+  background-color: #bd1221;
+  color: #ffffff;
+  border-color: #bd1221;
+}
+
+.btnRemoverTodos:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================================================================
+   CARD E LISTA DE ITENS
+================================================================ */
+.cardLista {
+  background-color: #ffffff;
+  border: 1px solid #f0e6e4;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cabecalhoTabela {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1.3fr 1.2fr;
+  padding: 10px 14px;
+  background-color: #fdf8f7;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.listaItens {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itemRow {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1.3fr 1.2fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #f6c2c7;
+  background-color: #fffafa;
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.itemImg {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.itemImgVazia {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-color: #fdf2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.itemTextos {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.itemNome {
+  font-weight: 700;
+  font-size: 0.94rem;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemCategoria {
+  font-size: 0.78rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.precoOriginal {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.precoPromoArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.precoPromocional {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #15803d;
+}
+
+.badgeDesconto {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.acaoArea {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.btnRemoverPromocao {
+  background-color: #fef2f2;
+  color: #bd1221;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btnRemoverPromocao:hover:not(:disabled) {
+  background-color: #bd1221;
+  color: #ffffff;
+  border-color: #bd1221;
+}
+
+.btnRemoverPromocao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================================================================
+   ESTADO VAZIO
+================================================================ */
+.estadoVazio {
+  padding: 40px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+}
+
+.iconeVazio {
+  font-size: 2rem;
+}
+
+.estadoVazio strong {
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.estadoVazio p {
+  margin: 0;
+  font-size: 0.88rem;
+  max-width: 400px;
+  line-height: 1.45;
+}
+
+/* ================================================================
+   RESPONSIVIDADE
+================================================================ */
+@media (max-width: 768px) {
+  .barraTopo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .campoBusca {
+    min-width: 100%;
+  }
+
+  .cabecalhoTabela {
+    display: none;
+  }
+
+  .itemRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

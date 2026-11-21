@@ -7,6 +7,7 @@ import {
     criarItem,
     alterarItem,
     alterarDisponibilidadeItem,
+    alterarPromocaoItem,
     excluirItem,
     alterarCategoria,
     excluirCategoria,
@@ -113,6 +114,16 @@ router.patch(
     alterarDisponibilidadeItem
 );
 
+
+// ============================================================
+// ALTERAR PROMOÇÃO DO ITEM
+// ============================================================
+
+router.patch(
+    '/itens/:id/promocao',
+    autenticar,
+    alterarPromocaoItem
+);
 
 // ============================================================
 // EXCLUIR ITEM

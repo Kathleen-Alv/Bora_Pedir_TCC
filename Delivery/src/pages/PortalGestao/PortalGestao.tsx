@@ -33,7 +33,8 @@ import { Cardapio } from "./componentes_gestao/Cardapio/cardapio";
 import { Precificacao } from "./componentes_gestao/Cardapio/calculadoraDePrecificação/calculadoraDePrecificação";
 import { Pedidos } from "./componentes_gestao/pedidos_detalhes/pedidos_detalhes";
 import { Horarios } from "./componentes_gestao/horarios/horarios";
-
+import { ParticiparPromocao } from "./componentes_gestao/promocao/participarPromocao/participarPromocao";
+import { MinhaPromocao } from "./componentes_gestao/promocao/minhaPromocao/minhaPromocao";
 /* =====================================================
    TELAS DO PORTAL
 ===================================================== */
@@ -417,21 +418,11 @@ export function PortalGestao() {
 
           {/* MINHAS PROMOÇÕES */}
 
-          {telaAtual === "minhasPromocoes" && (
-            <div>
-              <h1>Minhas Promoções</h1>
-              <p>Aqui ficarão suas promoções.</p>
-            </div>
-          )}
+          {telaAtual === "minhasPromocoes" && <MinhaPromocao/>}
 
           {/* PARTICIPAR DE PROMOÇÕES */}
 
-          {telaAtual === "participarPromocoes" && (
-            <div>
-              <h1>Participar de Promoções</h1>
-              <p>Aqui ficarão as promoções disponíveis.</p>
-            </div>
-          )}
+          {telaAtual === "participarPromocoes" && <ParticiparPromocao/>}
 
           {/* HORÁRIOS */}
 

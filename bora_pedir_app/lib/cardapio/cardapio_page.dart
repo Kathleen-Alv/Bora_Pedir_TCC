@@ -37,6 +37,7 @@ class CardapioPage extends StatefulWidget {
 class _CardapioPageState extends State<CardapioPage> {
   static const Color vermelho = Color(0xFFBD1221);
 
+  // CORREÇÃO DOS TIPOS
   List<Map<String, dynamic>> categorias = [];
   List<Map<String, dynamic>> itens = [];
 
@@ -555,8 +556,11 @@ class _CardapioPageState extends State<CardapioPage> {
 
     final String imagemUrl = _montarUrlImagem(foto);
 
-    final double preco =
+    final double precoOriginal =
         double.tryParse(item['preco']?.toString() ?? '') ?? 0;
+    final double precoFinal =
+        double.tryParse(item['preco_final']?.toString() ?? '') ??
+            precoOriginal;
 
     final resultado = await Navigator.push<bool>(
       context,
@@ -567,7 +571,7 @@ class _CardapioPageState extends State<CardapioPage> {
             nome: nome,
             descricao: descricao,
             imagem: imagemUrl,
-            preco: preco,
+            preco: precoFinal,
             lojaAberta: lojaAberta,
             mensagemFechado: mensagemStatusLoja,
           );
@@ -912,11 +916,21 @@ class _CardapioPageState extends State<CardapioPage> {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final item = itensCategoria[index];
+                final bool emPromocao = item['em_promocao'] == true;
+                final int percentualDesconto = int.tryParse(
+                      item['percentual_desconto']?.toString() ?? '',
+                    ) ??
+                    0;
 
                 return _ItemCardapio(
                   nome: item['nome']?.toString() ?? '',
                   descricao: item['descricao']?.toString() ?? '',
-                  preco: _formatarPreco(item['preco']),
+                  precoOriginal: _formatarPreco(item['preco']),
+                  precoPromocional: emPromocao
+                      ? _formatarPreco(item['preco_final'])
+                      : null,
+                  emPromocao: emPromocao,
+                  percentualDesconto: percentualDesconto,
                   imagem: item['foto'],
                   imagemBuilder: _imagemItem,
                   onTap: () => _abrirDetalhesItem(item),
@@ -1021,7 +1035,10 @@ class _CategoriaCardapio extends StatelessWidget {
 class _ItemCardapio extends StatelessWidget {
   final String nome;
   final String descricao;
-  final String preco;
+  final String precoOriginal;
+  final String? precoPromocional;
+  final bool emPromocao;
+  final int percentualDesconto;
   final dynamic imagem;
   final Widget Function(dynamic) imagemBuilder;
   final VoidCallback onTap;
@@ -1029,7 +1046,10 @@ class _ItemCardapio extends StatelessWidget {
   const _ItemCardapio({
     required this.nome,
     required this.descricao,
-    required this.preco,
+    required this.precoOriginal,
+    this.precoPromocional,
+    this.emPromocao = false,
+    this.percentualDesconto = 0,
     required this.imagem,
     required this.imagemBuilder,
     required this.onTap,
@@ -1086,14 +1106,58 @@ class _ItemCardapio extends StatelessWidget {
                           ),
                         ),
                       const SizedBox(height: 9),
-                      Text(
-                        preco,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF009E7A),
+                      if (emPromocao && precoPromocional != null)
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [
+                            Text(
+                              precoPromocional!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF009E7A),
+                              ),
+                            ),
+                            Text(
+                              precoOriginal,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF9E9E9E),
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                            if (percentualDesconto > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE6F7F2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  '-$percentualDesconto%',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF008F70),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
+                      else
+                        Text(
+                          precoOriginal,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF009E7A),
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
