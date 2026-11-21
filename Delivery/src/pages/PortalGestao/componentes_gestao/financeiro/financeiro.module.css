@@ -1,4 +1,3 @@
-
 /* ================================================================
    CONTAINER
 ================================================================ */
@@ -6,52 +5,61 @@
 .inicio {
   width: 100%;
   min-height: 100%;
-  padding: 20px;
-  background-color: #f3f8f5;
+  padding: 24px;
+  background-color: #f4f4f6;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #18181b;
   box-sizing: border-box;
 }
 
-
 /* ================================================================
-   CARDS DE RESUMO
+   CARDS DE RESUMO (3 COLUNAS IGUAIS — SEM ESPAÇO EM BRANCO)
 ================================================================ */
 
 .cardsResumo {
   width: 100%;
-
   display: grid;
-
-  grid-template-columns:
-    1.2fr
-    1.2fr
-    1.2fr
-    0.7fr;
-
-  gap: 8px;
-
-  margin-bottom: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-
 /* ================================================================
-   CARD
+   CARD DE RESUMO
 ================================================================ */
 
-.cardResumo,
-.cardResumoPequeno {
-  min-height: 115px;
-
+.cardResumo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 168px;
   background-color: #ffffff;
-
-  border: 1px solid #dde8e1;
-
-  border-radius: 7px;
-
-  padding: 14px;
-
+  border: 1px solid #e2e2e6;
+  border-top: 4px solid #bd1221;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
 }
 
+.cardResumo:nth-child(1) {
+  border-top-color: #16a34a;
+}
+
+.cardResumo:nth-child(2) {
+  border-top-color: #bd1221;
+}
+
+.cardResumo:nth-child(3) {
+  border-top-color: #18181b;
+}
+
+.cardResumo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
 
 /* ================================================================
    TÍTULO DOS CARDS
@@ -59,25 +67,29 @@
 
 .cardTitulo {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
-  color: #777777;
-
-  font-size: 12px;
-
+  color: #52525b;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
   margin-bottom: 8px;
 }
 
-
 .info {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #f4f4f5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
-
-  color: #999999;
+  font-weight: 700;
+  color: #52525b;
+  cursor: help;
 }
-
 
 /* ================================================================
    VALOR PRINCIPAL
@@ -85,191 +97,142 @@
 
 .cardResumo > strong {
   display: block;
-
-  color: #252525;
-
-  font-size: 17px;
-
-  font-weight: 500;
-
-  margin-bottom: 7px;
+  color: #111113;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
 }
 
-
 /* ================================================================
-   VARIAÇÕES
+   VARIAÇÕES (FATURAMENTO)
 ================================================================ */
 
 .cardVariacoes {
   display: flex;
-
-  flex-direction: column;
-
-  gap: 2px;
-
-  font-size: 10px;
-
-  color: #777777;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #52525b;
 }
 
+.cardVariacoes span {
+  padding: 4px 9px;
+  border-radius: 6px;
+  background-color: #ecfdf3;
+  color: #15803d;
+  font-weight: 600;
+}
 
 .cardVariacoes b {
-  color: #333333;
+  color: #14532d;
+  font-weight: 800;
 }
-
 
 /* ================================================================
-   MINI INFORMAÇÃO
-================================================================ */
-
-.miniInfo {
-  margin-top: 7px;
-
-  padding-top: 6px;
-
-  border-top: 1px solid #eeeeee;
-
-  display: flex;
-
-  justify-content: space-between;
-
-  color: #777777;
-
-  font-size: 10px;
-}
-
-
-.miniInfo strong {
-  color: #333333;
-
-  font-weight: 500;
-}
-
-
-/* ================================================================
-   MINI GRÁFICO
+   MINI GRÁFICO (PEDIDOS)
 ================================================================ */
 
 .miniGrafico {
-  height: 27px;
-
+  height: 36px;
   display: flex;
-
   align-items: flex-end;
-
-  gap: 5px;
-
-  margin-top: 3px;
+  gap: 6px;
+  margin-top: 4px;
 }
-
 
 .miniGrafico div {
   flex: 1;
-
-  min-width: 5px;
-
-  background-color: #eeea08;
-
-  border-radius: 3px 3px 0 0;
+  min-width: 6px;
+  background: linear-gradient(180deg, #bd1221 0%, #ef4444 100%);
+  border-radius: 4px 4px 0 0;
+  transition: opacity 0.2s ease;
 }
 
+.miniGrafico div:last-child {
+  background: linear-gradient(180deg, #18181b 0%, #3f3f46 100%);
+}
 
 /* ================================================================
-   BARRAS DE PAGAMENTO
+   TOP 3 FORMAS DE PAGAMENTO
 ================================================================ */
 
-.barrasPagamento {
-  height: 30px;
-
+.topPagamentos {
   display: flex;
-
-  align-items: flex-end;
-
-  gap: 9px;
-
-  margin-top: 2px;
-}
-
-
-.barrasPagamento span {
-  width: 12px;
-
-  background-color: #e3f300;
-
-  border-radius: 1px 1px 0 0;
-}
-
-
-/* ================================================================
-   CARD DE ENTREGADORES
-================================================================ */
-
-.cardResumoPequeno {
-  display: flex;
-
   flex-direction: column;
+  gap: 6px;
+  margin: 2px 0;
+}
 
-  justify-content: space-between;
+.itemPagamento {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background-color: #f8f8fa;
+  border: 1px solid #ececef;
+}
 
-  color: #888888;
-
+.posicaoPagamento {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  background-color: #52525b;
 }
 
-
-.cardResumoPequeno > strong {
-  color: #333333;
-
-  font-size: 21px;
-
-  font-weight: 500;
+.itemPagamento:nth-child(1) .posicaoPagamento {
+  background-color: #bd1221;
 }
 
+.itemPagamento:nth-child(2) .posicaoPagamento {
+  background-color: #18181b;
+}
+
+.itemPagamento:nth-child(3) .posicaoPagamento {
+  background-color: #d97706;
+}
+
+.nomePagamento {
+  color: #18181b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.valorPagamento {
+  color: #3f3f46;
+  font-size: 12px;
+  font-weight: 700;
+}
 
 /* ================================================================
-   PROGRESSO CIRCULAR
+   MINI INFORMAÇÃO (RODAPÉ DOS CARDS)
 ================================================================ */
 
-.circularProgress {
-  width: 45px;
-
-  height: 45px;
-
-  border-radius: 50%;
-
-  background: conic-gradient(
-    #eeea06 0deg 316deg,
-    #e9eeee 316deg 360deg
-  );
-
+.miniInfo {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #ececef;
   display: flex;
-
   align-items: center;
-
-  justify-content: center;
+  justify-content: space-between;
+  color: #52525b;
+  font-size: 12px;
 }
 
-
-.circularProgress div {
-  width: 34px;
-
-  height: 34px;
-
-  border-radius: 50%;
-
-  background-color: #ffffff;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  color: #333333;
-
-  font-size: 10px;
+.miniInfo strong {
+  color: #111113;
+  font-size: 13px;
+  font-weight: 700;
 }
-
 
 /* ================================================================
    PAINEL PRINCIPAL
@@ -277,37 +240,28 @@
 
 .painelPrincipal {
   width: 100%;
-
   background-color: #ffffff;
-
-  border: 1px solid #dde8e1;
-
-  border-radius: 7px;
-
+  border: 1px solid #e2e2e6;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
-
 
 /* ================================================================
    CABEÇALHO DO PAINEL
 ================================================================ */
 
 .painelHeader {
-  min-height: 48px;
-
-  padding: 0 14px;
-
-  border-bottom: 1px solid #eeeeee;
-
+  min-height: 54px;
+  padding: 0 20px;
+  background-color: #fafafa;
+  border-bottom: 1px solid #e4e4e7;
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
-
 
 /* ================================================================
    ABAS
@@ -315,36 +269,33 @@
 
 .abas {
   height: 100%;
-
   display: flex;
-
   align-items: center;
-
-  gap: 20px;
+  gap: 22px;
 }
-
 
 .abas button {
-  height: 48px;
-
+  height: 54px;
+  padding: 0 4px;
   background: none;
-
   border: none;
-
-  color: #777777;
-
-  font-size: 11px;
-
+  border-bottom: 3px solid transparent;
+  color: #71717a;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
+.abas button:hover {
+  color: #18181b;
+}
 
 .abas .abaAtiva {
-  color: #e4e709;
-
-  border-bottom: 2px solid #2689e8;
+  color: #bd1221;
+  font-weight: 700;
+  border-bottom: 3px solid #bd1221;
 }
-
 
 /* ================================================================
    FILTROS
@@ -352,169 +303,89 @@
 
 .filtros {
   display: flex;
-
   align-items: center;
-
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
-
 
 .filtros button {
-  border: none;
-
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
   background: none;
-
-  color: #777777;
-
-  font-size: 10px;
-
+  color: #52525b;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.filtros button:hover {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
 
 .filtros .filtroAtivo {
-  color: #2689e8;
-
-  font-weight: 600;
+  background-color: #bd1221;
+  color: #ffffff;
+  font-weight: 700;
 }
 
+.filtros .filtroAtivo:hover {
+  background-color: #9e0f1b;
+  color: #ffffff;
+}
 
 /* ================================================================
    DATAS
 ================================================================ */
 
 .datas {
-  height: 30px;
-
-  padding: 0 9px;
-
+  height: 32px;
+  padding: 0 12px;
   display: flex;
-
   align-items: center;
-
   gap: 8px;
-
-  border: 1px solid #dddddd;
-
-  border-radius: 5px;
-
-  color: #777777;
-
-  font-size: 9px;
+  background-color: #ffffff;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  color: #27272a;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-
 /* ================================================================
-   CONTEÚDO DO PAINEL
+   CONTEÚDO DO PAINEL (LARGURA TOTAL PARA O GRÁFICO)
 ================================================================ */
 
 .conteudoPainel {
   display: grid;
-
-  grid-template-columns: 2fr 1fr;
-
-  gap: 20px;
-
-  padding: 18px;
+  grid-template-columns: 1fr;
+  width: 100%;
+  padding: 22px;
+  box-sizing: border-box;
 }
-
 
 /* ================================================================
-   GRÁFICO
+   GRÁFICO PRINCIPAL
 ================================================================ */
 
-.areaGrafico h3,
-.ranking h3 {
-  margin: 0 0 16px 0;
-
-  color: #333333;
-
-  font-size: 12px;
-
-  font-weight: 500;
+.areaGrafico {
+  width: 100%;
+  min-width: 0;
 }
 
+.areaGrafico h3 {
+  margin: 0 0 18px 0;
+  color: #18181b;
+  font-size: 15px;
+  font-weight: 700;
+}
 
 .grafico {
   width: 100%;
-
-  height: 220px;
+  height: 280px;
 }
-
-
-/* ================================================================
-   RANKING
-================================================================ */
-
-.ranking {
-  padding-left: 10px;
-}
-
-
-.listaRanking {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 13px;
-}
-
-
-.itemRanking {
-  display: grid;
-
-  grid-template-columns:
-    24px
-    1fr
-    auto;
-
-  align-items: center;
-
-  gap: 8px;
-}
-
-
-.numeroRanking {
-  width: 20px;
-
-  height: 20px;
-
-  border-radius: 50%;
-
-  background-color: #f1f4f4;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  color: #777777;
-
-  font-size: 9px;
-}
-
-
-.itemRanking:first-child .numeroRanking {
-  background-color: #263d4d;
-
-  color: #ffffff;
-}
-
-
-.nomeRestaurante {
-  color: #555555;
-
-  font-size: 10px;
-}
-
-
-.quantidadePedidos {
-  color: #888888;
-
-  font-size: 10px;
-}
-
 
 /* ================================================================
    GRÁFICO INFERIOR
@@ -522,126 +393,100 @@
 
 .graficoInferior {
   width: 100%;
-
-  margin-top: 12px;
-
-  padding: 18px;
-
+  margin-top: 18px;
+  padding: 22px;
   background-color: #ffffff;
-
-  border: 1px solid #dde8e1;
-
-  border-radius: 7px;
-
+  border: 1px solid #e2e2e6;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
   box-sizing: border-box;
 }
 
-
 .tituloGrafico {
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
-
 
 .tituloGrafico h3 {
   margin: 0;
-
-  color: #333333;
-
-  font-size: 13px;
-
-  font-weight: 500;
+  color: #18181b;
+  font-size: 15px;
+  font-weight: 700;
 }
-
 
 .tituloGrafico span {
-  color: #999999;
-
-  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #f4f4f5;
+  color: #52525b;
+  font-size: 11px;
+  font-weight: 700;
 }
-
 
 .graficoBarras {
   width: 100%;
-
-  height: 180px;
+  height: 220px;
 }
-
 
 /* ================================================================
    RESPONSIVIDADE
 ================================================================ */
 
-@media (max-width: 1100px) {
-
+@media (max-width: 1050px) {
   .cardsResumo {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-
-  .filtros {
-    gap: 10px;
+  .cardResumo:nth-child(3) {
+    grid-column: 1 / -1;
   }
-
-
-  .conteudoPainel {
-    grid-template-columns: 1fr;
-  }
-
-
-  .ranking {
-    padding-left: 0;
-  }
-
 }
 
-
 @media (max-width: 700px) {
-
   .inicio {
-    padding: 12px;
+    padding: 14px;
   }
-
 
   .cardsResumo {
     grid-template-columns: 1fr;
   }
 
+  .cardResumo:nth-child(3) {
+    grid-column: auto;
+  }
 
   .painelHeader {
     flex-direction: column;
-
     align-items: flex-start;
-
-    padding: 10px;
+    padding: 12px 14px;
   }
 
+  .abas button {
+    height: 42px;
+  }
 
   .filtros {
     width: 100%;
-
-    flex-wrap: wrap;
   }
-
 
   .datas {
     width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
   }
 
-
-  .conteudoPainel {
-    padding: 12px;
+  .conteudoPainel,
+  .graficoInferior {
+    padding: 14px;
   }
-
 
   .grafico {
-    height: 200px;
+    height: 220px;
   }
 
+  .graficoBarras {
+    height: 190px;
+  }
 }
-

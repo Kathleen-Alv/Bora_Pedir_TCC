@@ -1,509 +1,465 @@
-.container {
-    min-height: 100%;
-    padding: 16px;
-    background: #f5f8f6;
-    color: #202622;
-}
-
-
 /* ================================================================
-   HEADER
+   CONTAINER & CAPA DO CADERNO (ALINHADO NO TOPO, SUAVE E ALTO)
 ================================================================ */
 
-.header {
+.cadernoWrapper {
     width: 100%;
-    max-width: 540px;
-    margin: 0 auto 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-    padding-right: 35px;
-}
-
-.icone {
-    width: 36px;
-    height: 36px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #e7f5ea;
-    border-radius: 8px;
-
-    font-size: 18px;
-}
-
-.header h1 {
-    margin: 0;
-
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.header p {
-    margin: 1px 0 0;
-
-    color: #68736d;
-    font-size: 14px;
-}
-
-
-/* ================================================================
-   CONTEÚDO
-================================================================ */
-
-.conteudo {
-    width: 100%;
-    max-width: 540px;
-
-    margin: 0 auto;
-}
-
-
-/* ================================================================
-   CARD
-================================================================ */
-
-.card {
-    background: #fff;
-
-    border: 1px solid #e1e9e4;
-    border-radius: 9px;
-
-    padding: 13px;
-    margin-bottom: 8px;
-
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .03);
-}
-
-
-/* ================================================================
-   TÍTULO DO CARD
-================================================================ */
-
-.tituloCard {
+    height: 100%;
     display: flex;
     align-items: flex-start;
+    justify-content: center;
+    padding: 2px 6px 8px;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #1e2621;
+}
+
+.cadernoCapa {
+    width: 100%;
+    max-width: 980px;
+    min-height: 560px;
+    background: linear-gradient(145deg, #d7e4dc 0%, #c6d6cc 100%);
+    border: 1px solid #b6c9bd;
+    padding: 3px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(24, 38, 30, 0.09);
+    display: flex;
+    box-sizing: border-box;
+}
+
+.cadernoAberto {
+    width: 100%;
+    min-height: 552px;
+    display: grid;
+    grid-template-columns: 1fr 28px 1fr;
+    align-items: stretch;
+    background: #ffffff;
+    border-radius: 9px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+
+/* ================================================================
+   PÁGINAS DO CADERNO (ESQUERDA E DIREITA)
+================================================================ */
+
+.paginaEsquerda {
+    background: linear-gradient(90deg, #ffffff 95%, #f4f7f5 100%);
+    padding: 16px 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.paginaDireita {
+    background-color: #fffef9;
+    background-image:
+        linear-gradient(90deg, #f5f2e9 0%, #fffef9 5%),
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 26px,
+            #ede9dc 27px
+        );
+    padding: 16px 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+
+/* ================================================================
+   ESPIRAL CENTRAL METÁLICO
+================================================================ */
+
+.espiralColuna {
+    background: linear-gradient(
+        90deg,
+        #eef2ef 0%,
+        #dde4df 50%,
+        #edeae0 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 12px 0;
+    position: relative;
+    z-index: 2;
+    box-shadow:
+        inset 2px 0 4px rgba(0, 0, 0, 0.05),
+        inset -2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.espiralUnidade {
+    width: 100%;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.furoEsquerda,
+.furoDireita {
+    width: 6.5px;
+    height: 6.5px;
+    border-radius: 50%;
+    background: #536359;
+    box-shadow: inset 0 1px 1.5px rgba(0, 0, 0, 0.45);
+    flex-shrink: 0;
+}
+
+.arameEspiral {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    height: 3.5px;
+    border-radius: 99px;
+    background: linear-gradient(
+        180deg,
+        #f8faf9 0%,
+        #aeb8b2 50%,
+        #6c7871 100%
+    );
+    box-shadow: 0 1.5px 2.5px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ================================================================
+   CABEÇALHO DAS PÁGINAS
+================================================================ */
+
+.paginaHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 9px;
+    border-bottom: 1.5px solid #e4ece7;
+}
+
+.tituloGrupo {
+    display: flex;
+    align-items: center;
     gap: 8px;
 }
 
-.numero {
-    min-width: 24px;
-    height: 24px;
+.seloPagina {
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: #e5f6e8;
+    color: #078b12;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.seloDicas {
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: #fff3c4;
+    color: #8a6400;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
 
-    background: #07ac15;
-    color: #fff;
+.paginaHeader h1,
+.paginaHeader h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    color: #18211b;
+}
 
-    border-radius: 50%;
-
-    font-size: 11px;
+.etiquetaTaxa {
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: #eef5f0;
+    border: 1px solid #d2e2d7;
+    color: #2f4a38;
+    font-size: 12.5px;
     font-weight: 700;
 }
 
-.tituloCard h2 {
-    margin: 0 0 2px;
-
-    font-size: 14px;
+.fecharPrecificacao {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dfd9c5;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #5c5749;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.tituloCard p {
-    margin: 0;
-
-    color: #7a847e;
-    font-size: 10px;
+.fecharPrecificacao:hover {
+    background: #f3efe0;
+    color: #1e2621;
 }
 
 
 /* ================================================================
-   CAMPO
+   CAMPOS COMPACTOS (PÁGINA ESQUERDA)
 ================================================================ */
 
-.campo {
-    margin-top: 11px;
+.blocoCompacto {
+    background: #f8fbf9;
+    border: 1px solid #e0eae3;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.campo label,
-.personalizado label {
+.linhaCampos {
+    display: grid;
+    grid-template-columns: 1fr 104px;
+    gap: 8px;
+}
+
+.campoBox,
+.campoBoxPequeno {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 5px;
-
-    margin-bottom: 4px;
-
-    font-size: 11px;
-    font-weight: 600;
 }
 
-.campo label span {
-    padding: 2px 5px;
-
-    border-radius: 12px;
-
-    background: #f0f3f1;
-    color: #7a847e;
-
-    font-size: 9px;
+.campoBox label,
+.campoBoxPequeno label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #3b4740;
 }
 
-
-/* ================================================================
-   INPUT MOEDA
-================================================================ */
-
-.inputMoeda {
+.inputMoeda,
+.inputPorcentagem {
     display: flex;
     align-items: center;
-
-    width: 100%;
-
-    border: 1px solid #d7e0da;
+    height: 38px;
+    background: #ffffff;
+    border: 1px solid #c9d6cd;
     border-radius: 7px;
-
     overflow: hidden;
-
-    transition: .2s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.inputMoeda:focus-within {
+.inputMoeda:focus-within,
+.inputPorcentagem:focus-within {
     border-color: #07ac15;
-
-    box-shadow:
-        0 0 0 2px rgba(7, 172, 21, .07);
+    box-shadow: 0 0 0 2.5px rgba(7, 172, 21, 0.12);
 }
 
 .inputMoeda span {
-    padding-left: 8px;
-
-    color: #68736d;
-
-    font-size: 11px;
-    font-weight: 600;
+    padding-left: 10px;
+    color: #5c6b62;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .inputMoeda input {
     width: 100%;
-
+    height: 100%;
     border: none;
     outline: none;
-
-    padding: 7px 8px 7px 5px;
-
-    font-size: 12px;
-}
-
-.campo small {
-    display: block;
-
-    margin-top: 4px;
-
-    color: #89928d;
-
-    font-size: 9px;
-}
-
-
-/* ================================================================
-   TAXA
-================================================================ */
-
-.taxa {
-    margin-top: 10px;
-
-    padding: 8px 10px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    background: #f7faf8;
-
-    border: 1px solid #e4ebe6;
-    border-radius: 7px;
-}
-
-.taxa strong {
-    display: block;
-
-    font-size: 11px;
-}
-
-.taxa span {
-    display: block;
-
-    margin-top: 1px;
-
-    color: #7d8781;
-
-    font-size: 9px;
-}
-
-.valorTaxa {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    color: #07ac15;
-
+    padding: 0 8px 0 6px;
     font-size: 15px;
+    font-weight: 700;
+    color: #18211b;
+}
+
+.inputPorcentagem input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    padding: 0 4px 0 8px;
+    text-align: right;
+    font-size: 15px;
+    font-weight: 700;
+    color: #18211b;
+}
+
+.inputPorcentagem span {
+    padding-right: 9px;
+    color: #5c6b62;
+    font-size: 14px;
     font-weight: 700;
 }
 
-
-/* ================================================================
-   BOTÃO INFORMAÇÃO DA TAXA
-================================================================ */
-
-.botaoInfo {
-    display: block;
-
-    margin-top: 5px;
-    padding: 0;
-
-    border: none;
-
-    background: transparent;
-
-    color: #078b12;
-
-    font-size: 9px;
-    font-weight: 600;
-
-    cursor: pointer;
-}
-
-.botaoInfo:hover {
-    text-decoration: underline;
-}
-
-
-/* ================================================================
-   OPÇÕES DE MARGEM
-================================================================ */
-
 .opcoesMargem {
     display: grid;
-
     grid-template-columns: repeat(4, 1fr);
-
-    gap: 5px;
-
-    margin-top: 10px;
+    gap: 6px;
 }
 
 .margem,
 .margemSelecionada {
-    padding: 8px 4px;
-
+    padding: 7px 4px;
     border-radius: 7px;
-
     cursor: pointer;
-
-    transition: .2s;
-
     text-align: center;
+    transition: all 0.15s ease;
 }
 
 .margem {
-    background: #fff;
-
-    border: 1px solid #dce5df;
+    background: #ffffff;
+    border: 1px solid #d4dfd8;
 }
 
 .margem:hover {
     border-color: #07ac15;
-
-    transform: translateY(-1px);
 }
 
 .margemSelecionada {
-    background: #eaf8ec;
-
-    border: 1px solid #07ac15;
+    background: #e6f7e9;
+    border: 1.5px solid #07ac15;
 }
 
 .margem strong,
 .margemSelecionada strong {
     display: block;
-
-    font-size: 14px;
-}
-
-.margem span,
-.margemSelecionada span {
-    color: #7b857f;
-
-    font-size: 9px;
+    font-size: 14.5px;
+    color: #18211b;
 }
 
 .margemSelecionada strong {
     color: #078b12;
 }
 
+.margem span,
+.margemSelecionada span {
+    display: block;
+    font-size: 11px;
+    color: #6b7870;
+}
+
 
 /* ================================================================
-   MARGEM PERSONALIZADA
+   FAIXA DA TAXA (23%)
 ================================================================ */
 
-.personalizado {
+.faixaTaxa {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    margin-top: 10px;
-    padding-top: 10px;
-
-    border-top: 1px solid #edf1ee;
-}
-
-.personalizado label {
-    margin: 0;
-}
-
-.inputPorcentagem {
-    display: flex;
-    align-items: center;
-
-    width: 65px;
-
-    border: 1px solid #d7e0da;
-    border-radius: 6px;
-
-    overflow: hidden;
-}
-
-.inputPorcentagem input {
-    width: 100%;
-
-    padding: 6px;
-
-    border: none;
-    outline: none;
-
-    text-align: right;
-
-    font-size: 11px;
-}
-
-.inputPorcentagem span {
-    padding-right: 6px;
-
-    color: #6d7771;
-
-    font-size: 11px;
-    font-weight: 600;
-}
-
-
-/* ================================================================
-   BOTÃO CALCULAR
-================================================================ */
-
-.botaoCalcular {
-    width: 100%;
-
-    padding: 8px;
-
-    border: none;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #f5f9f6;
+    border: 1px solid #dfeae2;
     border-radius: 7px;
+}
 
-    background: #07ac15;
-    color: #fff;
+.faixaTaxaTexto strong {
+    display: block;
+    font-size: 13px;
+    color: #1e2621;
+}
 
+.faixaTaxaTexto span {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #65736a;
+}
+
+.botaoInfo {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #c5decb;
+    background: #ffffff;
+    color: #078b12;
     font-size: 12px;
     font-weight: 700;
-
     cursor: pointer;
-
-    transition: .2s;
+    white-space: nowrap;
 }
 
-.botaoCalcular:hover {
-    background: #078f12;
-
-    transform: translateY(-1px);
+.botaoInfo:hover {
+    background: #eaf8ec;
 }
 
 
 /* ================================================================
-   RESULTADO
+   RESULTADO COMPACTO
 ================================================================ */
 
 .resultado {
-    margin-top: 9px;
-
-    background: #fff;
-
-    border: 1px solid #dce8df;
-    border-radius: 9px;
-
+    border: 1px solid #cbe2d1;
+    border-radius: 8px;
     overflow: hidden;
-
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .04);
+    background: #ffffff;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-
-/* ================================================================
-   TOPO DO RESULTADO
-================================================================ */
-
 .resultadoTopo {
-    padding: 13px;
-
-    text-align: center;
-
-    background: #f0f9f2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 11px 13px;
+    background: linear-gradient(180deg, #ebf9ee 0%, #f5fbf6 100%);
+    border-bottom: 1px solid #dcecdf;
 }
 
 .resultadoTopo span {
     display: block;
-
-    color: #68736d;
-
-    font-size: 10px;
+    font-size: 12px;
+    color: #4f6156;
+    font-weight: 600;
 }
 
 .resultadoTopo strong {
     display: block;
-
-    margin-top: 2px;
-
+    font-size: 25px;
     color: #078b12;
-
-    font-size: 24px;
+    line-height: 1.15;
 }
 
-.resultadoTopo p {
-    margin: 3px 0 0;
-
-    color: #7a847e;
-
-    font-size: 9px;
+.botaoAplicarPreco {
+    height: 34px;
+    padding: 0 13px;
+    border: none;
+    border-radius: 7px;
+    background: #07ac15;
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
 }
 
-
-/* ================================================================
-   DETALHES
-================================================================ */
+.botaoAplicarPreco:hover {
+    background: #069112;
+}
 
 .detalhes {
     display: grid;
-
     grid-template-columns: repeat(3, 1fr);
-
     border-bottom: 1px solid #e7ece9;
 }
 
 .detalhes div {
-    padding: 8px;
-
+    padding: 8px 6px;
     text-align: center;
-
     border-right: 1px solid #e7ece9;
 }
 
@@ -513,403 +469,283 @@
 
 .detalhes span {
     display: block;
-
-    color: #7a847e;
-
-    font-size: 9px;
+    font-size: 11.5px;
+    color: #6b7870;
 }
 
 .detalhes strong {
     display: block;
-
     margin-top: 2px;
-
-    font-size: 12px;
+    font-size: 13.5px;
+    color: #18211b;
 }
 
 .lucro {
-    color: #078b12;
-}
-
-
-/* ================================================================
-   PARA ONDE VAI O DINHEIRO
-================================================================ */
-
-.dinheiro {
-    padding: 11px;
-
-    border-bottom: 1px solid #e7ece9;
-}
-
-.dinheiro h3 {
-    margin: 0 0 7px;
-
-    font-size: 11px;
-}
-
-.linhaDinheiro {
-    padding: 6px 8px;
-
-    background: #f7f9f8;
-
-    border-radius: 6px;
-
-    margin-bottom: 4px;
-}
-
-.linhaDinheiro div,
-.linhaLucro div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.linhaDinheiro span,
-.linhaLucro span {
-    color: #68736d;
-
-    font-size: 10px;
-}
-
-.linhaDinheiro strong {
-    font-size: 11px;
+    color: #078b12 !important;
 }
 
 .desconto {
-    color: #a05252;
+    color: #b84a4a !important;
 }
 
-.linhaLucro {
-    margin-top: 5px;
-    padding: 8px;
-
-    background: #eaf8ec;
-
-    border: 1px solid #bce4c1;
-
-    border-radius: 6px;
-}
-
-.linhaLucro span {
-    color: #078b12;
-
-    font-weight: 600;
-}
-
-.linhaLucro strong {
-    color: #078b12;
-
-    font-size: 13px;
-}
-
-
-/* ================================================================
-   OUTRAS OPÇÕES
-================================================================ */
-
-.outrasOpcoes {
-    padding: 11px;
-}
-
-.outrasOpcoes h3 {
-    margin: 0 0 7px;
-
-    font-size: 11px;
-}
-
-.listaOpcoes {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 4px;
-}
-
-.opcao,
-.opcaoAtiva {
+.bonusPix {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    padding: 6px 8px;
-
-    border-radius: 6px;
+    gap: 6px;
+    padding: 8px 11px;
+    background: #f4fbf6;
+    border-bottom: 1px solid #e7ece9;
+    font-size: 12px;
+    color: #365240;
 }
 
-.opcao {
-    background: #f7f9f8;
-}
-
-.opcaoAtiva {
-    background: #eaf8ec;
-
-    border: 1px solid #bce4c1;
-}
-
-.opcao div {
-    display: flex;
-    align-items: center;
-
-    gap: 4px;
-}
-
-.opcao strong,
-.opcaoAtiva strong {
-    font-size: 11px;
-}
-
-.opcao span,
-.opcaoAtiva span {
-    color: #7b857f;
-
-    font-size: 9px;
-}
-
-.opcao b,
-.opcaoAtiva b {
-    font-size: 11px;
-}
-
-.opcaoAtiva b {
+.bonusPix b {
     color: #078b12;
 }
 
-
-/* ================================================================
-   AVISO
-================================================================ */
-
-.aviso {
-    margin: 0 11px 11px;
-
-    padding: 7px 8px;
-
-    background: #fff9e8;
-
-    border: 1px solid #f0e4b9;
-
-    border-radius: 6px;
-
-    color: #756b4d;
-
-    font-size: 9px;
-
-    line-height: 1.35;
+.comparativoMini {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    padding: 8px;
+    background: #fafcfb;
 }
 
+.pill,
+.pillAtiva {
+    padding: 6px 2px;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+}
 
-/* ================================================================
-   SEM RESULTADO
-================================================================ */
+.pill {
+    background: #ffffff;
+    border: 1px solid #dfe8e2;
+}
+
+.pillAtiva {
+    background: #eaf8ec;
+    border: 1px solid #07ac15;
+}
+
+.pill span,
+.pillAtiva span {
+    display: block;
+    font-size: 11px;
+    color: #6b7870;
+}
+
+.pill b,
+.pillAtiva b {
+    display: block;
+    font-size: 12px;
+    color: #18211b;
+}
+
+.pillAtiva b {
+    color: #078b12;
+}
 
 .semResultado {
-    margin-top: 9px;
-
-    padding: 20px 14px;
-
-    text-align: center;
-
-    background: #fff;
-
-    border: 1px dashed #d8e2db;
-
-    border-radius: 9px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 18px 14px;
+    background: #f9fcfa;
+    border: 1px dashed #c8d8cd;
+    border-radius: 8px;
 }
 
 .semResultado span {
-    font-size: 21px;
+    font-size: 28px;
 }
 
 .semResultado h3 {
-    margin: 6px 0 3px;
-
-    font-size: 13px;
+    margin: 0 0 4px;
+    font-size: 15px;
+    color: #1e2621;
 }
 
 .semResultado p {
-    max-width: 360px;
-
-    margin: 0 auto;
-
-    color: #7a847e;
-
-    font-size: 10px;
-
-    line-height: 1.35;
+    margin: 0;
+    font-size: 12.5px;
+    color: #6b7870;
+    line-height: 1.45;
 }
 
 
 /* ================================================================
-   MODAL - FUNDO
+   PÁGINA DIREITA — FOLHA PAUTADA DE DICAS
+================================================================ */
+
+.folhaPautada {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    flex: 1;
+}
+
+.dicaItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.86);
+    border-left: 3px solid #07ac15;
+    border-radius: 0 6px 6px 0;
+}
+
+.dicaNumero {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #078b12;
+    background: #e5f6e8;
+    padding: 3px 7px;
+    border-radius: 4px;
+    margin-top: 1px;
+}
+
+.dicaItem strong {
+    display: block;
+    font-size: 13.5px;
+    color: #1e2621;
+    margin-bottom: 2px;
+}
+
+.dicaItem p {
+    margin: 0;
+    font-size: 12.5px;
+    color: #535e57;
+    line-height: 1.45;
+}
+
+.notaRodapeCaderno {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 11px;
+    background: #fff8db;
+    border: 1px solid #eedc9a;
+    border-radius: 7px;
+}
+
+.notaRodapeCaderno span {
+    font-size: 16px;
+}
+
+.notaRodapeCaderno p {
+    margin: 0;
+    font-size: 12.5px;
+    color: #635529;
+    line-height: 1.45;
+}
+
+
+/* ================================================================
+   MODAL EXPLICATIVO DAS TAXAS
 ================================================================ */
 
 .overlay {
     position: fixed;
-
     inset: 0;
-
-    z-index: 1000;
-
+    z-index: 1200;
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     padding: 16px;
-
-    background: rgba(20, 28, 23, .45);
+    background: rgba(20, 28, 23, 0.5);
+    backdrop-filter: blur(2px);
 }
-
-
-/* ================================================================
-   MODAL
-================================================================ */
 
 .modalTaxa {
     width: 100%;
-
-    max-width: 390px;
-
-    background: #fff;
-
+    max-width: 430px;
+    background: #ffffff;
     border: 1px solid #dce8df;
-
     border-radius: 12px;
-
-    padding: 16px;
-
-    box-shadow:
-        0 12px 35px rgba(0, 0, 0, .15);
+    padding: 20px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.18);
 }
-
-
-/* ================================================================
-   CABEÇALHO MODAL
-================================================================ */
 
 .modalCabecalho {
     display: flex;
-
     align-items: flex-start;
-
     justify-content: space-between;
-
     gap: 12px;
-
     padding-bottom: 12px;
-
     border-bottom: 1px solid #edf1ee;
 }
 
 .modalCabecalho h2 {
     margin: 0;
-
-    font-size: 16px;
-
-    color: #202622;
+    font-size: 18px;
+    color: #1c241f;
 }
 
 .modalCabecalho p {
-    margin: 3px 0 0;
-
-    color: #7a847e;
-
-    font-size: 9px;
+    margin: 4px 0 0;
+    color: #6c7770;
+    font-size: 13px;
 }
 
-
-/* ================================================================
-   FECHAR X
-================================================================ */
-
 .fecharModal {
-    width: 25px;
-    height: 25px;
-
+    width: 30px;
+    height: 30px;
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     border: none;
-
-    border-radius: 6px;
-
+    border-radius: 7px;
     background: #f1f4f2;
-
-    color: #68736d;
-
-    font-size: 18px;
-
+    color: #5e6b63;
+    font-size: 21px;
     cursor: pointer;
 }
 
 .fecharModal:hover {
-    background: #e7ece9;
+    background: #e2e8e4;
 }
-
-
-/* ================================================================
-   EXEMPLO DA TAXA
-================================================================ */
 
 .exemploTaxa {
     margin-top: 12px;
-
-    padding: 11px;
-
+    padding: 12px 14px;
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     background: #f0f9f2;
-
     border: 1px solid #dcecdf;
-
     border-radius: 8px;
 }
 
 .exemploTaxa span {
-    color: #68736d;
-
-    font-size: 10px;
+    color: #5e6b63;
+    font-size: 13.5px;
 }
 
 .exemploTaxa strong {
     color: #078b12;
-
-    font-size: 15px;
+    font-size: 18px;
 }
-
-
-/* ================================================================
-   INFORMAÇÕES DA TAXA
-================================================================ */
 
 .infoTaxa {
     display: grid;
-
     grid-template-columns: 1fr 1fr;
-
-    margin-top: 8px;
-
+    margin-top: 10px;
     border: 1px solid #e1e9e4;
-
     border-radius: 8px;
-
     overflow: hidden;
 }
 
 .infoTaxa div {
-    padding: 10px;
-
+    padding: 11px;
     text-align: center;
-
-    background: #fff;
+    background: #ffffff;
 }
 
 .infoTaxa div + div {
@@ -918,83 +754,55 @@
 
 .infoTaxa span {
     display: block;
-
-    color: #7a847e;
-
-    font-size: 9px;
+    color: #6c7770;
+    font-size: 12.5px;
 }
 
 .infoTaxa strong {
     display: block;
-
-    margin-top: 3px;
-
-    font-size: 12px;
+    margin-top: 4px;
+    font-size: 15px;
 }
-
-
-/* ================================================================
-   EXPLICAÇÃO DA TAXA
-================================================================ */
 
 .explicacaoTaxa {
     margin-top: 10px;
-
-    padding: 10px;
-
-    background: #f7f9f8;
-
+    padding: 12px;
+    background: #f7faf8;
     border: 1px solid #e4ebe6;
-
     border-radius: 8px;
 }
 
 .explicacaoTaxa strong {
-    font-size: 11px;
+    font-size: 13.5px;
+    color: #1c241f;
 }
 
 .explicacaoTaxa p {
-    margin: 5px 0 0;
-
-    color: #68736d;
-
-    font-size: 9px;
-
+    margin: 6px 0 0;
+    color: #5e6b63;
+    font-size: 12.5px;
     line-height: 1.5;
 }
 
-
-/* ================================================================
-   EXEMPLO PASSO A PASSO
-================================================================ */
-
 .exemploPasso {
-    margin-top: 8px;
-
-    padding: 9px;
-
-    background: #fff;
-
+    margin-top: 10px;
+    padding: 11px 12px;
+    background: #ffffff;
     border: 1px solid #e1e9e4;
-
     border-radius: 8px;
 }
 
 .exemploPasso > strong {
     display: block;
-
-    margin-bottom: 5px;
-
-    font-size: 10px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    color: #1c241f;
 }
 
 .exemploPasso div {
     display: flex;
-
     justify-content: space-between;
-
-    padding: 4px 0;
-
+    padding: 6px 0;
     border-bottom: 1px solid #f0f2f1;
 }
 
@@ -1003,180 +811,66 @@
 }
 
 .exemploPasso span {
-    color: #68736d;
-
-    font-size: 9px;
+    color: #5e6b63;
+    font-size: 12.5px;
 }
 
 .exemploPasso b {
-    font-size: 10px;
+    font-size: 12.5px;
+    color: #1c241f;
 }
-
-
-/* ================================================================
-   DICA
-================================================================ */
-
-.dicaTaxa {
-    display: flex;
-
-    gap: 6px;
-
-    align-items: flex-start;
-
-    margin-top: 8px;
-
-    padding: 8px;
-
-    background: #fff9e8;
-
-    border: 1px solid #f0e4b9;
-
-    border-radius: 7px;
-
-    color: #756b4d;
-
-    font-size: 9px;
-
-    line-height: 1.4;
-}
-
-
-/* ================================================================
-   BOTÃO FECHAR MODAL
-================================================================ */
 
 .botaoFechar {
     width: 100%;
-
-    margin-top: 11px;
-
-    padding: 8px;
-
+    height: 38px;
+    margin-top: 14px;
     border: none;
-
-    border-radius: 7px;
-
+    border-radius: 8px;
     background: #07ac15;
-
-    color: #fff;
-
-    font-size: 11px;
-
+    color: #ffffff;
+    font-size: 14px;
     font-weight: 700;
-
     cursor: pointer;
 }
 
 .botaoFechar:hover {
-    background: #078f12;
+    background: #069112;
 }
 
 
 /* ================================================================
-   RESPONSIVO
+   RESPONSIVO (TELAS MENORES EMPILHAM AS DUAS FOLHAS)
 ================================================================ */
 
-@media (max-width: 700px) {
-
-    .container {
-        padding: 12px 8px;
+@media (max-width: 780px) {
+    .cadernoCapa,
+    .cadernoAberto {
+        min-height: auto;
     }
 
-    .header,
-    .conteudo {
-        max-width: 100%;
-    }
-
-    .header h1 {
-        font-size: 18px;
-    }
-
-    .card {
-        padding: 11px;
-    }
-
-    .opcoesMargem {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .personalizado {
-        align-items: flex-start;
-
-        gap: 8px;
-    }
-
-    .detalhes {
+    .cadernoAberto {
         grid-template-columns: 1fr;
     }
 
-    .detalhes div {
-        border-right: none;
-
-        border-bottom: 1px solid #e7ece9;
+    .espiralColuna {
+        flex-direction: row;
+        height: 22px;
+        padding: 0 10px;
     }
 
-    .detalhes div:last-child {
-        border-bottom: none;
+    .espiralUnidade {
+        width: 14px;
+        height: 100%;
+        flex-direction: column;
+        padding: 3px 0;
     }
 
-    .resultadoTopo strong {
-        font-size: 22px;
+    .arameEspiral {
+        top: 5px;
+        bottom: 5px;
+        left: 5px;
+        right: auto;
+        width: 4px;
+        height: auto;
     }
-
-    .modalTaxa {
-        max-width: 100%;
-
-        padding: 13px;
-    }
-}
-
-
-.cabecalhoPrecificacao {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 12px;
-}
-
-.cabecalhoPrecificacao h2 {
-    margin: 0;
-    font-size: 19px;
-    font-weight: 700;
-}
-
-.cabecalhoPrecificacao p {
-    margin: 2px 0 0;
-    color: #68736d;
-    font-size: 10px;
-}
-
-.fecharPrecificacao {
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    width: 28px;
-    height: 28px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: none;
-    border-radius: 6px;
-    background: #f1f4f2;
-    color: #68736d;
-
-    font-size: 22px;
-    line-height: 1;
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-.fecharPrecificacao:hover {
-    background: #e4ebe6;
-    color: #202622;
 }

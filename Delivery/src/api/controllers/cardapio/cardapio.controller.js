@@ -1,10 +1,6 @@
 import { db } from "../../../configBancoDeDados/database.js";
 
-
-
 /* CARDAPIO DA GESTÃO DO PEDIDO <<  */
-
-
 
 // ================================================================
 // LISTAR CATEGORIAS
@@ -708,12 +704,13 @@ export async function criarItem(req, res) {
             categoria_id,
             nome,
             preco,
-            descricao
+            descricao,
+            fotoUrl
         } = req.body || {};
 
 
         // ========================================================
-        // FOTO
+        // FOTO (UPLOAD MANUAL OU LINK DA BUSCA AUTOMÁTICA)
         // ========================================================
 
         let foto = null;
@@ -723,6 +720,14 @@ export async function criarItem(req, res) {
 
             foto =
                 `/uploads/cardapio/${req.file.filename}`;
+
+        } else if (
+            fotoUrl &&
+            String(fotoUrl).trim()
+        ) {
+
+            foto =
+                String(fotoUrl).trim();
 
         }
 
@@ -971,6 +976,151 @@ export async function criarItem(req, res) {
     }
 
 }
+
+export async function buscarFotosAutomaticas(req, res) {
+    const { q } = req.query;
+
+    if (!q || !String(q).trim()) {
+        return res.status(400).json({ message: 'Informe o nome do prato.' });
+    }
+
+    const termoLimpo = String(q).trim();
+
+    async function fetchComTimeout(url, opcoes = {}, timeoutMs = 8000) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            return await fetch(url, { ...opcoes, signal: controller.signal });
+        } finally {
+            clearTimeout(id);
+        }
+    }
+
+    async function buscarNoBing(termoBusca) {
+        const urlBusca = `https://www.bing.com/images/search?q=${encodeURIComponent(
+            termoBusca
+        )}&mkt=pt-BR&setlang=pt-BR&form=HDRSC2`;
+
+        const resposta = await fetchComTimeout(urlBusca, {
+            headers: {
+                'User-Agent':
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'pt-BR,pt;q=0.9',
+            },
+        });
+
+        if (!resposta.ok) return [];
+
+        const html = await resposta.text();
+        const linksUnicos = new Set();
+        let match;
+
+        const regexMurl = /&quot;murl&quot;:&quot;(https?:\/\/[^&]+?)&quot;/gi;
+        while ((match = regexMurl.exec(html)) !== null && linksUnicos.size < 20) {
+            const link = match[1].replace(/\\u002f/gi, '/');
+            if (!link.includes('bing.com') && !link.includes('microsoft.com')) {
+                linksUnicos.add(link);
+            }
+        }
+
+        if (linksUnicos.size < 5) {
+            const regexDireto = /"murl"\s*:\s*"(https?:\/\/[^"]+)"/gi;
+            while ((match = regexDireto.exec(html)) !== null && linksUnicos.size < 20) {
+                const link = match[1].replace(/\\u002f/gi, '/');
+                if (!link.includes('bing.com') && !link.includes('microsoft.com')) {
+                    linksUnicos.add(link);
+                }
+            }
+        }
+
+        return Array.from(linksUnicos);
+    }
+
+    async function buscarNoDuckDuckGo(termoBusca) {
+        const headers = {
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept-Language': 'pt-BR,pt;q=0.9',
+        };
+
+        // 1. Obtém o token vqd da busca inicial
+        const resPagina = await fetchComTimeout(
+            `https://duckduckgo.com/?q=${encodeURIComponent(termoBusca)}&iax=images&ia=images`,
+            { headers }
+        );
+        if (!resPagina.ok) return [];
+
+        const htmlPagina = await resPagina.text();
+        const matchVqd = htmlPagina.match(/vqd=["']?([^"'&]+)["']?/i);
+        if (!matchVqd) return [];
+
+        // 2. Consulta o endpoint JSON de imagens do DuckDuckGo
+        const urlJson = `https://duckduckgo.com/i.js?l=br-pt&o=json&q=${encodeURIComponent(
+            termoBusca
+        )}&vqd=${encodeURIComponent(matchVqd[1])}&f=,,,&p=1`;
+
+        const resJson = await fetchComTimeout(urlJson, {
+            headers: {
+                ...headers,
+                'Referer': 'https://duckduckgo.com/',
+                'Accept': 'application/json',
+            },
+        });
+        if (!resJson.ok) return [];
+
+        const dados = await resJson.json();
+        const resultados = Array.isArray(dados?.results) ? dados.results : [];
+
+        return resultados
+            .map((item) => item?.image)
+            .filter((url) => typeof url === 'string' && url.startsWith('http'))
+            .slice(0, 20);
+    }
+
+    const errosColetados = [];
+    let links = [];
+
+    // Tentativa 1: Bing Imagens
+    try {
+        links = await buscarNoBing(`${termoLimpo} comida`);
+        if (links.length === 0) {
+            links = await buscarNoBing(termoLimpo);
+        }
+    } catch (err) {
+        errosColetados.push(`Bing: ${err?.cause?.code || err?.message}`);
+    }
+
+    // Tentativa 2: DuckDuckGo Imagens (caso o Bing falhe ou venha vazio)
+    if (links.length === 0) {
+        try {
+            links = await buscarNoDuckDuckGo(`${termoLimpo} comida`);
+            if (links.length === 0) {
+                links = await buscarNoDuckDuckGo(termoLimpo);
+            }
+        } catch (err) {
+            errosColetados.push(`DDG: ${err?.cause?.code || err?.message}`);
+        }
+    }
+
+    if (links.length > 0) {
+        return res.status(200).json({ links });
+    }
+
+    if (errosColetados.length > 0) {
+        console.error('Falha de rede na busca de imagens:', errosColetados.join(' | '));
+        return res.status(502).json({
+            links: [],
+            message: `Erro de conexão ao buscar fotos (${errosColetados[0]}). Verifique a rede ou envie uma foto manualmente.`,
+        });
+    }
+
+    return res.status(404).json({
+        links: [],
+        message: `Nenhuma foto encontrada para "${termoLimpo}". Tente outro termo ou envie uma foto manualmente.`,
+    });
+}
+
 
 
 

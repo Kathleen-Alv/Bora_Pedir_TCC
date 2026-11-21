@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import styles from './novoItem.module.css';
 
@@ -56,6 +56,8 @@ const API_URL =
 const API_SERVIDOR =
     'http://localhost:3000';
 
+const FOTOS_POR_PAGINA = 5;
+
 
 // ============================================================
 // CONVERTER BOOLEANO
@@ -85,7 +87,6 @@ function montarUrlImagem(
         return '';
     }
 
-    // URL completa
     if (
         imagem.startsWith('http://') ||
         imagem.startsWith('https://') ||
@@ -95,12 +96,10 @@ function montarUrlImagem(
         return imagem;
     }
 
-    // Caminho começando com /
     if (imagem.startsWith('/')) {
         return `${API_SERVIDOR}${imagem}`;
     }
 
-    // Caminho sem /
     return `${API_SERVIDOR}/${imagem}`;
 }
 
@@ -119,7 +118,7 @@ export function NovoItem({
 }: NovoItemProps) {
 
     // ========================================================
-    // ESTADOS
+    // ESTADOS DO FORMULÁRIO
     // ========================================================
 
     const [categoriaId, setCategoriaId] =
@@ -137,6 +136,9 @@ export function NovoItem({
     const [foto, setFoto] =
         useState<File | null>(null);
 
+    const [fotoUrlAutomatica, setFotoUrlAutomatica] =
+        useState('');
+
     const [preview, setPreview] =
         useState('');
 
@@ -148,6 +150,37 @@ export function NovoItem({
 
     const [mostrarPrecificacao, setMostrarPrecificacao] =
         useState(false);
+
+
+    // ========================================================
+    // ESTADOS DA BUSCA AUTOMÁTICA DE FOTOS (5 POR VEZ)
+    // ========================================================
+
+    const [fotosEncontradas, setFotosEncontradas] =
+        useState<string[]>([]);
+
+    const [paginaFotos, setPaginaFotos] =
+        useState(0);
+
+    const [buscandoFotos, setBuscandoFotos] =
+        useState(false);
+
+    const [termoBuscado, setTermoBuscado] =
+        useState('');
+
+
+    // ========================================================
+    // FOTOS DA PÁGINA ATUAL (5 MINIATURAS)
+    // ========================================================
+
+    const fotosPaginaAtual = useMemo(() => {
+        const inicio = paginaFotos * FOTOS_POR_PAGINA;
+        return fotosEncontradas.slice(inicio, inicio + FOTOS_POR_PAGINA);
+    }, [fotosEncontradas, paginaFotos]);
+
+    const totalPaginasFotos = Math.ceil(
+        fotosEncontradas.length / FOTOS_POR_PAGINA
+    );
 
 
     // ========================================================
@@ -184,6 +217,10 @@ export function NovoItem({
             );
 
             setFoto(null);
+            setFotoUrlAutomatica('');
+            setFotosEncontradas([]);
+            setPaginaFotos(0);
+            setTermoBuscado('');
 
             setPreview(
                 montarUrlImagem(
@@ -206,6 +243,10 @@ export function NovoItem({
         setPreco('');
         setDescricao('');
         setFoto(null);
+        setFotoUrlAutomatica('');
+        setFotosEncontradas([]);
+        setPaginaFotos(0);
+        setTermoBuscado('');
         setPreview('');
         setErro('');
 
@@ -238,7 +279,135 @@ export function NovoItem({
 
 
     // ========================================================
-    // SELECIONAR FOTO
+    // BUSCAR FOTOS AUTOMÁTICAS
+    // ========================================================
+
+    async function handleBuscarFotosGoogle() {
+
+        const termo = nome.trim();
+
+        if (!termo) {
+            setErro('Digite o nome do item primeiro para buscar fotos.');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            setErro('Sessão não encontrada. Faça login novamente.');
+            return;
+        }
+
+        try {
+
+            setBuscandoFotos(true);
+            setErro('');
+
+            const resposta = await fetch(
+                `${API_URL}/buscar-fotos?q=${encodeURIComponent(termo)}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setFotosEncontradas([]);
+                setPaginaFotos(0);
+                throw new Error(
+                    dados?.message || 'Nenhuma foto encontrada.'
+                );
+            }
+
+            const links: string[] = dados?.links || [];
+
+            setFotosEncontradas(links);
+            setPaginaFotos(0);
+            setTermoBuscado(termo);
+
+            if (links.length > 0) {
+                selecionarFotoAutomatica(links[0]);
+            }
+
+        } catch (error) {
+
+            console.error('Erro ao buscar fotos:', error);
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : 'Erro ao buscar fotos.'
+            );
+
+        } finally {
+
+            setBuscandoFotos(false);
+        }
+    }
+
+
+    // ========================================================
+    // AVANÇAR PARA AS PRÓXIMAS 5 FOTOS
+    // ========================================================
+
+    function handleVerMaisCincoFotos() {
+
+        if (totalPaginasFotos <= 1) return;
+
+        const proximaPagina = (paginaFotos + 1) % totalPaginasFotos;
+        setPaginaFotos(proximaPagina);
+
+        const primeiroIndiceDaPagina = proximaPagina * FOTOS_POR_PAGINA;
+        const primeiraFotoDaPagina = fotosEncontradas[primeiroIndiceDaPagina];
+
+        if (primeiraFotoDaPagina) {
+            selecionarFotoAutomatica(primeiraFotoDaPagina);
+        }
+    }
+
+
+    // ========================================================
+    // REMOVER LINK QUEBRADO DA LISTA SE FALHAR AO CARREGAR
+    // ========================================================
+
+    function handleRemoverLinkQuebrado(urlQuebrada: string) {
+
+        setFotosEncontradas((prev) => {
+            const filtradas = prev.filter((item) => item !== urlQuebrada);
+
+            if (fotoUrlAutomatica === urlQuebrada) {
+                const substituta = filtradas[0] || '';
+                setFotoUrlAutomatica(substituta);
+                setPreview(substituta);
+            }
+
+            return filtradas;
+        });
+    }
+
+
+    // ========================================================
+    // ESCOLHER UMA DAS 5 MINIATURAS
+    // ========================================================
+
+    function selecionarFotoAutomatica(url: string) {
+
+        if (preview && preview.startsWith('blob:')) {
+            URL.revokeObjectURL(preview);
+        }
+
+        setFoto(null);
+        setFotoUrlAutomatica(url);
+        setPreview(url);
+        setErro('');
+    }
+
+
+    // ========================================================
+    // SELECIONAR FOTO MANUAL (UPLOAD DO COMPUTADOR)
     // ========================================================
 
     function handleSelecionarFoto(
@@ -254,11 +423,6 @@ export function NovoItem({
             return;
         }
 
-
-        // ====================================================
-        // VERIFICAR TIPO
-        // ====================================================
-
         if (
             !arquivo.type.startsWith('image/')
         ) {
@@ -271,11 +435,6 @@ export function NovoItem({
 
             return;
         }
-
-
-        // ====================================================
-        // LIMITE DE 5 MB
-        // ====================================================
 
         const tamanhoMaximo =
             5 * 1024 * 1024;
@@ -293,15 +452,9 @@ export function NovoItem({
             return;
         }
 
-
-        // ====================================================
-        // SALVAR FOTO
-        // ====================================================
-
         setFoto(arquivo);
+        setFotoUrlAutomatica('');
 
-
-        // Remove preview anterior
         if (
             preview &&
             preview.startsWith('blob:')
@@ -311,7 +464,6 @@ export function NovoItem({
                 preview
             );
         }
-
 
         const novaPreview =
             URL.createObjectURL(
@@ -336,52 +488,20 @@ export function NovoItem({
 
         setErro('');
 
-
-        // ====================================================
-        // VALIDAR CATEGORIA
-        // ====================================================
-
         if (!categoriaId) {
-
-            setErro(
-                'Selecione uma categoria.'
-            );
-
+            setErro('Selecione uma categoria.');
             return;
         }
-
-
-        // ====================================================
-        // VALIDAR NOME
-        // ====================================================
 
         if (!nome.trim()) {
-
-            setErro(
-                'Informe o nome do item.'
-            );
-
+            setErro('Informe o nome do item.');
             return;
         }
-
-
-        // ====================================================
-        // VALIDAR PREÇO
-        // ====================================================
 
         if (!preco.trim()) {
-
-            setErro(
-                'Informe o preço do item.'
-            );
-
+            setErro('Informe o preço do item.');
             return;
         }
-
-
-        // ====================================================
-        // TRATAR PREÇO
-        // ====================================================
 
         const precoTratado =
             preco
@@ -390,115 +510,50 @@ export function NovoItem({
                 .replace(/\./g, '')
                 .replace(',', '.');
 
-
         const precoNumerico =
             Number(precoTratado);
-
 
         if (
             Number.isNaN(precoNumerico) ||
             precoNumerico <= 0
         ) {
-
-            setErro(
-                'Informe um preço válido.'
-            );
-
+            setErro('Informe um preço válido.');
             return;
         }
-
-
-        // ====================================================
-        // TOKEN
-        // ====================================================
 
         const token =
             localStorage.getItem('token');
 
-
         if (!token) {
-
-            setErro(
-                'Sessão não encontrada. Faça login novamente.'
-            );
-
+            setErro('Sessão não encontrada. Faça login novamente.');
             return;
         }
-
-
-        // ====================================================
-        // FORMDATA
-        // ====================================================
 
         const dados =
             new FormData();
 
-
-        dados.append(
-            'categoria_id',
-            String(categoriaId)
-        );
-
-
-        dados.append(
-            'nome',
-            nome.trim()
-        );
-
-
-        dados.append(
-            'preco',
-            String(precoNumerico)
-        );
-
-
-        dados.append(
-            'descricao',
-            descricao.trim()
-        );
-
-
-        // ====================================================
-        // DISPONIBILIDADE
-        // ====================================================
+        dados.append('categoria_id', String(categoriaId));
+        dados.append('nome', nome.trim());
+        dados.append('preco', String(precoNumerico));
+        dados.append('descricao', descricao.trim());
 
         if (
             modoAlteracao &&
             itemParaAlterar
         ) {
-
             dados.append(
                 'disponivel',
-                itemParaAlterar.disponivel
-                    ? '1'
-                    : '0'
+                itemParaAlterar.disponivel ? '1' : '0'
             );
-
         } else {
-
-            dados.append(
-                'disponivel',
-                '1'
-            );
+            dados.append('disponivel', '1');
         }
-
-
-        // ====================================================
-        // FOTO
-        // ====================================================
 
         if (foto) {
-
-            dados.append(
-                'foto',
-                foto
-            );
+            dados.append('foto', foto);
+        } else if (fotoUrlAutomatica) {
+            dados.append('fotoUrl', fotoUrlAutomatica);
         }
-
-
-        // ====================================================
-        // URL
-        // ====================================================
 
         const url =
             modoAlteracao &&
@@ -506,23 +561,12 @@ export function NovoItem({
                 ? `${API_URL}/itens/${itemParaAlterar.id}`
                 : `${API_URL}/itens`;
 
-
-        // ====================================================
-        // MÉTODO
-        // ====================================================
-
         const metodo =
             modoAlteracao
                 ? 'PATCH'
                 : 'POST';
 
-
         setSalvando(true);
-
-
-        // ====================================================
-        // REQUISIÇÃO
-        // ====================================================
 
         try {
 
@@ -531,180 +575,79 @@ export function NovoItem({
                     url,
                     {
                         method: metodo,
-
                         headers: {
-                            Authorization:
-                                `Bearer ${token}`
+                            Authorization: `Bearer ${token}`
                         },
-
                         body: dados
                     }
                 );
 
-
-            // =================================================
-            // PEGAR RESPOSTA COMO TEXTO
-            // =================================================
-
             const textoResposta =
                 await resposta.text();
 
-
             let dadosResposta: any;
 
-
-            // =================================================
-            // CONVERTER PARA JSON
-            // =================================================
-
             try {
-
-                dadosResposta =
-                    JSON.parse(
-                        textoResposta
-                    );
-
+                dadosResposta = JSON.parse(textoResposta);
             } catch {
-
-                console.error(
-                    'Resposta recebida do servidor:',
-                    textoResposta
-                );
-
+                console.error('Resposta recebida do servidor:', textoResposta);
                 throw new Error(
                     `O servidor não retornou JSON. Status: ${resposta.status}`
                 );
             }
 
-
-            // =================================================
-            // VERIFICAR ERRO HTTP
-            // =================================================
-
             if (!resposta.ok) {
-
                 throw new Error(
-                    dadosResposta?.message ||
-                    'Não foi possível salvar o item.'
+                    dadosResposta?.message || 'Não foi possível salvar o item.'
                 );
             }
-
-
-            // =================================================
-            // ITEM RETORNADO
-            // =================================================
 
             const itemRecebido =
                 dadosResposta?.item;
 
-
             if (!itemRecebido) {
-
-                throw new Error(
-                    'O servidor não retornou os dados do item.'
-                );
+                throw new Error('O servidor não retornou os dados do item.');
             }
 
-
-            // =================================================
-            // FORMATAR ITEM
-            // =================================================
-
             const itemResultado: ItemCriado = {
-
-                id:
-                    Number(
-                        itemRecebido.id
-                    ),
-
-                categoria_id:
-                    Number(
-                        itemRecebido.categoria_id
-                    ),
-
-                nome:
-                    itemRecebido.nome,
-
-                foto:
-                    itemRecebido.foto ||
-                    null,
-
-                preco:
-                    Number(
-                        itemRecebido.preco
-                    ),
-
-                descricao:
-                    itemRecebido.descricao ||
-                    null,
-
-                disponivel:
-                    converterBooleano(
-                        itemRecebido.disponivel
-                    )
+                id: Number(itemRecebido.id),
+                categoria_id: Number(itemRecebido.categoria_id),
+                nome: itemRecebido.nome,
+                foto: itemRecebido.foto || null,
+                preco: Number(itemRecebido.preco),
+                descricao: itemRecebido.descricao || null,
+                disponivel: converterBooleano(itemRecebido.disponivel)
             };
 
-
-            // =================================================
-            // ALTERAÇÃO
-            // =================================================
-
             if (modoAlteracao) {
-
                 if (onItemAlterado) {
-
-                    onItemAlterado(
-                        itemResultado
-                    );
+                    onItemAlterado(itemResultado);
                 }
-
                 return;
             }
 
-
-            // =================================================
-            // CRIAÇÃO
-            // =================================================
-
-            onItemCriado(
-                itemResultado
-            );
-
-
-            // =================================================
-            // LIMPAR FORMULÁRIO
-            // =================================================
+            onItemCriado(itemResultado);
 
             setCategoriaId('');
             setNome('');
             setPreco('');
             setDescricao('');
             setFoto(null);
+            setFotoUrlAutomatica('');
+            setFotosEncontradas([]);
+            setPaginaFotos(0);
+            setTermoBuscado('');
             setPreview('');
             setErro('');
 
-
         } catch (error) {
 
-            console.error(
-                'Erro ao salvar item:',
-                error
-            );
+            console.error('Erro ao salvar item:', error);
 
-
-            if (
-                error instanceof Error
-            ) {
-
-                setErro(
-                    error.message
-                );
-
+            if (error instanceof Error) {
+                setErro(error.message);
             } else {
-
-                setErro(
-                    'Erro ao salvar o item.'
-                );
+                setErro('Erro ao salvar o item.');
             }
 
         } finally {
@@ -722,14 +665,8 @@ export function NovoItem({
 
         <div
             className={styles.modalOverlay}
-
             onMouseDown={(evento) => {
-
-                if (
-                    evento.target ===
-                    evento.currentTarget
-                ) {
-
+                if (evento.target === evento.currentTarget) {
                     if (!salvando) {
                         onFechar();
                     }
@@ -743,7 +680,6 @@ export function NovoItem({
                         ? `${styles.modalContent} ${styles.modalContentDividido}`
                         : styles.modalContent
                 }
-
                 onMouseDown={(evento) => {
                     evento.stopPropagation();
                 }}
@@ -777,35 +713,17 @@ export function NovoItem({
 
                     <div className={styles.cadastroArea}>
 
-                        {/* ==================================================
-                            TÍTULO
-                        ================================================== */}
-
                         <h2>
                             {modoAlteracao
                                 ? 'Alterar item'
                                 : 'Novo item'}
                         </h2>
 
-
-                        {/* ==================================================
-                            ERRO
-                        ================================================== */}
-
                         {erro && (
-
-                            <div
-                                className={styles.erro}
-                            >
+                            <div className={styles.erro}>
                                 {erro}
                             </div>
-
                         )}
-
-
-                        {/* ==================================================
-                            FORMULÁRIO
-                        ================================================== */}
 
                         <form
                             className={styles.modalForm}
@@ -813,71 +731,160 @@ export function NovoItem({
                         >
 
                             {/* ======================================
-                                FOTO
+                                NOME + BOTÃO BUSCAR FOTOS
                             ====================================== */}
 
-                            <div
-                                className={styles.fieldGroup}
-                            >
+                            <div className={styles.fieldGroup}>
+                                <label>
+                                    Nome do item
+                                </label>
+
+                                <div className={styles.nomeComBusca}>
+                                    <input
+                                        type="text"
+                                        value={nome}
+                                        onChange={(evento) =>
+                                            setNome(evento.target.value)
+                                        }
+                                        placeholder="Ex.: X-Bacon"
+                                        disabled={salvando}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className={styles.btnBuscarFoto}
+                                        onClick={handleBuscarFotosGoogle}
+                                        disabled={
+                                            salvando ||
+                                            buscandoFotos ||
+                                            !nome.trim()
+                                        }
+                                    >
+                                        {buscandoFotos
+                                            ? 'Buscando...'
+                                            : '🔍 Buscar foto'}
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            {/* ======================================
+                                GALERIA DE 5 OPÇÕES DE FOTOS
+                            ====================================== */}
+
+                            {fotosPaginaAtual.length > 0 && (
+                                <div className={styles.galeriaBuscaBox}>
+                                    <div className={styles.galeriaBuscaTopo}>
+                                        <span className={styles.galeriaBuscaTitulo}>
+                                            Resultados para "{termoBuscado}" (Pág.{' '}
+                                            {paginaFotos + 1}/{totalPaginasFotos})
+                                        </span>
+
+                                        {totalPaginasFotos > 1 && (
+                                            <button
+                                                type="button"
+                                                className={styles.btnMaisFotos}
+                                                onClick={handleVerMaisCincoFotos}
+                                            >
+                                                🔄 Ver mais 5 fotos
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className={styles.galeriaGrade}>
+                                        {fotosPaginaAtual.map((url, idx) => {
+                                            const selecionada =
+                                                fotoUrlAutomatica === url;
+
+                                            return (
+                                                <button
+                                                    key={url}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        selecionarFotoAutomatica(
+                                                            url
+                                                        )
+                                                    }
+                                                    className={
+                                                        selecionada
+                                                            ? `${styles.miniaturaBtn} ${styles.miniaturaSelecionada}`
+                                                            : styles.miniaturaBtn
+                                                    }
+                                                    title="Clique para usar esta foto"
+                                                >
+                                                    <img
+                                                        src={url}
+                                                        alt={`Opção ${idx + 1}`}
+                                                        className={
+                                                            styles.miniaturaImg
+                                                        }
+                                                        onError={() =>
+                                                            handleRemoverLinkQuebrado(
+                                                                url
+                                                            )
+                                                        }
+                                                    />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+
+                            {/* ======================================
+                                FOTO PRINCIPAL (PREVIEW / UPLOAD)
+                            ====================================== */}
+
+                            <div className={styles.fieldGroup}>
 
                                 <label>
                                     Foto do item
                                 </label>
 
+                                <div className={styles.imageUpload}>
 
-                                <div
-                                    className={
-                                        styles.imageUpload
-                                    }
-                                >
-
-                                    <label
-                                        className={
-                                            styles.uploadPlaceholder
-                                        }
-                                    >
+                                    <label className={styles.uploadPlaceholder}>
 
                                         {preview ? (
 
                                             <img
                                                 src={preview}
                                                 alt="Pré-visualização do item"
-                                                className={
-                                                    styles.previewImage
-                                                }
+                                                className={styles.previewImage}
+                                                onError={() => {
+                                                    if (fotoUrlAutomatica) {
+                                                        handleRemoverLinkQuebrado(
+                                                            fotoUrlAutomatica
+                                                        );
+                                                    }
+                                                }}
                                             />
 
                                         ) : (
 
                                             <span>
-                                                Clique para adicionar uma foto
+                                                Clique para enviar foto ou use "Buscar foto" acima
                                             </span>
 
                                         )}
 
-
                                         <input
                                             type="file"
                                             accept="image/*"
-                                            onChange={
-                                                handleSelecionarFoto
-                                            }
-                                            disabled={
-                                                salvando
-                                            }
-                                            style={{
-                                                display: 'none'
-                                            }}
+                                            onChange={handleSelecionarFoto}
+                                            disabled={salvando}
+                                            style={{ display: 'none' }}
                                         />
 
                                     </label>
 
                                 </div>
 
-
                                 <small>
-                                    Formatos de imagem aceitos.
-                                    Tamanho máximo: 5 MB.
+                                    {fotoUrlAutomatica
+                                        ? '✓ Foto vinculada automaticamente pela busca (ou clique acima para enviar do computador).'
+                                        : 'Formatos de imagem aceitos. Tamanho máximo: 5 MB.'}
                                 </small>
 
                             </div>
@@ -887,30 +894,21 @@ export function NovoItem({
                                 CATEGORIA
                             ====================================== */}
 
-                            <div
-                                className={styles.fieldGroup}
-                            >
+                            <div className={styles.fieldGroup}>
 
                                 <label>
                                     Categoria
                                 </label>
 
-
                                 <select
                                     value={categoriaId}
-
                                     onChange={(evento) => {
-
                                         setCategoriaId(
                                             evento.target.value
-                                                ? Number(
-                                                    evento.target.value
-                                                )
+                                                ? Number(evento.target.value)
                                                 : ''
                                         );
-
                                     }}
-
                                     disabled={salvando}
                                 >
 
@@ -918,52 +916,16 @@ export function NovoItem({
                                         Selecione uma categoria
                                     </option>
 
-
-                                    {categorias.map(
-                                        (categoria) => (
-
-                                            <option
-                                                key={categoria.id}
-                                                value={categoria.id}
-                                            >
-                                                {categoria.nome}
-                                            </option>
-
-                                        )
-                                    )}
+                                    {categorias.map((categoria) => (
+                                        <option
+                                            key={categoria.id}
+                                            value={categoria.id}
+                                        >
+                                            {categoria.nome}
+                                        </option>
+                                    ))}
 
                                 </select>
-
-                            </div>
-
-
-                            {/* ======================================
-                                NOME
-                            ====================================== */}
-
-                            <div
-                                className={styles.fieldGroup}
-                            >
-
-                                <label>
-                                    Nome do item
-                                </label>
-
-
-                                <input
-                                    type="text"
-                                    value={nome}
-
-                                    onChange={(evento) =>
-                                        setNome(
-                                            evento.target.value
-                                        )
-                                    }
-
-                                    placeholder="Ex.: X-Bacon"
-
-                                    disabled={salvando}
-                                />
 
                             </div>
 
@@ -972,27 +934,19 @@ export function NovoItem({
                                 PREÇO
                             ====================================== */}
 
-                            <div
-                                className={styles.fieldGroup}
-                            >
+                            <div className={styles.fieldGroup}>
 
                                 <label>
                                     Preço
                                 </label>
 
-
                                 <input
                                     type="text"
                                     value={preco}
-
                                     onChange={(evento) =>
-                                        setPreco(
-                                            evento.target.value
-                                        )
+                                        setPreco(evento.target.value)
                                     }
-
                                     placeholder="Ex.: 25,90"
-
                                     disabled={salvando}
                                 />
 
@@ -1003,26 +957,18 @@ export function NovoItem({
                                 DESCRIÇÃO
                             ====================================== */}
 
-                            <div
-                                className={styles.fieldGroup}
-                            >
+                            <div className={styles.fieldGroup}>
 
                                 <label>
                                     Descrição
                                 </label>
 
-
                                 <textarea
                                     value={descricao}
-
                                     onChange={(evento) =>
-                                        setDescricao(
-                                            evento.target.value
-                                        )
+                                        setDescricao(evento.target.value)
                                     }
-
                                     placeholder="Informe os ingredientes, preparo ou outras informações do item."
-
                                     disabled={salvando}
                                 />
 
@@ -1033,62 +979,38 @@ export function NovoItem({
                                 BOTÕES
                             ====================================== */}
 
-                            <div
-                                className={
-                                    styles.modalActions
-                                }
-                            >
+                            <div className={styles.modalActions}>
 
                                 <button
                                     type="button"
-
-                                    className={
-                                        styles.btnPrecificacao
-                                    }
-
+                                    className={styles.btnPrecificacao}
                                     onClick={() =>
-                                        setMostrarPrecificacao(
-                                            true
-                                        )
+                                        setMostrarPrecificacao(true)
                                     }
-
                                     disabled={salvando}
                                 >
                                     💰 Precificação
                                 </button>
 
-
                                 <button
                                     type="button"
-
-                                    className={
-                                        styles.btnCancel
-                                    }
-
+                                    className={styles.btnCancel}
                                     onClick={onFechar}
-
                                     disabled={salvando}
                                 >
                                     Cancelar
                                 </button>
 
-
                                 <button
                                     type="submit"
-
-                                    className={
-                                        styles.btnSave
-                                    }
-
+                                    className={styles.btnSave}
                                     disabled={salvando}
                                 >
-
                                     {salvando
                                         ? 'Salvando...'
                                         : modoAlteracao
                                             ? 'Salvar alterações'
                                             : 'Salvar item'}
-
                                 </button>
 
                             </div>
@@ -1104,17 +1026,11 @@ export function NovoItem({
 
                     {mostrarPrecificacao && (
 
-                        <div
-                            className={
-                                styles.precificacaoArea
-                            }
-                        >
+                        <div className={styles.precificacaoArea}>
 
                             <Precificacao
                                 onFechar={() =>
-                                    setMostrarPrecificacao(
-                                        false
-                                    )
+                                    setMostrarPrecificacao(false)
                                 }
                             />
 

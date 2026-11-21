@@ -1,4 +1,3 @@
-
 import {
   useCallback,
   useEffect,
@@ -53,6 +52,12 @@ export interface Pedido {
   subtotal: number | string;
   taxa_entrega: number | string;
   valor_total: number | string;
+
+  taxa_plataforma_percentual?: number | string | null;
+  taxa_plataforma_valor?: number | string | null;
+  taxa_pagamento_percentual?: number | string | null;
+  taxa_pagamento_valor?: number | string | null;
+  valor_liquido_comercio?: number | string | null;
 
   observacao?: string | null;
   criado_em: string;
@@ -172,6 +177,51 @@ const pedidoConcluido = (status: string) => {
     normalizado === "CONCLUIDO" ||
     normalizado === "CONCLUÍDO" ||
     normalizado === "ENTREGUE"
+  );
+};
+
+/* =====================================================
+   CALCULAR GANHO LÍQUIDO DO PEDIDO (TAXAS DESCONTADAS)
+===================================================== */
+
+const calcularValorLiquidoPedido = (pedido: Pedido): number => {
+  const liquidoBanco = Number(pedido.valor_liquido_comercio);
+
+  if (!Number.isNaN(liquidoBanco) && liquidoBanco > 0) {
+    return liquidoBanco;
+  }
+
+  // Fallback caso algum registro antigo venha sem valor_liquido_comercio
+  const baseCalculo = Number(
+    pedido.subtotal ?? pedido.valor_total ?? 0
+  );
+
+  if (baseCalculo <= 0) return 0;
+
+  const taxaApp = Number(
+    pedido.taxa_plataforma_percentual ?? 23
+  );
+
+  const pagamento = String(pedido.forma_pagamento || "")
+    .trim()
+    .toUpperCase();
+
+  const ehCartao =
+    pagamento === "CARTAO_CREDITO" ||
+    pagamento === "CARTAO_DEBITO";
+
+  const taxaCartao =
+    pedido.taxa_pagamento_percentual !== null &&
+    pedido.taxa_pagamento_percentual !== undefined
+      ? Number(pedido.taxa_pagamento_percentual)
+      : ehCartao
+      ? 3.2
+      : 0;
+
+  const percentualTotal = taxaApp + taxaCartao;
+
+  return Number(
+    (baseCalculo * (1 - percentualTotal / 100)).toFixed(2)
   );
 };
 
@@ -334,6 +384,22 @@ export function Pedidos() {
     (pedido) => pedidoConcluido(pedido.status)
   ).length;
 
+  const valorGanhoLiquido = useMemo(() => {
+    return pedidosFiltrados.reduce((total, pedido) => {
+      const statusTraduzido = traduzirStatus(pedido.status);
+
+      // Desconsidera cancelados/recusados, exceto se o usuário filtrar por "Cancelado"
+      if (
+        statusTraduzido === "Cancelado" &&
+        statusSelecionado !== "Cancelado"
+      ) {
+        return total;
+      }
+
+      return total + calcularValorLiquidoPedido(pedido);
+    }, 0);
+  }, [pedidosFiltrados, statusSelecionado]);
+
   /* =====================================================
      QUANTIDADE DE ITENS
   ===================================================== */
@@ -423,12 +489,16 @@ export function Pedidos() {
           <div className={styles.resumoIcone}>R$</div>
 
           <div className={styles.resumoConteudo}>
-            <span>Valor dos pedidos</span>
+            <span>Ganho líquido</span>
 
-            <strong>Em breve</strong>
+            <strong>
+              {carregando
+                ? "..."
+                : formatarMoeda(valorGanhoLiquido)}
+            </strong>
 
             <small>
-              Funcionalidade em desenvolvimento
+              Valor líquido (taxas descontadas)
             </small>
           </div>
         </article>

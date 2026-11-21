@@ -14,7 +14,8 @@ import {
     buscarTodosComercios,
     listarCategoriasPublicas,
     listarItensPublicos,
-    listarItens
+    listarItens,
+    buscarFotosAutomaticas
 } from '../controllers/cardapio/cardapio.controller.js';
 
 import { autenticar } from '../middlewares/autenticacao.js';
@@ -91,6 +92,12 @@ router.post(
     criarItem
 );
 
+
+router.get(
+    '/buscar-fotos',
+    autenticar,
+    buscarFotosAutomaticas
+);
 
 // ============================================================
 // ALTERAR ITEM

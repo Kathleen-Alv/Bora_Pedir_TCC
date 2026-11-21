@@ -8,6 +8,8 @@ interface ItemPromocaoRascunho {
   precoPromocional: string;
 }
 
+type PacoteAtivoTipo = 10 | 20 | 'categoria' | null;
+
 function montarUrlImagem(imagem: string | null | undefined): string | null {
   if (!imagem) return null;
   if (
@@ -32,6 +34,11 @@ function parsePreco(valorTexto: string): number {
   const limpo = valorTexto.replace(/[^\d,.-]/g, '').replace(',', '.');
   const numero = parseFloat(limpo);
   return Number.isNaN(numero) ? 0 : numero;
+}
+
+function calcularPrecoComDesconto(preco: number, percentual: number): number {
+  const calculado = Number((preco * (1 - percentual / 100)).toFixed(2));
+  return preco > 0.01 ? Math.max(0.01, calculado) : preco;
 }
 
 function temPromocaoNoBanco(
@@ -63,6 +70,8 @@ export function ParticiparPromocao() {
   const [busca, setBusca] = useState('');
   const [descontoCategoriaInput, setDescontoCategoriaInput] =
     useState<number>(15);
+  const [pacoteSelecionado, setPacoteSelecionado] =
+    useState<PacoteAtivoTipo>(null);
   const [promocoesRascunho, setPromocoesRascunho] = useState<
     Record<number, ItemPromocaoRascunho>
   >({});
@@ -72,13 +81,48 @@ export function ParticiparPromocao() {
   const [mensagemSucesso, setMensagemSucesso] = useState('');
 
   // ================================================================
+  // PRÉVIA DE IMPACTO DOS PACOTES DE 10% E 20%
+  // ================================================================
+  const resumoPacotes = useMemo(() => {
+    if (itens.length === 0) {
+      return {
+        ticketMedioAtual: 0,
+        ticketMedio10: 0,
+        ticketMedio20: 0,
+      };
+    }
+
+    const somaAtual = itens.reduce((acc, item) => acc + item.preco, 0);
+    const soma10 = itens.reduce(
+      (acc, item) => acc + calcularPrecoComDesconto(item.preco, 10),
+      0
+    );
+    const soma20 = itens.reduce(
+      (acc, item) => acc + calcularPrecoComDesconto(item.preco, 20),
+      0
+    );
+
+    return {
+      ticketMedioAtual: somaAtual / itens.length,
+      ticketMedio10: soma10 / itens.length,
+      ticketMedio20: soma20 / itens.length,
+    };
+  }, [itens]);
+
+  // ================================================================
   // AUTOMAÇÃO 1 E 2: APLICAR PACOTE NO CARDÁPIO TODO (10% OU 20%)
   // ================================================================
-  function aplicarPacoteCardapioTodo(percentual: number) {
+  function aplicarPacoteCardapioTodo(percentual: 10 | 20) {
+    // Se clicar novamente no pacote já ativo, limpa o rascunho (toggle)
+    if (pacoteSelecionado === percentual) {
+      limparTudo();
+      return;
+    }
+
     const novoMapa: Record<number, ItemPromocaoRascunho> = {};
 
     itens.forEach((item) => {
-      const novoValor = Number((item.preco * (1 - percentual / 100)).toFixed(2));
+      const novoValor = calcularPrecoComDesconto(item.preco, percentual);
       novoMapa[item.id] = {
         ativo: true,
         precoPromocional: novoValor.toFixed(2).replace('.', ','),
@@ -86,6 +130,7 @@ export function ParticiparPromocao() {
     });
 
     setPromocoesRascunho(novoMapa);
+    setPacoteSelecionado(percentual);
     setErroPrecoId(null);
     setMensagemSucesso('');
   }
@@ -104,9 +149,7 @@ export function ParticiparPromocao() {
       const atualizado = { ...prev };
 
       itensAlvo.forEach((item) => {
-        const novoValor = Number(
-          (item.preco * (1 - percentual / 100)).toFixed(2)
-        );
+        const novoValor = calcularPrecoComDesconto(item.preco, percentual);
         atualizado[item.id] = {
           ativo: true,
           precoPromocional: novoValor.toFixed(2).replace('.', ','),
@@ -116,6 +159,7 @@ export function ParticiparPromocao() {
       return atualizado;
     });
 
+    setPacoteSelecionado('categoria');
     setErroPrecoId(null);
     setMensagemSucesso('');
   }
@@ -128,6 +172,7 @@ export function ParticiparPromocao() {
     precoOriginal: number,
     precoBanco?: number | null
   ) {
+    setPacoteSelecionado(null);
     setPromocoesRascunho((prev) => {
       const atual = prev[itemId];
       const jaEstaNoBanco = temPromocaoNoBanco(precoOriginal, precoBanco);
@@ -148,7 +193,7 @@ export function ParticiparPromocao() {
         };
       }
 
-      const sugestao = Number((precoOriginal * 0.9).toFixed(2));
+      const sugestao = calcularPrecoComDesconto(precoOriginal, 10);
       return {
         ...prev,
         [itemId]: {
@@ -205,12 +250,13 @@ export function ParticiparPromocao() {
       setErro('');
       setMensagemSucesso('');
 
-      for (const item of itensParaRemover) {
-        await salvarPromocaoItem(item.id, null);
-      }
+      await Promise.all(
+        itensParaRemover.map((item) => salvarPromocaoItem(item.id, null))
+      );
 
       await carregarItens();
       setPromocoesRascunho({});
+      setPacoteSelecionado(null);
       setMensagemSucesso(
         `${itensParaRemover.length} item(ns) removido(s) da promoção!`
       );
@@ -234,6 +280,7 @@ export function ParticiparPromocao() {
     valorDigitado: string
   ) {
     const valorNumerico = parsePreco(valorDigitado);
+    setPacoteSelecionado(null);
 
     if (valorNumerico >= precoOriginal) {
       setErroPrecoId(itemId);
@@ -305,6 +352,7 @@ export function ParticiparPromocao() {
 
   function limparTudo() {
     setPromocoesRascunho({});
+    setPacoteSelecionado(null);
     setErroPrecoId(null);
     setMensagemSucesso('');
   }
@@ -331,12 +379,15 @@ export function ParticiparPromocao() {
             : null,
         }));
 
-      for (const promo of listaParaSalvar) {
-        await salvarPromocaoItem(promo.itemId, promo.precoPromocional);
-      }
+      await Promise.all(
+        listaParaSalvar.map((promo) =>
+          salvarPromocaoItem(promo.itemId, promo.precoPromocional)
+        )
+      );
 
       await carregarItens();
       setPromocoesRascunho({});
+      setPacoteSelecionado(null);
       setMensagemSucesso(
         `${listaParaSalvar.length} promoção(ões) atualizada(s) com sucesso!`
       );
@@ -366,49 +417,93 @@ export function ParticiparPromocao() {
       ===================================================== */}
       <section className={styles.pacotesGrid}>
         {/* CARD 1: 10% NO CARDÁPIO TODO */}
-        <div className={styles.pacoteCard}>
+        <div
+          className={`${styles.pacoteCard} ${
+            pacoteSelecionado === 10 ? styles.pacoteCardAtivo : ''
+          }`}
+        >
           <div className={styles.pacoteTopo}>
-            <span className={styles.pacoteBadge}>Cardápio Todo</span>
+            <span className={styles.pacoteBadge}>
+              {pacoteSelecionado === 10 ? '✓ Ativo no rascunho' : 'Cardápio Todo'}
+            </span>
             <span className={styles.pacoteDestaque}>-10%</span>
           </div>
+
           <h3>Pacote Esquenta Vendas</h3>
           <p>
-            Aplica <strong>10% de desconto</strong> automaticamente em todos os{' '}
-            {itens.length} itens do seu cardápio.
+            Aplica <strong>10% de desconto</strong> em todos os{' '}
+            <strong>{itens.length} itens</strong>. Ideal para aumentar o giro
+            diário preservando sua margem.
           </p>
+
+          {itens.length > 0 && (
+            <div className={styles.pacotePrevia}>
+              <span>Preço médio:</span>{' '}
+              <del>{formatarMoeda(resumoPacotes.ticketMedioAtual)}</del>{' '}
+              <strong>{formatarMoeda(resumoPacotes.ticketMedio10)}</strong>
+            </div>
+          )}
+
           <button
             type="button"
             className={styles.btnPacote}
             onClick={() => aplicarPacoteCardapioTodo(10)}
             disabled={itens.length === 0}
           >
-            Aplicar 10% em tudo
+            {pacoteSelecionado === 10
+              ? 'Cancelar pacote de 10%'
+              : 'Aplicar 10% em tudo'}
           </button>
         </div>
 
         {/* CARD 2: 20% NO CARDÁPIO TODO */}
-        <div className={`${styles.pacoteCard} ${styles.pacoteCardDestaque}`}>
+        <div
+          className={`${styles.pacoteCard} ${styles.pacoteCardDestaque} ${
+            pacoteSelecionado === 20 ? styles.pacoteCardAtivo : ''
+          }`}
+        >
           <div className={styles.pacoteTopo}>
-            <span className={styles.pacoteBadgeDestaque}>Mais Convertido</span>
+            <span className={styles.pacoteBadgeDestaque}>
+              {pacoteSelecionado === 20
+                ? '✓ Ativo no rascunho'
+                : 'Mais Convertido'}
+            </span>
             <span className={styles.pacoteDestaque}>-20%</span>
           </div>
+
           <h3>Pacote Super Oferta</h3>
           <p>
-            Aplica <strong>20% de desconto</strong> em todo o cardápio para
-            atrair mais pedidos no app.
+            Aplica <strong>20% de desconto</strong> em todo o cardápio (
+            <strong>{itens.length} itens</strong>) para maximizar pedidos e
+            destaque no app.
           </p>
+
+          {itens.length > 0 && (
+            <div className={styles.pacotePrevia}>
+              <span>Preço médio:</span>{' '}
+              <del>{formatarMoeda(resumoPacotes.ticketMedioAtual)}</del>{' '}
+              <strong>{formatarMoeda(resumoPacotes.ticketMedio20)}</strong>
+            </div>
+          )}
+
           <button
             type="button"
             className={styles.btnPacoteDestaque}
             onClick={() => aplicarPacoteCardapioTodo(20)}
             disabled={itens.length === 0}
           >
-            Aplicar 20% em tudo
+            {pacoteSelecionado === 20
+              ? 'Cancelar pacote de 20%'
+              : 'Aplicar 20% em tudo'}
           </button>
         </div>
 
         {/* CARD 3: PACOTE POR CATEGORIA SELECIONADA */}
-        <div className={styles.pacoteCard}>
+        <div
+          className={`${styles.pacoteCard} ${
+            pacoteSelecionado === 'categoria' ? styles.pacoteCardAtivo : ''
+          }`}
+        >
           <div className={styles.pacoteTopo}>
             <span className={styles.pacoteBadge}>Por Categoria</span>
             <span className={styles.pacoteDestaque}>
@@ -416,7 +511,10 @@ export function ParticiparPromocao() {
             </span>
           </div>
           <h3>Oferta em {categoriaAtual?.nome || 'Todas as Categorias'}</h3>
-          <p>Aplica desconto nos itens da categoria selecionada abaixo.</p>
+          <p>
+            Aplica desconto nos <strong>{itensExibidos.length} itens</strong>{' '}
+            filtrados na categoria selecionada abaixo.
+          </p>
 
           <div className={styles.pacoteCategoriaAcoes}>
             <select
@@ -440,7 +538,7 @@ export function ParticiparPromocao() {
               onClick={() =>
                 aplicarPacoteCategoriaAtual(descontoCategoriaInput)
               }
-              disabled={itens.length === 0}
+              disabled={itensExibidos.length === 0}
             >
               Aplicar na categoria
             </button>

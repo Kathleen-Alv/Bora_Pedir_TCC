@@ -1,4 +1,3 @@
-
 /* =====================================================
    PÁGINA
 ===================================================== */
@@ -6,7 +5,7 @@
 .page {
   width: 100%;
   min-height: 100%;
-  padding: 32px;
+  padding: 28px;
   margin: 0;
   background: #f3f3f3;
   font-family: Arial, Helvetica, sans-serif;
@@ -168,17 +167,13 @@
   position: relative;
   width: 100%;
   min-height: 112px;
-
   padding: 12px 18px 48px;
-
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-
   gap: 18px;
-
   background: #e7e7e7;
   box-sizing: border-box;
 }
@@ -198,8 +193,6 @@
 .infoItem img {
   cursor: pointer;
 }
-
-/* Conteúdo textual */
 
 .infoContent {
   display: flex;
@@ -251,15 +244,12 @@
 
 .ratingContainer {
   position: relative;
-
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-
   flex: 0 0 auto;
   min-width: 150px;
-
   align-self: center;
 }
 
@@ -283,30 +273,22 @@
 
 .ratingContainer .botaoAlterarInformacoes {
   position: absolute;
-
   top: calc(100% + 26px);
   left: -20px;
-
   display: block;
   width: max-content;
   max-width: 230px;
-
   margin: 0;
   padding: 9px 13px;
-
   background: #080808;
   color: #ffffff;
-
   border: none;
   border-radius: 8px;
-
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-
   white-space: nowrap;
   cursor: pointer;
-
   transition: background-color 0.2s ease;
 }
 
@@ -328,17 +310,13 @@
   width: 100%;
   margin-top: 25px;
   padding: 13px 18px;
-
   background: #080808;
   color: #ffffff;
-
   border: none;
   border-radius: 8px;
-
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -368,7 +346,7 @@
 
 .descriptionCard {
   width: 100%;
-  min-height: 220px;
+  min-height: 140px;
   background: #ffffff;
   border: 1px solid #857d7d;
   border-radius: 10px;
@@ -400,17 +378,20 @@
 }
 
 /* =====================================================
-   BANNER DE DADOS BANCÁRIOS
+   BANNER DE DADOS BANCÁRIOS (RESPONSIVO PROPORCIONAL)
 ===================================================== */
 
 .bannerContainer {
   position: relative;
   width: 100%;
   max-width: 1420px;
-  height: 500px;
+  aspect-ratio: 1420 / 470;
+  min-height: 360px;
+  max-height: 520px;
   margin: 25px auto 0;
   overflow: hidden;
   border-radius: 16px;
+  background-color: #f4efe6;
   box-sizing: border-box;
 }
 
@@ -422,7 +403,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: right center;
   user-select: none;
   pointer-events: none;
   -webkit-user-drag: none;
@@ -434,13 +415,13 @@
 
 .informacoesSobreConta {
   position: absolute;
-  top: 58%;
-  left: 6%;
+  top: 52%;
+  left: clamp(18px, 4.5%, 64px);
   z-index: 1;
   transform: translateY(-50%);
-  width: 520px;
-  max-width: 86%;
-  padding: 25px;
+  width: clamp(350px, 44%, 520px);
+  max-width: calc(100% - 36px);
+  padding: clamp(18px, 2vw, 25px);
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 12px;
@@ -449,9 +430,9 @@
 }
 
 .informacoesSobreConta h2 {
-  margin: 0 0 22px;
+  margin: 0 0 18px;
   color: #111;
-  font-size: 22px;
+  font-size: clamp(18px, 1.6vw, 22px);
   font-weight: 700;
 }
 
@@ -462,13 +443,13 @@
 .dadosConta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px 16px;
+  gap: 16px 14px;
 }
 
 .dadosConta div {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
 }
 
@@ -479,23 +460,26 @@
 
 .dadosConta strong {
   color: #111;
-  font-size: 15px;
+  font-size: clamp(13px, 1.1vw, 15px);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 
 /* =====================================================
-   BANNER INFORMAÇÕES DA CONTA
+   BANNER INFORMAÇÕES DA CONTA (RESPONSIVO PROPORCIONAL)
 ===================================================== */
 
 .informacaoContaContainer {
   position: relative;
   width: 100%;
   max-width: 1410px;
-  min-height: 450px;
+  aspect-ratio: 1410 / 460;
+  min-height: 360px;
+  max-height: 500px;
   margin: 25px auto 0;
   overflow: hidden;
   border-radius: 16px;
+  background-color: #f4efe6;
   box-sizing: border-box;
 }
 
@@ -507,7 +491,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: right center;
   user-select: none;
   pointer-events: none;
   -webkit-user-drag: none;
@@ -519,13 +503,13 @@
 
 .cardInformacaoConta {
   position: absolute;
-  top: 60%;
-  left: 7%;
+  top: 52%;
+  left: clamp(18px, 4.5%, 64px);
   z-index: 1;
   transform: translateY(-50%);
-  width: 500px;
-  max-width: 86%;
-  padding: 25px;
+  width: clamp(350px, 44%, 500px);
+  max-width: calc(100% - 36px);
+  padding: clamp(18px, 2vw, 25px);
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
@@ -534,9 +518,9 @@
 }
 
 .cardInformacaoConta h2 {
-  margin: 0 0 22px;
+  margin: 0 0 18px;
   color: #202020;
-  font-size: 22px;
+  font-size: clamp(18px, 1.6vw, 22px);
   font-weight: 700;
 }
 
@@ -595,8 +579,31 @@
 }
 
 /* =====================================================
-   RESPONSIVIDADE — TABLETS
+   RESPONSIVIDADE — NOTEBOOKS MENORES E TABLETS
 ===================================================== */
+
+@media (max-width: 1180px) {
+  .bannerContainer,
+  .informacaoContaContainer {
+    aspect-ratio: 16 / 6.2;
+    min-height: 340px;
+  }
+
+  .informacoesSobreConta,
+  .cardInformacaoConta {
+    width: clamp(320px, 46%, 460px);
+    padding: 18px;
+  }
+
+  .informacoesSobreConta h2,
+  .cardInformacaoConta h2 {
+    margin-bottom: 14px;
+  }
+
+  .dadosConta {
+    gap: 12px;
+  }
+}
 
 @media (max-width: 1000px) {
   .page {
@@ -628,12 +635,40 @@
     left: 8px;
   }
 
-  .bannerContainer {
-    height: 500px;
+  .bannerContainer,
+  .informacaoContaContainer {
+    aspect-ratio: auto;
+    min-height: 0;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #e2dfd9;
   }
 
-  .informacaoContaContainer {
-    min-height: 500px;
+  .bannerDadosBancarios,
+  .imagemInformacaoConta {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1410 / 460;
+    object-fit: cover;
+    object-position: right center;
+  }
+
+  .informacoesSobreConta,
+  .cardInformacaoConta {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    border: none;
+    border-top: 1px solid #eeeeee;
+    border-radius: 0 0 16px 16px;
+    box-shadow: none;
   }
 }
 
@@ -716,22 +751,9 @@
     text-align: center;
   }
 
-  .bannerContainer {
-    height: 580px;
-  }
-
-  .informacaoContaContainer {
-    min-height: 580px;
-  }
-
   .informacoesSobreConta,
   .cardInformacaoConta {
-    top: 50%;
-    left: 50%;
-    width: 500px;
-    max-width: calc(100% - 28px);
-    padding: 20px;
-    transform: translate(-50%, -50%);
+    padding: 18px;
   }
 
   .informacoesSobreConta h2,
@@ -740,7 +762,7 @@
   }
 
   .dadosConta {
-    gap: 17px 12px;
+    gap: 14px 12px;
   }
 
   .dadosConta strong {
@@ -769,14 +791,6 @@
   .dadosConta {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
-
-  .bannerContainer {
-    height: 500px;
-  }
-
-  .informacaoContaContainer {
-    min-height: 500px;
   }
 
   .profileCircle {

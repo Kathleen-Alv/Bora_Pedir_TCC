@@ -35,6 +35,7 @@ import { Pedidos } from "./componentes_gestao/pedidos_detalhes/pedidos_detalhes"
 import { Horarios } from "./componentes_gestao/horarios/horarios";
 import { ParticiparPromocao } from "./componentes_gestao/promocao/participarPromocao/participarPromocao";
 import { MinhaPromocao } from "./componentes_gestao/promocao/minhaPromocao/minhaPromocao";
+import { Financeiro } from "./componentes_gestao/financeiro/financeiro";
 /* =====================================================
    TELAS DO PORTAL
 ===================================================== */
@@ -401,12 +402,7 @@ export function PortalGestao() {
 
           {/* FINANCEIRO */}
 
-          {telaAtual === "financeiro" && (
-            <div>
-              <h1>Financeiro</h1>
-              <p>Aqui ficarão os dados financeiros.</p>
-            </div>
-          )}
+          {telaAtual === "financeiro" && <Financeiro/>}
 
           {/* PRECIFICAÇÃO */}
 
