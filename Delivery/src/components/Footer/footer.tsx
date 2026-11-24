@@ -1,71 +1,47 @@
 import styles from './footer.module.css';
 
-import borapedirIMG from '../../assets/footer/gpt2.png';
+
+import borapedirIMG2 from '../../assets/logo/logo.png';
 
 type FooterProps = {
     children?: React.ReactNode;
+    logoSuperior?: string;
+    logoInferior?: string;
 };
 
-export function Footer({ children }: FooterProps) {
-
+export function Footer({
+    children,
+    logoSuperior = borapedirIMG2
+    
+}: FooterProps) {
     return (
         <footer className={styles.footercontainer}>
-
             {/* =========================
                 PARTE DE CIMA
             ========================= */}
 
             <div className={styles.footerCima}>
-
                 <div className={styles.footerConteudo}>
-
                     {/* =========================
-                        LOGO
+                        COLUNA ESQUERDA — IMAGEM CIRCULAR
                     ========================= */}
 
-                    <div className={styles.footerQuadrado}>
-
-                        <img
-                            src={borapedirIMG}
-                            alt="Bora Pedir"
-                            className={styles.borapedirIMG}
-                        />
-
+                    <div className={styles.colunaEsquerda}>
+                        <div className={styles.logoCircularWrapper}>
+                            <img
+                                src={logoSuperior}
+                                alt="Bora Pedir"
+                                className={styles.logoCircular}
+                            />
+                        </div>
                     </div>
-
-
-                    {/* =========================
-                        SOBRE O BORA PEDIR
-                    ========================= */}
-
-                    <div className={styles.footerInfo}>
-
-                        <h2>
-                            Bora Pedir
-                        </h2>
-
-                        <p className={styles.destaque}>
-                            Seu pedido, do seu jeito.
-                        </p>
-
-                        <p>
-                            Uma plataforma de delivery criada para
-                            aproximar clientes, comércios e entregadores
-                            em um único lugar.
-                        </p>
-
-                    </div>
-
 
                     {/* =========================
                         SOBRE O PROJETO
                     ========================= */}
 
                     <div className={styles.footerColuna}>
-
-                        <h3>
-                            Sobre o projeto
-                        </h3>
+                        <h3>Sobre o projeto</h3>
 
                         <p>
                             O Bora Pedir foi desenvolvido como
@@ -77,19 +53,14 @@ export function Footer({ children }: FooterProps) {
                         <span className={styles.projetoTag}>
                             Projeto Acadêmico • TCC
                         </span>
-
                     </div>
 
-
                     {/* =========================
-                        TECNOLOGIAS
+                        TECNOLOGIAS + IMAGEM INFERIOR DIREITA
                     ========================= */}
 
-                    <div className={styles.footerColuna}>
-
-                        <h3>
-                            Desenvolvimento
-                        </h3>
+                    <div className={styles.footerColunaDireita}>
+                        <h3>Desenvolvimento</h3>
 
                         <p>
                             Uma solução construída envolvendo
@@ -99,72 +70,46 @@ export function Footer({ children }: FooterProps) {
                         </p>
 
                         <div className={styles.tecnologias}>
-
                             <span>React</span>
                             <span>Node.js</span>
                             <span>Express</span>
                             <span>MariaDB</span>
                             <span>Flutter</span>
-
                         </div>
 
+                    
                     </div>
-
-
-                    {/* =========================
-                        APLICATIVOS
-                    ========================= */}
-
-             
-
                 </div>
-
             </div>
-
 
             {/* =========================
                 PARTE INFERIOR
             ========================= */}
 
             <div className={styles.footerBaixo}>
-
                 <div className={styles.footerDireitos}>
-
                     <div className={styles.copyright}>
-
                         <span>
-                            © {new Date().getFullYear()} Bora Pedir
+                            © {new Date().getFullYear()}{' '}
+                            <strong>Bora Pedir</strong>
                         </span>
 
-                        <span>
-                            Todos os direitos reservados.
-                        </span>
-
+                        <span>Todos os direitos reservados.</span>
                     </div>
 
                     <div className={styles.footerTcc}>
+                        <span>Desenvolvido como projeto acadêmico</span>
 
-                        <span>
-                            Desenvolvido como projeto acadêmico
-                        </span>
+                        <span className={styles.separador}>•</span>
 
-                        <span className={styles.separador}>
-                            •
-                        </span>
-
-                        <span>
-                            Trabalho de Conclusão de Curso
-                        </span>
-
+                        <span>Trabalho de Conclusão de Curso</span>
                     </div>
-
                 </div>
-
             </div>
 
-
             {children}
-
         </footer>
     );
 }
+
+export default Footer;

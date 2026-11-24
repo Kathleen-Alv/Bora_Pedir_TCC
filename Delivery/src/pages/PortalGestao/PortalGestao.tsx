@@ -18,7 +18,6 @@ import minhasPromocoes from "../../assets/portalGestao/minhasPromocoes.png";
 import participarPromocoes from "../../assets/portalGestao/promocoes.png";
 import perfil from "../../assets/portalGestao/loja.png";
 import horarios from "../../assets/portalGestao/horario.png";
-import suporte from "../../assets/portalGestao/suporte.png";
 import precificacao from "../../assets/portalGestao/precificacao.png";
 import gestaoPedidos from "../../assets/portalGestao/gestaoPedidos.png";
 
@@ -50,8 +49,7 @@ type Tela =
   | "minhasPromocoes"
   | "participarPromocoes"
   | "perfil"
-  | "horarios"
-  | "suporte";
+  | "horarios";
 
 /* =====================================================
    PORTAL DE GESTÃO
@@ -332,22 +330,9 @@ export function PortalGestao() {
               <span>Horários de Funcionamento</span>
             </button>
 
-            {/* SUPORTE */}
+          
 
-            <button
-              type="button"
-              className={classeMenu("suporte")}
-              onClick={() => setTelaAtual("suporte")}
-              title={!sidebarAberta ? "Suporte" : ""}
-            >
-              <img
-                src={suporte}
-                alt=""
-                className={styles.menuIcon}
-              />
-
-              <span>Suporte</span>
-            </button>
+           
           </div>
         </aside>
 
@@ -424,14 +409,7 @@ export function PortalGestao() {
 
           {telaAtual === "horarios" && <Horarios />}
 
-          {/* SUPORTE */}
-
-          {telaAtual === "suporte" && (
-            <div>
-              <h1>Suporte</h1>
-              <p>Solicitações de suporte.</p>
-            </div>
-          )}
+         
         </main>
       </div>
     </>

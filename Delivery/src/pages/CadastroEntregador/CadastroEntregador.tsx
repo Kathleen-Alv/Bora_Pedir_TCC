@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 
 import styles from './CadastroEntregador.module.css';
-
+import {Footer} from '../../components/Footer/footer';
 import { Header } from '../../components/Header/header';
 
 import capaceteIcon from '../../assets/capacete.svg';
@@ -356,16 +356,8 @@ export function CadastroEntregador({
             </div>
           </div>
 
-          <a
-            href="#cadastroEntregador"
-            className={styles.saibaMais}
-          >
-            <span>Saiba mais</span>
-
-            <span className={styles.setaSaibaMais}>
-              ↓
-            </span>
-          </a>
+          
+         
         </div>
 
         {/* ========================================================
@@ -627,6 +619,7 @@ export function CadastroEntregador({
 
         {children}
       </div>
+      <Footer/>
     </div>
   );
 }

@@ -326,7 +326,7 @@ class _InicioPageState extends State<InicioPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    'Comércios abertos',
+                                    'Comércios:',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,

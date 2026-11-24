@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -42,10 +43,22 @@ class PerfilComercio extends StatefulWidget {
 }
 
 class _PerfilComercioState extends State<PerfilComercio> {
+  static const List<String> _chavesDiasBanco = [
+    'DOMINGO',
+    'SEGUNDA',
+    'TERCA',
+    'QUARTA',
+    'QUINTA',
+    'SEXTA',
+    'SABADO',
+  ];
+
   bool _carregandoHorarios = true;
-  bool _lojaAberta = true;
+  bool _lojaAberta = false;
+
   String _mensagemStatus = '';
   String _horarioHoje = 'Ver horários';
+
   List<Map<String, dynamic>> _horariosSemana = [];
 
   @override
@@ -66,27 +79,46 @@ class _PerfilComercioState extends State<PerfilComercio> {
       );
 
       final resposta = await http.get(
-        Uri.parse('$baseUrl/api/comercios/${widget.comercioId}/status'),
+        Uri.parse(
+          '$baseUrl/api/comercios/${widget.comercioId}/status',
+        ),
       );
 
       if (resposta.statusCode != 200) {
         if (!mounted) return;
+
         setState(() {
           _carregandoHorarios = false;
+          _lojaAberta = false;
           _horarioHoje = 'Ver horários';
         });
+
         return;
       }
 
-      final dados = jsonDecode(resposta.body);
+      final dynamic dadosDecodificados = jsonDecode(resposta.body);
+
+      if (dadosDecodificados is! Map) {
+        throw const FormatException(
+          'Resposta da API inválida.',
+        );
+      }
+
+      final Map<String, dynamic> dados =
+          Map<String, dynamic>.from(dadosDecodificados);
 
       final List<dynamic> listaBruta =
-          dados['horarios'] is List ? dados['horarios'] : [];
+          dados['horarios'] is List
+              ? dados['horarios']
+              : [];
 
-      final List<Map<String, dynamic>> horariosConvertidos = listaBruta
-          .whereType<Map>()
-          .map((item) => Map<String, dynamic>.from(item))
-          .toList();
+      final List<Map<String, dynamic>> horariosConvertidos =
+          listaBruta
+              .where((item) => item is Map)
+              .map(
+                (item) => Map<String, dynamic>.from(item),
+              )
+              .toList();
 
       final String horarioHojeApi =
           dados['horario_hoje']?.toString().trim() ?? '';
@@ -94,57 +126,121 @@ class _PerfilComercioState extends State<PerfilComercio> {
       if (!mounted) return;
 
       setState(() {
-        _lojaAberta = dados['aberto'] == true;
-        _mensagemStatus = dados['mensagem']?.toString() ?? '';
+        _lojaAberta =
+            dados['aberto'] == true ||
+            dados['aberto'] == 1 ||
+            dados['aberto']?.toString().toLowerCase() == 'true';
+
+        _mensagemStatus =
+            dados['mensagem']?.toString() ?? '';
+
         _horariosSemana = horariosConvertidos;
+
         _horarioHoje = horarioHojeApi.isNotEmpty
             ? horarioHojeApi
             : _montarHorarioHojeLocal(horariosConvertidos);
+
         _carregandoHorarios = false;
       });
     } catch (e) {
-      debugPrint('ERRO AO BUSCAR HORÁRIOS DO PERFIL: $e');
+      debugPrint(
+        'ERRO AO BUSCAR HORÁRIOS DO PERFIL: $e',
+      );
+
       if (!mounted) return;
+
       setState(() {
         _carregandoHorarios = false;
+        _lojaAberta = false;
         _horarioHoje = 'Ver horários';
       });
     }
   }
 
-  String _montarHorarioHojeLocal(List<Map<String, dynamic>> lista) {
-    if (lista.isEmpty) return 'Não informado';
+  // =========================================================
+  // IDENTIFICAR DIA DA SEMANA
+  // =========================================================
+
+  int? _resolverIndiceDia(dynamic diaValor) {
+    if (diaValor == null) return null;
+
+    final texto = diaValor
+        .toString()
+        .trim()
+        .toUpperCase();
+
+    final comoNumero = int.tryParse(texto);
+
+    if (comoNumero != null &&
+        comoNumero >= 0 &&
+        comoNumero <= 6) {
+      return comoNumero;
+    }
+
+    final idxTexto = _chavesDiasBanco.indexOf(texto);
+
+    return idxTexto >= 0 ? idxTexto : null;
+  }
+
+  // =========================================================
+  // MONTAR HORÁRIO DE HOJE LOCALMENTE
+  // =========================================================
+
+  String _montarHorarioHojeLocal(
+    List<Map<String, dynamic>> lista,
+  ) {
+    if (lista.isEmpty) {
+      return 'Não informado';
+    }
 
     final int diaHoje = DateTime.now().weekday % 7;
 
     final registroHoje = lista.firstWhere(
-      (h) => int.tryParse(h['dia_semana']?.toString() ?? '') == diaHoje,
+      (h) => _resolverIndiceDia(h['dia_semana']) == diaHoje,
       orElse: () => <String, dynamic>{},
     );
 
-    if (registroHoje.isEmpty) return 'Fechado';
+    if (registroHoje.isEmpty) {
+      return 'Fechado';
+    }
+
+    final dynamic abertoValor = registroHoje['aberto'];
 
     final bool diaAberto =
-        registroHoje['aberto'] == true ||
-        registroHoje['aberto'] == 1 ||
-        registroHoje['aberto']?.toString() == '1';
+        abertoValor == null ||
+        abertoValor == true ||
+        abertoValor == 1 ||
+        abertoValor.toString() == '1' ||
+        abertoValor.toString().toLowerCase() == 'true';
 
-    final String abertura = _formatarHora(registroHoje['abertura']);
-    final String fechamento = _formatarHora(registroHoje['fechamento']);
+    final String abertura =
+        _formatarHora(registroHoje['abertura']);
 
-    if (!diaAberto || abertura.isEmpty || fechamento.isEmpty) {
+    final String fechamento =
+        _formatarHora(registroHoje['fechamento']);
+
+    if (!diaAberto ||
+        abertura.isEmpty ||
+        fechamento.isEmpty) {
       return 'Fechado hoje';
     }
 
     return '$abertura às $fechamento';
   }
 
+  // =========================================================
+  // FORMATAR HORÁRIO
+  // =========================================================
+
   String _formatarHora(dynamic valor) {
     if (valor == null) return '';
+
     final texto = valor.toString().trim();
+
     if (texto.length >= 5) {
       return texto.substring(0, 5);
     }
+
     return texto;
   }
 
@@ -179,9 +275,14 @@ class _PerfilComercioState extends State<PerfilComercio> {
     );
   }
 
+  // =========================================================
+  // CONSTRUÇÃO DO PERFIL
+  // =========================================================
+
   @override
   Widget build(BuildContext context) {
-    final String descricao = widget.descricaoComercio.trim();
+    final String descricao =
+        widget.descricaoComercio.trim();
 
     return Stack(
       clipBehavior: Clip.none,
@@ -208,13 +309,15 @@ class _PerfilComercioState extends State<PerfilComercio> {
                           width: double.infinity,
                           height: 160,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
+                          errorBuilder:
+                              (context, error, stackTrace) {
                             return _bannerPadrao();
                           },
                         ),
                 ),
 
                 // BOTÃO VOLTAR
+
                 Positioned(
                   top: 15,
                   left: 15,
@@ -235,6 +338,7 @@ class _PerfilComercioState extends State<PerfilComercio> {
                 ),
 
                 // COMPARTILHAR
+
                 Positioned(
                   top: 15,
                   right: 15,
@@ -270,7 +374,8 @@ class _PerfilComercioState extends State<PerfilComercio> {
                   widget.deslocamentoNomeCategoriaStatus,
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       flex: 5,
@@ -304,7 +409,9 @@ class _PerfilComercioState extends State<PerfilComercio> {
 
                     const SizedBox(width: 8),
 
-                    _StatusComercio(aberto: _lojaAberta),
+                    _StatusComercio(
+                      aberto: _lojaAberta,
+                    ),
                   ],
                 ),
               ),
@@ -316,7 +423,12 @@ class _PerfilComercioState extends State<PerfilComercio> {
 
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
+              margin: const EdgeInsets.fromLTRB(
+                20,
+                5,
+                20,
+                0,
+              ),
               padding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 9,
@@ -347,6 +459,7 @@ class _PerfilComercioState extends State<PerfilComercio> {
                         color: Color(0xFF202622),
                       ),
                     ),
+
                     TextSpan(
                       text: descricao.isNotEmpty
                           ? descricao
@@ -363,17 +476,28 @@ class _PerfilComercioState extends State<PerfilComercio> {
             ),
 
             // =================================================
-            // TAXA, HORÁRIO DE FUNCIONAMENTO, AVALIAÇÃO E CHAT
+            // TAXA, HORÁRIO, AVALIAÇÃO E CHAT
             // =================================================
 
             Container(
               width: double.infinity,
               height: 90,
-              margin: const EdgeInsets.fromLTRB(0, 2, 0, 0),
-              padding: const EdgeInsets.fromLTRB(10, 2, 12, 2),
+              margin: const EdgeInsets.fromLTRB(
+                0,
+                2,
+                0,
+                0,
+              ),
+              padding: const EdgeInsets.fromLTRB(
+                10,
+                2,
+                12,
+                2,
+              ),
               color: const Color(0xFFF3F3F3),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment:
+                    CrossAxisAlignment.center,
                 children: [
                   const Expanded(
                     flex: 10,
@@ -395,7 +519,8 @@ class _PerfilComercioState extends State<PerfilComercio> {
                           ? 'Carregando...'
                           : _horarioHoje,
                       mostrarSeta: true,
-                      onTap: () => _abrirHorarios(context),
+                      onTap: () =>
+                          _abrirHorarios(context),
                     ),
                   ),
 
@@ -404,7 +529,8 @@ class _PerfilComercioState extends State<PerfilComercio> {
                   Expanded(
                     flex: 9,
                     child: _AvaliacaoComercio(
-                      onTap: () => _abrirAvaliacoes(context),
+                      onTap: () =>
+                          _abrirAvaliacoes(context),
                     ),
                   ),
 
@@ -447,7 +573,9 @@ class _PerfilComercioState extends State<PerfilComercio> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14),
-              child: _LogoComercio(url: widget.logoUrl),
+              child: _LogoComercio(
+                url: widget.logoUrl,
+              ),
             ),
           ),
         ),
@@ -482,7 +610,9 @@ class _PerfilComercioState extends State<PerfilComercio> {
     return Container(
       width: 1,
       height: 48,
-      margin: const EdgeInsets.symmetric(horizontal: 2),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 2,
+      ),
       color: const Color(0xFFE5E5E5),
     );
   }
@@ -568,11 +698,15 @@ class _StatusComercio extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            aberto ? Icons.check_circle : Icons.cancel,
+            aberto
+                ? Icons.check_circle
+                : Icons.cancel,
             color: Colors.white,
             size: 14,
           ),
+
           const SizedBox(width: 4),
+
           Text(
             aberto ? 'Aberto' : 'Fechado',
             style: const TextStyle(
@@ -609,7 +743,10 @@ class _InformacaoComercio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final conteudo = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 3,
+        vertical: 6,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -619,7 +756,9 @@ class _InformacaoComercio extends StatelessWidget {
             size: 17,
             color: const Color(0xFF555555),
           ),
+
           const SizedBox(height: 5),
+
           Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -636,8 +775,10 @@ class _InformacaoComercio extends StatelessWidget {
                   ),
                 ),
               ),
+
               if (mostrarSeta) ...[
                 const SizedBox(width: 1),
+
                 const Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 12,
@@ -646,7 +787,9 @@ class _InformacaoComercio extends StatelessWidget {
               ],
             ],
           ),
+
           const SizedBox(height: 3),
+
           Text(
             valor,
             textAlign: TextAlign.center,
@@ -662,7 +805,9 @@ class _InformacaoComercio extends StatelessWidget {
       ),
     );
 
-    if (onTap == null) return conteudo;
+    if (onTap == null) {
+      return conteudo;
+    }
 
     return Material(
       color: Colors.transparent,
@@ -730,7 +875,9 @@ class _AvaliacaoComercio extends StatelessWidget {
                     color: Color(0xFFFFC83D),
                     size: 15,
                   ),
+
                   SizedBox(width: 3),
+
                   Text(
                     '4,9',
                     style: TextStyle(

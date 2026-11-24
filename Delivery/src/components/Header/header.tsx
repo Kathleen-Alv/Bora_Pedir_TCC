@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 
 import styles from './header.module.css';
 import logo from '../../assets/BPedir.svg';
-import Menu from '../../assets/menu.png';
+
 
 export function Header() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export function Header() {
 
       {/* esquerda */}
       <div>
-        <img src={Menu} alt="Menu" />
+        
       </div>
 
       {/* meio */}

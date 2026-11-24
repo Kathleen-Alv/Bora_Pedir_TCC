@@ -135,12 +135,7 @@ export function Header({
           className={styles.botaoNotificacao}
           aria-label="Notificações"
         >
-          <span>♧</span>
-          {qtdNotificacoes > 0 && (
-            <span className={styles.badgeNotificacao}>
-              {qtdNotificacoes}
-            </span>
-          )}
+          
         </button>
 
         {/* INFORMAÇÕES DO USUÁRIO */}
@@ -150,7 +145,7 @@ export function Header({
             <strong>{nomeLoja}</strong>
             <span>{cargoUsuario}</span>
           </div>
-          <span className={styles.seta}>⌄</span>
+      
         </div>
       </div>
     </header>

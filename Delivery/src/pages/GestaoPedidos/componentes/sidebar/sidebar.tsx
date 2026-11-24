@@ -83,24 +83,7 @@ export function Sidebar({
           ))}
         </nav>
 
-        {/* MENU INFERIOR (CONFIGURAÇÕES) */}
-        <div className={styles.menuInferior}>
-          <button
-            type="button"
-            title="Configurações"
-            className={`${styles.menuItem} ${
-              paginaAtiva === "configuracoes" ? styles.menuItemAtivo : ""
-            }`}
-            onClick={() => onSelectConfiguracoes && onSelectConfiguracoes()}
-          >
-            <span className={styles.menuIcone}>
-              <span className={styles.iconeConfiguracao}>⚙</span>
-            </span>
-            {sidebarAberto && (
-              <span className={styles.menuTexto}>Configurações</span>
-            )}
-          </button>
-        </div>
+       
       </div>
     </aside>
   );

@@ -42,7 +42,6 @@ type Pagina =
   | "pedidosConcluidos"
   | "cardapio"
   | "duvidas"
-  | "configuracoes"
   | "portalGestao";
 
 type StatusPedidoReal =
@@ -739,7 +738,7 @@ export function GestaoPedidos() {
     pedidosConcluidos: "Pedidos concluídos",
     cardapio: "Cardápio",
     duvidas: "Dúvidas",
-    configuracoes: "Configurações",
+    
     portalGestao: "Portal Do Comerciante",
   };
 
@@ -1071,13 +1070,7 @@ export function GestaoPedidos() {
       return <Duvidas />;
     }
 
-    if (paginaAtiva === "configuracoes") {
-      return (
-        <section className={styles.paginaInterna}>
-          <h2>Configurações</h2>
-        </section>
-      );
-    }
+   
 
     if (paginaAtiva === "entrega") {
       return renderPaginaEntrega();
@@ -1140,10 +1133,7 @@ export function GestaoPedidos() {
           setPaginaAtiva(id as Pagina);
           setPedidoSelecionado(null);
         }}
-        onSelectConfiguracoes={() => {
-          setPaginaAtiva("configuracoes");
-          setPedidoSelecionado(null);
-        }}
+       
       />
 
       <div className={styles.areaPrincipal}>
